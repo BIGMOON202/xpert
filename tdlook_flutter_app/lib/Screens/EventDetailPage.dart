@@ -38,13 +38,16 @@ class _EventDetailPageState extends State<EventDetailPage> {
     // TODO: implement build
 
     Widget listBody() {
-      if (widget.measurementsList != null) {
+      if (widget.measurementsList != null && widget.measurementsList.data.length != 0) {
+        print('config list body');
         return MeasuremetsListWidget(event: widget.event, measurementsList: widget.measurementsList);
       } else {
-        StreamBuilder<Response<MeasurementsList>>(
+        print('config list body async');
+        return StreamBuilder<Response<MeasurementsList>>(
           stream: _bloc.chuckListStream,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
+              print('status: ${snapshot.data.status}');
               switch (snapshot.data.status) {
                 case Status.LOADING:
                   return Loading(loadingMessage: snapshot.data.message);
