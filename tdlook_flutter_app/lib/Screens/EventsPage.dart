@@ -30,11 +30,13 @@ class _EventsPageState extends State<EventsPage> {
   void initState() {
     // TODO: implement initState
 
+    _bloc = EventListWorkerBloc();
+
     Future<Void> fetchUserType() async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      UserType type = EnumToString.fromString(UserType.values, prefs.getString("gender"));
+      UserType type = EnumToString.fromString(UserType.values, prefs.getString("userType"));
 
-      _bloc = EventListWorkerBloc(type);
+      _bloc.set(type);
       _bloc.call();
     }
 
@@ -44,15 +46,11 @@ class _EventsPageState extends State<EventsPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    // var container = Container(child: ,);
 
     Widget _createHeader() {
       return DrawerHeader(
           margin: EdgeInsets.zero,
           padding: EdgeInsets.zero,
-
-
-
           child: Stack(children: <Widget>[
             Positioned(
                 bottom: 12.0,
@@ -81,6 +79,7 @@ class _EventsPageState extends State<EventsPage> {
       );
     }
 
+
     var scaffold = Scaffold(
       appBar: AppBar(
         title: Text('My Events'),
@@ -94,9 +93,11 @@ class _EventsPageState extends State<EventsPage> {
           if (snapshot.hasData) {
             switch (snapshot.data.status) {
               case Status.LOADING:
+                print('loading');
                 return Loading(loadingMessage: snapshot.data.message);
                 break;
               case Status.COMPLETED:
+                print('completed');
                 return EventsListWidget(eventsList: snapshot.data.data);
                 break;
               case Status.ERROR:

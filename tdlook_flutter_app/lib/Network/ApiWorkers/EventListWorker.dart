@@ -52,7 +52,7 @@ class EventListWorkerEndwearer extends EventListWorker {
 
 class EventListWorkerBloc {
 
-  final UserType userType;
+  UserType userType;
 
   EventListWorker _eventListWorker;
   StreamController _listController;
@@ -61,7 +61,7 @@ class EventListWorkerBloc {
 
   Stream<Response<EventList>>  chuckListStream;
 
-  EventListWorkerBloc(this.userType) {
+  EventListWorkerBloc() {
 
 
     print('Init block AuthWorkerBloc');
@@ -69,7 +69,10 @@ class EventListWorkerBloc {
 
     chuckListSink = _listController.sink;
     chuckListStream = _listController.stream;
+  }
 
+  void set(UserType usertype) {
+    this.userType = usertype;
     if (this.userType == UserType.salesRep) {
       _eventListWorker = EventListWorker();
     } else {
@@ -83,7 +86,7 @@ class EventListWorkerBloc {
     try {
       print('try block');
       EventList eventList = await _eventListWorker.fetchData();
-      print('$eventList');
+      print('${eventList.data.length}');
       chuckListSink.add(Response.completed(eventList));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
