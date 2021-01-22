@@ -13,8 +13,9 @@ import 'ChooseGenderPage.dart';
 
 class EventDetailPage extends StatefulWidget {
   final Event event;
+  final MeasurementsList measurementsList;
 
-  const EventDetailPage({ Key key, this.event}): super(key: key);
+  const EventDetailPage({ Key key, this.event, this.measurementsList}): super(key: key);
 
   @override
   _EventDetailPageState createState() => _EventDetailPageState();
@@ -36,6 +37,34 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Widget build(BuildContext context) {
     // TODO: implement build
 
+    Widget listBody() {
+      if (widget.measurementsList != null) {
+        return MeasuremetsListWidget(event: widget.event, measurementsList: widget.measurementsList);
+      } else {
+        StreamBuilder<Response<MeasurementsList>>(
+          stream: _bloc.chuckListStream,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              switch (snapshot.data.status) {
+                case Status.LOADING:
+                  return Loading(loadingMessage: snapshot.data.message);
+                  break;
+                case Status.COMPLETED:
+                  return MeasuremetsListWidget(event: widget.event, measurementsList: snapshot.data.data);
+                  break;
+                case Status.ERROR:
+                  return Error(
+                    errorMessage: snapshot.data.message,
+                    onRetryPressed: () => _bloc.call(),
+                  );
+                  break;
+              }
+            }
+            return Container();
+          },
+        );
+      }
+    }
 
     var scaffold = Scaffold(
       appBar: AppBar(
@@ -44,28 +73,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
         shadowColor: Colors.transparent,
       ),
       backgroundColor: _backgroundColor,
-      body: StreamBuilder<Response<MeasurementsList>>(
-        stream: _bloc.chuckListStream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            switch (snapshot.data.status) {
-              case Status.LOADING:
-                return Loading(loadingMessage: snapshot.data.message);
-                break;
-              case Status.COMPLETED:
-                return MeasuremetsListWidget(event: widget.event, measurementsList: snapshot.data.data);
-                break;
-              case Status.ERROR:
-                return Error(
-                  errorMessage: snapshot.data.message,
-                  onRetryPressed: () => _bloc.call(),
-                );
-                break;
-            }
-          }
-          return Container();
-        },
-      ),
+      body: listBody()
     );
 
     return scaffold;

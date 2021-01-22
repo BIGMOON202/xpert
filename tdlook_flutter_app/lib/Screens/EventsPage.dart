@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/EventListWorker.dart';
@@ -14,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/main.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:tuple/tuple.dart';
 
 class EventsPage extends StatefulWidget {
 
@@ -87,7 +89,7 @@ class _EventsPageState extends State<EventsPage> {
         shadowColor: Colors.transparent,
       ),
       backgroundColor: _backgroundColor,
-      body: StreamBuilder<Response<EventList>>(
+      body: StreamBuilder<Response<Tuple2<EventList, MeasurementsList>>>(
         stream: _bloc.chuckListStream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -98,7 +100,7 @@ class _EventsPageState extends State<EventsPage> {
                 break;
               case Status.COMPLETED:
                 print('completed');
-                return EventsListWidget(eventsList: snapshot.data.data);
+                return EventsListWidget(resultsList: snapshot.data.data);
                 break;
               case Status.ERROR:
                 return Error(
@@ -154,27 +156,30 @@ class _EventsPageState extends State<EventsPage> {
 }
 
 class EventsListWidget extends StatelessWidget {
-  final EventList eventsList;
+  final Tuple2<EventList, MeasurementsList> resultsList;
 
-  const EventsListWidget({Key key, this.eventsList}) : super(key: key);
+  const EventsListWidget({Key key, this.resultsList}) : super(key: key);
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+
 
   @override
   Widget build(BuildContext context) {
 
     void _moveToEventAt(int index) {
-      var event = eventsList.data[index];
+
+      var event = resultsList.item1.data[index];
+      var measurements = resultsList.item2;
 
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // LoginPage(userType: _selectedUserType)
-      EventDetailPage(event: event)
+      EventDetailPage(event: event, measurementsList: measurements)
       ));
     }
 
 
     Widget itemAt(int index) {
 
-      var event = eventsList.data[index];
+      var event = resultsList.item1.data[index];
       print('itemAt: $index $event');
       var eventName = event.name ?? 'Event Name';
       var companyName = event?.agency?.name ?? '-';
@@ -322,7 +327,7 @@ class EventsListWidget extends StatelessWidget {
       return gesture;
     }
 
-    var list = ListView.builder(itemCount: eventsList.data.length,
+    var list = ListView.builder(itemCount: resultsList.item1.data.length,
       itemBuilder: (_, index) => itemAt(index),
     );
     return list;

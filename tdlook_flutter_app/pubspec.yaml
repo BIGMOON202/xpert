@@ -40,6 +40,7 @@ dependencies:
   flutter_launcher_icons: ^0.8.1
   otp_text_field: ^1.0.2
   webview_flutter: ^1.0.7
+  tuple: ^1.0.3
 
 flutter_icons:
   android: true

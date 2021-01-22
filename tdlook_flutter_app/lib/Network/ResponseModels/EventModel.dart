@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
+
 class EventList implements Paginated<Event> {
   List<Event> data;
   Paging paging;
