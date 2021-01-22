@@ -54,6 +54,12 @@ extension UserTypeExtension on UserType {
       case UserType.endWearer: return 'ic_endWearer_blue.png';
     }
   }
+  String menuImageName() {
+    switch (this) {
+      case UserType.salesRep: return 'ic_sales_rep_menu.png';
+      case UserType.endWearer: return 'ic_end_wearer_menu.png';
+    }
+  }
 
   String displayName() {
     switch (this) {

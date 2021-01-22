@@ -6,6 +6,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
+import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/EventListWorker.dart';
@@ -26,6 +27,8 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
 
   EventListWorkerBloc _bloc;
+  UserType _userType;
+
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
   @override
@@ -36,9 +39,9 @@ class _EventsPageState extends State<EventsPage> {
 
     Future<Void> fetchUserType() async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      UserType type = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+      _userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
 
-      _bloc.set(type);
+      _bloc.set(_userType);
       _bloc.call();
     }
 
@@ -51,18 +54,28 @@ class _EventsPageState extends State<EventsPage> {
 
     Widget _createHeader() {
       return DrawerHeader(
-          margin: EdgeInsets.zero,
+          margin: EdgeInsets.only(top: 50),
           padding: EdgeInsets.zero,
-          child: Stack(children: <Widget>[
-            Positioned(
-                bottom: 12.0,
-                left: 16.0,
-                child: Text("",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w500))),
-          ]));
+          child: Align(
+            alignment:Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(top: 70, left: 30, right: 8),
+              child: Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                    SizedBox(width: 40, height: 40, child: ResourceImage.imageWithName(_userType.menuImageName()),),
+                    SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [Expanded(
+                          child: Container()),
+                        Expanded(child: Text('USER NAME', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
+                        Expanded(child: Text('useremail@gmail.com', style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.62)))),
+                        Expanded(child: Container())],)
+                  ],)),
+            ),
+          ));
     }
 
     Widget _createDrawerItem(
@@ -130,20 +143,17 @@ class _EventsPageState extends State<EventsPage> {
             // _createDrawerItem(icon: Icons.account_box, text: 'Flutter Documentation'),
             // _createDrawerItem(icon: Icons.stars, text: 'Useful Links'),
             // Divider(),
-            _createDrawerItem(icon: Icons.logout, text: 'Logout', onTap: () {
-              print('logout');
-              Future<void> writeToken() async {
+            _createDrawerItem(icon: Icons.logout, text: 'Privacy Policy and  Terms & Conditions', onTap: () {
+              Future<void> removeToken() async {
                 final SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.remove('refresh');
                 prefs.remove('access');
 
-                Navigator.pushReplacement(context, CupertinoPageRoute(builder: (BuildContext context) =>
-                // LoginPage(userType: _selectedUserType)
-                LookApp()
+                Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+                PrivacyPolicyPage()
                 ));
-
               }
-              writeToken();
+              removeToken();
             }),
 
           ],

@@ -29,11 +29,17 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   WebViewController _controller;
 
+  String get colorStr {
+    var color = Colors.black;
+    return '#${color.red.toRadixString(16).padLeft(2, '0')}${color.green.toRadixString(16).padLeft(2, '0')}${color.blue.toRadixString(16).padLeft(2, '0')}';
+  }
+
 
   bool _isApplied = false;
 
   _loadHtmlFromAssets() async {
     String fileText = await rootBundle.loadString('assets/PRIVACY.html');
+
     _controller.loadUrl( Uri.dataFromString(
         fileText,
         mimeType: 'text/html',
@@ -73,6 +79,11 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   Widget build(BuildContext context) {
 
     var webView = WebView(
+      initialUrl: Uri.dataFromString(
+          '<html><body style="background-color: $colorStr"></body></html>',
+          mimeType: 'text/html',
+          encoding: Encoding.getByName('utf-8'))
+          .toString(),
       onWebViewCreated: (WebViewController webViewController) {
         _controller = webViewController;
         _loadHtmlFromAssets();
