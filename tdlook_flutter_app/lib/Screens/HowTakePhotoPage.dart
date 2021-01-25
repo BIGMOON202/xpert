@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:video_player/video_player.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
@@ -22,8 +23,9 @@ class TutorialStep {
 class HowTakePhotoPage extends StatefulWidget {
 
   final Gender gender;
+  final MeasurementResults measurements;
 
-  const HowTakePhotoPage ({ Key key, this.gender }): super(key: key);
+  const HowTakePhotoPage ({ Key key, this.gender, this.measurements}): super(key: key);
 
   @override
   _HowTakePhotoPageState createState() => _HowTakePhotoPageState();
@@ -165,7 +167,7 @@ VideoPlayerController _controller;
       print('next button pressed');
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // RulerPageWeight(),
-        PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender)
+        PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)
       ));
     }
 

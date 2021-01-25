@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'CameraCapturePage.dart';
@@ -18,8 +19,8 @@ class RulerPageClavicle extends StatefulWidget {
 
   final Gender gender;
   final MeasurementSystem selectedMeasurementSystem;
-
-  const RulerPageClavicle ({ Key key, this.gender , this.selectedMeasurementSystem}): super(key: key);
+  final MeasurementResults measurements;
+  const RulerPageClavicle ({ Key key, this.gender , this.selectedMeasurementSystem, this.measurements}): super(key: key);
 
   @override
   _RulerPageStateClavicle createState() => _RulerPageStateClavicle();
@@ -36,6 +37,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
 
   String _value = '25';
   String _valueMeasure = 'cm';
+  int _rawMetricValue = 25;
   var rulerGap = 18;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
@@ -95,11 +97,14 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
         _value = '$cmValue';
         _valueMeasure = 'cm';
+        _rawMetricValue = cmValue;
       } else {
 
 
         double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
         double cmValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
+
+        _rawMetricValue = cmValueDouble.toInt();
 
         int ft = (cmValueDouble / 30.48).toInt();
         double inch = cmValueDouble - ft.toDouble() * 30.48;
@@ -238,8 +243,10 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     );
 
     void _moveToNextPage() {
+
+      widget.measurements.clavicle = _rawMetricValue;
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-        HowTakePhotoPage(gender: widget.gender,)
+        HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
       ));
     }
 

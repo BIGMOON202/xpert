@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/Screens/RulerWeightPage.dart';
@@ -15,7 +16,8 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 class RulerPage extends StatefulWidget {
 
   final Gender gender;
-  const RulerPage ({ Key key, this.gender }): super(key: key);
+  final MeasurementResults measuremet;
+  const RulerPage ({ Key key, this.gender, this.measuremet }): super(key: key);
 
   @override
   _RulerPageState createState() => _RulerPageState();
@@ -33,6 +35,8 @@ class _RulerPageState extends State<RulerPage> {
   String _value = '150';
   String _valueMeasure = 'cm';
   var rulerGap = 14;
+
+  int _rawMetricValue = 150;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
 
@@ -283,9 +287,10 @@ class _RulerPageState extends State<RulerPage> {
     );
 
     void _moveToNextPage() {
+      widget.measuremet.height = _rawMetricValue;
       // _itemPositionsListener.itemPositions.removeListener(() {});
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          RulerPageWeight(gender: widget.gender, selectedMeasurementSystem: selectedMeasurementSystem)
+          RulerPageWeight(gender: widget.gender, selectedMeasurementSystem: selectedMeasurementSystem, measurement: widget.measuremet)
       ));
     }
 

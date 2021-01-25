@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/RulerWeightPage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -12,6 +13,9 @@ import 'package:tdlook_flutter_app/Screens/RulerPage.dart';
 
 
 class ChooseGenderPage extends StatefulWidget {
+
+  final MeasurementResults measurement;
+  ChooseGenderPage({Key key, this.measurement}): super(key:key);
 
   @override
   _ChooseGenderPageState createState() => _ChooseGenderPageState();
@@ -42,12 +46,12 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
     var gender =  _selectedGender == 0 ? Gender.male : Gender.female;
     // var meas = MeasurementModel(gender, UserType.endWearer);
 
-
+    widget.measurement.gender = gender.apiFlag();
     // var ads = SharedParameters().currentMeasurement;
     // print('CHECK $meas');
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
         // RulerPageWeight(),
-      RulerPage(gender: gender,)
+      RulerPage(gender: gender, measuremet: widget.measurement)
       ));
   }
 

@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPageClavicle.dart';
@@ -17,7 +18,8 @@ class RulerPageWeight extends StatefulWidget {
 
   final Gender gender;
   final MeasurementSystem selectedMeasurementSystem;
-  const RulerPageWeight ({ Key key, this.gender , this.selectedMeasurementSystem}): super(key: key);
+  final MeasurementResults measurement;
+  const RulerPageWeight ({ Key key, this.gender , this.selectedMeasurementSystem, this.measurement}): super(key: key);
 
   @override
   _RulerPageWeightState createState() => _RulerPageWeightState();
@@ -34,6 +36,8 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   String _value = '30';
   String _valueMeasure = 'kg';
   var rulerGap = 18;
+
+  int _rawMetricValue = 30;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
 
@@ -96,10 +100,12 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
         _value = '$cmValue';
         _valueMeasure = 'kg';
+        _rawMetricValue = cmValue;
       } else {
 
         double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
         double kgValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
+        _rawMetricValue = kgValueDouble.toInt();
 
         double lbs = kgValueDouble.toDouble() * 2.2;//0462;
         _valueMeasure = 'lbs';
@@ -266,8 +272,10 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     );
 
     void _moveToNextPage() {
+      widget.measurement.weight = _rawMetricValue;
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          RulerPageClavicle(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem,),
+          RulerPageClavicle(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem, measurements: widget.measurement
+            ,),
       ));
     }
 

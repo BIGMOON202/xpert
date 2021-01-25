@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
@@ -10,7 +11,8 @@ class PhotoRulesPage extends StatefulWidget {
 
   final PhotoType photoType;
   final Gender gender;
-  const PhotoRulesPage ({ Key key, this.photoType, this.gender}): super(key: key);
+  final MeasurementResults measurement;
+  const PhotoRulesPage ({ Key key, this.photoType, this.gender, this.measurement}): super(key: key);
 
 
   @override
@@ -24,7 +26,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
   void _moveToNextPage() {
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
     // RulerPageWeight(),
-      CameraCapturePage(photoType: widget.photoType)
+      CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement)
     ));
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'dart:async';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'WaitingPage.dart';
@@ -13,9 +14,10 @@ import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 
 class CameraCapturePage extends StatefulWidget {
 
+  final MeasurementResults measurement;
   final PhotoType photoType;
   final Gender gender;
-  const CameraCapturePage ({ Key key, this.photoType, this.gender}): super(key: key);
+  const CameraCapturePage ({ Key key, this.photoType, this.gender, this.measurement}): super(key: key);
 
   @override
   _CameraCapturePageState createState() => _CameraCapturePageState();
@@ -88,11 +90,11 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       if (widget.photoType == PhotoType.front) {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
 
-            PhotoRulesPage(photoType: PhotoType.side,),
+            PhotoRulesPage(photoType: PhotoType.side, measurement: widget.measurement),
         ));
       } else {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            WaitingPage(),
+            WaitingPage(measurement: widget.measurement),
         ));
       }
 

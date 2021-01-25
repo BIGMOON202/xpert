@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 class WaitingPage extends StatefulWidget {
 
+  final MeasurementResults measurement;
+  WaitingPage({Key key, this.measurement}): super(key: key);
   @override
   _WaitingPageState createState() => _WaitingPageState();
 }
@@ -12,6 +16,8 @@ class WaitingPage extends StatefulWidget {
 class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStateMixin {
   static Color _backgroundColor = HexColor.fromHex('16181B');
   AnimationController animationController;
+
+  UpdateMeasurementBloc _updateMeasurementBloc;
 
   @override
   void initState() {

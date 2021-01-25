@@ -20,7 +20,14 @@ extension GenderExtension on Gender {
       case Gender.female:
         return 'Female_Friend_Widget.mp4';
     }
-}
+  }
+
+  String apiFlag() {
+    switch (this) {
+      case Gender.male: return 'male';
+      case Gender.female: return 'female';
+    }
+  }
 }
 //
 class MeasurementModel {
