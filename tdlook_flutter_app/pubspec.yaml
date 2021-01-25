@@ -41,6 +41,7 @@ dependencies:
   otp_text_field: ^1.0.2
   webview_flutter: ^1.0.7
   tuple: ^1.0.3
+  material_design_icons_flutter: ^4.0.5855
 
 flutter_icons:
   android: true

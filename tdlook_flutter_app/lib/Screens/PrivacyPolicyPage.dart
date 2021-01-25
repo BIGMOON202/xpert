@@ -16,8 +16,9 @@ class PrivacyPolicyPage extends StatefulWidget {
 
   final UserType userType;
   final AuthCredentials credentials;
+  final bool showApply;
 
-  const PrivacyPolicyPage({Key key, this.credentials, this.userType}): super(key: key);
+  const PrivacyPolicyPage({Key key, this.credentials, this.userType, this.showApply = true}): super(key: key);
 
   @override
   _PrivacyPolicyPageState createState() => _PrivacyPolicyPageState();
@@ -27,6 +28,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
+
   WebViewController _controller;
 
   String get colorStr {
@@ -34,8 +36,8 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     return '#${color.red.toRadixString(16).padLeft(2, '0')}${color.green.toRadixString(16).padLeft(2, '0')}${color.blue.toRadixString(16).padLeft(2, '0')}';
   }
 
-
   bool _isApplied = false;
+  bool _navigationRequestAllowed = true;
 
   _loadHtmlFromAssets() async {
     String fileText = await rootBundle.loadString('assets/PRIVACY.html');
@@ -44,12 +46,19 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         fileText,
         mimeType: 'text/html',
         encoding: Encoding.getByName('utf-8')
-    ).toString());
+    ).toString()).then((value) => {
+        setState(() {
+        // _navigationRequestAllowed = false;
+        })
+    });
+
   }
 
   @override void initState() {
     // TODO: implement initState
     super.initState();
+
+
     // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
@@ -88,6 +97,12 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         _controller = webViewController;
         _loadHtmlFromAssets();
       },
+      navigationDelegate: (NavigationRequest request) {
+        if (_navigationRequestAllowed == true) {
+          return NavigationDecision.navigate;
+        }
+        return NavigationDecision.prevent;
+      },
     );
 
     var nextButton = Align(
@@ -113,6 +128,44 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                 )),
             ));
 
+    Widget bottomPart() {
+      if (widget.showApply == true) {
+        return Expanded(
+            flex: 2,
+            child: SafeArea(
+                child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0)),
+                        color: _backgroundColor),
+                    child: Column(
+                        children:[
+                          Container(
+                              child: Row(
+                                children:[
+                                  Theme(
+                                      data: ThemeData(unselectedWidgetColor: Colors.white),
+                                      child: Checkbox(
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            _isApplied = newValue;
+                                          });
+                                        },
+                                        activeColor: HexColor.fromHex('1E7AE4'),
+                                        checkColor: Colors.white,
+                                        hoverColor: Colors.orange,
+                                        value: _isApplied,
+                                      )),
+                                  Text('I accept Terms and Conditions and Privacy Policy',
+                                    style: TextStyle(color: Colors.white),)],)),
+                          nextButton]))));
+      } else {
+        return Container();
+      }
+
+    }
+
     var container = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -121,36 +174,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           child: Container(
             color: Colors.black,
           child: webView)),
-        Expanded(
-            flex: 2,
-            child: SafeArea(
-                child: Container(
-                    decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(15.0),
-        topRight: Radius.circular(15.0)),
-        color: _backgroundColor),
-                    child: Column(
-                    children:[
-                      Container(
-                      child: Row(
-                            children:[
-                              Theme(
-                                  data: ThemeData(unselectedWidgetColor: Colors.white),
-                                  child: Checkbox(
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        _isApplied = newValue;
-                                      });
-                                    },
-                                    activeColor: HexColor.fromHex('1E7AE4'),
-                                    checkColor: Colors.white,
-                                    hoverColor: Colors.orange,
-                                    value: _isApplied,
-                                  )),
-                              Text('I accept Terms and Conditions and Privacy Policy',
-                              style: TextStyle(color: Colors.white),)],)),
-                      nextButton])))),
+        bottomPart(),
     ]);
 
     // TODO: implement build

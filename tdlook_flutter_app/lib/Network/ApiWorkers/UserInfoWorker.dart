@@ -2,13 +2,21 @@
 
 import 'dart:async';
 
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdlook_flutter_app/Extensions/Customization.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
 
 class UserInfoWorker {
   NetworkAPI _provider = NetworkAPI();
   Future<User> fetchData() async {
-    final response = await _provider.get('users/me/');
+    // final SharedPreferences prefs = await SharedPreferences.getInstance();
+    // var accessToken = prefs.getString('access');
+    // UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+
+    final response = await _provider.get('users/me/', useAuth: true);
     return User.fromJson(response);
   }
 }
@@ -22,7 +30,7 @@ class UserInfoBloc {
 
   Stream<Response<User>>  chuckListStream;
 
-  AuthWorkerBloc() {
+  UserInfoBloc() {
     _listController = StreamController<Response<User>>();
 
     chuckListSink = _listController.sink;

@@ -3,9 +3,12 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
+import 'package:tdlook_flutter_app/Extensions/Painter.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/UserInfoWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
@@ -17,6 +20,7 @@ import 'package:tdlook_flutter_app/main.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:tuple/tuple.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class EventsPage extends StatefulWidget {
 
@@ -27,15 +31,20 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
 
   EventListWorkerBloc _bloc;
-  UserType _userType;
+  UserInfoBloc _userInfoBloc;
+  UserType _userType = UserType.salesRep;
+  User _userInfo;
+
 
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
   @override
   void initState() {
-    // TODO: implement initState
 
     _bloc = EventListWorkerBloc();
+    _userInfoBloc = UserInfoBloc();
+    print('get userInfo ${_userInfoBloc}');
+    _userInfoBloc.call();
 
     Future<Void> fetchUserType() async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -48,9 +57,48 @@ class _EventsPageState extends State<EventsPage> {
     fetchUserType();
   }
 
+  StreamBuilder _builder;
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+
+    Widget _userInfoView() {
+      if (_userInfo == null) {
+        print('user info null');
+        if (_builder == null) {
+          _builder = StreamBuilder<Response<User>>(
+            stream: _userInfoBloc.chuckListStream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                switch (snapshot.data.status) {
+                  case Status.LOADING:
+                    print('loading header');
+                    return Loading(loadingMessage: snapshot.data.message);
+                    break;
+                  case Status.COMPLETED:
+                    print('completed header');
+                    _userInfo = snapshot.data.data;
+                    return UserInfoHeader(userInfo: snapshot.data.data, userType: _userType);
+                    break;
+                  case Status.ERROR:
+                    return Error(
+                      errorMessage: snapshot.data.message,
+                      onRetryPressed: () => _bloc.call(),
+                    );
+                    break;
+                }
+              }
+              return CircularProgressIndicator();
+            },
+          );
+        }
+        return _builder;
+
+      } else {
+        print('user info not null');
+        return UserInfoHeader(userInfo: _userInfo, userType: _userType);
+      }
+    }
 
     Widget _createHeader() {
       return DrawerHeader(
@@ -61,29 +109,17 @@ class _EventsPageState extends State<EventsPage> {
             child: Padding(
               padding: EdgeInsets.only(top: 70, left: 30, right: 8),
               child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                    SizedBox(width: 40, height: 40, child: ResourceImage.imageWithName(_userType.menuImageName()),),
-                    SizedBox(width: 14),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [Expanded(
-                          child: Container()),
-                        Expanded(child: Text('USER NAME', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
-                        Expanded(child: Text('useremail@gmail.com', style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.62)))),
-                        Expanded(child: Container())],)
-                  ],)),
+                  child: _userInfoView()),
             ),
           ));
     }
 
     Widget _createDrawerItem(
-        {IconData icon, String text, GestureTapCallback onTap}) {
+        {Icon icon, String text, GestureTapCallback onTap}) {
       return ListTile(
         title: Row(
           children: <Widget>[
-            Icon(icon, color: Colors.white,),
+            icon,
             Padding(
               padding: EdgeInsets.only(left: 8.0),
               child: Text(text, style: TextStyle(color: Colors.white),),
@@ -91,6 +127,35 @@ class _EventsPageState extends State<EventsPage> {
           ],
         ),
         onTap: onTap,
+      );
+    }
+
+    void _logoutAction() {
+
+      Future<void> removeToken() async {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.remove('refresh');
+        prefs.remove('access');
+
+        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+
+      }
+
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+            content: new Text('Are you sure that you want to logout?'),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text("Yes"),
+                onPressed: () => removeToken(),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: Text('No'),
+              ),
+            ],
+          )
       );
     }
 
@@ -128,36 +193,35 @@ class _EventsPageState extends State<EventsPage> {
       ),
 
       drawer: Drawer(
+
         child: Container(
           color: Colors.black,
-          child: ListView(
+          child:Column(children: [Expanded(
+            flex: 8,
+              child:ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             _createHeader(),
-            // _createDrawerItem(icon: Icons.contacts,text: 'Contacts',),
-            // _createDrawerItem(icon: Icons.event, text: 'Events',),
-            // _createDrawerItem(icon: Icons.note, text: 'Notes',),
-            Divider(color: Colors.white,),
-            // _createDrawerItem(icon: Icons.collections_bookmark, text:'Steps'),
-            // _createDrawerItem(icon: Icons.face, text: 'Authors'),
-            // _createDrawerItem(icon: Icons.account_box, text: 'Flutter Documentation'),
-            // _createDrawerItem(icon: Icons.stars, text: 'Useful Links'),
-            // Divider(),
-            _createDrawerItem(icon: Icons.logout, text: 'Privacy Policy and  Terms & Conditions', onTap: () {
-              Future<void> removeToken() async {
-                final SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.remove('refresh');
-                prefs.remove('access');
 
-                Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-                PrivacyPolicyPage()
-                ));
-              }
-              removeToken();
+            Divider(color: Colors.white,),
+
+            _createDrawerItem(
+                icon: new Icon(MdiIcons.shieldCheckOutline, color: HexColor.fromHex('898A9D'),),
+                text: 'Privacy Policy and  Terms & Conditions',
+                onTap: () {
+                  Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+                  PrivacyPolicyPage(showApply: false)
+                  ));
             }),
 
           ],
-        ),
+        )),
+          Expanded(child: _createDrawerItem(
+              icon: Icon(Icons.logout, color: HexColor.fromHex('898A9D')),
+              text: 'Logout',
+              onTap: () {
+                _logoutAction();
+              }))]),
         )),
       );
 
@@ -213,6 +277,39 @@ class EventsListWidget extends StatelessWidget {
       var _textStyle = TextStyle(color: _textColor);
       var _descriptionStyle = TextStyle(color: _descriptionColor);
 
+
+      Widget _configureGraphWidgetFor(Event _event) {
+
+        if (_event.status.shouldShowCountGraph() == true) {
+
+          var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount) * 100;
+          var percent = _doublePercent.isNaN ? 0 : _doublePercent.toInt();
+          var angle = _doublePercent.isNaN ? 0.0 : _doublePercent * 360;
+          var w = new Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [CustomPaint(
+                  painter: CurvePainter(color: eventStatusColor,
+                      angle: angle),
+                  child: SizedBox(width: 45, height: 45,),
+                ),
+                  Text('$percent%', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),)],
+              ),
+              SizedBox(width: 8,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Text('${_event.completeMeasuremensCount}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('/${_event.totalMeasuremensCount}', style: TextStyle(color: _descriptionColor, fontSize: 11, fontWeight: FontWeight.w400))],
+              )
+            ],
+          );
+          return w;
+        } else {
+          return Container();
+        }
+      }
 
       var container = Container(
         color: _backgroundColor,
@@ -316,7 +413,9 @@ class EventsListWidget extends StatelessWidget {
                                             padding: EdgeInsets.all(5),
                                             child: Text(eventStatus,
                                               style: TextStyle(
-                                                  color: eventStatusColor),)),)
+                                                  color: eventStatusColor),)),),
+                                      SizedBox(height: 8,),
+                                      _configureGraphWidgetFor(event)
                                       ],),)),
                             ],
                           ))
@@ -341,5 +440,31 @@ class EventsListWidget extends StatelessWidget {
       itemBuilder: (_, index) => itemAt(index),
     );
     return list;
+  }
+}
+
+class UserInfoHeader extends StatelessWidget {
+  final User userInfo;
+  final UserType userType;
+
+  const UserInfoHeader({Key key, this.userInfo, this.userType}) : super(key:key);
+  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SizedBox(width: 40, height: 40, child: ResourceImage.imageWithName(userType.menuImageName()),),
+        SizedBox(width: 14),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [Expanded(
+              child: Container()),
+            Expanded(child: Text('${userInfo.firstName} ${userInfo.firstName}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
+            Expanded(child: Text(userInfo.email, style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.62)))),
+            Expanded(child: Container())],)
+      ]);
   }
 }

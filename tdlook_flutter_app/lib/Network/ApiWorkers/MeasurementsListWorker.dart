@@ -13,9 +13,9 @@ class MeasurementsListWorker {
 
   Future<MeasurementsList> fetchData() async {
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var accessToken = prefs.getString('access');
-    final response = await _provider.get('measurements/?event=$eventId',headers: {'Authorization':'JWT $accessToken'});
+    // final SharedPreferences prefs = await SharedPreferences.getInstance();
+    // var accessToken = prefs.getString('access');
+    final response = await _provider.get('measurements/?event=$eventId',useAuth: true);
     return MeasurementsList.fromJson(response);
   }
 }

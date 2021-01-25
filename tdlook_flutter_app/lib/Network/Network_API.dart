@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+
 import 'secrets.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,13 +14,30 @@ class NetworkAPI {
   final Duration _timeout = Duration(seconds: 30);
 
 
-
   final String _baseUrl = "https://wlb-expertfit-test.3dlook.me/";
   static const Map<String, String> _authHeaders = {"Authorization": API_KEY};
 
-  Future<dynamic> get(String url, {Map<String, String> headers}) async {
+
+
+  Future<dynamic> get(String url,  {Map<String, String> headers, bool useAuth = true}) async {
     var responseJson;
     try {
+
+      if (useAuth == true) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        var accessToken = prefs.getString('access');
+        UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+        if (accessToken == null || userType == null) {
+          //LOGOUT;
+        }
+        var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
+        if (headers == null) {
+          headers = authKey;
+        } else {
+          headers.addAll(authKey);
+        }
+      }
+
       var finalUrl = _baseUrl + url;
       print('$finalUrl, $headers');
       final response = await http.get(finalUrl, headers: headers).timeout(_timeout);
@@ -28,9 +49,25 @@ class NetworkAPI {
     return responseJson;
   }
 
-  Future<dynamic> post(String url, {Map <String, dynamic> body, Map<String, String> headers}) async {
+  Future<dynamic> post(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true}) async {
     var responseJson;
     try {
+      if (useAuth == true) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        var accessToken = prefs.getString('access');
+        UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+        if (accessToken == null || userType == null) {
+          //LOGOUT;
+        }
+        var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
+        if (headers == null) {
+          headers = authKey;
+        } else {
+          headers.addAll(authKey);
+        }
+      }
+
+
       var finalUrl = _baseUrl + url;
       print('$finalUrl, $headers, $body');
       final response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
@@ -152,3 +189,12 @@ class Response<T> {
 }
 
 enum Status { LOADING, COMPLETED, ERROR }
+
+extension _UserTypeNetworkExtension on UserType {
+  String authPreffix() {
+    switch (this) {
+      case UserType.salesRep: return 'JWT';
+      case UserType.endWearer: return 'EWJWT';
+    }
+  }
+}

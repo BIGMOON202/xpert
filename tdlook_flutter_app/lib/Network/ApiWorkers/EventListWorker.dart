@@ -13,12 +13,12 @@ class EventListWorker {
 
   Future<Tuple2<EventList, MeasurementsList>> fetchData() async {
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    // final SharedPreferences prefs = await SharedPreferences.getInstance();
 
 
 
-    var accessToken = prefs.getString('access');
-    final response = await _provider.get('events/',headers: {'Authorization':'JWT $accessToken'});
+    // var accessToken = prefs.getString('access');
+    final response = await _provider.get('events/',useAuth: true);
     if (_provider.shouldRefreshTokenFor(json:response)) {
 
     } else {
@@ -33,9 +33,9 @@ class EventListWorkerEndwearer extends EventListWorker {
   Future<Tuple2<EventList, MeasurementsList>> fetchData() async {
 
     print('get measurements');
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var accessToken = prefs.getString('access');
-    final response = await _provider.get('measurements/',headers: {'Authorization':'EWJWT $accessToken'});
+    // final SharedPreferences prefs = await SharedPreferences.getInstance();
+    // var accessToken = prefs.getString('access');
+    final response = await _provider.get('measurements/',useAuth: true);
 
     var list = MeasurementsList.fromJson(response);
 
@@ -45,7 +45,7 @@ class EventListWorkerEndwearer extends EventListWorker {
     list.data.forEach((element) {
       events.add(element.event);
     });
-    print('events: ${events.length}');
+    // print('events: ${events.length}');
 
     return Tuple2(EventList(data: events, paging: Paging(count: events.length)), list);
   }

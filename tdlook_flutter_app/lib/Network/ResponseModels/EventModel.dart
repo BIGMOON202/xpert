@@ -39,6 +39,8 @@ class Event {
   EventStatus status;
   String createdAt;
   bool progress;
+  int totalMeasuremensCount;
+  int completeMeasuremensCount;
 
   Event(
       {this.id,
@@ -51,7 +53,9 @@ class Event {
         this.endDate,
         this.status,
         this.createdAt,
-        this.progress});
+        this.progress,
+        this.totalMeasuremensCount,
+        this.completeMeasuremensCount});
 
   Event.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -68,6 +72,10 @@ class Event {
     status = EnumToString.fromString(EventStatus.values, json['status']);
     createdAt = json['created_at'];
     progress = json['progress'];
+
+    totalMeasuremensCount = json['total_measurements_count'] != null ? json['total_measurements_count'] : 0;
+    completeMeasuremensCount = json['complete_measurements_count'] != null ? json['complete_measurements_count'] : 0;
+
   }
 
   Map<String, dynamic> toJson() {
@@ -107,6 +115,15 @@ extension EventStatusExtension on EventStatus {
       case EventStatus.completed: return HexColor.fromHex('4AA61D');
       case EventStatus.draft: return Colors.white;
       case EventStatus.in_progress: return HexColor.fromHex('E89751');
+
+    }
+  }
+
+  bool shouldShowCountGraph() {
+    switch(this) {
+      case EventStatus.scheduled:
+      case EventStatus.draft: return false;
+      default: return true;
 
     }
   }

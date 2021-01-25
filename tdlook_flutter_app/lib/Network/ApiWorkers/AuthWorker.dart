@@ -15,7 +15,7 @@ class AuthWorker {
   Future<AuthCredentials> fetchData() async {
     final response = await _provider.post(userType._authEndPoint(),
         body: {'email': email,
-          'password':password});
+          'password':password}, useAuth: false);
     return AuthCredentials.fromJson(response);
   }
 }
