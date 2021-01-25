@@ -50,6 +50,42 @@ class NetworkAPI {
   }
 
   Future<dynamic> post(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true}) async {
+    return call(Request.POST, url, body: body, headers: headers, useAuth: useAuth);
+
+    // var responseJson;
+    // try {
+    //   if (useAuth == true) {
+    //     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //     var accessToken = prefs.getString('access');
+    //     UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+    //     if (accessToken == null || userType == null) {
+    //       //LOGOUT;
+    //     }
+    //     var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
+    //     if (headers == null) {
+    //       headers = authKey;
+    //     } else {
+    //       headers.addAll(authKey);
+    //     }
+    //   }
+    //
+    //
+    //   var finalUrl = _baseUrl + url;
+    //   print('$finalUrl, $headers, $body');
+    //   final response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
+    //   responseJson = _response(response);
+    //   print('post results: $responseJson');
+    // } on SocketException {
+    //   throw FetchDataException('No Internet connection');
+    // }
+    // return responseJson;
+  }
+
+  Future<dynamic> put(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true}) async {
+    return call(Request.PUT, url, body: body, headers: headers, useAuth: useAuth);
+  }
+
+  Future<dynamic> call(Request request, String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true}) async {
     var responseJson;
     try {
       if (useAuth == true) {
@@ -70,7 +106,21 @@ class NetworkAPI {
 
       var finalUrl = _baseUrl + url;
       print('$finalUrl, $headers, $body');
-      final response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
+      http.Response response;
+
+      switch (request) {
+        case Request.POST:
+          response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
+          break;
+
+        case Request.PUT:
+          response = await http.put(finalUrl, headers: headers, body: body).timeout(_timeout);
+          break;
+
+        case Request.GET:
+          response = await http.get(finalUrl, headers: headers).timeout(_timeout);
+          break;
+      }
       responseJson = _response(response);
       print('post results: $responseJson');
     } on SocketException {
@@ -79,7 +129,15 @@ class NetworkAPI {
     return responseJson;
   }
 
-  dynamic _response(http.Response response) {
+
+
+
+
+
+
+
+
+    dynamic _response(http.Response response) {
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body.toString());
@@ -189,6 +247,8 @@ class Response<T> {
 }
 
 enum Status { LOADING, COMPLETED, ERROR }
+enum Request { GET, POST, PUT }
+
 
 extension _UserTypeNetworkExtension on UserType {
   String authPreffix() {

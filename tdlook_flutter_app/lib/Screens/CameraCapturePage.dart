@@ -37,10 +37,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
     initCamera();
 
-    print('Init _streamSubscriptions');
 
     accelerometerEvents.listen((AccelerometerEvent event) {
-      print(event);
 
       // var maxAngle = 40.0;
       // var currentAngle = event.z * 180/ math.pi;
@@ -49,19 +47,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       });
     });
 
-    // userAccelerometerEvents.listen((UserAccelerometerEvent event) {
-    //   print(event);
-    // });
 
-    // gyroscopeEvents.listen((GyroscopeEvent event) {
-    //   setState(() {
-    //     var x = event.x;
-    //     var y = event.y;
-    //     var z = event.z;
-    //     _gyroscopeValues = <double>[event.x, event.y, event.z];
-    //     print('$x $y $z');
-    //   });
-    // });
     _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
         _gyroIsValid = !(event.z.abs() > 3);
@@ -165,7 +151,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
               onPressed: () {
                 _handleTap();
                 // controller.takePicture();
-                print('next button pressed');
+                // print('next button pressed');
               },
               // textColor: Colors.white,
               child: ResourceImage.imageWithName('ic_capture.png'),

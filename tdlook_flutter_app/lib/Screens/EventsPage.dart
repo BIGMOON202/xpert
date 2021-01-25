@@ -44,7 +44,6 @@ class _EventsPageState extends State<EventsPage> {
     _bloc = EventListWorkerBloc();
     _userInfoBloc = UserInfoBloc();
     print('get userInfo ${_userInfoBloc}');
-    _userInfoBloc.call();
 
     Future<Void> fetchUserType() async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -52,6 +51,10 @@ class _EventsPageState extends State<EventsPage> {
 
       _bloc.set(_userType);
       _bloc.call();
+
+      _userInfoBloc.set(_userType);
+      _userInfoBloc.call();
+
     }
 
     fetchUserType();
@@ -78,13 +81,13 @@ class _EventsPageState extends State<EventsPage> {
                   case Status.COMPLETED:
                     print('completed header');
                     _userInfo = snapshot.data.data;
-                    return UserInfoHeader(userInfo: snapshot.data.data, userType: _userType);
+                    return  UserInfoHeader(userInfo: snapshot.data.data, userType: _userType);
                     break;
                   case Status.ERROR:
-                    return Error(
+                    return Expanded(child: Error(
                       errorMessage: snapshot.data.message,
-                      onRetryPressed: () => _bloc.call(),
-                    );
+                      showRetry: false,
+                    ));
                     break;
                 }
               }
@@ -286,6 +289,7 @@ class EventsListWidget extends StatelessWidget {
           var percent = _doublePercent.isNaN ? 0 : _doublePercent.toInt();
           var angle = _doublePercent.isNaN ? 0.0 : _doublePercent * 360;
           var w = new Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Stack(
@@ -299,6 +303,7 @@ class EventsListWidget extends StatelessWidget {
               ),
               SizedBox(width: 8,),
               Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [Text('${_event.completeMeasuremensCount}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('/${_event.totalMeasuremensCount}', style: TextStyle(color: _descriptionColor, fontSize: 11, fontWeight: FontWeight.w400))],
@@ -415,7 +420,7 @@ class EventsListWidget extends StatelessWidget {
                                               style: TextStyle(
                                                   color: eventStatusColor),)),),
                                       SizedBox(height: 8,),
-                                      _configureGraphWidgetFor(event)
+                                      Flexible(child: _configureGraphWidgetFor(event))
                                       ],),)),
                             ],
                           ))
@@ -462,7 +467,7 @@ class UserInfoHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [Expanded(
               child: Container()),
-            Expanded(child: Text('${userInfo.firstName} ${userInfo.firstName}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
+            Expanded(child: Text('${userInfo.userFullName()}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
             Expanded(child: Text(userInfo.email, style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.62)))),
             Expanded(child: Container())],)
       ]);

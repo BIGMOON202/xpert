@@ -1,27 +1,23 @@
-
-
 import 'dart:async';
-
-import 'package:enum_to_string/enum_to_string.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
 
 class UserInfoWorker {
+  UserType userType;
+
+  UserInfoWorker(this.userType);
+
   NetworkAPI _provider = NetworkAPI();
   Future<User> fetchData() async {
-    // final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // var accessToken = prefs.getString('access');
-    // UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
-
-    final response = await _provider.get('users/me/', useAuth: true);
+    final response = await _provider.get('${userType.apiUserInfoEnpoint()}/me/', useAuth: true);
+    print('userinfo ${response}');
     return User.fromJson(response);
   }
 }
 
 class UserInfoBloc {
+  UserType userType;
 
   UserInfoWorker _userInfoWorker;
   StreamController _listController;
@@ -35,9 +31,12 @@ class UserInfoBloc {
 
     chuckListSink = _listController.sink;
     chuckListStream = _listController.stream;
+  }
 
-    print('${_listController.hasListener}');
-    _userInfoWorker = UserInfoWorker();
+  void set(UserType userType) {
+    this.userType = userType;
+
+    _userInfoWorker = UserInfoWorker(userType);
   }
 
   call() async {
@@ -54,5 +53,14 @@ class UserInfoBloc {
 
   dispose() {
     _listController?.close();
+  }
+}
+
+extension _UserTypeNetworkExtension on UserType {
+  String apiUserInfoEnpoint() {
+    switch (this) {
+      case UserType.salesRep: return 'users';
+      case UserType.endWearer: return 'end_wearers';
+    }
   }
 }

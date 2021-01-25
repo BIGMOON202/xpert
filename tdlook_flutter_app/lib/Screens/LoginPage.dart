@@ -217,7 +217,6 @@ class _LoginPageState extends State<LoginPage> {
                   Text('Email', style: TextStyle(color: Colors.white),),
                   SizedBox(height: 8),
                   SizedBox(
-                    height: 44,
                       child:TextFormField(
                         // textAlignVertical: TextAlignVertical.center,
                       enabled: _authRequestStatus != Status.LOADING,

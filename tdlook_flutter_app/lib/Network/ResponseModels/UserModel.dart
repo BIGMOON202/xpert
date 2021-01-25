@@ -10,6 +10,7 @@ class User {
   String phone;
   String firstName;
   String lastName;
+  String name;
   Parent parent;
   String country;
   String state;
@@ -30,6 +31,7 @@ class User {
         this.phone,
         this.firstName,
         this.lastName,
+        this.name,
         this.parent,
         this.country,
         this.state,
@@ -50,6 +52,7 @@ class User {
     phone = json['phone'];
     firstName = json['first_name'];
     lastName = json['last_name'];
+    name = json['name'];
     parent =
     json['parent'] != null ? new Parent.fromJson(json['parent']) : null;
     country = json['country'];
@@ -58,7 +61,7 @@ class User {
     street = json['street'];
     zip = json['zip'];
     passwordChangedAt = json['password_changed_at'];
-    permissions = json['permissions'].cast<String>();
+    json['permissions'] != null ? permissions = json['permissions'].cast<String>() : permissions = [];
   }
 
   Map<String, dynamic> toJson() {
@@ -84,6 +87,21 @@ class User {
     data['password_changed_at'] = this.passwordChangedAt;
     data['permissions'] = this.permissions;
     return data;
+  }
+
+  String userFullName() {
+    if (this.name != null) {
+      return this.name;
+    } else {
+      var name = '';
+      if (this.firstName != null) {
+        name = '${this.firstName} ';
+      }
+
+      if (this.lastName != null) {
+        name += this.lastName;
+      }
+    }
   }
 }
 
