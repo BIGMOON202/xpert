@@ -1,5 +1,8 @@
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseCompanyPage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
@@ -13,7 +16,8 @@ void main() {
         initialRoute: '/',
         routes: {
           '/': (context) => LookApp(),
-          '/events_list': (context) => EventsPage()
+          '/events_list': (context) => EventsPage(),
+          '/choose_company': (context) => ChooseCompanyPage()
         },
         onGenerateRoute: (settings) {
           print('Need to find ${settings.name}');
@@ -38,7 +42,8 @@ class LookApp extends StatefulWidget {
 
 class _LookAppState extends State<LookApp> {
 
-  bool isAuthorized;
+  bool _isAuthorized;
+  UserType _activeUserType;
 
   @override
   void initState() {
@@ -47,9 +52,10 @@ class _LookAppState extends State<LookApp> {
     Future<void> checkToken() async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       var accessToken = prefs.getString('access');
+      _activeUserType = EnumToString.fromString(UserType.values, prefs.getString('userType'));
       print('accessToken = $accessToken');
           setState(() {
-            isAuthorized = (accessToken != null);
+            _isAuthorized = (accessToken != null);
           });
     }
 
@@ -58,12 +64,14 @@ class _LookAppState extends State<LookApp> {
 
   Widget _activeWidget() {
 
-    if (isAuthorized == null) {
+    if (_isAuthorized == null) {
       return Container();
     }
 
-    if (isAuthorized == false) {
+    if (_isAuthorized == false) {
       return ChooseRolePage();
+    } else if (_activeUserType == UserType.endWearer){
+      return ChooseCompanyPage();
     } else {
       return EventsPage();
     }

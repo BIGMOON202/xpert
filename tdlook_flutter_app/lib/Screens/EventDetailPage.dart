@@ -114,8 +114,7 @@ class MeasuremetsListWidget extends StatelessWidget {
 
     void _moveToMeasurementAt(int index) {
 
-      var ind = index - 1;
-      var measurement = measurementsList.data[ind];
+      var measurement = measurementsList.data[index];
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>

@@ -69,6 +69,36 @@ extension UserTypeExtension on UserType {
   }
 }
 
+enum CompanyType {
+  uniforms,
+  armor
+}
+
+extension CompanyTypeExtension on CompanyType {
+
+  String apiKey() {
+    switch (this) {
+      case CompanyType.uniforms: return 'FH';
+      case CompanyType.armor: return 'SL';
+    }
+  }
+
+  String unselectedImageName() {
+    switch (this) {
+      case CompanyType.uniforms: return 'ic_uniforms.png';
+      case CompanyType.armor: return 'ic_armor.png';
+    }
+  }
+
+  String selectedImageName() {
+    switch (this) {
+      case CompanyType.uniforms: return 'ic_uniforms_selected.png';
+      case CompanyType.armor: return 'ic_armor_selected.png';
+    }
+  }
+}
+
+
 
 enum PhotoType {
   front,

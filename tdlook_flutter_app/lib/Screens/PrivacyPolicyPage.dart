@@ -76,8 +76,13 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         prefs.setString('access', widget.credentials.access); // for string value
         prefs.setString('userType', EnumToString.convertToString(widget.userType));
 
-        print('written');
-        Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
+        print('USER= ${EnumToString.convertToString(widget.userType)}');
+
+        if (widget.userType == UserType.salesRep) {
+          Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
+        } else {
+          Navigator.pushNamedAndRemoveUntil(context, '/choose_company', (route) => false);
+        }
       }
 
       writeToken();
