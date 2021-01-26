@@ -37,7 +37,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   String _valueMeasure = 'kg';
   var rulerGap = 18;
 
-  int _rawMetricValue = 30;
+  double _rawMetricValue = 30;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
 
@@ -75,7 +75,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
       }
 
 
-      print('W min:$min max $max');
+      // print('W min:$min max $max');
 
       _updateValuesFor(min, max);
       // _updateValuesFor(min);
@@ -100,12 +100,12 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
         _value = '$cmValue';
         _valueMeasure = 'kg';
-        _rawMetricValue = cmValue;
+        _rawMetricValue = cmValue.toDouble();
       } else {
 
         double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
         double kgValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
-        _rawMetricValue = kgValueDouble.toInt();
+        _rawMetricValue = kgValueDouble;
 
         double lbs = kgValueDouble.toDouble() * 2.2;//0462;
         _valueMeasure = 'lbs';

@@ -96,7 +96,6 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
     void _moveToNextPage() {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
         LoginPage(userType: _selectedUserType)
-          // EventsPage()
         ));
     }
 

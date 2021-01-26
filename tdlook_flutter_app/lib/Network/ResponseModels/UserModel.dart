@@ -90,6 +90,7 @@ class User {
   }
 
   String userFullName() {
+    print('$firstName $lastName');
     if (this.name != null) {
       return this.name;
     } else {
@@ -101,6 +102,7 @@ class User {
       if (this.lastName != null) {
         name += this.lastName;
       }
+      return name;
     }
   }
 }

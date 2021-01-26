@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,10 +10,11 @@ import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 
 class PhotoRulesPage extends StatefulWidget {
 
+  final XFile frontPhoto;
   final PhotoType photoType;
   final Gender gender;
   final MeasurementResults measurement;
-  const PhotoRulesPage ({ Key key, this.photoType, this.gender, this.measurement}): super(key: key);
+  const PhotoRulesPage ({ Key key, this.photoType, this.gender, this.measurement, this.frontPhoto}): super(key: key);
 
 
   @override
@@ -26,7 +28,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
   void _moveToNextPage() {
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
     // RulerPageWeight(),
-      CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement)
+      CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement, frontPhoto: widget.frontPhoto)
     ));
   }
 

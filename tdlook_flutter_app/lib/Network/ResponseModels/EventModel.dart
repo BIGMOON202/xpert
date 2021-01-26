@@ -85,11 +85,15 @@ class Event {
     if (this.agency != null) {
       data['agency'] = this.agency.toJson();
     }
-    data['agency_id'] = this.agencyId;
+    if (this.agencyId != null) {
+      data['agency_id'] = this.agencyId;
+    }
     if (this.salesRep != null) {
       data['sales_rep'] = this.salesRep.toJson();
     }
-    data['sales_rep_id'] = this.salesRepId;
+    if (this.salesRepId != null) {
+      data['sales_rep_id'] = this.salesRepId;
+    }
     data['start_date'] = this.startDate;
     data['end_date'] = this.endDate;
     data['status'] = EnumToString.convertToString(this.status);
@@ -232,9 +236,9 @@ class MeasurementResults {
   EndWearer endWearer;
   Event event;
   String gender;
-  int height;
-  int weight;
-  int clavicle;
+  double height;
+  double weight;
+  double clavicle;
   Person person;
   String createdAt;
   String updatedAt;
@@ -265,29 +269,29 @@ class MeasurementResults {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['uuid'] = this.uuid;
-    data['is_active'] = this.isActive;
-    data['is_complete'] = this.isComplete;
-    data['completed_at'] = this.completedAt;
-    if (this.endWearer != null) {
-      data['end_wearer'] = this.endWearer.toJson();
-    }
-    if (this.event != null) {
-      data['event'] = this.event.toJson();
-    }
+    // data['id'] = this.id;
+    // data['uuid'] = this.uuid;
+    // data['is_active'] = this.isActive;
+    // data['is_complete'] = this.isComplete;
+    // data['completed_at'] = this.completedAt;
+    // if (this.endWearer != null) {
+    //   data['end_wearer'] = this.endWearer.toJson();
+    // }
+    // if (this.event != null) {
+    //   data['event'] = this.event.toJson();
+    // }
     data['gender'] = this.gender;
-    data['height'] = this.height;
-    data['weight'] = this.weight;
-    data['clavicle'] = this.clavicle;
-    if (this.person != null) {
-      data['person'] = this.person.toJson();
-    }
-    data['created_at'] = this.createdAt;
-    data['updated_at'] = this.updatedAt;
-    if (this.messages != null) {
-      data['messages'] = this.messages.map((v) => v.toJson()).toList();
-    }
+    data['height'] = this.height.toString();
+    data['weight'] = this.weight.toString();
+    data['clavicle'] = this.clavicle.toString();
+    // if (this.person != null) {
+    //   data['person'] = this.person.toJson();
+    // }
+    // data['created_at'] = this.createdAt;
+    // data['updated_at'] = this.updatedAt;
+    // if (this.messages != null) {
+    //   data['messages'] = this.messages.map((v) => v.toJson()).toList();
+    // }
     return data;
   }
 }

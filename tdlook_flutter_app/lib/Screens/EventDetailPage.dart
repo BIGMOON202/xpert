@@ -419,11 +419,6 @@ class MeasuremetsListWidget extends StatelessWidget {
           print('did Select at $index');
           if (index > 0) {
             _moveToMeasurementAt(index-1);
-          } else {
-
-            Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            ChooseGenderPage(measurement: null);
-            ));
           }
         },
       );

@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
@@ -7,8 +8,10 @@ import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 class WaitingPage extends StatefulWidget {
 
+  final XFile frontPhoto;
+  final XFile sidePhoto;
   final MeasurementResults measurement;
-  WaitingPage({Key key, this.measurement}): super(key: key);
+  WaitingPage({Key key, this.measurement, this.frontPhoto, this.sidePhoto}): super(key: key);
   @override
   _WaitingPageState createState() => _WaitingPageState();
 }
@@ -28,6 +31,20 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
     );
 
     animationController.repeat();
+
+
+    print('MEASUREMENTS:'
+        '\nid:${widget.measurement.id}'
+        '\ngende: ${widget.measurement.gender},'
+        '\nheight:${widget.measurement.height}'
+        '\nweight:${widget.measurement.weight}'
+        '\nclavicle:${widget.measurement.clavicle}');
+    _updateMeasurementBloc = UpdateMeasurementBloc(widget.measurement, widget.frontPhoto, widget.sidePhoto);
+    _updateMeasurementBloc.call();
+    _updateMeasurementBloc.chuckListStream.listen((event) {
+      print('Measurement updated: ${event.data.id}');
+      _updateMeasurementBloc.uploadPhotos();
+    });
   }
 
   @override

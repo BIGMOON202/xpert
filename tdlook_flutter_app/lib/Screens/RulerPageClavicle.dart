@@ -37,7 +37,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
 
   String _value = '25';
   String _valueMeasure = 'cm';
-  int _rawMetricValue = 25;
+  double _rawMetricValue = 25;
   var rulerGap = 18;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
@@ -73,7 +73,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
             .index;
       }
 
-      print('min:$min max $max');
+      // print('min:$min max $max');
       _updateValuesFor(min, max);
       // _updateValuesFor(min);
     });
@@ -97,14 +97,14 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
         _value = '$cmValue';
         _valueMeasure = 'cm';
-        _rawMetricValue = cmValue;
+        _rawMetricValue = cmValue.toDouble();
       } else {
 
 
         double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
         double cmValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
 
-        _rawMetricValue = cmValueDouble.toInt();
+        _rawMetricValue = cmValueDouble;
 
         int ft = (cmValueDouble / 30.48).toInt();
         double inch = cmValueDouble - ft.toDouble() * 30.48;

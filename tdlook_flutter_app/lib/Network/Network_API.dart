@@ -122,7 +122,7 @@ class NetworkAPI {
           break;
       }
       responseJson = _response(response);
-      print('post results: $responseJson');
+      print('call results: $responseJson');
     } on SocketException {
       throw FetchDataException('No Internet connection');
     }

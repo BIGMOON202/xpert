@@ -43,7 +43,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _moveToNextScreen() {
-    Navigator.pushReplacement(context, CupertinoPageRoute(builder: (BuildContext context) =>
+
+    Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       PrivacyPolicyPage(credentials: _credentials, userType: widget.userType)
     ));
   }

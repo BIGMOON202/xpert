@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -14,16 +17,21 @@ import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 
 class CameraCapturePage extends StatefulWidget {
 
+  final XFile frontPhoto;
+  final XFile sidePhoto;
   final MeasurementResults measurement;
   final PhotoType photoType;
   final Gender gender;
-  const CameraCapturePage ({ Key key, this.photoType, this.gender, this.measurement}): super(key: key);
+  const CameraCapturePage ({ Key key, this.photoType, this.gender, this.measurement, this.frontPhoto, this.sidePhoto}): super(key: key);
 
   @override
   _CameraCapturePageState createState() => _CameraCapturePageState();
 }
 
 class _CameraCapturePageState extends State<CameraCapturePage> {
+
+  XFile _frontPhoto;
+  XFile _sidePhoto;
 
   List<CameraDescription> cameras;
   CameraController controller;
@@ -32,10 +40,13 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   List<double> _gyroscopeValues;
   List<StreamSubscription<dynamic>> _streamSubscriptions = <StreamSubscription<dynamic>>[];
   bool _gyroIsValid = true;
-
+  bool _isTakingPicture = false;
   @override
   void initState() {
     super.initState();
+
+    _frontPhoto = widget.frontPhoto;
+    _sidePhoto = widget.sidePhoto;
 
     initCamera();
 
@@ -89,19 +100,32 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
       if (widget.photoType == PhotoType.front) {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-
-            PhotoRulesPage(photoType: PhotoType.side, measurement: widget.measurement),
+            PhotoRulesPage(photoType: PhotoType.side, measurement: widget.measurement, frontPhoto: _frontPhoto),
         ));
       } else {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            WaitingPage(measurement: widget.measurement),
+            WaitingPage(measurement: widget.measurement, frontPhoto: _frontPhoto, sidePhoto: _sidePhoto),
         ));
       }
-
-
     }
 
-    void _handleTap() {
+    void _handleTap() async {
+      setState(() {
+        _isTakingPicture = true;
+      });
+      XFile file = await controller.takePicture();
+      // Uint8List imageBytes = await file.readAsBytes();
+      // String va = base64Encode(imageBytes);
+
+      setState(() {
+        _isTakingPicture = false;
+      });
+
+      if (widget.photoType == PhotoType.front) {
+        _frontPhoto = file;
+      } else {
+        _sidePhoto = file;
+      }
       _moveToNextPage();
     }
 
@@ -153,10 +177,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
               onPressed: () {
                 _handleTap();
                 // controller.takePicture();
-                // print('next button pressed');
               },
               // textColor: Colors.white,
-              child: ResourceImage.imageWithName('ic_capture.png'),
+              child: _isTakingPicture ? CircularProgressIndicator() : ResourceImage.imageWithName('ic_capture.png'),
               // color: Colors.white,
             )]
             )
