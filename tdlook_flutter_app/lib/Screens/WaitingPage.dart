@@ -6,6 +6,7 @@ import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.da
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:web_socket_channel/io.dart';
 
 
 class WaitingPageArguments {
@@ -54,6 +55,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
 
     animationController.repeat();
 
+    // openSocket();
 
     print('MEASUREMENTS:'
         '\nid:${widget.arguments.measurement.id}'
@@ -81,6 +83,19 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
           break;
       }
     });
+  }
+
+  openSocket() async {
+    var socketLink = 'wss://wlb-expertfit-test.3dlook.me/ws/measurement/${widget.arguments.measurement.uuid}/';
+    print('w socket link: ${socketLink}');
+
+    var channel = await IOWebSocketChannel.connect(socketLink);
+
+    channel.stream.listen((message) {
+      print('w socket message: $message');
+      channel.sink.add('w received!');
+    });
+
   }
 
   @override

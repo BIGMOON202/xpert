@@ -271,7 +271,7 @@ class MeasurementResults {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     // data['id'] = this.id;
     // data['uuid'] = this.uuid;
-    // data['is_active'] = this.isActive;
+    data['is_active'] = this.isActive.toString();
     // data['is_complete'] = this.isComplete;
     // data['completed_at'] = this.completedAt;
     // if (this.endWearer != null) {
@@ -281,8 +281,8 @@ class MeasurementResults {
     //   data['event'] = this.event.toJson();
     // }
     data['gender'] = this.gender;
-    data['height'] = this.height.toString();
-    data['weight'] = this.weight.toString();
+    data['height'] = this.height.toInt().toString();
+    data['weight'] = this.weight.toInt().toString();
     data['clavicle'] = this.clavicle.toString();
     // if (this.person != null) {
     //   data['person'] = this.person.toJson();
