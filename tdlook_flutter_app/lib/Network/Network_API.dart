@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 
 class NetworkAPI {
 
-  final Duration _timeout = Duration(seconds: 30);
+  final Duration _timeout = Duration(seconds: 60);
 
 
   final String _baseUrl = "https://wlb-expertfit-test.3dlook.me/";
@@ -138,8 +138,10 @@ class NetworkAPI {
 
 
     dynamic _response(http.Response response) {
+    print('----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${response.body.toString()}');
     switch (response.statusCode) {
       case 200:
+      case 201:
         var responseJson = json.decode(response.body.toString());
         print(responseJson);
         return responseJson;

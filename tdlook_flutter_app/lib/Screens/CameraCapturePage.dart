@@ -103,9 +103,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
             PhotoRulesPage(photoType: PhotoType.side, measurement: widget.measurement, frontPhoto: _frontPhoto),
         ));
       } else {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            WaitingPage(measurement: widget.measurement, frontPhoto: _frontPhoto, sidePhoto: _sidePhoto),
-        ));
+
+        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+            arguments: WaitingPageArguments(
+                measurement: widget.measurement,
+            frontPhoto: _frontPhoto,
+            sidePhoto: _sidePhoto));
       }
     }
 

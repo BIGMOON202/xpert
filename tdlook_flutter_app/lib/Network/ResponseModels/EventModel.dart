@@ -255,9 +255,9 @@ class MeasurementResults {
     endWearer = json['end_wearer'] != null ? new EndWearer.fromJson(json['end_wearer']) : null;
     event = json['event'] != null ? new Event.fromJson(json['event']) : null;
     gender = json['gender'];
-    height = json['height'];
-    weight = json['weight'];
-    clavicle = json['clavicle'];
+    height = json['height'] != null ? double.parse(json['height'].toString()) : 0.0 ;
+    weight = json['weight'] != null ? double.parse(json['weight'].toString()) : 0.0 ;
+    clavicle = json['clavicle'] != null ? double.parse(json['clavicle'].toString()) : 0.0 ;
     person = json['person'] != null ? new Person.fromJson(json['person']) : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
