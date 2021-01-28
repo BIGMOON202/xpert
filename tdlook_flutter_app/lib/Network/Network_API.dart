@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 
 import 'secrets.dart';
@@ -13,11 +14,7 @@ class NetworkAPI {
 
   final Duration _timeout = Duration(seconds: 60);
 
-
-  final String _baseUrl = "https://wlb-xpertfit.3dlook.me/";//"https://wlb-expertfit-test.3dlook.me/";
-  static const Map<String, String> _authHeaders = {"Authorization": API_KEY};
-
-
+  final String _baseUrl = "https://${Application.hostName}/";
 
   Future<dynamic> get(String url,  {Map<String, String> headers, bool useAuth = true}) async {
     var responseJson;

@@ -104,7 +104,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
 
     void _moveToNextPage() {
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          EventsPage()
+          EventsPage(provider: _selectedCompanyType.apiKey(),)
         // EventsPage()
       ));
     }

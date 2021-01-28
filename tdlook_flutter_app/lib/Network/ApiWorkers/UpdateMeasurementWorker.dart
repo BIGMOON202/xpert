@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
@@ -75,25 +76,14 @@ class WaitingForResultsWorker{
 
   startObserve() async {
 
-      var socketLink = 'wss://wlb-xpertfit.3dlook.me/ws/measurement/${model.uuid}/';
+      var socketLink = 'wss://${Application.hostName}/ws/measurement/${model.uuid}/';
       print('socket link: ${socketLink}');
 
       final channel = await IOWebSocketChannel.connect(socketLink);
 
-     // var result = await channel.stream.toList();
-     //  print('socket message: ${result.first}');
-     //  channel.sink.add('received!');
-     //  return AnalizeResult.fromJson(result.first);
-
-
       channel.stream.listen((message) {
         parse(message);
         print('message: $message');
-        // result =  AnalizeResult.fromJson(message);
-        // print('result:$result');
-        // print(onResultReady);
-        // onResultReady(result);
-        // print('${result.status}');
         channel.sink.close(status.goingAway);
       });
   }

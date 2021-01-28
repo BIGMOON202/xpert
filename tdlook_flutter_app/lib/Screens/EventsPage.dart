@@ -24,6 +24,9 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 class EventsPage extends StatefulWidget {
 
+  final String provider;
+  EventsPage({this.provider});
+
   @override
   _EventsPageState createState() => _EventsPageState();
 }
@@ -41,7 +44,7 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
 
-    _bloc = EventListWorkerBloc();
+    _bloc = EventListWorkerBloc(widget.provider);
     _userInfoBloc = UserInfoBloc();
     print('get userInfo ${_userInfoBloc}');
 

@@ -29,13 +29,17 @@ class EventListWorker {
 
 class EventListWorkerEndwearer extends EventListWorker {
 
+  String provider;
+
+  EventListWorkerEndwearer(this.provider);
+
   @override
   Future<Tuple2<EventList, MeasurementsList>> fetchData() async {
 
     print('get measurements');
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
     // var accessToken = prefs.getString('access');
-    final response = await _provider.get('measurements/',useAuth: true);
+    final response = await _provider.get('measurements?provider=$provider',useAuth: true);
 
     var list = MeasurementsList.fromJson(response);
 
@@ -53,6 +57,7 @@ class EventListWorkerEndwearer extends EventListWorker {
 
 class EventListWorkerBloc {
 
+  String provider;
   UserType userType;
 
   EventListWorker _eventListWorker;
@@ -62,8 +67,7 @@ class EventListWorkerBloc {
 
   Stream<Response<Tuple2<EventList, MeasurementsList>>>  chuckListStream;
 
-  EventListWorkerBloc() {
-
+  EventListWorkerBloc(this.provider) {
 
     print('Init block AuthWorkerBloc');
     _listController = StreamController<Response<Tuple2<EventList, MeasurementsList>>>();
@@ -77,7 +81,7 @@ class EventListWorkerBloc {
     if (this.userType == UserType.salesRep) {
       _eventListWorker = EventListWorker();
     } else {
-      _eventListWorker = EventListWorkerEndwearer();
+      _eventListWorker = EventListWorkerEndwearer(provider);
     }
   }
 
