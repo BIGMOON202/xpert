@@ -41,6 +41,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   List<StreamSubscription<dynamic>> _streamSubscriptions = <StreamSubscription<dynamic>>[];
   bool _gyroIsValid = true;
   bool _isTakingPicture = false;
+
+
   @override
   void initState() {
     super.initState();
@@ -52,9 +54,6 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
 
     accelerometerEvents.listen((AccelerometerEvent event) {
-
-      // var maxAngle = 40.0;
-      // var currentAngle = event.z * 180/ math.pi;
       setState(() {
         _gyroIsValid = !(event.z.abs() > 3);
       });
@@ -96,6 +95,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
+    final xScale = controller .value.aspectRatio / deviceRatio;
+    final yScale = 1;
+
     void _moveToNextPage() {
 
       if (widget.photoType == PhotoType.front) {
@@ -132,13 +137,13 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       _moveToNextPage();
     }
 
-    var frameWidget = Center(child: Padding(padding: EdgeInsets.only(top: 40, left: 40, right: 40, bottom: 80) ,child:
+    var frameWidget = SafeArea(child: Center(child: Padding(padding: EdgeInsets.only(top: 8, left: 40, right: 40, bottom: 34) ,child:
     FittedBox(
       child: ResourceImage.imageWithName(_gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
       fit: BoxFit.fitWidth,
       ),
     ),
-    );;
+    ));
 
     var align = Align(
         alignment: Alignment.bottomCenter,
@@ -149,42 +154,16 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-              // Row(mainAxisAlignment:  MainAxisAlignment.center,
-              //   children: [
-              //   SizedBox(width: 30,
-              //   height: 30, child:
-              //     Container(
-              //       child: Center( child: Text('1', textAlign: TextAlign.center, style: TextStyle(color: widget.photoType == PhotoType.front ? Colors.black : Colors.white),)),
-              //       decoration: new BoxDecoration(
-              //         color: widget.photoType == PhotoType.front ? Colors.white : Colors.transparent,
-              //         borderRadius: const BorderRadius.all(Radius.circular(30.0)),
-              //         border: Border.all(width: 1, color: Colors.white),
-              //       ),
-              //      ),),
-              //   SizedBox(width: 14,),
-              //   SizedBox(width: 30,
-              //     height: 30, child:
-              //     Container(
-              //       child: Center(child:Text('2', textAlign: TextAlign.center,style: TextStyle(color: widget.photoType == PhotoType.side ? Colors.black : Colors.white),)),
-              //
-              //       decoration: new BoxDecoration(
-              //           color: widget.photoType == PhotoType.side ? Colors.white : Colors.transparent,
-              //           borderRadius: const BorderRadius.all(Radius.circular(30.0)),
-              //           border: Border.all(width: 1, color: Colors.white)
-              //     ),
-              //     ),)
-              // ],),
-            // SizedBox(height: 20,),
-            MaterialButton(
-
-              onPressed: () {
-                _handleTap();
-                // controller.takePicture();
-              },
+            Opacity(opacity: _gyroIsValid ? 1.0 : 0.7,
+                child: MaterialButton(
+              onPressed: _gyroIsValid ? _handleTap : null,
               // textColor: Colors.white,
-              child: _isTakingPicture ? CircularProgressIndicator() : ResourceImage.imageWithName('ic_capture.png'),
-              // color: Colors.white,
-            )]
+              child: Stack(
+                alignment: Alignment.center,
+                  children:[
+                ResourceImage.imageWithName('ic_capture.png'),
+                    Visibility(visible: _isTakingPicture, child: CircularProgressIndicator())]),
+            ))]
             )
         ),
         ));
@@ -195,17 +174,23 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     return Scaffold(
         appBar: AppBar(
           title: widget.photoType == PhotoType.front ? Text('Front photo') : Text('Side photo'),
-          backgroundColor: SharedParameters().mainBackgroundColor,
+          backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
-
+        extendBodyBehindAppBar: true,
         backgroundColor: SharedParameters().mainBackgroundColor,
         body: Stack(
         children: [
           FutureBuilder(future: _initializeCameraFuture,
             builder: (context, snapshot){
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(controller);
+            return AspectRatio(
+                aspectRatio: deviceRatio,
+                child: Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.diagonal3Values(xScale, 1, 1),
+              child: CameraPreview(controller),
+              ));
           } else {
             return Center(child: CircularProgressIndicator());
           }

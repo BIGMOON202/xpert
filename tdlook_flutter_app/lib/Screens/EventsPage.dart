@@ -290,9 +290,10 @@ class EventsListWidget extends StatelessWidget {
 
         if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
 
-          var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount) * 100;
+          var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount);
           var percent = _doublePercent.isNaN ? 0 : _doublePercent.toInt();
           var angle = _doublePercent.isNaN ? 0.0 : _doublePercent * 360;
+          print('percent $_doublePercent');
           var w = new Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
