@@ -13,13 +13,11 @@ class RecommendationsListWorker {
 
   Future<List<RecommendationModel>> fetchData() async {
 
-    // final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // var accessToken = prefs.getString('access');
     final response = await _provider.get('measurements/${measurementId}/get_recommendations/',useAuth: true);
 
     print('olo: $response');
     var results = List<RecommendationModel>();
-    // results = (response as List)?.map((item) => RecommendationModel.fromJson(item))?.toList();
+    results = (response as List)?.map((item) => RecommendationModel.fromJson(item))?.toList();
     return results;
   }
 }

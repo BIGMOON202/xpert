@@ -184,7 +184,7 @@ class _EventsPageState extends State<EventsPage> {
                 break;
               case Status.COMPLETED:
                 print('completed');
-                return EventsListWidget(resultsList: snapshot.data.data);
+                return EventsListWidget(resultsList: snapshot.data.data, userType: _userType, userId: '');//_userInfo.id.toString()
                 break;
               case Status.ERROR:
                 return Error(
@@ -236,9 +236,11 @@ class _EventsPageState extends State<EventsPage> {
 }
 
 class EventsListWidget extends StatelessWidget {
+  final String userId;
+  final UserType userType;
   final Tuple2<EventList, MeasurementsList> resultsList;
 
-  const EventsListWidget({Key key, this.resultsList}) : super(key: key);
+  const EventsListWidget({Key key, this.resultsList, this.userType, this.userId}) : super(key: key);
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
 
@@ -252,7 +254,7 @@ class EventsListWidget extends StatelessWidget {
 
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // LoginPage(userType: _selectedUserType)
-      EventDetailPage(event: event, measurementsList: measurements)
+      EventDetailPage(event: event, measurementsList: measurements, userType: userType, currentUserId: userId,)
       ));
     }
 
@@ -286,7 +288,7 @@ class EventsListWidget extends StatelessWidget {
 
       Widget _configureGraphWidgetFor(Event _event) {
 
-        if (_event.status.shouldShowCountGraph() == true) {
+        if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
 
           var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount) * 100;
           var percent = _doublePercent.isNaN ? 0 : _doublePercent.toInt();

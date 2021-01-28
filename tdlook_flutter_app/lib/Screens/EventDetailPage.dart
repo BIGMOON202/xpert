@@ -1,7 +1,10 @@
 
+import 'dart:developer';
+
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -14,10 +17,12 @@ import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'ChooseGenderPage.dart';
 
 class EventDetailPage extends StatefulWidget {
+  final String currentUserId;
+  final UserType userType;
   final Event event;
   final MeasurementsList measurementsList;
 
-  const EventDetailPage({ Key key, this.event, this.measurementsList}): super(key: key);
+  const EventDetailPage({ Key key, this.currentUserId, this.userType, this.event, this.measurementsList}): super(key: key);
 
   @override
   _EventDetailPageState createState() => _EventDetailPageState();
@@ -33,6 +38,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
     // TODO: implement initState
     _bloc = MeasurementsListWorkerBloc(widget.event.id.toString());
     _bloc.call();
+
+    if (widget.measurementsList != null && widget.measurementsList.data.length > 0) {
+      // widget.measurementsList.data =  widget.measurementsList.data.where((i) => i.endWearer.id == widget.currentUserId).toList();
+    }
   }
 
   @override

@@ -45,18 +45,18 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
     Widget listBody() {
       if (recommendations != null && recommendations.length != 0) {
-        print('config list body');
+        print('config list recom');
         return RecommendationsListWidget(
           measurement: widget.arguments.measurement,
           recommendations: recommendations,
           showRestartButton: widget.arguments.showRestartButton,);
       } else {
-        print('config list body async');
+        print('config list recom async');
         return StreamBuilder<Response<List<RecommendationModel>>>(
           stream: _bloc.chuckListStream,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              print('status: ${snapshot.data.status}');
+              print('recom list status: ${snapshot.data.status}');
               switch (snapshot.data.status) {
                 case Status.LOADING:
                   return Loading(loadingMessage: snapshot.data.message);
@@ -83,7 +83,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
     var scaffold = Scaffold(
         appBar: AppBar(
-          title: Text('Event details'),
+          title: Text('Profile details'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
@@ -164,6 +164,8 @@ class RecommendationsListWidget extends StatelessWidget {
 
       Container container;
 
+      var _highlightColor = HexColor.fromHex('1E7AE4');
+
       if (index == 0) {
 
         var userName = measurement.endWearer.name ?? '-';
@@ -198,7 +200,7 @@ class RecommendationsListWidget extends StatelessWidget {
               child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(5)),
-                      color: Colors.black
+                      color: _highlightColor
                   ),
                   child: Padding(
                     padding: EdgeInsets.all(12),
@@ -215,8 +217,7 @@ class RecommendationsListWidget extends StatelessWidget {
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(4)),
-                                          color: eventStatusColor.withOpacity(
-                                              0.1)
+                                          color: Colors.white
                                       ),
                                       child: Padding(
                                         padding: EdgeInsets.all(5),
@@ -226,7 +227,7 @@ class RecommendationsListWidget extends StatelessWidget {
                                               SizedBox(width: 6,),
                                               Text(measurementStatus,
                                                 style: TextStyle(
-                                                    color: eventStatusColor),)]),)
+                                                    color: eventStatusColor, fontWeight: FontWeight.bold),)]),)
                                   )],),)]),
                         SizedBox(height: 18,),
                         SizedBox(
@@ -287,12 +288,35 @@ class RecommendationsListWidget extends StatelessWidget {
         );
       } else {
 
-        var recomendation = recommendations[index + 1];
+        // return Container(color: Colors.orange);
+
+        var recomendation = recommendations[index - 1];
         var title = recomendation.product.name;
         var code = recomendation.product.id.toString();
         var size = recomendation.size;
         var optionColor = HexColor.fromHex('898A9D');
         var _textStyle = TextStyle(color: Colors.white);
+
+        List<Widget> _sizeWidgets(RecommendationModel recommendation) {
+          var widgets =  List<Widget>();
+
+          var column = Column(
+              children: [
+                Text('Size', style: TextStyle(color: optionColor, fontSize: 12, fontWeight: FontWeight.w400)),
+                SizedBox(height: 6),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(4)),
+                      color: Colors.white.withAlpha(10)
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Text(size, style: TextStyle(color: _highlightColor, fontWeight: FontWeight.bold)))
+              )]);
+          widgets.add(column);
+          return widgets;
+        }
 
         container = Container(
           color: _backgroundColor,
@@ -309,56 +333,16 @@ class RecommendationsListWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                             children: [Expanded(child:Text(title, style: TextStyle(color: Colors.white), maxLines: 5) ),
                               Text(code,
                                 style: TextStyle(
                                     color: optionColor),)]),
                         SizedBox(height: 18,),
-                        SizedBox(
-                            height: 52,
-                            child: Row(
-                              children: [
-                                Expanded(flex: 2,
-                                    child: Column(
-                                      children:
-                                      [
-                                        Expanded(flex: 1,
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment
-                                                  .start,
-                                              children: [
+                        Row(
+                          children: _sizeWidgets(recomendation),
+                        )
 
-                                                Flexible(child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment
-                                                      .start,
-                                                  children: [
-                                                    Expanded(child: Text(
-                                                      size,
-                                                      overflow: TextOverflow
-                                                          .ellipsis,)),
-                                                  ],))
-                                              ],)),
-                                        SizedBox(height: 12,),
-                                        Expanded(flex: 1,
-                                            child: Container(
-                                              color: Colors.transparent,
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start,
-                                                children: [
-                                                  SizedBox(height: 16,
-                                                    width: 16,
-                                                    child: ResourceImage.imageWithName(
-                                                        'ic_checkmark.png'),),
-                                                  SizedBox(width: 8),
-                                                  Text(
-                                                      size,
-                                                      style: _textStyle)
-                                                ],),)),
-                                      ],
-                                    )),
-                              ],
-                            ))
                       ],
                     ),
                   )
@@ -392,13 +376,12 @@ class RecommendationsListWidget extends StatelessWidget {
       print('_restartAnalize');
     }
 
-    var bottomFlexValue = showRestartButton ? 2 : 0;
 
     var container = Column(
       children: [Flexible(
         flex: 8,
           child: list),
-      Flexible(flex:bottomFlexValue,
+      Visibility(visible: showRestartButton, child:Flexible(flex:2,
         child: Container(
           child: SafeArea(
             child: Padding(
@@ -436,9 +419,8 @@ class RecommendationsListWidget extends StatelessWidget {
                   ))],
               ),
             ),
-          ),
-
-    ),)],
+          )
+    )))],
 
     );
 
