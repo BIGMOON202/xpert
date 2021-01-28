@@ -3,6 +3,7 @@ import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
+import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -134,7 +135,11 @@ class MeasuremetsListWidget extends StatelessWidget {
           ChooseGenderPage(measurement:  measurement)
           ));
         } else if (measurement.isComplete == true) {
-          _showCupertinoDialog('Measurement completed, move to results');
+
+        Navigator.pushNamed(context, RecommendationsPage.route,
+            arguments: RecommendationsPageArguments(measurement: measurement));
+
+
         } else if (event.status != EventStatus.in_progress) {
         _showCupertinoDialog('Event is not in progress now');
 

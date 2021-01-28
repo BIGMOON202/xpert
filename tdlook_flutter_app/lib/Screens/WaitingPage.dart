@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -37,8 +38,14 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
   String _stateName = '';
 
 
-  _moveToRecomendations() {
+  _handleResult(AnalizeResult result) {
     print('move to recomendations');
+    if (result.status != 'error') {
+        widget.arguments.measurement.isComplete = true;
+
+        Navigator.pushNamedAndRemoveUntil(context, RecommendationsPage.route, (route) => false,
+            arguments: RecommendationsPageArguments(measurement: widget.arguments.measurement));
+    }
   }
 
   _show({String error}) {
@@ -75,7 +82,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
           break;
 
         case Status.COMPLETED:
-          _moveToRecomendations();
+          _handleResult(event.data);
           break;
 
         case Status.ERROR:

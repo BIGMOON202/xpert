@@ -4,11 +4,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/web_socket_channel.dart' ;
 import 'package:web_socket_channel/status.dart' as status;
 
 class UpdateMeasurementWorker {
@@ -31,6 +32,7 @@ class UploadPhotosWorker {
   UploadPhotosWorker(this.model, this.frontPhoto, this.sidePhoto);
 
   NetworkAPI _provider = NetworkAPI();
+
 
   Future<PhotoUploaderModel> uploadData() async {
 
@@ -56,11 +58,22 @@ class UploadPhotosWorker {
   }
 }
 
-class WaitingForResultsWorker {
+class WaitingForResultsWorker{
   MeasurementResults model;
-  WaitingForResultsWorker(this.model);
+  final Function(dynamic) onResultReady;
 
-  Future<AnalizeResult> listen() async {
+  WaitingForResultsWorker(this.model, this.onResultReady);
+
+  parse(dynamic data) async {
+    print('parse result: $data');
+    Future<void> parse() async {
+      print(onResultReady);
+      onResultReady(data);
+    }
+    await parse();
+  }
+
+  startObserve() async {
 
 
       var socketLink = 'wss://wlb-expertfit-test.3dlook.me/ws/measurement/${model.uuid}/';
@@ -68,28 +81,22 @@ class WaitingForResultsWorker {
 
       final channel = await IOWebSocketChannel.connect(socketLink);
 
-      AnalizeResult result;
-      await for(dynamic data in channel.stream) {
-        print('socket message: ${data}');
-        channel.sink.add('received!');
-
-        result = AnalizeResult.fromJson(data);
-        channel.sink.close(status.goingAway);
-      }
-
-      return result;
      // var result = await channel.stream.toList();
      //  print('socket message: ${result.first}');
      //  channel.sink.add('received!');
      //  return AnalizeResult.fromJson(result.first);
 
 
-      // channel.stream.listen((message) {
-      //   print('socket message: $message');
-      //   channel.sink.add('received!');
-      //
-      //   return AnalizeResult.fromJson(message);
-      // });
+      channel.stream.listen((message) {
+        parse(message);
+        print('message: $message');
+        // result =  AnalizeResult.fromJson(message);
+        // print('result:$result');
+        // print(onResultReady);
+        // onResultReady(result);
+        // print('${result.status}');
+        channel.sink.close(status.goingAway);
+      });
   }
 }
 
@@ -107,6 +114,27 @@ class UpdateMeasurementBloc {
 
   Stream<Response<AnalizeResult>>  chuckListStream;
 
+
+  Future<AnalizeResult> getResults(dynamic result ) async {
+    print('catch results');
+
+    AnalizeResult analizeResult = AnalizeResult.fromJson(result);
+    print('result:$analizeResult');
+
+    chuckListSink.add(Response.completed(analizeResult));
+  }
+
+  handle(dynamic result) async {
+    try {
+      Map valueMap = json.decode(result);
+      AnalizeResult info = await getResults(valueMap);
+      chuckListSink.add(Response.completed(info));
+    } catch (e) {
+      chuckListSink.add(Response.error(e.toString()));
+      print(e);
+    }
+  }
+
   UpdateMeasurementBloc(this.model, this.frontPhoto, this.sidePhoto) {
     _listController = StreamController<Response<AnalizeResult>>();
 
@@ -114,7 +142,7 @@ class UpdateMeasurementBloc {
     chuckListStream = _listController.stream;
     _userInfoWorker = UpdateMeasurementWorker(model);
     _uploadPhotosWorker = UploadPhotosWorker(model, frontPhoto, sidePhoto);
-    _waitingForResultsWorker = WaitingForResultsWorker(model);
+    _waitingForResultsWorker = WaitingForResultsWorker(model, handle);
   }
 
 
@@ -151,9 +179,7 @@ class UpdateMeasurementBloc {
   observeResults() async {
     chuckListSink.add(Response.loading('Waiting for results'));
     try {
-      AnalizeResult info = await _waitingForResultsWorker.listen();
-      print('analize info: $info');
-      chuckListSink.add(Response.completed(info));
+       _waitingForResultsWorker.startObserve();
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
       print(e);

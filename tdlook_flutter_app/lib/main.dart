@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:flutter/services.dart';
+import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
 
 void main() {
@@ -28,10 +29,11 @@ void main() {
             if (settings.arguments is WaitingPageArguments) {
               return MaterialPageRoute(settings: settings, builder: (context) => WaitingPage(arguments: settings.arguments));
             }
+          } else if (settings.name == RecommendationsPage.route) {
+            if (settings.arguments is RecommendationsPageArguments) {
+              return MaterialPageRoute(settings: settings, builder: (context) => RecommendationsPage(arguments: settings.arguments));
+            }
           }
-
-          assert(false, 'Need to implement ${settings.name}');
-          return null;
         },
         onUnknownRoute: (settings) {
           return MaterialPageRoute(settings: settings, builder: (context) => LookApp());
