@@ -29,15 +29,15 @@ class _LoginPageState extends State<LoginPage> {
 
   AuthCredentials _credentials;
 
-  String _email = 'bab-yaga@gmail.com';
-  String _password = 'Qa123456789Qa.';
+  String _email = 'nusatenko13+11@gmail.com';
+  String _password = 'Qaqazxsw/';
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
   @override
   void initState() {
     // TODO: implement initState
     if (widget.userType == UserType.endWearer) {
-      _email = 'test.3dlook@gmail.com';
+      _email = 'nik42@ukr.net';
       _password = '748379';
     }
   }

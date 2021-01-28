@@ -14,7 +14,7 @@ class MeasurementsList implements Paginated<MeasurementResults> {
   factory MeasurementsList.fromRawJson(String str) => MeasurementsList.fromJson(json.decode(str));
 
   factory MeasurementsList.fromJson(Map<String, dynamic> json) => MeasurementsList(
-    data: List<MeasurementResults>.from(json["results"].map((x) => MeasurementResults.fromJson(x))),
+    data: List<MeasurementResults>.from(json["results"].map((x) => MeasurementResults.fromJson(x))).where((i) => i.isActive).toList(),
     paging: Paging.fromJson(json),
   );
 

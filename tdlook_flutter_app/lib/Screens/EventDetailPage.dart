@@ -73,7 +73,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
-        title: Text('Event details'),
+        title: Text('Profile details'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),
@@ -121,13 +121,13 @@ class MeasuremetsListWidget extends StatelessWidget {
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');
 
-      if (Application.isInDebugMode) {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-        // LoginPage(userType: _selectedUserType)
-        ChooseGenderPage(measurement:  measurement)
-        ));
-        return;
-      }
+      // if (Application.isInDebugMode) {
+      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+      //   // LoginPage(userType: _selectedUserType)
+      //   ChooseGenderPage(measurement:  measurement)
+      //   ));
+      //   return;
+      // }
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
@@ -137,7 +137,7 @@ class MeasuremetsListWidget extends StatelessWidget {
         } else if (measurement.isComplete == true) {
 
         Navigator.pushNamed(context, RecommendationsPage.route,
-            arguments: RecommendationsPageArguments(measurement: measurement));
+            arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
 
 
         } else if (event.status != EventStatus.in_progress) {

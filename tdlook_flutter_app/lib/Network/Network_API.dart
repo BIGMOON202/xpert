@@ -14,7 +14,7 @@ class NetworkAPI {
   final Duration _timeout = Duration(seconds: 60);
 
 
-  final String _baseUrl = "https://wlb-expertfit-test.3dlook.me/";
+  final String _baseUrl = "https://wlb-xpertfit.3dlook.me/";//"https://wlb-expertfit-test.3dlook.me/";
   static const Map<String, String> _authHeaders = {"Authorization": API_KEY};
 
 

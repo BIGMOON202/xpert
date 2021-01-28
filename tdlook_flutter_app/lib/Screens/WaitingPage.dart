@@ -44,12 +44,29 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
         widget.arguments.measurement.isComplete = true;
 
         Navigator.pushNamedAndRemoveUntil(context, RecommendationsPage.route, (route) => false,
-            arguments: RecommendationsPageArguments(measurement: widget.arguments.measurement));
+            arguments: RecommendationsPageArguments(measurement: widget.arguments.measurement, showRestartButton: true));
+    } else {
+      var textList = result.detail.map((e) => '${e.name}: ${e.message}').toList();
+          var text = textList.join("\n");
+      _show(error: text);
     }
   }
 
   _show({String error}) {
-
+    showDialog(
+        context: context,
+        builder: (_) => new CupertinoAlertDialog(
+          // title: new Text("Cupertino Dialog"),
+          content: new Text(error),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+              },
+            )
+          ],
+        ));
   }
 
   @override

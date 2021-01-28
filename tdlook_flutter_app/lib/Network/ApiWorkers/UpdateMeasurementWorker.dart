@@ -75,8 +75,7 @@ class WaitingForResultsWorker{
 
   startObserve() async {
 
-
-      var socketLink = 'wss://wlb-expertfit-test.3dlook.me/ws/measurement/${model.uuid}/';
+      var socketLink = 'wss://wlb-xpertfit.3dlook.me/ws/measurement/${model.uuid}/';
       print('socket link: ${socketLink}');
 
       final channel = await IOWebSocketChannel.connect(socketLink);

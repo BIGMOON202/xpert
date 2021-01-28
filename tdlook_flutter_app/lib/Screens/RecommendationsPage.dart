@@ -12,7 +12,8 @@ import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 class RecommendationsPageArguments {
   MeasurementResults measurement;
-  RecommendationsPageArguments({Key key, this.measurement});
+  bool showRestartButton;
+  RecommendationsPageArguments({Key key, this.measurement, this.showRestartButton});
 
 }
 
@@ -45,7 +46,10 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     Widget listBody() {
       if (recommendations != null && recommendations.length != 0) {
         print('config list body');
-        return RecommendationsListWidget(measurement: widget.arguments.measurement, recommendations: recommendations);
+        return RecommendationsListWidget(
+          measurement: widget.arguments.measurement,
+          recommendations: recommendations,
+          showRestartButton: widget.arguments.showRestartButton,);
       } else {
         print('config list body async');
         return StreamBuilder<Response<List<RecommendationModel>>>(
@@ -58,7 +62,10 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                   return Loading(loadingMessage: snapshot.data.message);
                   break;
                 case Status.COMPLETED:
-                  return RecommendationsListWidget(measurement: widget.arguments.measurement, recommendations: snapshot.data.data);
+                  return RecommendationsListWidget(
+                      measurement: widget.arguments.measurement,
+                      recommendations: snapshot.data.data,
+                      showRestartButton: widget.arguments.showRestartButton);
                   break;
                 case Status.ERROR:
                   return Error(
@@ -90,10 +97,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
 class RecommendationsListWidget extends StatelessWidget {
   final MeasurementResults measurement;
+  final bool showRestartButton;
   final   List<RecommendationModel> recommendations;
 
 
-  const RecommendationsListWidget({Key key, this.measurement, this.recommendations}) : super(key: key);
+  const RecommendationsListWidget({Key key, this.measurement, this.recommendations, this.showRestartButton}) : super(key: key);
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
 
@@ -374,6 +382,67 @@ class RecommendationsListWidget extends StatelessWidget {
     var list = ListView.builder(itemCount: recommendations.length + 1,
       itemBuilder: (_, index) => itemAt(index),
     );
-    return list;
+
+    _moveToHomePage() {
+      print('move to home page');
+      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    }
+
+    _restartAnalize() {
+      print('_restartAnalize');
+    }
+
+    var bottomFlexValue = showRestartButton ? 2 : 0;
+
+    var container = Column(
+      children: [Flexible(
+        flex: 8,
+          child: list),
+      Flexible(flex:bottomFlexValue,
+        child: Container(
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                children: [Flexible(child: MaterialButton(
+                  onPressed: () {
+                    print('next button pressed');
+                    _moveToHomePage();
+                  },
+                  textColor: Colors.white,
+                  child: Text('Complete Profile'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+                  color: HexColor.fromHex('1E7AE4'),
+                  height: 50,
+                  padding: EdgeInsets.only(left: 12, right: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  // padding: EdgeInsets.all(4),
+                )),
+                  Flexible(child: MaterialButton(
+                    onPressed: () {
+                      print('next button pressed');
+                      _restartAnalize();
+                    },
+                    textColor: Colors.white,
+                    child: Text('rescan'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+                    color: Colors.white.withAlpha(6),
+                    height: 50,
+                    padding: EdgeInsets.only(left: 12, right: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    // padding: EdgeInsets.all(4),
+                  ))],
+              ),
+            ),
+          ),
+
+    ),)],
+
+    );
+
+
+    return container;
   }
 }
