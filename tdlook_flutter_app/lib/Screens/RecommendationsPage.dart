@@ -292,7 +292,7 @@ class RecommendationsListWidget extends StatelessWidget {
 
         var recomendation = recommendations[index - 1];
         var title = recomendation.product.name;
-        var code = recomendation.product.id.toString();
+        var code = recomendation.product.style.toString();
         var size = recomendation.size;
         var optionColor = HexColor.fromHex('898A9D');
         var _textStyle = TextStyle(color: Colors.white);

@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:otp_text_field/style.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
@@ -29,16 +30,22 @@ class _LoginPageState extends State<LoginPage> {
 
   AuthCredentials _credentials;
 
-  String _email = 'nusatenko13+11@gmail.com';
-  String _password = 'Qaqazxsw/';
+  String _email = '';
+  String _password = '';
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
   @override
   void initState() {
     // TODO: implement initState
-    if (widget.userType == UserType.endWearer) {
-      _email = 'nik42@ukr.net';
-      _password = '748379';
+
+    if (Application.isInDebugMode) {
+      _email = 'nusatenko13+11@gmail.com';
+      _password = 'Qaqazxsw/';
+
+      if (widget.userType == UserType.endWearer) {
+        _email = 'nik42@ukr.net';
+        _password = '748379';
+      }
     }
   }
 

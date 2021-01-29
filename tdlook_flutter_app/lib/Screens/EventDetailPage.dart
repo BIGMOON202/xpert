@@ -82,7 +82,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
-        title: Text('Profile details'),
+        title: Text('Event details'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),
