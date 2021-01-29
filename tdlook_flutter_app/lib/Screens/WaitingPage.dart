@@ -16,7 +16,6 @@ class WaitingPageArguments {
   final MeasurementResults measurement;
 
   WaitingPageArguments({Key key, this.measurement, this.frontPhoto, this.sidePhoto});
-
 }
 
 class WaitingPage extends StatefulWidget {

@@ -83,7 +83,7 @@ class _EventsPageState extends State<EventsPage> {
                     break;
                   case Status.COMPLETED:
                     print('completed header');
-                    _userInfo = snapshot.data.data;
+                     _userInfo = snapshot.data.data;
                     return  UserInfoHeader(userInfo: snapshot.data.data, userType: _userType);
                     break;
                   case Status.ERROR:
@@ -114,8 +114,7 @@ class _EventsPageState extends State<EventsPage> {
             alignment:Alignment.bottomCenter,
             child: Padding(
               padding: EdgeInsets.only(top: 70, left: 30, right: 8),
-              child: Container(
-                  child: _userInfoView()),
+              child: _userInfoView(),
             ),
           ));
     }
@@ -254,7 +253,7 @@ class EventsListWidget extends StatelessWidget {
 
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // LoginPage(userType: _selectedUserType)
-      EventDetailPage(event: event, measurementsList: measurements, userType: userType, currentUserId: userId,)
+      EventDetailPage(event: event, measurementsList: null, userType: userType, currentUserId: userId,)
       ));
     }
 
@@ -291,9 +290,8 @@ class EventsListWidget extends StatelessWidget {
         if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
 
           var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount);
-          var percent = _doublePercent.isNaN ? 0 : _doublePercent.toInt();
+          var percent = _doublePercent.isNaN ? 0 : (_doublePercent * 100).toInt();
           var angle = _doublePercent.isNaN ? 0.0 : _doublePercent * 360;
-          print('percent $_doublePercent');
           var w = new Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,

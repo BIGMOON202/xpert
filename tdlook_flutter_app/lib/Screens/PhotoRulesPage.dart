@@ -28,7 +28,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
   void _moveToNextPage() {
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
     // RulerPageWeight(),
-      CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement, frontPhoto: widget.frontPhoto)
+      CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement, frontPhoto: widget.frontPhoto, gender: widget.gender,)
     ));
   }
 
@@ -46,10 +46,11 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
   @override
   void initState() {
+    super.initState();
 
     _runContinueButtonTimer();
 
-    super.initState();
+    print('selectedGender: ${widget.gender.apiFlag()}');
   }
 
 
@@ -79,6 +80,8 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                   // padding: EdgeInsets.all(4),
                 )),
             )));
+
+    print('selectedGender: ${widget.gender.toString()}');
 
     var container = Stack(
       children: [

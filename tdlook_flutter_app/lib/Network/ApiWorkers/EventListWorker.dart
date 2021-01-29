@@ -44,7 +44,7 @@ class EventListWorkerEndwearer extends EventListWorker {
     var list = MeasurementsList.fromJson(response);
 
     print('list $list');
-    List<Event> events =new List<Event>();
+    List<Event> events = new List<Event>();
 
     list.data.forEach((element) {
       events.add(element.event);

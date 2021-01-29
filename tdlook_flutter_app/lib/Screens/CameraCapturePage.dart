@@ -47,6 +47,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   void initState() {
     super.initState();
 
+    print('selectedGender on camera: ${widget.gender.apiFlag()}');
+
+
     _frontPhoto = widget.frontPhoto;
     _sidePhoto = widget.sidePhoto;
 
@@ -105,7 +108,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
       if (widget.photoType == PhotoType.front) {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            PhotoRulesPage(photoType: PhotoType.side, measurement: widget.measurement, frontPhoto: _frontPhoto),
+            PhotoRulesPage(photoType: PhotoType.side, measurement: widget.measurement, frontPhoto: _frontPhoto, gender: widget.gender),
         ));
       } else {
 

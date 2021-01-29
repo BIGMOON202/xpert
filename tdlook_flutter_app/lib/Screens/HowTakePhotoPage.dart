@@ -165,9 +165,10 @@ VideoPlayerController _controller;
     void _moveToNextPage() {
       _controller.pause();
       print('next button pressed');
+      print('selectedGende after video: ${widget.gender.toString()}');
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // RulerPageWeight(),
-        PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)
+      PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)
       ));
     }
 
