@@ -61,9 +61,12 @@ class _EventsPageState extends State<EventsPage> {
     }
 
     fetchUserType();
+
   }
 
   StreamBuilder _builder;
+  Widget _createdHeader;
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -106,8 +109,7 @@ class _EventsPageState extends State<EventsPage> {
       }
     }
 
-    Widget _createHeader() {
-      return DrawerHeader(
+    _createdHeader = DrawerHeader(
           margin: EdgeInsets.only(top: 50),
           padding: EdgeInsets.zero,
           child: Align(
@@ -117,7 +119,6 @@ class _EventsPageState extends State<EventsPage> {
               child: _userInfoView(),
             ),
           ));
-    }
 
     Widget _createDrawerItem(
         {Icon icon, String text, GestureTapCallback onTap}) {
@@ -206,7 +207,7 @@ class _EventsPageState extends State<EventsPage> {
               child:ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            _createHeader(),
+            _createdHeader,
 
             Divider(color: Colors.white,),
 

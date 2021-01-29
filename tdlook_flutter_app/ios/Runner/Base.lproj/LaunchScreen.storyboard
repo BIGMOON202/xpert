@@ -51,16 +51,27 @@
                                     <constraint firstAttribute="height" constant="24" id="yh7-x4-D8l"/>
                                 </constraints>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hXt-5Z-UAO">
+                                <rect key="frame" x="8" y="825" width="398" height="29"/>
+                                <string key="text">3DLOOK SIZING TECHNOLOGY COLLABORATION
+©2021 ХpertFit, ©FlyingCross, ©Vertex, ©Safariland, LLC.</string>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="12"/>
+                                <color key="textColor" red="0.53725490196078429" green="0.54117647058823526" blue="0.61568627450980395" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="0.086274509803921567" green="0.094117647058823528" blue="0.10588235294117647" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1a2-6s-vTC"/>
                             <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="4X2-HB-R7a"/>
+                            <constraint firstItem="xbc-2k-c8Z" firstAttribute="top" secondItem="hXt-5Z-UAO" secondAttribute="bottom" constant="8" id="Dqf-tL-LDc"/>
                             <constraint firstItem="G4t-SD-j8c" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Ld3-AS-TmY"/>
                             <constraint firstItem="Xhp-HX-WUM" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ROa-nJ-Fdr"/>
                             <constraint firstItem="G4t-SD-j8c" firstAttribute="top" secondItem="2kj-eh-2eg" secondAttribute="bottom" constant="30" id="RP9-UD-Zq4"/>
+                            <constraint firstAttribute="trailing" secondItem="hXt-5Z-UAO" secondAttribute="trailing" constant="8" id="YIH-l3-J3v"/>
                             <constraint firstItem="T7a-ET-loc" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="cG4-U8-GkA"/>
                             <constraint firstItem="2kj-eh-2eg" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="eG0-kj-6qU"/>
+                            <constraint firstItem="hXt-5Z-UAO" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="8" id="gF5-es-ori"/>
                             <constraint firstItem="2kj-eh-2eg" firstAttribute="top" secondItem="Xhp-HX-WUM" secondAttribute="bottom" constant="30" id="h5Z-oH-17y"/>
                             <constraint firstItem="Xhp-HX-WUM" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="kWL-DH-wka"/>
                             <constraint firstItem="T7a-ET-loc" firstAttribute="top" secondItem="G4t-SD-j8c" secondAttribute="bottom" constant="24" id="njV-M8-6FS"/>

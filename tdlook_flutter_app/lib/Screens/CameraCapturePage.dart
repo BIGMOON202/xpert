@@ -70,6 +70,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     }));
   }
 
+  double cameraRatio = 1;
+
   Future<void> initCamera() async {
     WidgetsFlutterBinding.ensureInitialized();
     cameras = await availableCameras();
@@ -80,6 +82,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       if (!mounted) {
         return;
       }
+      cameraRatio = controller.value.aspectRatio;
       setState(() {});
     });
   }
@@ -101,7 +104,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
-    final xScale = controller .value.aspectRatio / deviceRatio;
+    double xScale() {
+      return cameraRatio / deviceRatio;
+    }
     final yScale = 1;
 
     void _moveToNextPage() {
@@ -191,7 +196,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                 aspectRatio: deviceRatio,
                 child: Transform(
                 alignment: Alignment.center,
-                transform: Matrix4.diagonal3Values(xScale, 1, 1),
+                transform: Matrix4.diagonal3Values(xScale(), 1, 1),
               child: CameraPreview(controller),
               ));
           } else {
