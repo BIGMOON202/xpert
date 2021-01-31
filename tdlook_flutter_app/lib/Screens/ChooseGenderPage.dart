@@ -11,11 +11,17 @@ import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPage.dart';
 
+class ChooseGenderPageArguments{
+  MeasurementResults measurement;
+  ChooseGenderPageArguments(this.measurement);
+}
+
 
 class ChooseGenderPage extends StatefulWidget {
 
-  final MeasurementResults measurement;
-  ChooseGenderPage({Key key, this.measurement}): super(key:key);
+  static var route = '/choose_gender';
+  final ChooseGenderPageArguments argument;
+  ChooseGenderPage({Key key, this.argument}): super(key:key);
 
   @override
   _ChooseGenderPageState createState() => _ChooseGenderPageState();
@@ -46,12 +52,12 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
     var gender =  _selectedGender == 0 ? Gender.male : Gender.female;
     // var meas = MeasurementModel(gender, UserType.endWearer);
 
-    widget.measurement.gender = gender.apiFlag();
+    widget.argument.measurement.gender = gender.apiFlag();
     // var ads = SharedParameters().currentMeasurement;
     // print('CHECK $meas');
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
         // RulerPageWeight(),
-      RulerPage(gender: gender, measuremet: widget.measurement)
+      RulerPage(gender: gender, measuremet: widget.argument.measurement)
       ));
   }
 
@@ -151,7 +157,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
     // TODO: implement build
     var scaffold = Scaffold(
       appBar: AppBar(
-        title: Text('Measure a customer'),
+        title: Text('Measure an end-wearer'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),

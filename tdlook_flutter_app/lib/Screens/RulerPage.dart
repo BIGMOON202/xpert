@@ -352,7 +352,7 @@ class _RulerPageState extends State<RulerPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
-         title: Text('Customer\'s height?'),
+         title: Text('End-wearer\'s height?'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),

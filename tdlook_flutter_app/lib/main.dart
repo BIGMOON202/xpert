@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCompanyPage.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
@@ -42,6 +43,10 @@ void main() {
           } else if (settings.name == CameraCapturePage.route) {
             if (settings.arguments is CameraCapturePageArguments) {
               return MaterialPageRoute(settings: settings, builder: (context) => CameraCapturePage(arguments: settings.arguments));
+            }
+          } else if (settings.name == ChooseGenderPage.route) {
+            if (settings.arguments is ChooseGenderPageArguments) {
+              return MaterialPageRoute(settings: settings, builder: (context) => ChooseGenderPage(argument: settings.arguments));
             }
           }
         },

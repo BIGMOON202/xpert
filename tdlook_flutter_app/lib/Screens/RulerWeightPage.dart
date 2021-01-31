@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
@@ -273,10 +274,17 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
     void _moveToNextPage() {
       widget.measurement.weight = _rawMetricValue;
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          RulerPageClavicle(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem, measurements: widget.measurement
-            ,),
-      ));
+
+      if (SharedParameters().selectedCompany == CompanyType.armor) {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            RulerPageClavicle(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem, measurements: widget.measurement
+              ,),
+        ));
+      } else {
+        
+      }
+
+
     }
 
     var nextButton = SafeArea(child:SizedBox(
@@ -336,7 +344,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
-        title: Text('Customer\'s weight?'),
+        title: Text('End-wearer\'s weight?'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),

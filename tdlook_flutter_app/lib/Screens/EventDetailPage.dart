@@ -141,7 +141,7 @@ class MeasuremetsListWidget extends StatelessWidget {
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
           // LoginPage(userType: _selectedUserType)
-          ChooseGenderPage(measurement:  measurement)
+          ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
           ));
         } else if (measurement.isComplete == true) {
 

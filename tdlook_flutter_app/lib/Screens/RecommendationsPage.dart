@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsListWorker.dar
 import 'package:tdlook_flutter_app/Network/ApiWorkers/ReccomendationsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
@@ -373,6 +374,9 @@ class RecommendationsListWidget extends StatelessWidget {
     }
 
     _restartAnalize() {
+
+      Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
+          arguments: ChooseGenderPageArguments(measurement));
       print('_restartAnalize');
     }
 

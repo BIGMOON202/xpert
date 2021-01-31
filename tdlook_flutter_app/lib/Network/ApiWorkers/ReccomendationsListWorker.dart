@@ -108,17 +108,34 @@ class RecommendationModel {
 
 class RawResponseData {
   String errors;
-
+  RecommendationNormal normal;
   RawResponseData({this.errors});
 
   RawResponseData.fromJson(Map<String, dynamic> json) {
     errors = json['errors'];
+    normal = json['normal'] != null
+        ? new RecommendationNormal.fromJson(json['normal'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['errors'] = this.errors;
     return data;
+  }
+}
+
+class RecommendationNormal {
+  String size;
+  double accuracy;
+  String parameter;
+
+  RecommendationNormal({this.size, this.accuracy, this.parameter});
+
+  RecommendationNormal.fromJson(Map<String, dynamic> json) {
+    size = json['size'];
+    accuracy = json['accuracy'];
+    parameter = json['parameter'];
   }
 }
 

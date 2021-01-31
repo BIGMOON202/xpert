@@ -21,7 +21,6 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
 
   CompanyType _selectedCompanyType;
 
-
   void _selectUserType(int atIndex) {
     setState(() {
       _selectedCompanyType = atIndex == 0 ? CompanyType.uniforms : CompanyType.armor;
@@ -103,6 +102,8 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
     );
 
     void _moveToNextPage() {
+      SharedParameters().selectedCompany = _selectedCompanyType;
+
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
           EventsPage(provider: _selectedCompanyType.apiKey(),)
         // EventsPage()
