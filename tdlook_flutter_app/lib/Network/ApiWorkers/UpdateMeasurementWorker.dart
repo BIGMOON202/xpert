@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:camera/camera.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -93,6 +94,7 @@ class UpdateMeasurementBloc {
   MeasurementResults model;
   XFile frontPhoto;
   XFile sidePhoto;
+  bool shouldUploadMeasurements;
 
   UploadPhotosWorker _uploadPhotosWorker;
   UpdateMeasurementWorker _userInfoWorker;
@@ -124,12 +126,14 @@ class UpdateMeasurementBloc {
     }
   }
 
-  UpdateMeasurementBloc(this.model, this.frontPhoto, this.sidePhoto) {
+  UpdateMeasurementBloc(this.model, this.frontPhoto, this.sidePhoto, this.shouldUploadMeasurements) {
     _listController = StreamController<Response<AnalizeResult>>();
 
     chuckListSink = _listController.sink;
     chuckListStream = _listController.stream;
-    _userInfoWorker = UpdateMeasurementWorker(model);
+    if (shouldUploadMeasurements == true) {
+      _userInfoWorker = UpdateMeasurementWorker(model);
+    }
     _uploadPhotosWorker = UploadPhotosWorker(model, frontPhoto, sidePhoto);
     _waitingForResultsWorker = WaitingForResultsWorker(model, handle);
   }
@@ -138,15 +142,18 @@ class UpdateMeasurementBloc {
 
 
   call() async {
-
-    chuckListSink.add(Response.loading('Uploading measurements'));
-    try {
-      MeasurementResults info = await _userInfoWorker.uploadData();
+    if (shouldUploadMeasurements == true && _userInfoWorker != null) {
+      chuckListSink.add(Response.loading('Uploading measurements'));
+      try {
+        MeasurementResults info = await _userInfoWorker.uploadData();
+        uploadPhotos();
+        // chuckListSink.add(Response.completed(info));
+      } catch (e) {
+        chuckListSink.add(Response.error(e.toString()));
+        print(e);
+      }
+    } else {
       uploadPhotos();
-      // chuckListSink.add(Response.completed(info));
-    } catch (e) {
-      chuckListSink.add(Response.error(e.toString()));
-      print(e);
     }
   }
 
@@ -236,15 +243,16 @@ class AnalizeResult {
 }
 
 class Detail {
-  String name;
+
+  ErrorProcessingType type;
   String status;
   String taskId;
   String message;
 
-  Detail({this.name, this.status, this.taskId, this.message});
+  Detail({this.type, this.status, this.taskId, this.message});
 
   Detail.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
+    type = EnumToString.fromString(ErrorProcessingType.values, json['name']);
     status = json['status'];
     taskId = json['task_id'];
     message = json['message'];
@@ -252,11 +260,65 @@ class Detail {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
     data['status'] = this.status;
     data['task_id'] = this.taskId;
     data['message'] = this.message;
     return data;
+  }
+}
+
+enum ErrorProcessingType {
+  front_skeleton_processing, side_skeleton_processing
+}
+extension ErrorProcessingTypeExtension on ErrorProcessingType {
+  String iconName() {
+    switch (this) {
+      case ErrorProcessingType.front_skeleton_processing: return 'front_ic.png';
+      case ErrorProcessingType.side_skeleton_processing: return 'side_ic.png';
+      default: return '';
+    }
+  }
+
+  String name() {
+    switch (this) {
+      case ErrorProcessingType.front_skeleton_processing: return 'front';
+      case ErrorProcessingType.side_skeleton_processing: return 'side';
+      default: return '';
+    }
+  }
+}
+
+extension DetailExtension on Detail {
+  String uiDescription() {
+    switch (this.message.toLowerCase()) {
+      case 'side photo in the front' : return 'Oops! It looks like you took the side photo instead of the front one';
+      case 'front photo in the side' : return 'It seems you uploaded front photo instead of the side one';
+      case 'can\'t detect the human body' : return 'We don\'t seem to be able to detect your body!';
+      case 'the body is not full' : return 'Sorry! We need to be able to detect your entire body!';
+      default:
+        var str = 'the pose is wrong, сheck your ';
+        if (this.message.toLowerCase().contains(str)) {
+          var bodyPart = this.message.toLowerCase().replaceAll(str, '') ?? '';
+          return 'Oh no! We were not able to detect your $bodyPart';
+        }
+        return '';
+    }
+  }
+
+  String uiTitle() {
+    switch (this.message.toLowerCase()) {
+      case 'side photo in the front' : return 'Please retake the front photo';
+      case 'front photo in the side' : return 'Please retake the side photo';
+      case 'can\'t detect the human body' : return 'Please retake the ${this.type.name()} photo and ensure your whole body can be seen in the photo!';
+      case 'the body is not full' : return 'Please retake the ${this.type.name()} photo and ensure your entire body can be seen in the photo, and follow the pose!';
+      default:
+        var str = 'the pose is wrong, сheck your ';
+        if (this.message.toLowerCase().contains(str)) {
+          var bodyPart = this.message.toLowerCase().replaceAll(str, '') ?? '';
+          return 'Remember, your $bodyPart must be seen in the photo!';
+        }
+        return this.message;
+    }
   }
 }
 

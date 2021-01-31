@@ -14,7 +14,8 @@ class PhotoRulesPage extends StatefulWidget {
   final PhotoType photoType;
   final Gender gender;
   final MeasurementResults measurement;
-  const PhotoRulesPage ({ Key key, this.photoType, this.gender, this.measurement, this.frontPhoto}): super(key: key);
+  final CameraCapturePageArguments arguments;
+  const PhotoRulesPage ({ Key key, this.photoType, this.gender, this.measurement, this.frontPhoto, this.arguments}): super(key: key);
 
 
   @override
@@ -26,9 +27,11 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
   bool _continueButtonEnable = false;
 
   void _moveToNextPage() {
+
+
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
     // RulerPageWeight(),
-      CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement, frontPhoto: widget.frontPhoto, gender: widget.gender,)
+      CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement, frontPhoto: widget.frontPhoto, gender: widget.gender, arguments: widget.arguments)
     ));
   }
 

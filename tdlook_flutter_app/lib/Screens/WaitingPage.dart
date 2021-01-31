@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:web_socket_channel/io.dart';
@@ -14,8 +15,9 @@ class WaitingPageArguments {
   final XFile frontPhoto;
   final XFile sidePhoto;
   final MeasurementResults measurement;
+  final bool shouldUploadMeasurements;
 
-  WaitingPageArguments({Key key, this.measurement, this.frontPhoto, this.sidePhoto});
+  WaitingPageArguments({Key key, this.measurement, this.frontPhoto, this.sidePhoto, this.shouldUploadMeasurements});
 }
 
 class WaitingPage extends StatefulWidget {
@@ -39,15 +41,20 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
 
   _handleResult(AnalizeResult result) {
     print('move to recomendations');
+    animationController.dispose();
     if (result.status != 'error') {
         widget.arguments.measurement.isComplete = true;
 
         Navigator.pushNamedAndRemoveUntil(context, RecommendationsPage.route, (route) => false,
             arguments: RecommendationsPageArguments(measurement: widget.arguments.measurement, showRestartButton: true));
     } else {
-      var textList = result.detail.map((e) => '${e.name}: ${e.message}').toList();
-          var text = textList.join("\n");
-      _show(error: text);
+
+      Navigator.pushNamedAndRemoveUntil(context, AnalizeErrorPage.route, (route) => false,
+          arguments: AnalizeErrorPageArguments(
+              measurement: widget.arguments.measurement,
+              frontPhoto: widget.arguments.frontPhoto,
+              sidePhoto: widget.arguments.sidePhoto,
+              result: result));
     }
   }
 
@@ -86,7 +93,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
         '\nheight:${widget.arguments.measurement.height}'
         '\nweight:${widget.arguments.measurement.weight}'
         '\nclavicle:${widget.arguments.measurement.clavicle}');
-    _updateMeasurementBloc = UpdateMeasurementBloc(widget.arguments.measurement, widget.arguments.frontPhoto, widget.arguments.sidePhoto);
+    _updateMeasurementBloc = UpdateMeasurementBloc(widget.arguments.measurement, widget.arguments.frontPhoto, widget.arguments.sidePhoto, widget.arguments.shouldUploadMeasurements);
     _updateMeasurementBloc.call();
     _updateMeasurementBloc.chuckListStream.listen((event) {
 

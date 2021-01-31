@@ -15,20 +15,35 @@ import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 
+class CameraCapturePageArguments {
+  final MeasurementResults measurement;
+  final PhotoType photoType;
+  final XFile frontPhoto;
+  final XFile sidePhoto;
+
+  CameraCapturePageArguments({this.measurement, this.photoType, this.frontPhoto, this.sidePhoto});
+}
+
 class CameraCapturePage extends StatefulWidget {
+
+  static const String route = '/capture_photo';
 
   final XFile frontPhoto;
   final XFile sidePhoto;
   final MeasurementResults measurement;
   final PhotoType photoType;
   final Gender gender;
-  const CameraCapturePage ({ Key key, this.photoType, this.gender, this.measurement, this.frontPhoto, this.sidePhoto}): super(key: key);
+  final CameraCapturePageArguments arguments;
+
+  const CameraCapturePage ({ Key key, this.photoType, this.gender, this.measurement, this.frontPhoto, this.sidePhoto, this.arguments}): super(key: key);
+
 
   @override
   _CameraCapturePageState createState() => _CameraCapturePageState();
 }
 
 class _CameraCapturePageState extends State<CameraCapturePage> {
+
 
   XFile _frontPhoto;
   XFile _sidePhoto;
@@ -98,6 +113,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     super.dispose();
   }
 
+  PhotoType activePhotoType() {
+    if (widget.arguments != null) {
+      return widget.arguments.photoType;
+    }
+    return widget.photoType;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,18 +131,52 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     final yScale = 1;
 
     void _moveToNextPage() {
+      if (widget.arguments == null) {
+        if (widget.photoType == PhotoType.front) {
 
-      if (widget.photoType == PhotoType.front) {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            PhotoRulesPage(photoType: PhotoType.side, measurement: widget.measurement, frontPhoto: _frontPhoto, gender: widget.gender),
-        ));
+
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              PhotoRulesPage(photoType: PhotoType.side,
+                  measurement: widget.measurement,
+                  frontPhoto: _frontPhoto,
+                  gender: widget.gender),
+          ));
+        } else {
+
+          Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+              arguments: WaitingPageArguments(
+                  measurement: widget.measurement,
+              frontPhoto: _frontPhoto,
+              sidePhoto: _sidePhoto, shouldUploadMeasurements: true));
+        }
       } else {
+        if (widget.arguments.photoType == PhotoType.front) {
 
-        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
-            arguments: WaitingPageArguments(
-                measurement: widget.measurement,
-            frontPhoto: _frontPhoto,
-            sidePhoto: _sidePhoto));
+          if (widget.arguments.sidePhoto == null) {
+            //make side photo
+
+            Navigator.pushNamed(context, CameraCapturePage.route,
+                arguments: CameraCapturePageArguments(measurement: widget.arguments.measurement,
+                    frontPhoto: _frontPhoto,
+                    sidePhoto: widget.arguments.sidePhoto));
+
+          } else {
+            //make calculations
+            Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+                arguments: WaitingPageArguments(
+                    measurement: widget.arguments.measurement,
+                    frontPhoto: _frontPhoto,
+                    sidePhoto: widget.arguments.sidePhoto, shouldUploadMeasurements: false));
+          }
+        } else {
+
+          //make calculations
+          Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+              arguments: WaitingPageArguments(
+                  measurement: widget.arguments.measurement,
+                  frontPhoto: widget.arguments.frontPhoto,
+                  sidePhoto: _sidePhoto, shouldUploadMeasurements: false));
+        }
       }
     }
 
@@ -137,7 +192,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         _isTakingPicture = false;
       });
 
-      if (widget.photoType == PhotoType.front) {
+      if (activePhotoType() == PhotoType.front) {
         _frontPhoto = file;
       } else {
         _sidePhoto = file;
@@ -181,7 +236,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     }
     return Scaffold(
         appBar: AppBar(
-          title: widget.photoType == PhotoType.front ? Text('Front photo') : Text('Side photo'),
+          title: activePhotoType() == PhotoType.front ? Text('Front photo') : Text('Side photo'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),

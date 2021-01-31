@@ -2,6 +2,8 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
+import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCompanyPage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +34,14 @@ void main() {
           } else if (settings.name == RecommendationsPage.route) {
             if (settings.arguments is RecommendationsPageArguments) {
               return MaterialPageRoute(settings: settings, builder: (context) => RecommendationsPage(arguments: settings.arguments));
+            }
+          } else if (settings.name == AnalizeErrorPage.route) {
+            if (settings.arguments is AnalizeErrorPageArguments) {
+              return MaterialPageRoute(settings: settings, builder: (context) => AnalizeErrorPage(arguments: settings.arguments));
+            }
+          } else if (settings.name == CameraCapturePage.route) {
+            if (settings.arguments is CameraCapturePageArguments) {
+              return MaterialPageRoute(settings: settings, builder: (context) => CameraCapturePage(arguments: settings.arguments));
             }
           }
         },
