@@ -313,14 +313,31 @@ extension MeasurementResultsExtension on MeasurementResults {
 }
 
 class Person {
-  Person();
+
+  FrontParams frontParams;
+  Person({this.frontParams});
 
   Person.fromJson(Map<String, dynamic> json) {
+    frontParams = json['front_params'] != null ? new FrontParams.fromJson(json['front_params']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     return data;
+  }
+}
+
+class FrontParams {
+  double rise;
+  double inseam;
+  double waist;
+
+  FrontParams({this.rise, this.inseam, this.waist});
+
+  FrontParams.fromJson(Map<String, dynamic> json) {
+    rise = json['rise'];
+    inseam = json['inside_leg_height'];
+    waist = json['waist'];
   }
 }
 

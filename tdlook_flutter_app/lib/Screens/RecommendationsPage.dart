@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/ReccomendationsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
@@ -105,16 +106,35 @@ class RecommendationsListWidget extends StatelessWidget {
 
   const RecommendationsListWidget({Key key, this.measurement, this.recommendations, this.showRestartButton}) : super(key: key);
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static var _optionColor = HexColor.fromHex('898A9D');
+  static var _highlightColor = HexColor.fromHex('1E7AE4');
 
 
   @override
   Widget build(BuildContext context) {
 
+    Widget _recommendationRow({String title, String size}) {
+      return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: TextStyle(color: _optionColor, fontSize: 12, fontWeight: FontWeight.w400)),
+            SizedBox(height: 6),
+            Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(4)),
+                    color: Colors.white.withAlpha(10)
+                ),
+                child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Text(size, style: TextStyle(color: _highlightColor, fontWeight: FontWeight.bold)))
+            )]);
+    }
+
     Widget itemAt(int index) {
 
       Container container;
 
-      var _highlightColor = HexColor.fromHex('1E7AE4');
 
       if (index == 0) {
 
@@ -244,27 +264,25 @@ class RecommendationsListWidget extends StatelessWidget {
         var title = recomendation.product.name;
         var code = recomendation.product.style.toString();
         var size = recomendation.size;
-        var optionColor = HexColor.fromHex('898A9D');
         var _textStyle = TextStyle(color: Colors.white);
 
         List<Widget> _sizeWidgets(RecommendationModel recommendation) {
           var widgets =  List<Widget>();
 
-          var column = Column(
-              children: [
-                Text('Size', style: TextStyle(color: optionColor, fontSize: 12, fontWeight: FontWeight.w400)),
-                SizedBox(height: 6),
-                Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(4)),
-                      color: Colors.white.withAlpha(10)
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Text(size, style: TextStyle(color: _highlightColor, fontWeight: FontWeight.bold)))
-              )]);
+          var column = _recommendationRow(title: 'Size', size: size);
           widgets.add(column);
+
+          if (SharedParameters().selectedCompany == CompanyType.uniforms) {
+            if (measurement.person.frontParams.waist != null) {
+              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child: _recommendationRow(title: 'Waist', size: measurement.person.frontParams.waist.toStringAsFixed(2))));
+            }
+            if (measurement.person.frontParams.rise != null) {
+              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Rise', size: measurement.person.frontParams.rise.toStringAsFixed(2))));
+            }
+            if (measurement.person.frontParams.inseam != null) {
+              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Inseam', size: measurement.person.frontParams.inseam.toStringAsFixed(2))));
+            }
+          }
           return widgets;
         }
 
@@ -287,7 +305,7 @@ class RecommendationsListWidget extends StatelessWidget {
                             children: [Expanded(child:Text(title, style: TextStyle(color: Colors.white), maxLines: 5) ),
                               Text(code,
                                 style: TextStyle(
-                                    color: optionColor),)]),
+                                    color: _optionColor),)]),
                         SizedBox(height: 18,),
                         Row(
                           children: _sizeWidgets(recomendation),
