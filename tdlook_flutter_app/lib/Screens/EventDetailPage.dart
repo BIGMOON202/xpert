@@ -146,21 +146,20 @@ class MeasuremetsListWidget extends StatelessWidget {
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
         // if sales rep - open gender
-        if (userType == UserType.salesRep) {
+        if (SharedParameters().selectedCompany == CompanyType.armor) {
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+              BadgePage(arguments:  BadgePageArguments(measurement, userType))
           ));
         } else {
-          //if end-wearer - open badge
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            BadgePage(arguments:  BadgePageArguments(measurement))
+              ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
           ));
-          }
+        }
 
         } else if (measurement.isComplete == true) {
 
-        Navigator.pushNamed(context, RecommendationsPage.route,
-            arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
+          Navigator.pushNamed(context, RecommendationsPage.route,
+              arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
 
 
         } else if (event.status != EventStatus.in_progress) {

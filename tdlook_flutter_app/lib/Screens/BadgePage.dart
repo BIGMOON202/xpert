@@ -1,13 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 
 
 class BadgePageArguments {
   MeasurementResults measurement;
-  BadgePageArguments(this.measurement);
+  UserType userType;
+  BadgePageArguments(this.measurement, this.userType);
 }
 
 class BadgePage extends StatefulWidget {
@@ -28,6 +33,7 @@ class _BadgePageState extends State<BadgePage> {
 
   void _moveToNextScreen() {
 
+    // widget.arguments.measurement
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       ChooseGenderPage(argument:  ChooseGenderPageArguments(widget.arguments.measurement))
     ));
@@ -58,7 +64,7 @@ class _BadgePageState extends State<BadgePage> {
                   disabledColor: Colors.white.withOpacity(0.5),
                   textColor: Colors.black,
                   child: Text('CONTINUE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
-                  color: Colors.white,
+                  color: HexColor.fromHex('1E7AE4'),
                   height: 50,
                   // padding: EdgeInsets.only(left: 12, right: 12),
                   shape: RoundedRectangleBorder(
@@ -127,7 +133,7 @@ class _BadgePageState extends State<BadgePage> {
     var scaffold = Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('Your Badge ID'),
+          title: Text(widget.arguments.userType == UserType.endWearer ? 'Your Badge ID' : 'End-wearer\'s Badge ID'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),

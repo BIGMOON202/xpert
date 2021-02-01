@@ -349,7 +349,7 @@ class RecommendationsListWidget extends StatelessWidget {
         print('_restartAnalize');
       } else {
         Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
-            arguments: BadgePageArguments(measurement));
+            arguments: BadgePageArguments(measurement, SharedParameters().selectedUser));
         print('_restartAnalize');
       }
     }

@@ -88,7 +88,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
         print('_restartAnalize');
       } else {
         Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
-            arguments: BadgePageArguments(widget.arguments.measurement));
+            arguments: BadgePageArguments(widget.arguments.measurement, SharedParameters().selectedUser));
         print('_restartAnalize');
       }
     }

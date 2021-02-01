@@ -135,23 +135,23 @@ class NetworkAPI {
 
 
     dynamic _response(http.Response response) {
-    print('----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${response.body.toString()}');
+    print('----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
     switch (response.statusCode) {
       case 200:
       case 201:
-        var responseJson = json.decode(response.body.toString());
+        var responseJson = json.decode(utf8.decode(response.bodyBytes));
         print(responseJson);
         return responseJson;
       case 400:
-        throw BadRequestException(response.body.toString());
+        throw BadRequestException(response.body);
       case 401:
 
       case 403:
-        var responseJson = json.decode(response.body.toString());
+        var responseJson = json.decode(utf8.decode(response.bodyBytes));
         print(responseJson);
         var details = responseJson['detail'];
         print(details);
-        throw UnauthorisedException(details != null ? details : response.body.toString());
+        throw UnauthorisedException(details != null ? details : response.body);
       case 500:
 
       default:

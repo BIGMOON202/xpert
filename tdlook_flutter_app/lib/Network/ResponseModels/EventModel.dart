@@ -242,6 +242,7 @@ class MeasurementResults {
   Person person;
   String createdAt;
   String updatedAt;
+  String badgeId;
   List<Messages> messages;
 
   MeasurementResults({this.id, this.uuid, this.isActive, this.isComplete, this.completedAt, this.endWearer, this.event, this.gender, this.height, this.weight, this.clavicle, this.person, this.createdAt, this.updatedAt, this.messages});
@@ -261,6 +262,7 @@ class MeasurementResults {
     person = json['person'] != null ? new Person.fromJson(json['person']) : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    badgeId = json['badge_id'];
     if (json['messages'] != null) {
       messages = new List<Messages>();
       json['messages'].forEach((v) { messages.add(new Messages.fromJson(v)); });
@@ -286,6 +288,11 @@ class MeasurementResults {
     if (this.clavicle != null && this.clavicle > 0) {
       data['clavicle'] = this.clavicle.toString();
     }
+    if (this.badgeId != null && this.badgeId.isEmpty == false) {
+      data['badge_id'] = this.badgeId;
+    }
+
+
     // if (this.person != null) {
     //   data['person'] = this.person.toJson();
     // }
