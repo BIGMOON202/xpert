@@ -104,6 +104,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
     void _moveToNextPage() {
       SharedParameters().selectedCompany = _selectedCompanyType;
 
+      print('selectedCompany:${SharedParameters().selectedCompany}');
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
           EventsPage(provider: _selectedCompanyType.apiKey(),)
         // EventsPage()
@@ -181,6 +182,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),

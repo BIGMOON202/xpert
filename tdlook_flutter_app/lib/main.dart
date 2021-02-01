@@ -15,7 +15,14 @@ import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
 
 void main() {
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) => {
-      runApp(MaterialApp(
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+    [
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ],
+  ).then((val) {
+  runApp(MaterialApp(
         debugShowCheckedModeBanner: false,
         // home: LookApp(),
         initialRoute: '/',
@@ -54,7 +61,7 @@ void main() {
           return MaterialPageRoute(settings: settings, builder: (context) => LookApp());
         },
       ));
-    // });
+    });
 }
 
 class LookApp extends StatefulWidget {

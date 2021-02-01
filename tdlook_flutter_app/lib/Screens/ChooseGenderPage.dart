@@ -157,6 +157,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
     // TODO: implement build
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Measure an end-wearer'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

@@ -170,6 +170,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),

@@ -9,6 +9,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPageClavicle.dart';
@@ -281,10 +282,10 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
               ,),
         ));
       } else {
-        
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
+        ));
       }
-
-
     }
 
     var nextButton = SafeArea(child:SizedBox(
@@ -344,6 +345,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('End-wearer\'s weight?'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

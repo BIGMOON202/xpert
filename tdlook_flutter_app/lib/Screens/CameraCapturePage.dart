@@ -236,6 +236,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     }
     return Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: activePhotoType() == PhotoType.front ? Text('Front photo') : Text('Side photo'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,

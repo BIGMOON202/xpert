@@ -159,6 +159,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('XpertFit is building your perfect fit'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

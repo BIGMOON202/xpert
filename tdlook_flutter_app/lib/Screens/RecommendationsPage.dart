@@ -84,6 +84,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
     var scaffold = Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Text('Profile details'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,

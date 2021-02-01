@@ -147,6 +147,10 @@ class _EventsPageState extends State<EventsPage> {
 
       }
 
+      void closePopup() {
+        Navigator.of(context, rootNavigator: true).pop("Discard");
+      }
+
       showDialog(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
@@ -159,6 +163,7 @@ class _EventsPageState extends State<EventsPage> {
               CupertinoDialogAction(
                 isDefaultAction: true,
                 child: Text('No'),
+                onPressed: () => closePopup()
               ),
             ],
           )
@@ -168,6 +173,7 @@ class _EventsPageState extends State<EventsPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('My Events'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

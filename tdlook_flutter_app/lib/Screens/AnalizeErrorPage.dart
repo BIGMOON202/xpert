@@ -210,6 +210,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Error'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

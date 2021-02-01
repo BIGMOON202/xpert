@@ -98,6 +98,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
     return Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Text('How to take photos'),
           backgroundColor: SharedParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,

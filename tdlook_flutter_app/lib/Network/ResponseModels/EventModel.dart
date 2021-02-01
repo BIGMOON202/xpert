@@ -283,7 +283,9 @@ class MeasurementResults {
     data['gender'] = this.gender;
     data['height'] = this.height.toInt().toString();
     data['weight'] = this.weight.toInt().toString();
-    data['clavicle'] = this.clavicle.toString();
+    if (this.clavicle != null && this.clavicle > 0) {
+      data['clavicle'] = this.clavicle.toString();
+    }
     // if (this.person != null) {
     //   data['person'] = this.person.toJson();
     // }

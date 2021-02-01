@@ -306,6 +306,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('End-wearer\'s clavicle?'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

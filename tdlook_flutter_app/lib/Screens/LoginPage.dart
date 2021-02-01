@@ -295,6 +295,7 @@ class _LoginPageState extends State<LoginPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Login as ${widget.userType.displayName()}'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
