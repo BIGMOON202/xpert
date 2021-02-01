@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsListWorker.dar
 import 'package:tdlook_flutter_app/Network/ApiWorkers/ReccomendationsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -86,7 +87,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     var scaffold = Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text(widget.arguments.showRestartButton ? 'Profile details' : 'Thank you'),
+          title: Text(widget.arguments.showRestartButton ? 'Thank you': 'Profile details'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
@@ -342,9 +343,15 @@ class RecommendationsListWidget extends StatelessWidget {
 
     _restartAnalize() {
 
-      Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
-          arguments: ChooseGenderPageArguments(measurement));
-      print('_restartAnalize');
+      if (SharedParameters().selectedUser == UserType.salesRep) {
+        Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
+            arguments: ChooseGenderPageArguments(measurement));
+        print('_restartAnalize');
+      } else {
+        Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
+            arguments: BadgePageArguments(measurement));
+        print('_restartAnalize');
+      }
     }
 
 

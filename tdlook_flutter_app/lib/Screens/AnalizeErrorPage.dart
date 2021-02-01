@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -80,9 +81,16 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
               frontPhoto: _frontPhoto,
               sidePhoto: _sidePhoto, photoType: _passedPhotoType));
     } else {
-      Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
-          arguments: ChooseGenderPageArguments(widget.arguments.measurement));
-      print('_restartAnalize');
+
+      if (SharedParameters().selectedUser == UserType.salesRep) {
+        Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
+            arguments: ChooseGenderPageArguments(widget.arguments.measurement));
+        print('_restartAnalize');
+      } else {
+        Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
+            arguments: BadgePageArguments(widget.arguments.measurement));
+        print('_restartAnalize');
+      }
     }
   }
 

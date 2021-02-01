@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
+import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCompanyPage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
@@ -54,6 +55,10 @@ void main() {
           } else if (settings.name == ChooseGenderPage.route) {
             if (settings.arguments is ChooseGenderPageArguments) {
               return MaterialPageRoute(settings: settings, builder: (context) => ChooseGenderPage(argument: settings.arguments));
+            }
+          } else if (settings.name == BadgePage.route) {
+            if (settings.arguments is BadgePageArguments) {
+              return MaterialPageRoute(settings: settings, builder: (context) => BadgePage(arguments: settings.arguments));
             }
           }
         },

@@ -6,6 +6,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
+import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,6 +40,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
     _bloc = MeasurementsListWorkerBloc(widget.event.id.toString());
     _bloc.call();
 
+    SharedParameters().selectedUser = widget.userType;
+
     if (widget.measurementsList != null && widget.measurementsList.data.length > 0) {
       // widget.measurementsList.data =  widget.measurementsList.data.where((i) => i.endWearer.id == widget.currentUserId).toList();
     }
@@ -51,7 +54,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     Widget listBody() {
       if (widget.measurementsList != null && widget.measurementsList.data.length != 0) {
         print('config list body');
-        return MeasuremetsListWidget(event: widget.event, measurementsList: widget.measurementsList);
+        return MeasuremetsListWidget(event: widget.event, measurementsList: widget.measurementsList, userType: widget.userType,);
       } else {
         print('config list body async');
         return StreamBuilder<Response<MeasurementsList>>(
@@ -64,7 +67,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   return Loading(loadingMessage: snapshot.data.message);
                   break;
                 case Status.COMPLETED:
-                  return MeasuremetsListWidget(event: widget.event, measurementsList: snapshot.data.data);
+                  return MeasuremetsListWidget(event: widget.event, measurementsList: snapshot.data.data, userType: widget.userType,);
                   break;
                 case Status.ERROR:
                   return Error(
@@ -98,8 +101,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
 class MeasuremetsListWidget extends StatelessWidget {
   final Event event;
   final MeasurementsList measurementsList;
+  final UserType userType;
 
-  const MeasuremetsListWidget({Key key, this.event, this.measurementsList}) : super(key: key);
+  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType}) : super(key: key);
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
 
@@ -141,10 +145,18 @@ class MeasuremetsListWidget extends StatelessWidget {
       // }
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
+        // if sales rep - open gender
+        if (userType == UserType.salesRep) {
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          // LoginPage(userType: _selectedUserType)
-          ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+            ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
           ));
+        } else {
+          //if end-wearer - open badge
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            BadgePage(arguments:  BadgePageArguments(measurement))
+          ));
+          }
+
         } else if (measurement.isComplete == true) {
 
         Navigator.pushNamed(context, RecommendationsPage.route,
@@ -155,8 +167,6 @@ class MeasuremetsListWidget extends StatelessWidget {
         _showCupertinoDialog('Event is not in progress now');
 
       }
-
-
       }
 
 

@@ -25,6 +25,8 @@ class SharedParameters {
 
   MeasurementModel currentMeasurement;
   CompanyType selectedCompany;
+  UserType selectedUser;
+
   Color mainBackgroundColor = HexColor.fromHex('16181B');
   Color selectionColor = HexColor.fromHex('1E7AE4');
 }
