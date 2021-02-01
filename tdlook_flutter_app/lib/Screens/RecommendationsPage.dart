@@ -273,7 +273,10 @@ class RecommendationsListWidget extends StatelessWidget {
           var column = _recommendationRow(title: 'Size', size: size);
           widgets.add(column);
 
-          if (SharedParameters().selectedCompany == CompanyType.uniforms) {
+          print('front: ${measurement.person}');
+          print('front: ${measurement.person.frontParams}');
+
+          if (SharedParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null) {
             if (measurement.person.frontParams.waist != null) {
               widgets.add(Padding(padding: EdgeInsets.only(left: 12), child: _recommendationRow(title: 'Waist', size: measurement.person.frontParams.waist.toStringAsFixed(2))));
             }

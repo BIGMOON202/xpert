@@ -39,6 +39,8 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
 
 
     super.initState();
+
+    print('gender selectedCompany:${SharedParameters().selectedCompany}');
   }
 
   void _selectGender(int atIndex) {

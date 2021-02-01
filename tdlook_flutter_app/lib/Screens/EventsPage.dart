@@ -48,6 +48,9 @@ class _EventsPageState extends State<EventsPage> {
     _userInfoBloc = UserInfoBloc();
     print('get userInfo ${_userInfoBloc}');
 
+    print('list selectedCompany:${SharedParameters().selectedCompany}');
+
+
     Future<Void> fetchUserType() async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       _userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
@@ -64,7 +67,9 @@ class _EventsPageState extends State<EventsPage> {
             break;
           case Status.COMPLETED:
             print('completed header');
-            SharedParameters().selectedCompany = event.data.provider;
+            if (_userType == UserType.salesRep) {
+              SharedParameters().selectedCompany = event.data.provider;
+            }
             print('company = ${event.data.provider.apiKey()}');
             setState(() {
               _userInfo = event.data;

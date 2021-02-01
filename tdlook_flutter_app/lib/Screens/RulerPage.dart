@@ -26,7 +26,7 @@ class RulerPage extends StatefulWidget {
 class _RulerPageState extends State<RulerPage> {
 
   ItemPositionsListener _itemPositionsListener =  ItemPositionsListener.create();
-  ItemScrollController _itemScrollController;
+  ItemScrollController _itemScrollController = ItemScrollController();
 
   int minValue = 150;
   int maxValue = 220;
@@ -34,7 +34,8 @@ class _RulerPageState extends State<RulerPage> {
   MeasurementSystem selectedMeasurementSystem = MeasurementSystem.imperial;
   String _value = '150';
   String _valueMeasure = 'cm';
-  var rulerGap = 14;
+  var rulerGap = 0;
+  var _listHeight = 500.0;
 
   double _rawMetricValue = 150;
   static Color _backgroundColor = HexColor.fromHex('16181B');
@@ -70,6 +71,9 @@ class _RulerPageState extends State<RulerPage> {
             .index;
       }
 
+      if (rulerGap == 0) {
+        rulerGap = max - min;
+      }
       // print('H min:$min max $max');
       _updateValuesFor(min, max);
       // _updateValuesFor(min);
@@ -82,11 +86,12 @@ class _RulerPageState extends State<RulerPage> {
 
   @override
   void initState() {
+    super.initState();
+
     print('INIT RULER H');
     numberOfRulerElements = maxValue - minValue;
 
     _addListener();
-    super.initState();
   }
 
   @override
@@ -95,6 +100,8 @@ class _RulerPageState extends State<RulerPage> {
     _removeListener();
     super.dispose();
   }
+
+  int _lastSelectedIndex = 0;
 
   void _updateValuesFor(int minIndex, int maxIndex) {
 
@@ -107,17 +114,17 @@ class _RulerPageState extends State<RulerPage> {
       selectedIndex = maxIndex - rulerGap;
     }
 
+    _lastSelectedIndex = selectedIndex;
 
     setState(() {
       // var dif = (maxIndex - minIndex) - rulerGap;
       int cmValue = selectedIndex + minValue;
-
+      // print('cm: $cmValue');
       if (selectedMeasurementSystem == MeasurementSystem.metric) {
         _value = '$cmValue';
         _valueMeasure = 'cm';
         _rawMetricValue = cmValue.toDouble();
       } else {
-        // int oneSegmentValue = ((maxValue - minValue) / (numberOfRulerElements)).toInt();
         double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
         double cmValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
         _rawMetricValue = cmValueDouble;
@@ -130,6 +137,21 @@ class _RulerPageState extends State<RulerPage> {
         _value = '$ft\'$ddf\'\'';
       }
     });
+  }
+
+  int transferIndexTo({MeasurementSystem newSystem}) {
+
+    var indexValue = (maxValue - minValue) / 27;
+
+    var newIndex = _lastSelectedIndex;
+    if (newSystem == MeasurementSystem.imperial) {
+      newIndex =  (_lastSelectedIndex / indexValue).toInt();
+    } else {
+      newIndex = (_lastSelectedIndex * indexValue).toInt();
+    }
+    print('last index: $_lastSelectedIndex');
+    print('new index: $newIndex');
+    return newIndex;
   }
 
 
@@ -191,6 +213,7 @@ class _RulerPageState extends State<RulerPage> {
     }
 
     var itemCount = numberOfRulerElements + 1;
+    var _lineOffset = 7.0;
     ScrollablePositionedList _listView =   ScrollablePositionedList.builder(itemBuilder: (_,index) => Row(
                                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                                   // crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -200,8 +223,8 @@ class _RulerPageState extends State<RulerPage> {
                                                                                                                     width: _lineWidthForRulerAt(index: index),
                                                                                                                     color: Colors.white,
                                                                                                                     margin: EdgeInsets.only(
-                                                                                                                    top: 7,
-                                                                                                                      bottom: 7,
+                                                                                                                    top: _lineOffset,
+                                                                                                                      bottom: _lineOffset,
                                                                                                                            )),
                                                                             )
                                                                           ),
@@ -211,7 +234,7 @@ class _RulerPageState extends State<RulerPage> {
                                                                             )
                                                                               ],
                                                                 ),
-                                                   padding: EdgeInsets.only(top:240,bottom: 240),
+                                                   padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
                                                    itemCount: itemCount,
     itemPositionsListener: _itemPositionsListener,
     itemScrollController: _itemScrollController,);
@@ -223,7 +246,7 @@ class _RulerPageState extends State<RulerPage> {
         onChildSize: (size) {
             // _listView.padding = EdgeInsets.only(top:300);
         },
-        child: Padding(padding: EdgeInsets.only(top: 66, bottom: 66), child:_listView)
+        child: Container(child: _listView)
       ),
 
         Align(
@@ -278,6 +301,7 @@ class _RulerPageState extends State<RulerPage> {
         Align(
         alignment: Alignment.centerRight,
         child: Container(
+          height: _listHeight,
           width: 90,
           child: listView,
           color: _backgroundColor,
@@ -323,7 +347,7 @@ class _RulerPageState extends State<RulerPage> {
     var segmentControl = CustomSlidingSegmentedControl(
          // thumbColor: HexColor.fromHex('E0E3E8'),
          //  backgroundColor: HexColor.fromHex('303339'),
-                        data: ['IN','CM'],
+                        data: ['imperial system'.toUpperCase(),'metric system'.toUpperCase()],
          panelColor: HexColor.fromHex('E0E3E8'),
          textColor: Colors.black,
          background: HexColor.fromHex('303339'),
@@ -333,8 +357,10 @@ class _RulerPageState extends State<RulerPage> {
           innerPadding: 6,
           onTap: (i) {
                           setState(() {
-                            selectedMeasurementSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
-                            print('selected segment is $i');
+                            var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
+                            _lastSelectedIndex = transferIndexTo(newSystem: newSystem);
+                            selectedMeasurementSystem = newSystem;
+                            _itemScrollController.scrollTo(index: _lastSelectedIndex, duration: Duration(seconds: 0));
                           });
           },
     );

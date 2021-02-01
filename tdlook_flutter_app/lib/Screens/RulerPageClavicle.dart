@@ -38,7 +38,9 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
   String _value = '25';
   String _valueMeasure = 'cm';
   double _rawMetricValue = 25;
-  var rulerGap = 18;
+  var rulerGap = 0;
+  var _listHeight = 300.0;
+
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
 
@@ -73,6 +75,9 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
             .index;
       }
 
+      if (rulerGap == 0) {
+        rulerGap = max - min;
+      }
       // print('min:$min max $max');
       _updateValuesFor(min, max);
       // _updateValuesFor(min);
@@ -145,6 +150,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       return widgetToRetun;
     }
 
+    var _lineOffset = 7.0;
     ScrollablePositionedList _listView =   ScrollablePositionedList.builder(itemBuilder: (_,index) => Row(
       mainAxisAlignment: MainAxisAlignment.center,
       // crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -154,8 +160,8 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
                 width: (index % 10 == 0) ? 30 : (index % 5 == 0) ? 22 : 12,
                 color: Colors.white,
                 margin: EdgeInsets.only(
-                  top: 7,
-                  bottom: 7,
+                  top: _lineOffset,
+                  bottom: _lineOffset,
                 )),
           )
       ),
@@ -165,7 +171,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         )
       ],
     ),
-      padding: EdgeInsets.only(top:305,bottom: 305),
+      padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
       itemCount: 27,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,);
@@ -232,6 +238,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         Align(
           alignment: Alignment.centerRight,
           child: Container(
+            height: _listHeight,
             width: 90,
             child: listView,
             color: _backgroundColor,

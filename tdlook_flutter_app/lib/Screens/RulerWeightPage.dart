@@ -37,7 +37,8 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   int numberOfRulerElements;
   String _value = '30';
   String _valueMeasure = 'kg';
-  var rulerGap = 18;
+  var rulerGap = 0;
+  var _listHeight = 500.0;
 
   double _rawMetricValue = 30;
   static Color _backgroundColor = HexColor.fromHex('16181B');
@@ -74,6 +75,10 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
             ? position
             : max)
             .index;
+      }
+
+      if (rulerGap == 0) {
+        rulerGap = max - min;
       }
 
 
@@ -176,6 +181,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     }
 
     var itemCount = numberOfRulerElements + 1;
+    var _lineOffset = 7.0;
     ScrollablePositionedList _listView =   ScrollablePositionedList.builder(itemBuilder: (_,index) => Row(
       mainAxisAlignment: MainAxisAlignment.center,
       // crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -185,8 +191,8 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
                 width: _lineWidthForRulerAt(index: index),
                 color: Colors.white,
                 margin: EdgeInsets.only(
-                  top: 7,
-                  bottom: 7,
+                  top: _lineOffset,
+                  bottom: _lineOffset,
                 )),
           )
       ),
@@ -196,7 +202,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         )
       ],
     ),
-      padding: EdgeInsets.only(top:305,bottom: 305),
+      padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
       itemCount: itemCount,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,);
@@ -263,6 +269,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         Align(
           alignment: Alignment.centerRight,
           child: Container(
+            height: _listHeight,
             width: 90,
             child: listView,
             color: _backgroundColor,
@@ -276,6 +283,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     void _moveToNextPage() {
       widget.measurement.weight = _rawMetricValue;
 
+      print('company: ${SharedParameters().selectedCompany.apiKey()}');
       if (SharedParameters().selectedCompany == CompanyType.armor) {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
             RulerPageClavicle(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem, measurements: widget.measurement

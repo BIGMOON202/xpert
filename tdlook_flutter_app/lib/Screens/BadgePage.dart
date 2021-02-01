@@ -33,6 +33,7 @@ class _BadgePageState extends State<BadgePage> {
 
   void _moveToNextScreen() {
 
+    widget.arguments.measurement.badgeId = _enteredbadge;
     // widget.arguments.measurement
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       ChooseGenderPage(argument:  ChooseGenderPageArguments(widget.arguments.measurement))
