@@ -115,6 +115,18 @@ class RecommendationsListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
 
     Widget _recommendationRow({String title, String size}) {
+
+      var _textSize = size ?? 'Unable to identify size';
+      Color _textColor = size != null ? _highlightColor : Colors.red;
+      Widget _icon;
+      if (size != null) {
+        _icon = Container();
+      } else {
+        _icon = Padding(padding: EdgeInsets.only(right: 6,),
+            child:SizedBox(width: 12, height: 12, child: ResourceImage.imageWithName('warning_ic.png'),));
+      }
+
+
       return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -128,7 +140,10 @@ class RecommendationsListWidget extends StatelessWidget {
                 ),
                 child: Padding(
                     padding: EdgeInsets.all(5),
-                    child: Text(size, style: TextStyle(color: _highlightColor, fontWeight: FontWeight.bold)))
+                    child: Row(children: [
+                      _icon,
+                      Text(_textSize, style: TextStyle(color: _textColor, fontWeight: FontWeight.bold))
+      ],) )
             )]);
     }
 
