@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsListWorker.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsWorker.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/ReccomendationsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
@@ -17,7 +18,6 @@ class RecommendationsPageArguments {
   MeasurementResults measurement;
   bool showRestartButton;
   RecommendationsPageArguments({Key key, this.measurement, this.showRestartButton});
-
 }
 
 class RecommendationsPage extends StatefulWidget {
@@ -34,11 +34,30 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
   List<RecommendationModel> recommendations;
   RecommendationsListBLOC _bloc;
+  MeasurementsWorkerBloc _updateMeasurementBloc;
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
   @override
   void initState() {
     // TODO: implement initState
+    _updateMeasurementBloc = MeasurementsWorkerBloc(widget.arguments.measurement.id.toString());
+    _updateMeasurementBloc.chuckListStream.listen((event) {
+      switch (event.status) {
+        case Status.LOADING:
+          break;
+
+        case Status.COMPLETED:
+          setState(() {
+            widget.arguments.measurement = event.data;
+          });
+          break;
+        case Status.ERROR:
+          break;
+      }
+    });
+
+    _updateMeasurementBloc.call();
+
     _bloc = RecommendationsListBLOC(widget.arguments.measurement.id.toString());
     _bloc.call();
   }

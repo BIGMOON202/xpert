@@ -35,7 +35,6 @@ class UploadPhotosWorker {
 
   NetworkAPI _provider = NetworkAPI();
 
-
   Future<PhotoUploaderModel> uploadData() async {
 
     final Map<String, dynamic> data = new Map<String, dynamic>();
@@ -145,7 +144,7 @@ class UpdateMeasurementBloc {
     if (shouldUploadMeasurements == true && _userInfoWorker != null) {
       chuckListSink.add(Response.loading('Uploading measurements'));
       try {
-        MeasurementResults info = await _userInfoWorker.uploadData();
+        var result = await _userInfoWorker.uploadData();
         uploadPhotos();
         // chuckListSink.add(Response.completed(info));
       } catch (e) {
