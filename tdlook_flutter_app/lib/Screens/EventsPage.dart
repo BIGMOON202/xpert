@@ -152,6 +152,7 @@ class _EventsPageState extends State<EventsPage> {
       }
 
       showDialog(
+        barrierDismissible: false,
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
             content: new Text('Are you sure that you want to logout?'),

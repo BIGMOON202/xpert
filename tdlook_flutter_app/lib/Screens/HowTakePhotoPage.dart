@@ -49,9 +49,7 @@ VideoPlayerController _controller;
   }
 
   void _runContinueButtonTimer() {
-    print('run timer');
     _enableContinueTimer().then((value) {
-      print('timer off');
       setState(() {
         _continueButtonEnable = true;
       });
@@ -98,7 +96,6 @@ VideoPlayerController _controller;
     var position = _controller.value.position.inMicroseconds;
     var duration = _controller.value.duration.inMicroseconds;
 
-    print('Duration $position - $duration');
 
     var progress = _controller.value.position.inMilliseconds / _controller.value.duration.inMilliseconds;
 
@@ -164,8 +161,6 @@ VideoPlayerController _controller;
 
     void _moveToNextPage() {
       _controller.pause();
-      print('next button pressed');
-      print('selectedGende after video: ${widget.gender.toString()}');
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // RulerPageWeight(),
       PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)

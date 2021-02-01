@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 
@@ -17,7 +18,8 @@ class AnalizeErrorPageArguments {
   XFile sidePhoto;
 
   AnalizeResult result;
-  AnalizeErrorPageArguments({Key key, this.measurement, this.frontPhoto, this.sidePhoto, this.result});
+  String errorText;
+  AnalizeErrorPageArguments({Key key, this.measurement, this.frontPhoto, this.sidePhoto, this.result, this.errorText});
 
 }
 
@@ -28,8 +30,6 @@ class AnalizeErrorPage extends StatefulWidget {
   AnalizeErrorPage({Key key, this.arguments});
   @override
   _AnalizeErrorPageState createState() => _AnalizeErrorPageState();
-
-
 }
 
 enum _PhotoError {
@@ -49,9 +49,11 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
   _continueAction() {
     print('continue');
-    XFile _frontPhoto = widget.arguments.frontPhoto;
-    XFile _sidePhoto = widget.arguments.sidePhoto;
-    PhotoType _passedPhotoType;
+
+    if (widget.arguments.result != null) {
+      XFile _frontPhoto = widget.arguments.frontPhoto;
+      XFile _sidePhoto = widget.arguments.sidePhoto;
+      PhotoType _passedPhotoType;
 
 
       if (_photoError == _PhotoError.both) {
@@ -64,19 +66,24 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
       } else if (_photoError == _PhotoError.side) {
         _sidePhoto = null;
         _passedPhotoType = PhotoType.side;
+      }
+
+      print('front: ${_frontPhoto != null}');
+      print('side: ${_sidePhoto != null}');
+      print('photoType: ${_passedPhotoType.index}');
+
+      print('push camera');
+
+      Navigator.pushNamedAndRemoveUntil(context, CameraCapturePage.route, (route) => false,
+          arguments: CameraCapturePageArguments(
+              measurement: widget.arguments.measurement,
+              frontPhoto: _frontPhoto,
+              sidePhoto: _sidePhoto, photoType: _passedPhotoType));
+    } else {
+      Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
+          arguments: ChooseGenderPageArguments(widget.arguments.measurement));
+      print('_restartAnalize');
     }
-
-    print('front: ${_frontPhoto != null}');
-    print('side: ${_sidePhoto != null}');
-    print('photoType: ${_passedPhotoType.index}');
-
-    print('push camera');
-
-    Navigator.pushNamedAndRemoveUntil(context, CameraCapturePage.route, (route) => false,
-        arguments: CameraCapturePageArguments(
-            measurement: widget.arguments.measurement,
-            frontPhoto: _frontPhoto,
-            sidePhoto: _sidePhoto, photoType: _passedPhotoType));
   }
 
 
@@ -88,7 +95,9 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
     var title = '';
 
     List<Detail> detail = List<Detail>();
-    if (widget.arguments.result.detail != null && widget.arguments.result.detail.isEmpty == false) {
+
+
+    if (widget.arguments.result != null && widget.arguments.result.detail != null && widget.arguments.result.detail.isEmpty == false) {
       detail = widget.arguments.result.detail.where((i) => i.status != 'SUCCESS').toList();
     }
 
@@ -120,6 +129,16 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+
+    Widget _configUndefinedError() {
+      return Padding(padding:EdgeInsets.only(left: 20, right: 20),
+          child: Text(widget.arguments.errorText != null ? widget.arguments.errorText : 'We can’t find your Perfect Fit right now. Please Try again in a few minutes.',
+        style: TextStyle(fontWeight:
+        FontWeight.normal,
+            fontSize: 16,
+            color: _textColor),
+        maxLines: 20,));
+    }
 
     Widget _configErrorView(Detail errorDetail) {
 
@@ -158,7 +177,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
     Widget configFor({AnalizeResult result}) {
       List<Widget> vertical = new List<Widget>();
 
-      if (result.detail == null || result.detail.isEmpty) {
+      if (result == null || result.detail == null || result.detail.isEmpty) {
 
         vertical.add(Padding(
           padding: EdgeInsets.only(top: 20),
@@ -168,17 +187,18 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
       vertical.add(Padding(padding: EdgeInsets.only(top: 50, bottom: 48), child: ResourceImage.imageWithName('ic_error.png'),));
 
-      var details = widget.arguments.result.detail.where((i) => i.status != 'SUCCESS').toList();
+      if (widget.arguments.result == null || widget.arguments.result.detail == null || widget.arguments.result.detail.isEmpty) {
+        vertical.add(_configUndefinedError());
+      } else {
+        var details = widget.arguments.result.detail.where((i) => i.status != 'SUCCESS').toList();
 
-      for (var _error in details) {
-        print(_error.type.name());
-        print(_error.message);
-        vertical.add(_configErrorView(_error));
-        vertical.add(SizedBox(height: 20));
+        for (var _error in details) {
+          print(_error.type.name());
+          print(_error.message);
+          vertical.add(_configErrorView(_error));
+          vertical.add(SizedBox(height: 20));
+        }
       }
-
-
-
 
       return Column(
         children: vertical,

@@ -85,7 +85,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     var scaffold = Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('Profile details'),
+          title: Text(widget.arguments.showRestartButton ? 'Profile details' : 'Thank you'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
@@ -109,58 +109,6 @@ class RecommendationsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    // _showCupertinoDialog(String text) {
-    //   showDialog(
-    //       context: context,
-    //       builder: (_) => new CupertinoAlertDialog(
-    //         // title: new Text("Cupertino Dialog"),
-    //         content: new Text(text),
-    //         actions: <Widget>[
-    //           FlatButton(
-    //             child: Text('OK'),
-    //             onPressed: () {
-    //               Navigator.of(context).pop();
-    //             },
-    //           )
-    //         ],
-    //       ));
-    // }
-
-
-    // void _moveToMeasurementAt(int index) {
-    //
-    //   var measurement = measurementsList.data[index];
-    //   print('open measurement\n '
-    //       'id:${measurement.id}\n'
-    //       'uuid:${measurement.uuid}');
-    //
-    //   if (Application.isInDebugMode) {
-    //     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-    //     // LoginPage(userType: _selectedUserType)
-    //     ChooseGenderPage(measurement:  measurement)
-    //     ));
-    //     return;
-    //   }
-    //
-    //   if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
-    //     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-    //     // LoginPage(userType: _selectedUserType)
-    //     ChooseGenderPage(measurement:  measurement)
-    //     ));
-    //   } else if (measurement.isComplete == true) {
-    //     _showCupertinoDialog('Measurement completed, move to results');
-    //   } else if (event.status != EventStatus.in_progress) {
-    //     _showCupertinoDialog('Event is not in progress now');
-    //
-    //   }
-    //
-    //
-    // }
-
-
-
-
 
     Widget itemAt(int index) {
 
@@ -398,7 +346,7 @@ class RecommendationsListWidget extends StatelessWidget {
                     _moveToHomePage();
                   },
                   textColor: Colors.white,
-                  child: Text('Complete Profile'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+                  child: Text('Complete my Profile'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
                   color: HexColor.fromHex('1E7AE4'),
                   height: 50,
                   padding: EdgeInsets.only(left: 12, right: 12),

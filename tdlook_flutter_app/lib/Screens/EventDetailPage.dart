@@ -108,6 +108,7 @@ class MeasuremetsListWidget extends StatelessWidget {
 
     _showCupertinoDialog(String text) {
       showDialog(
+        barrierDismissible: false,
           context: context,
           builder: (_) => new CupertinoAlertDialog(
             // title: new Text("Cupertino Dialog"),

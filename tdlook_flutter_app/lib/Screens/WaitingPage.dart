@@ -59,20 +59,30 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
   }
 
   _show({String error}) {
-    showDialog(
-        context: context,
-        builder: (_) => new CupertinoAlertDialog(
-          // title: new Text("Cupertino Dialog"),
-          content: new Text(error),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-              },
-            )
-          ],
-        ));
+
+    Navigator.pushNamedAndRemoveUntil(context, AnalizeErrorPage.route, (route) => false,
+        arguments: AnalizeErrorPageArguments(
+            measurement: widget.arguments.measurement,
+            frontPhoto: widget.arguments.frontPhoto,
+            sidePhoto: widget.arguments.sidePhoto,
+            errorText: error));
+
+
+    // showDialog(
+    //     context: context,
+    //     barrierDismissible: false,
+    //     builder: (_) => new CupertinoAlertDialog(
+    //       // title: new Text("Cupertino Dialog"),
+    //       content: new Text(error),
+    //       actions: <Widget>[
+    //         FlatButton(
+    //           child: Text('OK'),
+    //           onPressed: () {
+    //             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    //           },
+    //         )
+    //       ],
+    //     ));
   }
 
   @override
