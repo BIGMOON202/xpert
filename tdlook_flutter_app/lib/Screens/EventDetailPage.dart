@@ -222,7 +222,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                           height: 80,
                           child: Row(
                             children: [
-                              Expanded(flex: 3,
+                              Expanded(flex: 5,
                                   child: Column(
                                     children:
                                     [
@@ -287,6 +287,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                                     ],
                                   )),
                               Expanded(
+                                flex: 2,
                                   child: Container(
                                     color: Colors.transparent,
                                     child: Column(

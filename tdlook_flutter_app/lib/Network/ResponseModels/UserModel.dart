@@ -1,11 +1,14 @@
 
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+
 class User {
   int id;
   String uuid;
   String role;
   String status;
   String company;
-  String provider;
+  CompanyType provider;
   String email;
   String phone;
   String firstName;
@@ -47,7 +50,9 @@ class User {
     role = json['role'];
     status = json['status'];
     company = json['company'];
-    provider = json['provider'];
+    if (json['provider'] != null) {
+      provider = json['provider'] == 'FH' ? CompanyType.uniforms : json['provider'] == 'SL' ? CompanyType.armor : null;
+    }
     email = json['email'];
     phone = json['phone'];
     firstName = json['first_name'];
@@ -71,7 +76,7 @@ class User {
     data['role'] = this.role;
     data['status'] = this.status;
     data['company'] = this.company;
-    data['provider'] = this.provider;
+    // data['provider'] = this.provider;
     data['email'] = this.email;
     data['phone'] = this.phone;
     data['first_name'] = this.firstName;

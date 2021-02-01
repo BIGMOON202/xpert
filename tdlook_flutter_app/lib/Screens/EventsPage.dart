@@ -56,12 +56,28 @@ class _EventsPageState extends State<EventsPage> {
       _bloc.call();
 
       _userInfoBloc.set(_userType);
-      _userInfoBloc.call();
+      _userInfoBloc.chuckListStream.listen((event) {
 
+        switch (event.status) {
+          case Status.LOADING:
+            print('loading header');
+            break;
+          case Status.COMPLETED:
+            print('completed header');
+            SharedParameters().selectedCompany = event.data.provider;
+            print('company = ${event.data.provider.apiKey()}');
+            setState(() {
+              _userInfo = event.data;
+            });
+            break;
+          case Status.ERROR:
+            break;
+        }
+      });
+      _userInfoBloc.call();
     }
 
     fetchUserType();
-
   }
 
   StreamBuilder _builder;
@@ -74,36 +90,8 @@ class _EventsPageState extends State<EventsPage> {
     Widget _userInfoView() {
       if (_userInfo == null) {
         print('user info null');
-        if (_builder == null) {
-          _builder = StreamBuilder<Response<User>>(
-            stream: _userInfoBloc.chuckListStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                switch (snapshot.data.status) {
-                  case Status.LOADING:
-                    print('loading header');
-                    return Loading(loadingMessage: snapshot.data.message);
-                    break;
-                  case Status.COMPLETED:
-                    print('completed header');
-                     _userInfo = snapshot.data.data;
-                    return  UserInfoHeader(userInfo: snapshot.data.data, userType: _userType);
-                    break;
-                  case Status.ERROR:
-                    return Expanded(child: Error(
-                      errorMessage: snapshot.data.message,
-                      showRetry: false,
-                    ));
-                    break;
-                }
-              }
-              return CircularProgressIndicator();
-            },
-          );
-        }
-        return _builder;
-
-      } else {
+          return CircularProgressIndicator();
+        } else {
         print('user info not null');
         return UserInfoHeader(userInfo: _userInfo, userType: _userType);
       }
@@ -348,7 +336,7 @@ class EventsListWidget extends StatelessWidget {
                           height: 80,
                           child: Row(
                             children: [
-                              Expanded(flex: 3,
+                              Expanded(flex: 5,
                                   child: Column(
                                     children:
                                     [
@@ -415,6 +403,7 @@ class EventsListWidget extends StatelessWidget {
                                     ],
                                   )),
                               Expanded(
+                                flex: 2,
                                   child: Container(
                                     color: Colors.transparent,
                                     child: Column(

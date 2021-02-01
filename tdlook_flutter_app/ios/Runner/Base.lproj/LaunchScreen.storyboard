@@ -64,7 +64,7 @@
                         <constraints>
                             <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1a2-6s-vTC"/>
                             <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="4X2-HB-R7a"/>
-                            <constraint firstItem="xbc-2k-c8Z" firstAttribute="top" secondItem="hXt-5Z-UAO" secondAttribute="bottom" constant="8" id="Dqf-tL-LDc"/>
+                            <constraint firstAttribute="bottom" secondItem="hXt-5Z-UAO" secondAttribute="bottom" constant="42" id="Dqf-tL-LDc"/>
                             <constraint firstItem="G4t-SD-j8c" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Ld3-AS-TmY"/>
                             <constraint firstItem="Xhp-HX-WUM" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ROa-nJ-Fdr"/>
                             <constraint firstItem="G4t-SD-j8c" firstAttribute="top" secondItem="2kj-eh-2eg" secondAttribute="bottom" constant="30" id="RP9-UD-Zq4"/>
