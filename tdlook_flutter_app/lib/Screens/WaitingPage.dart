@@ -162,7 +162,31 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
         alignment: Alignment.center,
         child: SizedBox(width: 125, child: Text('${_stateName.toUpperCase()}',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 2,
         ),)),
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: SafeArea(
+          child: Padding(padding: EdgeInsets.all(12),
+            child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(6.0)
+                ),
+                color: Colors.white.withAlpha(10)
+            ),
+              child: Padding(
+                padding: EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 8),
+                child: Row(
+                  children: [SizedBox(width: 30, height: 50, child: ResourceImage.imageWithName('lock_phone_ic.png'),),
+                  SizedBox(width: 16,),
+                  Flexible(child:Text('Please do not lock your phone. We are computing your measurements and forming your perfect fit.',
+                    maxLines: 4,
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 12)))],
+                ),
+              ),
+            ),
 
+          ),
+        ),
+      )
 
       ],
     );

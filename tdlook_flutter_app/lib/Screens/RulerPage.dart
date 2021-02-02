@@ -35,7 +35,7 @@ class _RulerPageState extends State<RulerPage> {
   String _value = '150';
   String _valueMeasure = 'cm';
   var rulerGap = 0;
-  var _listHeight = 500.0;
+  var _listHeight = 400.0;
 
   double _rawMetricValue = 150;
   static Color _backgroundColor = HexColor.fromHex('16181B');
