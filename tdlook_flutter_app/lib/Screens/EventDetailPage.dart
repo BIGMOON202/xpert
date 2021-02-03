@@ -412,7 +412,18 @@ class MeasuremetsListWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                            children: [Expanded(child:Text(userName, style: TextStyle(color: Colors.white)),),
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          // crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(flex: 2, child:Text(userName, style: TextStyle(color: Colors.white)),),
+                              isMyMeasure ? Flexible(flex: 2, child: Container(child: Flexible( child:Container(decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(4)),
+                                  color: Colors.white.withOpacity(0.1)
+                              ), child: Padding(
+                                padding: EdgeInsets.only(top: 3, bottom: 3, left: 5, right: 5),
+                                child: Text('You', style: TextStyle(color: Colors.white))))))) : Container(),
+                              Spacer(),
                               Container(
                                     color: Colors.transparent,
                                     child: Column(
