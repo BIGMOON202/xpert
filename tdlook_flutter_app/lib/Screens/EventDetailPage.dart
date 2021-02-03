@@ -67,7 +67,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   return Loading(loadingMessage: snapshot.data.message);
                   break;
                 case Status.COMPLETED:
-                  return MeasuremetsListWidget(event: widget.event, measurementsList: snapshot.data.data, userType: widget.userType,);
+                  return MeasuremetsListWidget(event: widget.event,
+                    measurementsList: snapshot.data.data,
+                    userType: widget.userType,
+                    currentUserId: widget.currentUserId);
                   break;
                 case Status.ERROR:
                   return Error(
@@ -99,11 +102,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
 }
 
 class MeasuremetsListWidget extends StatelessWidget {
+  final String currentUserId;
   final Event event;
   final MeasurementsList measurementsList;
   final UserType userType;
 
-  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType}) : super(key: key);
+  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType, this.currentUserId}) : super(key: key);
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
 
@@ -339,6 +343,59 @@ class MeasuremetsListWidget extends StatelessWidget {
         var _textStyle = TextStyle(color: _textColor);
         var _descriptionStyle = TextStyle(color: _descriptionColor);
 
+        bool isMyMeasure = false;
+        if (this.userType == UserType.endWearer && measurement.endWearer?.id.toString() == this.currentUserId) {
+          isMyMeasure = true;
+        }
+
+        bool showDate = true;
+        if (isMyMeasure == true && measurement.isComplete == false) {
+          showDate = false;
+        }
+
+
+        Widget dateLineWidget() {
+          if (showDate) {
+            return  Expanded(flex: 1,
+                child: Container(
+                  color: Colors.transparent,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment
+                        .start,
+                    children: [
+                      SizedBox(height: 16,
+                        width: 16,
+                        child: ResourceImage.imageWithName(
+                            'ic_checkmark.png'),),
+                      SizedBox(width: 8),
+                      Text(
+                          measurementDate,
+                          style: _textStyle)
+                    ],),));
+          } else {
+            return Expanded(
+              flex:4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [SizedBox(height: 0.5, child: Container(color: SharedParameters().optionColor)),
+              SizedBox(height: 16),
+                Expanded(child:
+                MaterialButton(
+                  onPressed: (() {
+                    _moveToMeasurementAt(index-1);
+                  }),
+                  textColor: Colors.white,
+                  child: Text('FIND MY FIT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
+                  color: SharedParameters().selectionColor,
+                  // padding: EdgeInsets.only(left: 12, right: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ))],
+            ));
+          }
+        }
+
 
         container = Container(
           color: _backgroundColor,
@@ -379,7 +436,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                                       )],),)]),
                         SizedBox(height: 18,),
                         SizedBox(
-                            height: 52,
+                            height: showDate ? 52 : 90,
                             child: Row(
                               children: [
                                 Expanded(flex: 2,
@@ -407,22 +464,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                                                   ],))
                                               ],)),
                                         SizedBox(height: 12,),
-                                        Expanded(flex: 1,
-                                            child: Container(
-                                              color: Colors.transparent,
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start,
-                                                children: [
-                                                  SizedBox(height: 16,
-                                                    width: 16,
-                                                    child: ResourceImage.imageWithName(
-                                                        'ic_checkmark.png'),),
-                                                  SizedBox(width: 8),
-                                                  Text(
-                                                      measurementDate,
-                                                      style: _textStyle)
-                                                ],),)),
+                                        dateLineWidget(),
 
                                       ],
                                     )),

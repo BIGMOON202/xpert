@@ -39,6 +39,8 @@ class _EventsPageState extends State<EventsPage> {
   UserType _userType = UserType.salesRep;
   User _userInfo;
 
+  EventsListWidget listWidget;
+
 
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
 
@@ -175,13 +177,16 @@ class _EventsPageState extends State<EventsPage> {
       body: StreamBuilder<Response<Tuple2<EventList, MeasurementsList>>>(
         stream: _bloc.chuckListStream,
         builder: (context, snapshot) {
+          print('configure StreamBuilder');
           if (snapshot.hasData) {
             switch (snapshot.data.status) {
               case Status.LOADING:
                 return Loading(loadingMessage: snapshot.data.message);
                 break;
               case Status.COMPLETED:
-                return EventsListWidget(resultsList: snapshot.data.data, userType: _userType, userId: '');//_userInfo.id.toString()
+                var userId = _userInfo != null ? _userInfo.id.toString() : null;
+                listWidget = EventsListWidget(resultsList: snapshot.data.data, userType: _userType, userId: userId);
+                return listWidget;
                 break;
               case Status.ERROR:
                 return Error(
@@ -249,6 +254,11 @@ class EventsListWidget extends StatelessWidget {
     }
 
     void _moveToEventAt(int index) {
+
+      if (userId == null) {
+        print('did not receive user profile info on main page');
+        // return;
+      }
 
       var event = resultsList.item1.data[index];
       var measurements = resultsList.item2;
