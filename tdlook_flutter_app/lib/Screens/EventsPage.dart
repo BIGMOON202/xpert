@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Painter.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UserInfoWorker.dart';
@@ -135,9 +136,7 @@ class _EventsPageState extends State<EventsPage> {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove('refresh');
         prefs.remove('access');
-
         Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-
       }
 
       void closePopup() {
@@ -179,11 +178,9 @@ class _EventsPageState extends State<EventsPage> {
           if (snapshot.hasData) {
             switch (snapshot.data.status) {
               case Status.LOADING:
-                print('loading');
                 return Loading(loadingMessage: snapshot.data.message);
                 break;
               case Status.COMPLETED:
-                print('completed');
                 return EventsListWidget(resultsList: snapshot.data.data, userType: _userType, userId: '');//_userInfo.id.toString()
                 break;
               case Status.ERROR:
@@ -246,6 +243,10 @@ class EventsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    if (resultsList.item1.data.isEmpty) {
+      return EmptyStateWidget(messageName: 'There is no events yet');
+    }
 
     void _moveToEventAt(int index) {
 

@@ -32,7 +32,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
 
     var titleText = Padding(
       padding: EdgeInsets.only(top: 40,left: 40,right: 40, bottom: 10),
-      child: CustomText("What is your ExpertFit type?"),
+      child: CustomText("What is your XpertFit type?"),
     );
 
 
@@ -166,7 +166,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
 
             children: [
               SizedBox(child: ResourceImage.imageWithName("expertfit_logo.png"), width: 171, height: 40,),
-              Padding(padding: EdgeInsets.all(50), child: Text('Take the guesswork out of fitting and do it all in the convenience of your home. ExpertFit virtual sizing '
+              Padding(padding: EdgeInsets.all(50), child: Text('Take the guesswork out of fitting and do it all in the convenience of your home. XpertFit virtual sizing '
                   'technology is accurate and fast.', style: TextStyle(color: HexColor.fromHex('898A9D')),  textAlign: TextAlign.center,))],
           ),
         ),

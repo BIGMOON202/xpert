@@ -170,8 +170,6 @@ class MeasuremetsListWidget extends StatelessWidget {
 
 
 
-
-
     Widget itemAt(int index) {
 
       Container container;

@@ -29,4 +29,5 @@ class SharedParameters {
 
   Color mainBackgroundColor = HexColor.fromHex('16181B');
   Color selectionColor = HexColor.fromHex('1E7AE4');
+  Color optionColor = HexColor.fromHex('D8D8D8');
 }

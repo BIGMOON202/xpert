@@ -113,6 +113,16 @@ enum PhotoType {
 }
 
 extension PhotoTypeExtension on PhotoType {
+
+  String name() {
+    switch (this) {
+      case PhotoType.front:
+        return 'front';
+      case PhotoType.side:
+        return 'side';
+    }
+  }
+
   String rulesImageNameFor({Gender gender}) {
     switch (this) {
       case PhotoType.front:

@@ -99,7 +99,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('How to take photos'),
+          title: Text('Take a ${widget.photoType.name()} photo'),
           backgroundColor: SharedParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
