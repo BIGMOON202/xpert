@@ -352,7 +352,7 @@ class EventsListWidget extends StatelessWidget {
                           height: 80,
                           child: Row(
                             children: [
-                              Expanded(flex: 5,
+                              Expanded(flex: 4,
                                   child: Column(
                                     children:
                                     [
@@ -435,7 +435,7 @@ class EventsListWidget extends StatelessWidget {
                                             padding: EdgeInsets.all(5),
                                             child: Text(eventStatus,
                                               style: TextStyle(
-                                                  color: eventStatusColor),)),),
+                                                  color: eventStatusColor, fontWeight: FontWeight.bold),)),),
                                       SizedBox(height: 8,),
                                       Flexible(child: _configureGraphWidgetFor(event))
                                       ],),)),

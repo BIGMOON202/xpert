@@ -117,11 +117,23 @@ extension EventStatusExtension on EventStatus {
       case EventStatus.scheduled: return Colors.white;
       case EventStatus.cancelled: return Colors.red;
       case EventStatus.completed: return HexColor.fromHex('4AA61D');
-      case EventStatus.draft: return Colors.white;
+      case EventStatus.draft: return HexColor.fromHex('1E7AE4');
       case EventStatus.in_progress: return HexColor.fromHex('E89751');
 
     }
   }
+
+  Color textColor() {
+    switch (this) {
+      case EventStatus.scheduled: return Colors.black;
+      case EventStatus.cancelled: return Colors.red;
+      case EventStatus.completed: return HexColor.fromHex('4AA61D');
+      case EventStatus.draft: return HexColor.fromHex('1E7AE4');
+      case EventStatus.in_progress: return HexColor.fromHex('E89751');
+
+    }
+  }
+
 
   bool shouldShowCountGraph() {
     switch(this) {

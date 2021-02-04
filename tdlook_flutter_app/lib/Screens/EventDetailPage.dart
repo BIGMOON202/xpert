@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
+import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
@@ -174,7 +175,7 @@ class MeasuremetsListWidget extends StatelessWidget {
 
 
 
-    Widget itemAt(int index) {
+    Widget itemAt({int index, bool showEmptyView}) {
 
       Container container;
 
@@ -194,7 +195,8 @@ class MeasuremetsListWidget extends StatelessWidget {
       var eventEndDate = endTimeSplit.first ?? '-';
       var eventEndTime = endTimeSplit.last.substring(0,8) ?? '-';
       var eventStatus = event.status.displayName() ?? "In progress";
-      var eventStatusColor = event.status.displayColor() ?? Colors.white;
+      var eventStatusColor = Colors.white;
+      var eventStatusTextColor = event.status.textColor() ?? Colors.black;
 
 
       var _textColor = Colors.white;
@@ -223,7 +225,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                           height: 80,
                           child: Row(
                             children: [
-                              Expanded(flex: 5,
+                              Expanded(flex: 4,
                                   child: Column(
                                     children:
                                     [
@@ -297,14 +299,13 @@ class MeasuremetsListWidget extends StatelessWidget {
                                         decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(4)),
-                                            color: eventStatusColor.withOpacity(
-                                                0.1)
+                                            color: eventStatusColor
                                         ),
                                         child: Padding(
                                             padding: EdgeInsets.all(5),
                                             child: Text(eventStatus,
-                                              style: TextStyle(
-                                                  color: eventStatusColor),)),)
+                                              style: TextStyle( fontWeight: FontWeight.bold,
+                                                  color: eventStatusTextColor),)),)
                                       ],),)),
                             ],
                           ))
@@ -315,9 +316,14 @@ class MeasuremetsListWidget extends StatelessWidget {
       );
 
       } else {
+
+        if (showEmptyView) {
+          return Container(height: MediaQuery.of(context).size.height * 0.5, child:EmptyStateWidget(messageName: 'The event has not started yet.\nWait until the due date.'));
+        }
+
+
         var ind = index - 1;
         var measurement = measurementsList.data[ind];
-
 
         var userName = measurement.endWearer.name ?? '-';
         var userEmail = measurement.endWearer.email ?? '-';
@@ -353,6 +359,13 @@ class MeasuremetsListWidget extends StatelessWidget {
           showDate = false;
         }
 
+        bool canAddMeasurement = true;
+        if (showDate == false && event.status == EventStatus.completed) {
+          canAddMeasurement = false;
+        }
+
+
+
 
         Widget dateLineWidget() {
           if (showDate) {
@@ -373,6 +386,29 @@ class MeasuremetsListWidget extends StatelessWidget {
                           style: _textStyle)
                     ],),));
           } else {
+
+            print('canAddMeasurement: ${canAddMeasurement}');
+            Widget content;
+            if (canAddMeasurement) {
+              content = MaterialButton(
+                onPressed: (() {
+                  _moveToMeasurementAt(index-1);
+                }),
+                textColor: Colors.white,
+                child: Text('FIND MY FIT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
+                color: SharedParameters().selectionColor,
+                // padding: EdgeInsets.only(left: 12, right: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              );
+            } else {
+              content = EmptyStateWidget(
+                  messageName: 'The event has already ended\nPlease сontact with you sales representative',
+                  iconName: 'ic_clock.png');
+            }
+
+
             return Expanded(
               flex:4,
                 child: Column(
@@ -380,18 +416,7 @@ class MeasuremetsListWidget extends StatelessWidget {
               children: [SizedBox(height: 0.5, child: Container(color: SharedParameters().optionColor)),
               SizedBox(height: 16),
                 Expanded(child:
-                MaterialButton(
-                  onPressed: (() {
-                    _moveToMeasurementAt(index-1);
-                  }),
-                  textColor: Colors.white,
-                  child: Text('FIND MY FIT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
-                  color: SharedParameters().selectionColor,
-                  // padding: EdgeInsets.only(left: 12, right: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ))],
+                content)],
             ));
           }
         }
@@ -447,7 +472,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                                       )],),)]),
                         SizedBox(height: 18,),
                         SizedBox(
-                            height: showDate ? 52 : 90,
+                            height: showDate ? 52 : canAddMeasurement ? 90 : 170,
                             child: Row(
                               children: [
                                 Expanded(flex: 2,
@@ -506,8 +531,15 @@ class MeasuremetsListWidget extends StatelessWidget {
       return gesture;
     }
 
-    var list = ListView.builder(itemCount: measurementsList.data.length + 1,
-      itemBuilder: (_, index) => itemAt(index),
+    var eventInfoViewCount = 1;
+    var measurementsCount = measurementsList.data.length;
+    var emptyStateViewCount = 0;
+    if (event.status == EventStatus.scheduled) {
+      measurementsCount = 0;
+      emptyStateViewCount = 1;
+    }
+    var list = ListView.builder(itemCount: measurementsCount + emptyStateViewCount + eventInfoViewCount,
+      itemBuilder: (_, index) => itemAt(index:index, showEmptyView: emptyStateViewCount == 1),
     );
     return list;
   }

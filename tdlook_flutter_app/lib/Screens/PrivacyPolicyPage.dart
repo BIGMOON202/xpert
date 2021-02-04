@@ -162,8 +162,8 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                                         hoverColor: Colors.orange,
                                         value: _isApplied,
                                       )),
-                                  Text('I accept Terms and Conditions and Privacy Policy',
-                                    style: TextStyle(color: Colors.white),)],)),
+                                  Flexible(child: Text('I accept Terms and Conditions and Privacy Policy',
+                                    style: TextStyle(color: Colors.white), maxLines: 3))],)),
                           nextButton]))));
       } else {
         return Container();

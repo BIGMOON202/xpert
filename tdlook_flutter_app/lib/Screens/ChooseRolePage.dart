@@ -31,8 +31,8 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
   Widget build(BuildContext context) {
 
     var titleText = Padding(
-      padding: EdgeInsets.all(40),
-      child: CustomText("Before start, select your role"),
+      padding: EdgeInsets.only(top: 40, left: 40, right: 40, bottom: 0),
+      child: Text('Before start, select your role', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18), textAlign: TextAlign.center,),
     );
 
 
@@ -140,7 +140,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
         ),
 
         child: Column(
-          children: [titleText, buttonsContainer],
+          children: [titleText, Flexible(child: buttonsContainer)],
         ),
     ), nextButton])
     );

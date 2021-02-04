@@ -51,6 +51,6 @@ class EmptyStateWidget extends StatelessWidget {
           height: 40,
           child: ResourceImage.imageWithName(iconName ?? _defaultIcon)),
       SizedBox(height: 16),
-      Text(messageName ?? '', style: TextStyle(color: SharedParameters().optionColor),)]));
+      Text(messageName ?? '', style: TextStyle(color: SharedParameters().optionColor, fontWeight: FontWeight.bold), textAlign: TextAlign.center,)]));
   }
 }
