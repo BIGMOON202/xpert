@@ -137,14 +137,25 @@ class UpdateMeasurementBloc {
     _waitingForResultsWorker = WaitingForResultsWorker(model, handle);
   }
 
+  Future<bool> _enableContinueTimer({int delay}) async {
+    await Future.delayed(Duration(seconds: delay));
+  }
 
+  void setLoading({String name, int delay}) {
+    print('DELAYED: ${name} ${DateTime.now().toString()}');
+    _enableContinueTimer(delay: delay).then((value) {
+      chuckListSink.add(Response.loading(name));
+      print('FIRED: ${name} ${DateTime.now().toString()}');
+    });
+  }
 
 
   call() async {
     if (shouldUploadMeasurements == true && _userInfoWorker != null) {
-      chuckListSink.add(Response.loading('Uploading measurements'));
+      chuckListSink.add(Response.loading('Initiating Profile Creation'));
       try {
         var result = await _userInfoWorker.uploadData();
+        chuckListSink.add(Response.loading('Profile Creation Completed!'));
         uploadPhotos();
         // chuckListSink.add(Response.completed(info));
       } catch (e) {
@@ -157,10 +168,11 @@ class UpdateMeasurementBloc {
   }
 
   uploadPhotos() async {
-    chuckListSink.add(Response.loading('Uploading photos'));
+    setLoading(name: 'Uploading photos', delay: 2);
     try {
       PhotoUploaderModel info = await _uploadPhotosWorker.uploadData();
       if (info.detail == 'OK') {
+        chuckListSink.add(Response.loading('Photo Upload Completed!'));
         observeResults();
       } else {
         chuckListSink.add(Response.error(info.detail));
@@ -172,7 +184,7 @@ class UpdateMeasurementBloc {
   }
 
   observeResults() async {
-    chuckListSink.add(Response.loading('Waiting for results'));
+    setLoading(name: 'Calculating your Measurements', delay: 2);
     try {
        _waitingForResultsWorker.startObserve();
     } catch (e) {

@@ -43,6 +43,7 @@ dependencies:
   tuple: ^1.0.3
   material_design_icons_flutter: ^4.0.5855
   web_socket_channel: ^1.2.0
+  flutter_inner_drawer: ^0.5.7+2
 
 flutter_icons:
   android: true

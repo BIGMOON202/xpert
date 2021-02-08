@@ -66,23 +66,6 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
             frontPhoto: widget.arguments.frontPhoto,
             sidePhoto: widget.arguments.sidePhoto,
             errorText: error));
-
-
-    // showDialog(
-    //     context: context,
-    //     barrierDismissible: false,
-    //     builder: (_) => new CupertinoAlertDialog(
-    //       // title: new Text("Cupertino Dialog"),
-    //       content: new Text(error),
-    //       actions: <Widget>[
-    //         FlatButton(
-    //           child: Text('OK'),
-    //           onPressed: () {
-    //             Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-    //           },
-    //         )
-    //       ],
-    //     ));
   }
 
   @override
@@ -97,6 +80,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
 
     // openSocket();
 
+
     print('MEASUREMENTS:'
         '\nid:${widget.arguments.measurement.id}'
         '\ngende: ${widget.arguments.measurement.gender},'
@@ -109,6 +93,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
 
       switch (event.status) {
         case Status.LOADING:
+          print('STATUS: ${event.message}');
           setState(() {
             _stateName = event.message;
           });
@@ -160,7 +145,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
         ),
       Align(
         alignment: Alignment.center,
-        child: SizedBox(width: 125, child: Text('${_stateName.toUpperCase()}',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 2,
+        child: SizedBox(width: 125, child: Text('${_stateName.toUpperCase()}',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 3,
         ),)),
       Align(
         alignment: Alignment.bottomCenter,

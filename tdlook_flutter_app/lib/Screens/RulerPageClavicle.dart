@@ -251,7 +251,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         flex: 2,
         child: Center(
           child:  Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             children: [
 

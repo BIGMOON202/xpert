@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_inner_drawer/inner_drawer.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Painter.dart';
@@ -41,8 +42,19 @@ class _EventsPageState extends State<EventsPage> {
 
   EventsListWidget listWidget;
 
+  final GlobalKey<InnerDrawerState> _innerDrawerKey = GlobalKey<InnerDrawerState>();
 
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+
+  void _toggle()
+  {
+    _innerDrawerKey.currentState.toggle(
+      // direction is optional
+      // if not set, the last direction will be used
+      //InnerDrawerDirection.start OR InnerDrawerDirection.end
+        direction: InnerDrawerDirection.start
+    );
+  }
 
   @override
   void initState() {
@@ -168,6 +180,9 @@ class _EventsPageState extends State<EventsPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        leading: IconButton(icon: const Icon(Icons.menu),
+            onPressed: _toggle),
+        automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text('My Events'),
         backgroundColor: Colors.transparent,
@@ -199,41 +214,46 @@ class _EventsPageState extends State<EventsPage> {
           return Container();
         },
       ),
-
-      drawer: Drawer(
-
-        child: Container(
-          color: Colors.black,
-          child:Column(children: [Expanded(
-            flex: 8,
-              child:ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            _createdHeader,
-
-            Divider(color: Colors.white,),
-
-            _createDrawerItem(
-                icon: new Icon(MdiIcons.shieldCheckOutline, color: HexColor.fromHex('898A9D'),),
-                text: 'Privacy Policy and  Terms & Conditions',
-                onTap: () {
-                  Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-                  PrivacyPolicyPage(showApply: false)
-                  ));
-            }),
-
-          ],
-        )),
-          Expanded(child: _createDrawerItem(
-              icon: Icon(Icons.logout, color: HexColor.fromHex('898A9D')),
-              text: 'Logout',
-              onTap: () {
-                _logoutAction();
-              }))]),
-        )),
       );
 
-    return scaffold;
+
+    var innerDrawer = InnerDrawer(
+        key: _innerDrawerKey,
+        onTapClose: true,
+      // borderRadius: 40,
+      backgroundDecoration: BoxDecoration(color: Colors.black),
+      leftChild: Material(child: Container(
+      color: Colors.black,
+      child:Column(children: [Expanded(
+          flex: 8,
+          child:ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              _createdHeader,
+
+              Divider(color: Colors.white,),
+
+              _createDrawerItem(
+                  icon: new Icon(MdiIcons.shieldCheckOutline, color: HexColor.fromHex('898A9D'),),
+                  text: 'Privacy Policy and  Terms & Conditions',
+                  onTap: () {
+                    Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+                        PrivacyPolicyPage(showApply: false)
+                    ));
+                  }),
+
+            ],
+          )),
+        Expanded(child: _createDrawerItem(
+            icon: Icon(Icons.logout, color: HexColor.fromHex('898A9D')),
+            text: 'Logout',
+            onTap: () {
+              _logoutAction();
+            }))]),
+    )),
+        scaffold: scaffold);
+
+    return innerDrawer;
   }
 }
 
