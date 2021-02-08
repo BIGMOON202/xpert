@@ -1,6 +1,8 @@
 
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -11,6 +13,7 @@ import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
+import 'package:tdlook_flutter_app/Screens/EventDetailPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
@@ -119,15 +122,32 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 }
 
 class RecommendationsListWidget extends StatelessWidget {
-  final MeasurementResults measurement;
-  final bool showRestartButton;
-  final   List<RecommendationModel> recommendations;
+  MeasurementResults measurement;
+  bool showRestartButton;
+  List<RecommendationModel> recommendations;
+
+  SharedPreferences prefs;
+
+  Future<void> initShared() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  RecommendationsListWidget({MeasurementResults measurement, List<RecommendationModel> recommendations, bool showRestartButton}) {
+
+    this.measurement = measurement;
+    this.recommendations = recommendations;
+    this.showRestartButton = showRestartButton;
+
+    initShared();
+  }
 
 
-  const RecommendationsListWidget({Key key, this.measurement, this.recommendations, this.showRestartButton}) : super(key: key);
+  // const RecommendationsListWidget({Key key, this.measurement, this.recommendations, this.showRestartButton}) : super(key: key);
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
   static var _optionColor = HexColor.fromHex('898A9D');
   static var _highlightColor = HexColor.fromHex('1E7AE4');
+
+
 
 
   @override
@@ -375,7 +395,16 @@ class RecommendationsListWidget extends StatelessWidget {
 
     _moveToHomePage() {
       print('move to home page');
+
+
+      var type = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+      var user = prefs.getString('temp_user');
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+      // LoginPage(userType: _selectedUserType)
+        EventDetailPage(event: measurement.event, userType: type, currentUserId: user)
+        // EventDetailPage(event: event, measurementsList: null, userType: userType, currentUserId: userId,)
+      ));
     }
 
     _restartAnalize() {

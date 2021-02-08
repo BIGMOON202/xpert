@@ -141,13 +141,12 @@ class MeasuremetsListWidget extends StatelessWidget {
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');
 
-      // if (Application.isInDebugMode) {
-      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      //   // LoginPage(userType: _selectedUserType)
-      //   ChooseGenderPage(measurement:  measurement)
-      //   ));
-      //   return;
-      // }
+      if (Application.isInDebugMode) {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+        ));
+        return;
+      }
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
         // if sales rep - open gender

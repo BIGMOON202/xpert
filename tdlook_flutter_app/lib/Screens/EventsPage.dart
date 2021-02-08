@@ -41,6 +41,7 @@ class _EventsPageState extends State<EventsPage> {
   User _userInfo;
 
   EventsListWidget listWidget;
+  SharedPreferences prefs;
 
   final GlobalKey<InnerDrawerState> _innerDrawerKey = GlobalKey<InnerDrawerState>();
 
@@ -59,6 +60,7 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
 
+
     _bloc = EventListWorkerBloc(widget.provider);
     _userInfoBloc = UserInfoBloc();
     print('get userInfo ${_userInfoBloc}');
@@ -67,7 +69,8 @@ class _EventsPageState extends State<EventsPage> {
 
 
     Future<Void> fetchUserType() async {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs = await SharedPreferences.getInstance();
+
       _userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
 
       _bloc.set(_userType);
@@ -200,6 +203,7 @@ class _EventsPageState extends State<EventsPage> {
                 break;
               case Status.COMPLETED:
                 var userId = _userInfo != null ? _userInfo.id.toString() : null;
+                prefs.setString('temp_user', userId ?? '');
                 listWidget = EventsListWidget(resultsList: snapshot.data.data, userType: _userType, userId: userId);
                 return listWidget;
                 break;
