@@ -35,11 +35,13 @@ class _RulerPageState extends State<RulerPage> {
   String _value = '150';
   String _valueMeasure = 'cm';
   var rulerGap = 0;
-  var _listHeight = 400.0;
+  var _listHeight = 300.0;
 
   double _rawMetricValue = 150;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
+  int _lastMin;
+  int _lasMax;
 
   void _addListener() {
     _itemPositionsListener.itemPositions.addListener(() {
@@ -74,9 +76,13 @@ class _RulerPageState extends State<RulerPage> {
       if (rulerGap == 0) {
         rulerGap = max - min;
       }
-      // print('H min:$min max $max');
-      _updateValuesFor(min, max);
-      // _updateValuesFor(min);
+
+      if (_lastMin != min || _lasMax != max) {
+        _lastMin = min;
+        _lasMax = max;
+
+        _updateValuesFor(min, max);
+      }
     });
   }
 
@@ -102,6 +108,7 @@ class _RulerPageState extends State<RulerPage> {
   }
 
   int _lastSelectedIndex = 0;
+  int _indexToJump = 0;
 
   void _updateValuesFor(int minIndex, int maxIndex) {
 
@@ -115,6 +122,7 @@ class _RulerPageState extends State<RulerPage> {
     }
 
     _lastSelectedIndex = selectedIndex;
+    print('selectedIndex: $selectedIndex');
 
     setState(() {
       // var dif = (maxIndex - minIndex) - rulerGap;
@@ -142,14 +150,21 @@ class _RulerPageState extends State<RulerPage> {
   int transferIndexTo({MeasurementSystem newSystem}) {
 
     var indexValue = (maxValue - minValue) / 27;
-
     var newIndex = _lastSelectedIndex;
-    if (newSystem == MeasurementSystem.imperial) {
-      newIndex =  (_lastSelectedIndex / indexValue).toInt();
-    } else {
-      newIndex = (_lastSelectedIndex * indexValue).toInt();
-    }
     print('last index: $_lastSelectedIndex');
+    print('index value: $indexValue');
+
+    if (newSystem == MeasurementSystem.imperial) {
+      var double = _lastSelectedIndex / indexValue;
+      print('new index double: $double');
+      newIndex = double.toInt();
+
+    } else {
+      var double = _lastSelectedIndex * indexValue;
+      print('new index double: $double');
+      newIndex = double.toInt();
+    }
+
     print('new index: $newIndex');
     return newIndex;
   }
@@ -212,6 +227,14 @@ class _RulerPageState extends State<RulerPage> {
       }
     }
 
+    int initialIndex() {
+      if (selectedMeasurementSystem == MeasurementSystem.metric) {
+        return 35;
+      } else {
+        return 13;
+      }
+    }
+
     var itemCount = numberOfRulerElements + 1;
     var _lineOffset = 7.0;
     ScrollablePositionedList _listView =   ScrollablePositionedList.builder(itemBuilder: (_,index) => Row(
@@ -236,9 +259,9 @@ class _RulerPageState extends State<RulerPage> {
                                                                 ),
                                                    padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
                                                    itemCount: itemCount,
+    // initialScrollIndex: ,
     itemPositionsListener: _itemPositionsListener,
     itemScrollController: _itemScrollController,);
-
 
 
     var listView = Stack(
@@ -358,10 +381,12 @@ class _RulerPageState extends State<RulerPage> {
           onTap: (i) {
                           setState(() {
                             var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
-                            _lastSelectedIndex = transferIndexTo(newSystem: newSystem);
+                            _indexToJump = transferIndexTo(newSystem: newSystem);
                             selectedMeasurementSystem = newSystem;
-                            _itemScrollController.scrollTo(index: _lastSelectedIndex, duration: Duration(seconds: 0));
                           });
+                          print('_indexToJump: $_indexToJump');
+                          _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
+                          // _itemScrollController.jumpTo(index: _indexToJump);
           },
     );
 

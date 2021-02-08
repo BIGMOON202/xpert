@@ -38,7 +38,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   String _value = '30';
   String _valueMeasure = 'kg';
   var rulerGap = 0;
-  var _listHeight = 500.0;
+  var _listHeight = 300.0;
 
   double _rawMetricValue = 30;
   static Color _backgroundColor = HexColor.fromHex('16181B');

@@ -63,7 +63,7 @@ class _BadgePageState extends State<BadgePage> {
 
                   onPressed: _continueIsEnabled() ? _moveToNextScreen : null,
                   disabledColor: Colors.white.withOpacity(0.5),
-                  textColor: Colors.black,
+                  textColor: Colors.white,
                   child: Text('CONTINUE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
                   color: HexColor.fromHex('1E7AE4'),
                   height: 50,

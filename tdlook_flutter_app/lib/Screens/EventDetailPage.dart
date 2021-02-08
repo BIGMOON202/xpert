@@ -182,8 +182,8 @@ class MeasuremetsListWidget extends StatelessWidget {
       if (index == 0) {
 
       var eventName = event?.name ?? 'Event Name';
-      var companyName = event.agency?.name ?? 'Agency name';
-      var companyType = event.agency?.type ?? 'Agency type';
+      var companyName = event.agency?.name ?? '-';
+      var companyType = event.agency?.type ?? '-';
 
       final startTimeSplit = event.createdAt.split('T');
 

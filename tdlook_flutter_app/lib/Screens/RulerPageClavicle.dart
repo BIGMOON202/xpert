@@ -97,12 +97,17 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     }
 
     setState(() {
-      int cmValue = selectedIndex + minValue;
+      double cmValue = minValue + selectedIndex * 0.5;
 
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
-        _value = '$cmValue';
+        if (cmValue % 1 == 0) {
+          _value = '${cmValue.toStringAsFixed(0)}';
+        } else {
+          _value = '${cmValue.toStringAsFixed(1)}';
+        }
+
         _valueMeasure = 'cm';
-        _rawMetricValue = cmValue.toDouble();
+        _rawMetricValue = cmValue;
       } else {
 
 
@@ -111,14 +116,23 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
 
         _rawMetricValue = cmValueDouble;
 
-        int ft = (cmValueDouble / 30.48).toInt();
-        double inch = cmValueDouble - ft.toDouble() * 30.48;
-        int ddf = (inch / 2.54).toInt();
+        // int ft = (cmValueDouble / 30.48).toInt();
+        // double inch = cmValueDouble - ft.toDouble() * 30.48;
+        double inch = (cmValueDouble / 2.54);
+        int inchInt = inch.round();
+        print('inch: $inch');
+        print('inchInt: $inchInt');
 
-        if (ft > 0) {
-          _value = '$ft\'$ddf\'\'';
+        if (selectedIndex % 4 == 0) {
+          _value = '${inchInt}\'\'';
         } else {
-          _value = '$ddf\'\'';
+          int part = 1;
+          if (selectedIndex % 3 == 0) {
+            part = 3;
+          } else if (selectedIndex % 2 == 0) {
+            part = 2;
+          }
+          _value = '${inchInt}\'\'${part}/4';
         }
         _valueMeasure = '';
       }
@@ -131,17 +145,31 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
   Widget build(BuildContext context) {
 
     if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
-      numberOfRulerElements = maxValue - minValue;
+      numberOfRulerElements = (maxValue - minValue) * 2;
     } else {
-      numberOfRulerElements = 41;
+      numberOfRulerElements = 40;
     }
 
     Widget _textWidgetForRuler({int index}) {
 
       String _text = '';
-      if (index % 5 == 0) {
-        var val = minValue + index;
-        _text = '$val';
+
+      if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
+        if (index % 5 == 0) {
+          var val = minValue + index * 0.5;
+      
+          _text = '${val.toStringAsFixed(1)}';
+        }
+      } else {
+        if (index % 4 == 0) {
+          double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
+          double cmValueDouble = index.toDouble() * oneSegmentValue + minValue.toDouble();
+
+          // int ft = (cmValueDouble / 30.48).toInt();
+          // double inch = cmValueDouble - ft.toDouble() * 30.48;
+          int ddf = (cmValueDouble / 2.54).round();
+          _text = '$ddf\'\'';
+        }
       }
 
       Text widgetToRetun = Text(_text, style: TextStyle(
@@ -150,6 +178,15 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       return widgetToRetun;
     }
 
+    double _lineWidthForRulerAt({int index}) {
+      if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
+        return (index % 10 == 0) ? 30 : (index % 5 == 0) ? 22 : 12;
+      } else {
+        return (index % 4 == 0) ? 30 : 12;
+      }
+    }
+    var itemCount = numberOfRulerElements + 1;
+
     var _lineOffset = 7.0;
     ScrollablePositionedList _listView =   ScrollablePositionedList.builder(itemBuilder: (_,index) => Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -157,7 +194,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       children: [Expanded(
           child:  Center(
             child:     Container(height: 1,
-                width: (index % 10 == 0) ? 30 : (index % 5 == 0) ? 22 : 12,
+                width:  _lineWidthForRulerAt(index: index),
                 color: Colors.white,
                 margin: EdgeInsets.only(
                   top: _lineOffset,
@@ -172,7 +209,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       ],
     ),
       padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
-      itemCount: 27,
+      itemCount: itemCount,
       itemPositionsListener: _itemPositionsListener,
       itemScrollController: _itemScrollController,);
 
@@ -210,27 +247,31 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     var containerForList = Row(
 
       // color: _backgroundColor,
-      children: [   Flexible(
-        flex: 1,
+      children: [   Expanded(
+        flex: 2,
         child: Center(
           child:  Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             children: [
 
-              Text(_value, style: TextStyle(
+              Flexible(child:Container(
+                  child:Text(_value, style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 60,
-                  color: Colors.white
-              ),
-              ),
+                  fontSize: 40,
+                  color: Colors.white,
+              ), textAlign: TextAlign.start, maxLines: 1,
+              ))),
 
-              Text(_valueMeasure, style: TextStyle(
+              Visibility(
+                visible: widget.selectedMeasurementSystem == MeasurementSystem.metric,
+                  child:Container(
+                  child: Text(_valueMeasure, style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 20,
+                  fontSize: 16,
                   color: Colors.white
               ),
-              )
+              )))
             ],
           ),
         ),
