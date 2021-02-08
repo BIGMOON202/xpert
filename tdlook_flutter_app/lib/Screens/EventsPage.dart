@@ -64,9 +64,7 @@ class _EventsPageState extends State<EventsPage> {
     _bloc = EventListWorkerBloc(widget.provider);
     _userInfoBloc = UserInfoBloc();
     print('get userInfo ${_userInfoBloc}');
-
     print('list selectedCompany:${SharedParameters().selectedCompany}');
-
 
     Future<Void> fetchUserType() async {
       prefs = await SharedPreferences.getInstance();

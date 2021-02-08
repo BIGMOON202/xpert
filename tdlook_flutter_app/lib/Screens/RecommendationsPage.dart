@@ -14,6 +14,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/Screens/EventDetailPage.dart';
+import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
@@ -400,10 +401,14 @@ class RecommendationsListWidget extends StatelessWidget {
       var type = EnumToString.fromString(UserType.values, prefs.getString("userType"));
       var user = prefs.getString('temp_user');
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+      if (type == UserType.endWearer) {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            EventsPage(provider: SharedParameters().selectedCompany.apiKey(),)
+        ));
+      }
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // LoginPage(userType: _selectedUserType)
         EventDetailPage(event: measurement.event, userType: type, currentUserId: user)
-        // EventDetailPage(event: event, measurementsList: null, userType: userType, currentUserId: userId,)
       ));
     }
 
