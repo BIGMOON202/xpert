@@ -44,6 +44,10 @@ dependencies:
   material_design_icons_flutter: ^4.0.5855
   web_socket_channel: ^1.2.0
   flutter_inner_drawer: ^0.5.7+2
+  permission_handler: 5.0.1+1
+
+dependency_overrides:
+    permission_handler_platform_interface: 2.0.1
 
 flutter_icons:
   android: true

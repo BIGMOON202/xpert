@@ -12,6 +12,7 @@ import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/Screens/RulerWeightPage.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/UIComponents/SegmentedControl.dart';
 
 class RulerPage extends StatefulWidget {
 
@@ -337,7 +338,6 @@ class _RulerPageState extends State<RulerPage> {
 
     void _moveToNextPage() {
       widget.measuremet.height = _rawMetricValue;
-      // _itemPositionsListener.itemPositions.removeListener(() {});
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
           RulerPageWeight(gender: widget.gender, selectedMeasurementSystem: selectedMeasurementSystem, measurement: widget.measuremet)
       ));
@@ -358,7 +358,6 @@ class _RulerPageState extends State<RulerPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
         ),
-        // padding: EdgeInsets.all(4),
       )),
     );
 
@@ -367,10 +366,24 @@ class _RulerPageState extends State<RulerPage> {
       child: nextButton,
     );
 
+    void _handleSegmentChanged(int newValue) {
+      setState(() {
+      });
+    }
+
+    var segmentedControl = SegmentedControl(onChanged: (i) {
+      setState(() {
+        var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
+        _indexToJump = transferIndexTo(newSystem: newSystem);
+        selectedMeasurementSystem = newSystem;
+      });
+      print('_indexToJump: $_indexToJump');
+      _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
+    });
+
+
     var segmentControl = CustomSlidingSegmentedControl(
-         // thumbColor: HexColor.fromHex('E0E3E8'),
-         //  backgroundColor: HexColor.fromHex('303339'),
-                        data: ['imperial system'.toUpperCase(),'metric system'.toUpperCase()],
+                        data: ['in'.toUpperCase(),'cm'.toUpperCase()],
          panelColor: HexColor.fromHex('E0E3E8'),
          textColor: Colors.black,
          background: HexColor.fromHex('303339'),
@@ -399,7 +412,6 @@ class _RulerPageState extends State<RulerPage> {
         SizedBox(height: 40),
         nextButton],
     );
-
 
     var scaffold = Scaffold(
       appBar: AppBar(

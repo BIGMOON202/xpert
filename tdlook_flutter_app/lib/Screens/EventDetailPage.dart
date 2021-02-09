@@ -1,6 +1,7 @@
 
 import 'dart:developer';
 
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
@@ -133,6 +134,40 @@ class MeasuremetsListWidget extends StatelessWidget {
           ));
     }
 
+    Future<void> askForPermissions() async {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.camera,
+      ].request();
+    }
+
+    void closePopup() {
+      Navigator.of(context, rootNavigator: true).pop("Discard");
+    }
+
+    Future<void> openSetting() async {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+            content: new Text('You need to make two photos to get your size recommendation.'),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text("Open Settings"),
+                onPressed: () => {
+                  openAppSettings(),
+                  closePopup()
+                },
+              ),
+              CupertinoDialogAction(
+                  isDefaultAction: true,
+                  child: Text('Discard'),
+                  onPressed: () => closePopup()
+              ),
+            ],
+          )
+      );
+    }
+
 
     void _moveToMeasurementAt(int index) {
 
@@ -141,12 +176,12 @@ class MeasuremetsListWidget extends StatelessWidget {
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');
 
-      if (Application.isInDebugMode) {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-        ));
-        return;
-      }
+      // if (Application.isInDebugMode) {
+      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+      //   ));
+      //   return;
+      // }
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
         // if sales rep - open gender
@@ -172,6 +207,20 @@ class MeasuremetsListWidget extends StatelessWidget {
       }
       }
 
+    Future<void> checkPermissionsAndMoveTo({int index}) async {
+      var cameraStatus = await Permission.camera.status;
+
+      print('cameraStatus: ${cameraStatus.toString()}');
+
+      if (await cameraStatus.isUndetermined) {
+        askForPermissions();
+      } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied) {
+        openSetting();
+        // The OS restricts access, for example because of parental controls.
+      } else {
+        _moveToMeasurementAt(index);
+      }
+    }
 
 
     Widget itemAt({int index, bool showEmptyView}) {
@@ -391,7 +440,7 @@ class MeasuremetsListWidget extends StatelessWidget {
             if (canAddMeasurement) {
               content = MaterialButton(
                 onPressed: (() {
-                  _moveToMeasurementAt(index-1);
+                  checkPermissionsAndMoveTo(index:index-1);
                 }),
                 textColor: Colors.white,
                 child: Text('FIND MY FIT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
@@ -500,10 +549,8 @@ class MeasuremetsListWidget extends StatelessWidget {
                                               ],)),
                                         SizedBox(height: 12,),
                                         dateLineWidget(),
-
                                       ],
                                     )),
-
                               ],
                             ))
                       ],
@@ -511,10 +558,6 @@ class MeasuremetsListWidget extends StatelessWidget {
                   )
               )),
         );
-
-
-
-
       }
 
       var gesture = GestureDetector(
@@ -522,7 +565,8 @@ class MeasuremetsListWidget extends StatelessWidget {
         onTap: () {
           print('did Select at $index');
           if (index > 0) {
-            _moveToMeasurementAt(index-1);
+            checkPermissionsAndMoveTo(index: index-1);
+            // _moveToMeasurementAt(index-1);
           }
         },
       );
