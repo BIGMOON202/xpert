@@ -364,7 +364,7 @@ class MeasuremetsListWidget extends StatelessWidget {
       } else {
 
         if (showEmptyView) {
-          return Container(height: MediaQuery.of(context).size.height * 0.5, child:EmptyStateWidget(messageName: 'The event has not started yet.\nWait until the due date.'));
+          return Container(height: MediaQuery.of(context).size.height * 0.5, child:EmptyStateWidget(messageName: 'The event has not been started yet. \nPlease wait until the start date'));
         }
 
 
