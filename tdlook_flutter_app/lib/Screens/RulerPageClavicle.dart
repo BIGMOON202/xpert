@@ -84,6 +84,10 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       _updateValuesFor(min, max);
       // _updateValuesFor(min);
     });
+    if (widget.selectedMeasurementSystem == MeasurementSystem.imperial) {
+      minValue = 10;
+      maxValue = 20;
+    }
     super.initState();
   }
 
@@ -99,9 +103,10 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     }
 
     setState(() {
-      double cmValue = minValue + selectedIndex * 0.5;
 
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
+        double cmValue = minValue + selectedIndex * 0.5;
+
         if (cmValue % 1 == 0) {
           _value = '${cmValue.toStringAsFixed(0)}';
         } else {
@@ -111,61 +116,44 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         _valueMeasure = 'cm';
         _rawMetricValue = cmValue;
       } else {
+        double cmValue = minValue.toDouble() + selectedIndex.toDouble() * 0.25;
 
-
+        print('raw: $cmValue');
         double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
         double cmValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
 
-        _rawMetricValue = cmValueDouble;
+        print('index: $selectedIndex');
 
-        // int ft = (cmValueDouble / 30.48).toInt();
-        // double inch = cmValueDouble - ft.toDouble() * 30.48;
-        double inch = (cmValueDouble / 2.54);
+        _rawMetricValue = cmValue * 2.54;
+
+        double inch = cmValue;
         int inchInt;
 
-        // if (selectedIndex % 4 == 0) {
-          inchInt = inch.round();
-        // } else {
-        //   inchInt = inch.toInt();
-        // }
+          inchInt = inch.toInt();
 
-        var part = (inch - inchInt.toDouble()).roundToPrecision(1).abs();
+
+        var part = (inch - inchInt.toDouble()).abs();
+        print('part: $part');
 
         int multiplyPart = 0;
         if (part < 1/4) {
           multiplyPart = 0;
         } else if (part < 2/4) {
           multiplyPart = 1;
-        } else if (part <= 3/4) {
+        } else if (part < 3/4) {
           multiplyPart = 2;
         } else {
           multiplyPart = 3;
         }
-        print('part: $part');
-        print('multiplyPart: $multiplyPart');
-
+        // print('part: $part');
+        // print('multiplyPart: $multiplyPart');
+        //
         if (multiplyPart == 0) {
           _value = '${inchInt}\'\'';
         } else {
           _value = '${inchInt}\'\'${multiplyPart}/4';
         }
         _valueMeasure = '';
-
-
-        // if (selectedIndex % 4 == 0) {
-        //   inchInt = inch.round();
-        //   _value = '${inchInt}\'\'';
-        // } else {
-        //   int part = 1;
-        //   if (selectedIndex % 2 == 0) {
-        //     part = 2;
-        //   } else if (selectedIndex % 3 == 0) {
-        //     part = 3;
-        //   }
-        //   inchInt = inch.toInt();
-        //   _value = '${inchInt}\'\'${part}/4';
-        // }
-        // _valueMeasure = '';
 
         print('inch: $inch');
         print('inchInt: $inchInt');
@@ -182,7 +170,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
       numberOfRulerElements = (maxValue - minValue) * 2;
     } else {
-      numberOfRulerElements = 40;
+      numberOfRulerElements = (maxValue - minValue) * 4;
     }
 
     Widget _textWidgetForRuler({int index}) {
@@ -202,7 +190,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
 
           // int ft = (cmValueDouble / 30.48).toInt();
           // double inch = cmValueDouble - ft.toDouble() * 30.48;
-          int ddf = (cmValueDouble / 2.54).round();
+          int ddf = (cmValueDouble).round();
           _text = '$ddf\'\'';
         }
       }
