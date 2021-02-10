@@ -57,6 +57,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   bool _gyroIsValid = true;
   bool _isTakingPicture = false;
 
+  double _zAngle = 0;
 
   @override
   void initState() {
@@ -73,6 +74,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
     accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
+        print(event.z.abs());
+        _zAngle = event.z;
         _gyroIsValid = !(event.z.abs() > 3);
       });
     });
@@ -80,7 +83,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
     _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        _gyroIsValid = !(event.z.abs() > 3);
+        // _gyroIsValid = !(event.z.abs() > 3);
       });
     }));
   }
@@ -208,6 +211,13 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     ),
     ));
 
+    var rulerContainer = Align(
+      alignment: Alignment.centerLeft,
+        child: SizedBox(width: 48,
+          height: 360,
+          child: GyroWidget(angle: _zAngle,),),
+    );
+
     var align = Align(
         alignment: Alignment.bottomCenter,
         child:SafeArea(child: Container(
@@ -261,7 +271,62 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         }),
           frameWidget,
           align,
+          rulerContainer
         ],
     ));
+  }
+}
+
+class GyroWidget extends StatefulWidget {
+  final double angle;
+  const GyroWidget({Key key, this.angle}): super(key: key);
+  @override
+  _GyroWidgetState createState() => _GyroWidgetState();
+}
+
+class _GyroWidgetState extends State<GyroWidget> {
+
+
+  double _rulerHeight = 360;
+  double _arrowHeight = 40;
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+
+    double arrowTopOffset() {
+      var arrowOffset = _arrowHeight * 0.5;
+      var angle = widget.angle._roundToPrecision(0);
+      var center = _rulerHeight * 0.5;
+      var errorGapValue = (center - 20) / 10;
+
+
+      var position = (angle * errorGapValue + center);
+
+      // 0 - 360
+
+    return position - arrowOffset;
+    }
+
+    var arrow = Positioned(
+        top: arrowTopOffset(),
+        child: SizedBox(
+          width: 8,
+          height: _arrowHeight,
+          child: ResourceImage.imageWithName('ic_pointer.png'),
+    ));
+
+
+    return Stack(
+        children:[Row(children: [Expanded(child:Container()), Expanded(child:Stack(children: [arrow]))]),
+          Row(children: [Expanded(flex: 2, child: ResourceImage.imageWithName('ic_gyro_ruler.png')),
+    Expanded(child: Container())])]);
+  }
+}
+
+extension RoundValue on double {
+  double _roundToPrecision(int n) {
+    int fac = math.pow(10, n);
+    return (this * fac).round() / fac;
   }
 }

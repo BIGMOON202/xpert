@@ -176,12 +176,12 @@ class MeasuremetsListWidget extends StatelessWidget {
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');
 
-      // if (Application.isInDebugMode) {
-      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-      //   ));
-      //   return;
-      // }
+      if (Application.isInDebugMode) {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+        ));
+        return;
+      }
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
         // if sales rep - open gender
@@ -200,10 +200,8 @@ class MeasuremetsListWidget extends StatelessWidget {
           Navigator.pushNamed(context, RecommendationsPage.route,
               arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
 
-
         } else if (event.status != EventStatus.in_progress) {
         _showCupertinoDialog('Event is not in progress now');
-
       }
       }
 

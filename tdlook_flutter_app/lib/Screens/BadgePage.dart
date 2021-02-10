@@ -97,6 +97,7 @@ class _BadgePageState extends State<BadgePage> {
                               _enteredbadge = value;
                             });
                           },
+                          maxLength: 30,
                           keyboardType: TextInputType.number,
                           style: TextStyle(
                               color: Colors.white

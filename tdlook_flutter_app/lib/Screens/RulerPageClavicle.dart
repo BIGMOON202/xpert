@@ -1,5 +1,7 @@
 
 
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -119,23 +121,56 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         // int ft = (cmValueDouble / 30.48).toInt();
         // double inch = cmValueDouble - ft.toDouble() * 30.48;
         double inch = (cmValueDouble / 2.54);
-        int inchInt = inch.round();
-        print('inch: $inch');
-        print('inchInt: $inchInt');
+        int inchInt;
 
-        if (selectedIndex % 4 == 0) {
+        // if (selectedIndex % 4 == 0) {
+          inchInt = inch.round();
+        // } else {
+        //   inchInt = inch.toInt();
+        // }
+
+        var part = (inch - inchInt.toDouble()).roundToPrecision(1).abs();
+
+        int multiplyPart = 0;
+        if (part < 1/4) {
+          multiplyPart = 0;
+        } else if (part < 2/4) {
+          multiplyPart = 1;
+        } else if (part <= 3/4) {
+          multiplyPart = 2;
+        } else {
+          multiplyPart = 3;
+        }
+        print('part: $part');
+        print('multiplyPart: $multiplyPart');
+
+        if (multiplyPart == 0) {
           _value = '${inchInt}\'\'';
         } else {
-          int part = 1;
-          if (selectedIndex % 3 == 0) {
-            part = 3;
-          } else if (selectedIndex % 2 == 0) {
-            part = 2;
-          }
-          _value = '${inchInt}\'\'${part}/4';
+          _value = '${inchInt}\'\'${multiplyPart}/4';
         }
         _valueMeasure = '';
+
+
+        // if (selectedIndex % 4 == 0) {
+        //   inchInt = inch.round();
+        //   _value = '${inchInt}\'\'';
+        // } else {
+        //   int part = 1;
+        //   if (selectedIndex % 2 == 0) {
+        //     part = 2;
+        //   } else if (selectedIndex % 3 == 0) {
+        //     part = 3;
+        //   }
+        //   inchInt = inch.toInt();
+        //   _value = '${inchInt}\'\'${part}/4';
+        // }
+        // _valueMeasure = '';
+
+        print('inch: $inch');
+        print('inchInt: $inchInt');
       }
+
     });
 
   }
@@ -258,7 +293,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
               Flexible(child:Container(
                   child:Text(_value, style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 40,
+                  fontSize: 50,
                   color: Colors.white,
               ), textAlign: TextAlign.start, maxLines: 1,
               ))),
@@ -268,7 +303,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
                   child:Container(
                   child: Text(_valueMeasure, style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 16,
+                  fontSize: 20,
                   color: Colors.white
               ),
               )))
@@ -364,5 +399,12 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     );
 
     return scaffold;
+  }
+}
+
+extension Round on double {
+  double roundToPrecision(int n) {
+    int fac = pow(10, n);
+    return (this * fac).round() / fac;
   }
 }

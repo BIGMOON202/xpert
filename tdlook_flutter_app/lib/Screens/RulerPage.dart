@@ -307,7 +307,7 @@ class _RulerPageState extends State<RulerPage> {
 
                      Text(_value, style: TextStyle(
                                  fontWeight: FontWeight.w500,
-                                 fontSize: 60,
+                                 fontSize: 50,
                                  color: Colors.white
                                  ),
                                ),

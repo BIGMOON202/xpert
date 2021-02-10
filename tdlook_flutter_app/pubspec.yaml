@@ -45,6 +45,7 @@ dependencies:
   web_socket_channel: ^1.2.0
   flutter_inner_drawer: ^0.5.7+2
   permission_handler: 5.0.1+1
+  flutter_native_splash: ^0.2.11
 
 dependency_overrides:
     permission_handler_platform_interface: 2.0.1
@@ -53,6 +54,11 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/icon.png"
+
+flutter_native_splash:
+  color: "#16181B"
+  ios: false
+  image: "assets/Splash.png"
 
 dev_dependencies:
   flutter_test:

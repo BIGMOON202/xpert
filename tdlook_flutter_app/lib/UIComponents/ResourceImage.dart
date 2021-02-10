@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 
 class ResourceImage extends Image {
-  static Image imageWithName(String name, {Color color}) {
+  static Image imageWithName(String name, {Color color, BoxFit fit}) {
     var assetsPath = "lib/Resources/";
-    var image = Image.asset(assetsPath + name);
+    var image = Image(image: AssetImage(assetsPath + name), fit: fit);
     return image;
   }
 }

@@ -130,14 +130,14 @@ class _EventsPageState extends State<EventsPage> {
           ));
 
     Widget _createDrawerItem(
-        {Icon icon, String text, GestureTapCallback onTap}) {
+        {Icon icon, Image image, String text, GestureTapCallback onTap}) {
       return ListTile(
         title: Row(
           children: <Widget>[
-            icon,
+            icon ?? SizedBox(width: 26, height: 26, child: image),
             Padding(
               padding: EdgeInsets.only(left: 8.0),
-              child: Text(text, style: TextStyle(color: Colors.white),),
+              child: Text(text, style: TextStyle(color: Colors.white, fontSize: 14),),
             )
           ],
         ),
@@ -247,8 +247,8 @@ class _EventsPageState extends State<EventsPage> {
             ],
           )),
         Expanded(child: _createDrawerItem(
-            icon: Icon(Icons.logout, color: HexColor.fromHex('898A9D')),
-            text: 'Logout',
+            image: ResourceImage.imageWithName('ic_logout.png'),
+            text: '  Logout',
             onTap: () {
               _logoutAction();
             }))]),
