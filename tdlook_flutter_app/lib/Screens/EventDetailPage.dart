@@ -175,7 +175,6 @@ class MeasuremetsListWidget extends StatelessWidget {
       print('open measurement\n '
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');
-
       // if (Application.isInDebugMode) {
       //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
@@ -463,7 +462,7 @@ class MeasuremetsListWidget extends StatelessWidget {
               );
             } else {
               content = EmptyStateWidget(
-                  messageName: 'The event has already ended\nPlease сontact with you sales representative',
+                  messageName: 'The event has been already finished.\nPlease contact your sales representative.',
                   iconName: 'ic_clock.png');
             }
 
