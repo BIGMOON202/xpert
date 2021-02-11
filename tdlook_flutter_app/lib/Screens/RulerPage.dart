@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +7,10 @@ import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/Screens/RulerWeightPage.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/SegmentedControl.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class RulerPage extends StatefulWidget {
 
@@ -26,9 +24,7 @@ class RulerPage extends StatefulWidget {
 
 class _RulerPageState extends State<RulerPage> {
 
-  ItemPositionsListener _itemPositionsListener =  ItemPositionsListener.create();
-  ItemScrollController _itemScrollController = ItemScrollController();
-
+  ScrollController _scrollController;
   int minValue = 150;
   int maxValue = 220;
   int numberOfRulerElements;
@@ -38,74 +34,66 @@ class _RulerPageState extends State<RulerPage> {
   var rulerGap = 0;
   var _listHeight = 300.0;
 
+  double _lineOffset = 7.0;
+  double _lineHeight = 1.0;
+  double _itemHeight;
+  double _oneElementValue;
+
   double _rawMetricValue = 150;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
   int _lastMin;
   int _lasMax;
 
-  void _addListener() {
-    _itemPositionsListener.itemPositions.addListener(() {
+  Map<int,bool> visibleItems = Map();
 
-      var positions = _itemPositionsListener.itemPositions.value;
-      // print('$positions');
-      int min;
-      int max;
-      if (positions.isNotEmpty) {
-        // Determine the first visible item by finding the item with the
-        // smallest trailing edge that is greater than 0.  i.e. the first
-        // item whose trailing edge in visible in the viewport.
-        min = positions
-            .where((ItemPosition position) => position.itemTrailingEdge > 0)
-            .reduce((ItemPosition min, ItemPosition position) =>
-        position.itemTrailingEdge < min.itemTrailingEdge
-            ? position
-            : min)
-            .index;
-        // Determine the last visible item by finding the item with the
-        // greatest leading edge that is less than 1.  i.e. the last
-        // item whose leading edge in visible in the viewport.
-        max = positions
-            .where((ItemPosition position) => position.itemLeadingEdge < 1)
-            .reduce((ItemPosition max, ItemPosition position) =>
-        position.itemLeadingEdge > max.itemLeadingEdge
-            ? position
-            : max)
-            .index;
-      }
+  void updateVisibility({int index, double visibility}) {
 
-      if (rulerGap == 0) {
-        rulerGap = max - min;
-      }
+    List<int> listToRemove = List();
+    if (visibility == 1.0) {
+      visibleItems[index] = visibility == 1;
+    } else {
+      listToRemove.add(index);
+    }
 
-      if (_lastMin != min || _lasMax != max) {
-        _lastMin = min;
-        _lasMax = max;
 
-        _updateValuesFor(min, max);
-      }
-    });
-  }
+    var sortedKeys = visibleItems.keys.toList();
+    sortedKeys.sort();
 
-  void _removeListener() {
-    _itemPositionsListener.itemPositions.removeListener(() { });
+    for (var elem in listToRemove) {
+      sortedKeys.remove(elem);
+      visibleItems.remove(elem);
+    }
+
+    debugPrint('visible: ${sortedKeys.toString()}');
+
+
+    var minVisible = sortedKeys.first;
+    var maxVisible = sortedKeys.last;
+    debugPrint('min: $minVisible\nmax: $maxVisible');
+    _updateValuesFor(minVisible, maxVisible);
   }
 
   @override
   void initState() {
     super.initState();
 
-    print('INIT RULER H');
-    numberOfRulerElements = maxValue - minValue;
+    _itemHeight = _lineOffset * 2 + _lineHeight;
+    _oneElementValue = _listHeight / _itemHeight;
 
-    _addListener();
-  }
+    //TO-DO replace by calculations below
+    visibleItems[0] = true;
+    visibleItems[9] = true;
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    _removeListener();
-    super.dispose();
+    _scrollController = ScrollController();
+
+    debugPrint('INIT RULER H');
+
+    if (selectedMeasurementSystem == MeasurementSystem.metric) {
+      numberOfRulerElements = maxValue - minValue;
+    } else {
+      numberOfRulerElements = 27;
+    }
   }
 
   int _lastSelectedIndex = 0;
@@ -114,59 +102,75 @@ class _RulerPageState extends State<RulerPage> {
   void _updateValuesFor(int minIndex, int maxIndex) {
 
     int selectedIndex;
+
     if (minIndex == 0) {
-        selectedIndex = maxIndex - rulerGap;
+      selectedIndex = ((maxIndex * _oneElementValue - _listHeight * 0.5) / _itemHeight).toInt();
     } else if (maxIndex == numberOfRulerElements) {
-      selectedIndex = minIndex + rulerGap;
+      selectedIndex = maxIndex - (((maxIndex - minIndex) * _oneElementValue - _listHeight * 0.5)/_itemHeight).toInt();
     } else {
-      selectedIndex = maxIndex - rulerGap;
+      selectedIndex = ((maxIndex - minIndex) * 0.5).toInt();
     }
 
-    _lastSelectedIndex = selectedIndex;
-    print('selectedIndex: $selectedIndex');
 
-    setState(() {
+    // if (minIndex == 0) {
+    //     selectedIndex = maxIndex - rulerGap;
+    // } else if (maxIndex == numberOfRulerElements) {
+    //   selectedIndex = minIndex + rulerGap;
+    // } else {
+    //   selectedIndex = maxIndex - rulerGap;
+    // }
+
+    _lastSelectedIndex = selectedIndex;
+    debugPrint('selectedIndex: $selectedIndex');
+
+
       // var dif = (maxIndex - minIndex) - rulerGap;
       int cmValue = selectedIndex + minValue;
-      // print('cm: $cmValue');
+      // debugPrint('cm: $cmValue');
       if (selectedMeasurementSystem == MeasurementSystem.metric) {
-        _value = '$cmValue';
-        _valueMeasure = 'cm';
-        _rawMetricValue = cmValue.toDouble();
+        setState(() {
+          _value = '$cmValue';
+          _valueMeasure = 'cm';
+          _rawMetricValue = cmValue.toDouble();
+        });
       } else {
-        double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
-        double cmValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
-        _rawMetricValue = cmValueDouble;
+          double oneSegmentValue = (maxValue - minValue) /
+              (numberOfRulerElements);
+          double cmValueDouble = selectedIndex.toDouble() * oneSegmentValue +
+              minValue.toDouble();
 
-        int ft = (cmValueDouble / 30.48).toInt();
-        double inch = cmValueDouble - ft.toDouble() * 30.48;
-        int ddf = (inch / 2.54).toInt();
 
-        _valueMeasure = '';
-        _value = '$ft\'$ddf\'\'';
+          int ft = (cmValueDouble / 30.48).toInt();
+          double inch = cmValueDouble - ft.toDouble() * 30.48;
+          int ddf = (inch / 2.54).toInt();
+
+          setState(() {
+            _rawMetricValue = cmValueDouble;
+            _valueMeasure = '';
+            _value = '$ft\'$ddf\'\'';
+        });
       }
-    });
   }
 
   int transferIndexTo({MeasurementSystem newSystem}) {
 
     var indexValue = (maxValue - minValue) / 27;
     var newIndex = _lastSelectedIndex;
-    print('last index: $_lastSelectedIndex');
-    print('index value: $indexValue');
+    debugPrint('last index: $_lastSelectedIndex');
+    debugPrint('index value: $indexValue');
 
     if (newSystem == MeasurementSystem.imperial) {
       var double = _lastSelectedIndex / indexValue;
-      print('new index double: $double');
+      debugPrint('new index double: $double');
       newIndex = double.toInt();
 
     } else {
       var double = _lastSelectedIndex * indexValue;
-      print('new index double: $double');
+      debugPrint('new index double: $double');
       newIndex = double.toInt();
     }
 
-    print('new index: $newIndex');
+    debugPrint('new index: $newIndex');
     return newIndex;
   }
 
@@ -174,7 +178,6 @@ class _RulerPageState extends State<RulerPage> {
   @override
   Widget build(BuildContext context) {
 
-    // _addListener();
     if (selectedMeasurementSystem == MeasurementSystem.metric) {
       numberOfRulerElements = maxValue - minValue;
     } else {
@@ -202,6 +205,7 @@ class _RulerPageState extends State<RulerPage> {
         }
       }
 
+      _text = '$index';
       Text widgetToRetun = Text(_text, style: TextStyle(
         color: Colors.white),);
 
@@ -237,32 +241,49 @@ class _RulerPageState extends State<RulerPage> {
     }
 
     var itemCount = numberOfRulerElements + 1;
-    var _lineOffset = 7.0;
-    ScrollablePositionedList _listView =   ScrollablePositionedList.builder(itemBuilder: (_,index) => Row(
-                                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                                  // crossAxisAlignment: CrossAxisAlignment.baseline,
-                                                                  children: [Expanded(
-                                                                    child:  Center(
-                                                                              child:     Container(height: 1,
-                                                                                                                    width: _lineWidthForRulerAt(index: index),
-                                                                                                                    color: Colors.white,
-                                                                                                                    margin: EdgeInsets.only(
-                                                                                                                    top: _lineOffset,
-                                                                                                                      bottom: _lineOffset,
-                                                                                                                           )),
-                                                                            )
-                                                                          ),
-                                                                            SizedBox(
-                                                                              width: 30,
-                                                                              child: _textWidgetForRuler(index: index),
-                                                                            )
-                                                                              ],
-                                                                ),
-                                                   padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
-                                                   itemCount: itemCount,
-    // initialScrollIndex: ,
-    itemPositionsListener: _itemPositionsListener,
-    itemScrollController: _itemScrollController,);
+
+
+    var list = ListView.builder(itemBuilder: (_, index) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      // crossAxisAlignment: CrossAxisAlignment.baseline,
+      children: [Expanded(
+          child:  Center(
+              child:  VisibilityDetector(
+                key: Key('$index'),
+                onVisibilityChanged: (visibilityInfo) {
+                  var visiblePercentage = visibilityInfo.visibleFraction * 100;
+
+                  var elementIndex = visibilityInfo.key.toString().getIntValue();
+                  debugPrint(
+                      'Widget ${elementIndex} is ${visiblePercentage}% visible');
+
+                  updateVisibility(index: elementIndex, visibility: visibilityInfo.visibleFraction);
+
+
+
+                },
+
+                child: Container(height: _lineHeight,
+                    width: _lineWidthForRulerAt(index: index),
+                    color: Colors.white,
+                    // margin: EdgeInsets.only(
+                    //   top: _lineOffset,
+                    //   bottom: _lineOffset,
+                    // )
+                ),
+              )
+          )
+      ),
+        SizedBox(
+          width: 30,
+          height: _itemHeight,
+          child: _textWidgetForRuler(index: index),
+        )
+      ],
+    ),
+      padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
+      itemCount: itemCount,
+      controller: _scrollController);
 
 
     var listView = Stack(
@@ -270,7 +291,7 @@ class _RulerPageState extends State<RulerPage> {
         onChildSize: (size) {
             // _listView.padding = EdgeInsets.only(top:300);
         },
-        child: Container(child: _listView)
+        child: Container(child: list)
       ),
 
         Align(
@@ -347,7 +368,7 @@ class _RulerPageState extends State<RulerPage> {
       width: double.infinity,
       child: MaterialButton(
         onPressed: () {
-          print('next button pressed');
+          debugPrint('next button pressed');
           _moveToNextPage();
         },
         textColor: Colors.white,
@@ -377,8 +398,8 @@ class _RulerPageState extends State<RulerPage> {
         _indexToJump = transferIndexTo(newSystem: newSystem);
         selectedMeasurementSystem = newSystem;
       });
-      print('_indexToJump: $_indexToJump');
-      _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
+      debugPrint('_indexToJump: $_indexToJump');
+      // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
     });
 
 
@@ -397,8 +418,9 @@ class _RulerPageState extends State<RulerPage> {
                             _indexToJump = transferIndexTo(newSystem: newSystem);
                             selectedMeasurementSystem = newSystem;
                           });
-                          print('_indexToJump: $_indexToJump');
-                          _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
+                          debugPrint('_indexToJump: $_indexToJump');
+                          _scrollController.jumpTo(_indexToJump * _itemHeight);
+                          // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
                           // _itemScrollController.jumpTo(index: _indexToJump);
           },
     );
@@ -425,5 +447,11 @@ class _RulerPageState extends State<RulerPage> {
     );
 
     return scaffold;
+  }
+}
+
+extension StringToInt on String {
+  int getIntValue() {
+    return int.parse(this.replaceAll(RegExp('[^0-9]'), ''));
   }
 }
