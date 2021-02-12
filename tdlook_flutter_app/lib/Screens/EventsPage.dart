@@ -502,13 +502,13 @@ class UserInfoHeader extends StatelessWidget {
       children: [
         SizedBox(width: 40, height: 40, child: ResourceImage.imageWithName(userType.menuImageName()),),
         SizedBox(width: 14),
-        Column(
+        Expanded(child:Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Expanded(
+          children: [Flexible(flex:2,
               child: Container()),
-            Expanded(child: Text('${userInfo.userFullName()}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
-            Expanded(child: Text(userInfo.email, style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.62)))),
-            Expanded(child: Container())],)
+            Expanded(flex:2,child: Text('${userInfo.userFullName()}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
+            Expanded(flex: 3, child : Text(userInfo.email, maxLines: 3, style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: Colors.white.withOpacity(0.62)))),
+            Flexible(flex:2,child: Container())],))
       ]);
   }
 }
