@@ -29,15 +29,15 @@ class _RulerPageState extends State<RulerPage> {
   int maxValue = 220;
   int numberOfRulerElements;
   MeasurementSystem selectedMeasurementSystem = MeasurementSystem.imperial;
-  String _value = '150';
-  String _valueMeasure = 'cm';
+  String _value = '4\'11\'\'';
+  String _valueMeasure = '';
   var rulerGap = 0;
   var _listHeight = 300.0;
 
   double _lineOffset = 7.0;
   double _lineHeight = 1.0;
   double _itemHeight;
-  double _oneElementValue;
+  double _maxNumberOfVisibleElements;
 
   double _rawMetricValue = 150;
   static Color _backgroundColor = HexColor.fromHex('16181B');
@@ -79,7 +79,7 @@ class _RulerPageState extends State<RulerPage> {
     super.initState();
 
     _itemHeight = _lineOffset * 2 + _lineHeight;
-    _oneElementValue = _listHeight / _itemHeight;
+    _maxNumberOfVisibleElements = _listHeight / _itemHeight;
 
     //TO-DO replace by calculations below
     visibleItems[0] = true;
@@ -104,14 +104,30 @@ class _RulerPageState extends State<RulerPage> {
     int selectedIndex;
 
     if (minIndex == 0) {
-      selectedIndex = ((maxIndex * _oneElementValue - _listHeight * 0.5) / _itemHeight).toInt();
+      // debugPrint('minIndex is visible');
+      // debugPrint('${maxIndex * _maxNumberOfVisibleElements}');
+      // debugPrint('selectedIndex:${(maxIndex * _itemHeight - _listHeight * 0.5) / _itemHeight}');
+      selectedIndex = ((maxIndex * _itemHeight - _listHeight * 0.5) / _itemHeight).toInt();
+
     } else if (maxIndex == numberOfRulerElements) {
-      selectedIndex = maxIndex - (((maxIndex - minIndex) * _oneElementValue - _listHeight * 0.5)/_itemHeight).toInt();
+      debugPrint('maxIndex is visible');
+      debugPrint('maxIndex:$maxIndex');
+      debugPrint('${maxIndex * _maxNumberOfVisibleElements}');
+      debugPrint('selectedIndex:${(maxIndex * _itemHeight - _listHeight * 0.5) / _itemHeight}');
+      selectedIndex = maxIndex - (((maxIndex - minIndex) * _itemHeight - _listHeight * 0.5)/_itemHeight).toInt();
     } else {
-      selectedIndex = ((maxIndex - minIndex) * 0.5).toInt();
+      // debugPrint('minIndex and maxIndex are visible');
+      // debugPrint('maxIndex:$maxIndex');
+      // debugPrint('minIndex:$minIndex');
+      // debugPrint('center:${(maxIndex - minIndex) * 0.5}');
+      selectedIndex = (maxIndex - (_maxNumberOfVisibleElements * 0.5).round()).round();
+      // debugPrint('selectedIndex:${selectedIndex}');
     }
 
+    if (selectedIndex < 0) { selectedIndex = 0;}
+    else if (selectedIndex > numberOfRulerElements) { selectedIndex = numberOfRulerElements;}
 
+    // selectedIndex += 1;
     // if (minIndex == 0) {
     //     selectedIndex = maxIndex - rulerGap;
     // } else if (maxIndex == numberOfRulerElements) {
@@ -162,7 +178,7 @@ class _RulerPageState extends State<RulerPage> {
     if (newSystem == MeasurementSystem.imperial) {
       var double = _lastSelectedIndex / indexValue;
       debugPrint('new index double: $double');
-      newIndex = double.toInt();
+      newIndex = double.round();
 
     } else {
       var double = _lastSelectedIndex * indexValue;
@@ -205,7 +221,7 @@ class _RulerPageState extends State<RulerPage> {
         }
       }
 
-      _text = '$index';
+      // _text = '$index';
       Text widgetToRetun = Text(_text, style: TextStyle(
         color: Colors.white),);
 
@@ -387,20 +403,20 @@ class _RulerPageState extends State<RulerPage> {
       child: nextButton,
     );
 
-    void _handleSegmentChanged(int newValue) {
-      setState(() {
-      });
-    }
-
-    var segmentedControl = SegmentedControl(onChanged: (i) {
-      setState(() {
-        var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
-        _indexToJump = transferIndexTo(newSystem: newSystem);
-        selectedMeasurementSystem = newSystem;
-      });
-      debugPrint('_indexToJump: $_indexToJump');
-      // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
-    });
+    // void _handleSegmentChanged(int newValue) {
+    //   setState(() {
+    //   });
+    // }
+    //
+    // var segmentedControl = SegmentedControl(onChanged: (i) {
+    //   setState(() {
+    //     var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
+    //     _indexToJump = transferIndexTo(newSystem: newSystem);
+    //     selectedMeasurementSystem = newSystem;
+    //   });
+    //   debugPrint('_indexToJump: $_indexToJump');
+    //   // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
+    // });
 
 
     var segmentControl = CustomSlidingSegmentedControl(
@@ -416,10 +432,12 @@ class _RulerPageState extends State<RulerPage> {
                           setState(() {
                             var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
                             _indexToJump = transferIndexTo(newSystem: newSystem);
+                            _lastSelectedIndex = _indexToJump;
                             selectedMeasurementSystem = newSystem;
                           });
                           debugPrint('_indexToJump: $_indexToJump');
                           _scrollController.jumpTo(_indexToJump * _itemHeight);
+
                           // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
                           // _itemScrollController.jumpTo(index: _indexToJump);
           },
