@@ -11,7 +11,7 @@ import 'package:tdlook_flutter_app/Screens/RulerWeightPage.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/SegmentedControl.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
+import 'package:tdlook_flutter_app/Extensions/Math+Extension.dart';
 class RulerPage extends StatefulWidget {
 
   final Gender gender;
@@ -65,12 +65,12 @@ class _RulerPageState extends State<RulerPage> {
       visibleItems.remove(elem);
     }
 
-    debugPrint('visible: ${sortedKeys.toString()}');
+    // debugPrint('visible: ${sortedKeys.toString()}');
 
 
     var minVisible = sortedKeys.first;
     var maxVisible = sortedKeys.last;
-    debugPrint('min: $minVisible\nmax: $maxVisible');
+    // debugPrint('min: $minVisible\nmax: $maxVisible');
     _updateValuesFor(minVisible, maxVisible);
   }
 
@@ -170,20 +170,27 @@ class _RulerPageState extends State<RulerPage> {
 
   int transferIndexTo({MeasurementSystem newSystem}) {
 
-    var indexValue = (maxValue - minValue) / 27;
+    var indexValue = ((maxValue - minValue) / 27);
     var newIndex = _lastSelectedIndex;
     debugPrint('last index: $_lastSelectedIndex');
-    debugPrint('index value: $indexValue');
 
     if (newSystem == MeasurementSystem.imperial) {
+      var indexValue = ((maxValue - minValue) / 27);
+      debugPrint('index value: $indexValue');
       var double = _lastSelectedIndex / indexValue;
       debugPrint('new index double: $double');
       newIndex = double.round();
+      if (newIndex <= 17) {
+        newIndex += 1;
+      }
+      debugPrint('new index: $newIndex');
 
     } else {
+      debugPrint('index value: $indexValue');
+
       var double = _lastSelectedIndex * indexValue;
       debugPrint('new index double: $double');
-      newIndex = double.toInt();
+      newIndex = double.round();
     }
 
     debugPrint('new index: $newIndex');
@@ -270,8 +277,7 @@ class _RulerPageState extends State<RulerPage> {
                   var visiblePercentage = visibilityInfo.visibleFraction * 100;
 
                   var elementIndex = visibilityInfo.key.toString().getIntValue();
-                  debugPrint(
-                      'Widget ${elementIndex} is ${visiblePercentage}% visible');
+                  // debugPrint('Widget ${elementIndex} is ${visiblePercentage}% visible');
 
                   updateVisibility(index: elementIndex, visibility: visibilityInfo.visibleFraction);
 
@@ -429,15 +435,16 @@ class _RulerPageState extends State<RulerPage> {
           padding: 8,
           innerPadding: 6,
           onTap: (i) {
-                          setState(() {
-                            var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
-                            _indexToJump = transferIndexTo(newSystem: newSystem);
-                            _lastSelectedIndex = _indexToJump;
-                            selectedMeasurementSystem = newSystem;
-                          });
-                          debugPrint('_indexToJump: $_indexToJump');
-                          _scrollController.jumpTo(_indexToJump * _itemHeight);
-
+            var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
+            if (selectedMeasurementSystem != newSystem) {
+              setState(() {
+                _indexToJump = transferIndexTo(newSystem: newSystem);
+                _lastSelectedIndex = _indexToJump;
+                selectedMeasurementSystem = newSystem;
+              });
+              debugPrint('_indexToJump: $_indexToJump');
+              _scrollController.jumpTo((_indexToJump) * _itemHeight);
+            }
                           // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
                           // _itemScrollController.jumpTo(index: _indexToJump);
           },

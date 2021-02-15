@@ -389,10 +389,3 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     return scaffold;
   }
 }
-
-extension Round on double {
-  double roundToPrecision(int n) {
-    int fac = pow(10, n);
-    return (this * fac).round() / fac;
-  }
-}
