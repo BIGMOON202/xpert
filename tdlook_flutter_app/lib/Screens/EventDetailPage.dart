@@ -175,12 +175,12 @@ class MeasuremetsListWidget extends StatelessWidget {
       print('open measurement\n '
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');
-      // if (Application.isInDebugMode) {
-      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-      //   ));
-      //   return;
-      // }
+      if (Application.isInDebugMode) {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+        ));
+        return;
+      }
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
         // if sales rep - open gender
@@ -208,14 +208,17 @@ class MeasuremetsListWidget extends StatelessWidget {
 
       var measurement = measurementsList.data[index];
 
-      if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
-        // move to camera permissions
-      } else if (measurement.isComplete == true) {
-        _moveToMeasurementAt(index);
-        return;
-      } else if (event.status != EventStatus.in_progress) {
-        return;
+      if (Application.isInDebugMode == false) {
+        if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
+          // move to camera permissions
+        } else if (measurement.isComplete == true) {
+          _moveToMeasurementAt(index);
+          return;
+        } else if (event.status != EventStatus.in_progress) {
+          return;
+        }
       }
+
 
 
       var cameraStatus = await Permission.camera.status;

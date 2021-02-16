@@ -150,10 +150,11 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         //
         if (multiplyPart == 0) {
           _value = '${inchInt}\'\'';
+          _valueMeasure = '';
         } else {
-          _value = '${inchInt}\'\'${multiplyPart}/4';
+          _value = '${inchInt}\'\'';
+          _valueMeasure = '${multiplyPart}/4';
         }
-        _valueMeasure = '';
 
         print('inch: $inch');
         print('inchInt: $inchInt');
@@ -287,11 +288,11 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
               ))),
 
               Visibility(
-                visible: widget.selectedMeasurementSystem == MeasurementSystem.metric,
+                // visible: widget.selectedMeasurementSystem == MeasurementSystem.metric,
                   child:Container(
                   child: Text(_valueMeasure, style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 20,
+                  fontSize: widget.selectedMeasurementSystem == MeasurementSystem.metric ? 20 : 30,
                   color: Colors.white
               ),
               )))
