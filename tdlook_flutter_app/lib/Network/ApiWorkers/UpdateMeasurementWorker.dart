@@ -354,7 +354,7 @@ extension DetailExtension on Detail {
   String uiDescription() {
     switch (this.message.toLowerCase()) {
       case 'side photo in the front' : return 'Oops! It looks like you took the side photo instead of the front one';
-      case 'front photo in the side' : return 'It seems you uploaded front photo instead of the side one';
+      case 'front photo in the side' : return 'Oops! It looks like you took the front photo instead of the side one';
       case 'can\'t detect the human body' : return 'We don\'t seem to be able to detect your body!';
       case 'the body is not full' : return 'Sorry! We need to be able to detect your entire body!';
       default:
