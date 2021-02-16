@@ -116,7 +116,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
         double lbs = kgValueDouble.toDouble() * 2.2;//0462;
         _valueMeasure = 'lbs';
-        _value = lbs.toStringAsFixed(1);
+        _value = lbs.toStringAsFixed(0);
       }
     });
   }
