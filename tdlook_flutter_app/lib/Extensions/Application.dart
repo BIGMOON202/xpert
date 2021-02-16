@@ -7,13 +7,13 @@ class Application {
   }
 
   static API get apiType {
-    return API.prod;
+    return API.test;
   }
 
   static String get hostName {
     switch (Application.apiType) {
       case API.test:
-        return 'wlb-xpertfit.3dlook.me';
+        return 'wlb-expertfit-test.3dlook.me';
       case API.prod:
         return 'wlb-xpertfit.3dlook.me';
     }

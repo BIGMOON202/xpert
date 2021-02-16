@@ -31,7 +31,7 @@ class HowTakePhotoPage extends StatefulWidget {
   _HowTakePhotoPageState createState() => _HowTakePhotoPageState();
 }
 
-class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
+class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
 
 
 VideoPlayerController _controller;
@@ -43,9 +43,18 @@ VideoPlayerController _controller;
   List<TutorialStep> _steps;
   List<Future> _runningSteps;
   bool _isPlaying = false;
+  List<Timer> _activeTimers = List<Timer>();
 
   Future<bool> _enableContinueTimer() async {
     await Future.delayed(Duration(seconds: 2));
+  }
+
+  @override
+  void didUpdateWidget(covariant HowTakePhotoPage oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+
+    print('DID UPDATE');
   }
 
   void _runContinueButtonTimer() {
@@ -57,11 +66,18 @@ VideoPlayerController _controller;
   }
 
   Future<void> changeTutorialTextFuture(TutorialStep step) async {
-    await Future.delayed(Duration(seconds: step.startDelay));
 
-    setState(() {
-      _currentStepName = step.text;
+    Timer timer;
+    timer = Timer(Duration(seconds: step.startDelay), () {
+      _activeTimers.remove(timer);
+      setState(() {
+        _currentStepName = step.text;
+      });
     });
+    _activeTimers.add(timer);
+    // await Future.delayed(Duration(seconds: step.startDelay));
+
+
   }
 
   // Running multiple futures
@@ -71,7 +87,7 @@ VideoPlayerController _controller;
     for(int i = 0; i < _steps.length; i++) {
       _runningSteps.add(changeTutorialTextFuture(_steps[i]));
     }
-    // Waif for all futures to complete
+    // Wait for all futures to complete
     await Future.wait(_runningSteps);
     // We're done with all futures execution
     print('All the futures has completed');
@@ -88,7 +104,10 @@ VideoPlayerController _controller;
   }
 
   void _stopTutorialMessages() {
-
+    for(int i = 0; i < _activeTimers.length; i++) {
+      Timer t = _activeTimers[i];
+      t.cancel();
+    }
   }
 
   void _checkVideoProgress(){
@@ -149,6 +168,11 @@ VideoPlayerController _controller;
     super.initState();
   }
 
+  void resetSteps() {
+    for(int i = 0; i < _steps.length; i++) {
+      _runningSteps.add(changeTutorialTextFuture(_steps[i]));
+    }
+  }
   @override
   void dispose() {
     _controller.dispose();
@@ -161,6 +185,8 @@ VideoPlayerController _controller;
 
     void _moveToNextPage() {
       _controller.pause();
+      _stopTutorialMessages();
+      _isPlaying = false;
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       // RulerPageWeight(),
       PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)

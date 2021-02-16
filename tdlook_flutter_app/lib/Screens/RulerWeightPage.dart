@@ -32,15 +32,15 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   ItemPositionsListener _itemPositionsListener =  ItemPositionsListener.create();
   ItemScrollController _itemScrollController;
 
-  int minValue = 30;
+  int minValue = 40;
   int maxValue = 200;
   int numberOfRulerElements;
-  String _value = '30';
+  String _value = '40';
   String _valueMeasure = 'kg';
   var rulerGap = 0;
   var _listHeight = 300.0;
 
-  double _rawMetricValue = 30;
+  double _rawMetricValue = 40;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
 
@@ -129,7 +129,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
       numberOfRulerElements = maxValue - minValue;
     } else {
-      numberOfRulerElements = 374;
+      numberOfRulerElements = 352;
     }
 
 

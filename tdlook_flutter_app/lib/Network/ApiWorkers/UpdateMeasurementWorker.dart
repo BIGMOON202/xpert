@@ -2,7 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
@@ -79,13 +79,64 @@ class WaitingForResultsWorker{
       var socketLink = 'wss://${Application.hostName}/ws/measurement/${model.uuid}/';
       print('socket link: ${socketLink}');
 
-      final channel = await IOWebSocketChannel.connect(socketLink);
+      IOWebSocketChannel _channel;
+      int attemptCounter = 0;
+      var results;
 
-      channel.stream.listen((message) {
-        parse(message);
-        print('message: $message');
-        channel.sink.close(status.goingAway);
-      });
+      Future<bool> _enableContinueTimer({int delay}) async {
+        await Future.delayed(Duration(seconds: delay));
+      }
+
+
+
+      _initialConnect(void onDoneClosure()) {
+        print('trying to connect');
+        attemptCounter += 1;
+        WebSocket.connect(socketLink)
+            .timeout(Duration(seconds: 30))
+            .then((ws) {
+          try {
+            _channel = new IOWebSocketChannel(ws);
+
+            _channel.stream.listen((message) {
+
+              results = message;
+              parse(message);
+              print('message: $message');
+              _channel.sink.close(status.goingAway);
+            },
+                onDone: onDoneClosure);
+
+          } catch (e) {
+            print('Error happened when opening a new websocket connection. ${e.toString()}');
+            onDoneClosure();
+          }
+        });
+      }
+
+
+
+      void _onConnectionLost() {
+        print('Disconnected');
+        if (_channel != null) {
+          _channel.sink.close();
+        }
+        _channel = null;
+        parse('');
+      }
+
+
+      void _onInitialDisconnected() {
+        print('Disconnected');
+        if (_channel != null) {
+          _channel.sink.close();
+        }
+        _channel = null;
+
+        _initialConnect(attemptCounter > 3 ? _onConnectionLost : _onInitialDisconnected);
+      }
+
+      _initialConnect(_onInitialDisconnected);
   }
 }
 

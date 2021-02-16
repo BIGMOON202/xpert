@@ -72,18 +72,20 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     initCamera();
 
 
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        print(event.z.abs());
-        _zAngle = event.z;
-        _gyroIsValid = !(event.z.abs() > 3);
-      });
-    });
+    // accelerometerEvents.listen((AccelerometerEvent event) {
+    //   setState(() {
+    //     print(event.z.abs());
+    //     _zAngle = event.z;
+    //     _gyroIsValid = !(event.z.abs() > 3);
+    //   });
+    // });
 
 
     _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        // _gyroIsValid = !(event.z.abs() > 3);
+        print(event.z.abs());
+        _zAngle = event.z;
+        _gyroIsValid = !(event.z.abs() > 3);
       });
     }));
   }

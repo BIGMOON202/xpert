@@ -149,7 +149,7 @@ class MeasuremetsListWidget extends StatelessWidget {
           barrierDismissible: false,
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-            content: new Text('You need to make two photos to get your size recommendation.'),
+            content: new Text('Oops! Widget requires access to the camera to allow you to make photos that are required to calculate your body measurements. Please reopen widget and try again.'),
             actions: <Widget>[
               CupertinoDialogAction(
                 child: Text("Open Settings"),
