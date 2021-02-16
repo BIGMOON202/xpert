@@ -413,15 +413,14 @@ class RecommendationsListWidget extends StatelessWidget {
     }
 
     _restartAnalize() {
+      debugPrint('_restartAnalize');
 
-      if (SharedParameters().selectedUser == UserType.salesRep) {
+      if (SharedParameters().selectedUser == UserType.salesRep || SharedParameters().selectedCompany == CompanyType.uniforms) {
         Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
             arguments: ChooseGenderPageArguments(measurement));
-        print('_restartAnalize');
       } else {
         Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
             arguments: BadgePageArguments(measurement, SharedParameters().selectedUser));
-        print('_restartAnalize');
       }
     }
 
@@ -453,7 +452,6 @@ class RecommendationsListWidget extends StatelessWidget {
                 )),
                   Flexible(child: MaterialButton(
                     onPressed: () {
-                      print('next button pressed');
                       _restartAnalize();
                     },
                     textColor: Colors.white,
