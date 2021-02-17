@@ -42,6 +42,7 @@ enum _PhotoError {
 class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
   static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _retakeButtonBackground = SharedParameters().selectionColor;
   static Color _textColor = Colors.white;
   static Color _optionalTextColor = HexColor.fromHex('898A9D');
   _PhotoError _photoError;
@@ -51,7 +52,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
   _continueAction() {
     print('continue');
 
-    if (widget.arguments.result != null) {
+    if (widget.arguments?.result != null) {
       XFile _frontPhoto = widget.arguments.frontPhoto;
       XFile _sidePhoto = widget.arguments.sidePhoto;
       PhotoType _passedPhotoType;
@@ -105,8 +106,8 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
     List<Detail> detail = List<Detail>();
 
 
-    if (widget.arguments.result != null && widget.arguments.result.detail != null && widget.arguments.result.detail.isEmpty == false) {
-      detail = widget.arguments.result.detail.where((i) => i.status != 'SUCCESS').toList();
+    if (widget.arguments?.result != null && widget.arguments?.result.detail != null && widget.arguments?.result.detail.isEmpty == false) {
+      detail = widget.arguments?.result.detail.where((i) => i.status != 'SUCCESS').toList();
     }
 
     print('number of errors: ${detail.length}');
@@ -140,7 +141,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
     Widget _configUndefinedError() {
       return Padding(padding:EdgeInsets.only(left: 20, right: 20),
-          child: Text(widget.arguments.errorText != null ? widget.arguments.errorText : 'We can’t find your Perfect Fit right now. Please Try again in a few minutes.',
+          child: Text(widget.arguments?.errorText != null ? widget.arguments?.errorText : 'We can’t find your Perfect Fit right now. Please Try again in a few minutes.',
         style: TextStyle(fontWeight:
         FontWeight.normal,
             fontSize: 16,
@@ -195,10 +196,10 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
       vertical.add(Padding(padding: EdgeInsets.only(top: 50, bottom: 48), child: ResourceImage.imageWithName('ic_error.png'),));
 
-      if (widget.arguments.result == null || widget.arguments.result.detail == null || widget.arguments.result.detail.isEmpty) {
+      if (widget.arguments?.result == null || widget.arguments?.result.detail == null || widget.arguments?.result.detail.isEmpty) {
         vertical.add(_configUndefinedError());
       } else {
-        var details = widget.arguments.result.detail.where((i) => i.status != 'SUCCESS').toList();
+        var details = widget.arguments?.result.detail.where((i) => i.status != 'SUCCESS').toList();
 
         for (var _error in details) {
           print(_error.type.name());
@@ -215,17 +216,17 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
     var container = Column(
       children: [Flexible(
-          child: configFor(result: widget.arguments.result)),
+          child: configFor(result: widget.arguments?.result)),
       SafeArea(
           child: Container(
               width: double.infinity,
               child: MaterialButton(
 
                 onPressed: _continueAction,
-                disabledColor: Colors.white.withOpacity(0.5),
-                textColor: Colors.black,
+                disabledColor: _retakeButtonBackground.withOpacity(0.5),
+                textColor: Colors.white,
                 child: Text(_buttonTitle.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
-                color: Colors.white,
+                color: _retakeButtonBackground,
                 height: 50,
                 padding: EdgeInsets.only(left: 12, right: 12),
                 shape: RoundedRectangleBorder(
