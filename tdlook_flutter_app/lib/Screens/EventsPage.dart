@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inner_drawer/inner_drawer.dart';
+import 'package:package_info/package_info.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Painter.dart';
@@ -40,6 +41,7 @@ class _EventsPageState extends State<EventsPage> {
   UserType _userType = UserType.salesRep;
   User _userInfo;
 
+  String _appVersion = '';
   EventsListWidget listWidget;
   SharedPreferences prefs;
 
@@ -97,6 +99,14 @@ class _EventsPageState extends State<EventsPage> {
       });
       _userInfoBloc.call();
     }
+
+
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+
+      setState(() {
+        _appVersion = 'App version: ' + packageInfo.version + ' ' + packageInfo.buildNumber;
+      });
+    });
 
     fetchUserType();
   }
@@ -247,6 +257,7 @@ class _EventsPageState extends State<EventsPage> {
 
             ],
           )),
+        Expanded(child: _createDrawerItem(text: _appVersion)),
         Expanded(child: _createDrawerItem(
             image: ResourceImage.imageWithName('ic_logout.png'),
             text: '  Logout',
