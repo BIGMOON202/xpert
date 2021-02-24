@@ -222,7 +222,7 @@ class _EventsPageState extends State<EventsPage> {
     var innerDrawer = InnerDrawer(
         key: _innerDrawerKey,
         onTapClose: true,
-      borderRadius: 40,
+      // borderRadius: 40,
       colorTransitionScaffold: Colors.transparent,
       backgroundDecoration: BoxDecoration(color: Colors.black),
       leftChild: Material(child: Container(

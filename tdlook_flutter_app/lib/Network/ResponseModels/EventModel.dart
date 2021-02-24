@@ -285,7 +285,7 @@ class MeasurementResults {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     // data['id'] = this.id;
     // data['uuid'] = this.uuid;
-    data['is_active'] = this.isActive.toString();
+    // data['is_active'] = this.isActive.toString();
     // data['is_complete'] = this.isComplete;
     // data['completed_at'] = this.completedAt;
     // if (this.endWearer != null) {
