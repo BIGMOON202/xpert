@@ -7,7 +7,7 @@ class User {
   String uuid;
   String role;
   String status;
-  String company;
+  Company company;
   CompanyType provider;
   String email;
   String phone;
@@ -49,7 +49,7 @@ class User {
     uuid = json['uuid'];
     role = json['role'];
     status = json['status'];
-    company = json['company'];
+    company = json['company'] != null ? new Company.fromJson(json['company']) : null;
     if (json['provider'] != null) {
       provider = json['provider'] == 'FH' ? CompanyType.uniforms : json['provider'] == 'SL' ? CompanyType.armor : null;
     }
@@ -112,11 +112,23 @@ class User {
   }
 }
 
+class Company {
+  int id;
+  String name;
+
+  Company({this.id, this.name});
+
+  Company.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+  }
+}
+
 class Parent {
   int id;
   String firstName;
   String lastName;
-  String company;
+  int company;
   String provider;
   String role;
 
