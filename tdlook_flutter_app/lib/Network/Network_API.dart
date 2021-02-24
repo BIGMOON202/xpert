@@ -234,16 +234,18 @@ class NetworkAPI {
           case Status.COMPLETED:
             // SAVE CREDENTIANLS AND CONTINUE LAST REQUEST
           debugPrint('REFRESH TOKEN RESPONSE: ${event.data}');
-            // _credentials = event.data;
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('refresh', event.data.refresh); // for string value
           prefs.setString('access', event.data.access); // for string value
 
           return true;
-        //move to list
 
           case Status.ERROR:
             print('REFRESH TOKEN ERROR: ${event.message}');
+
+            final SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.remove('refresh');
+            prefs.remove('access'); // for string value
             return false;
             //NEED TO LOGOUT
             // _errorMessage = event.message;

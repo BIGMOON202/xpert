@@ -46,6 +46,9 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
   @override
   void initState() {
+    if (widget.selectedMeasurementSystem == MeasurementSystem.imperial) {
+      maxValue = 201;
+    }
     numberOfRulerElements = maxValue - minValue;
 
     _itemPositionsListener.itemPositions.addListener(() {
@@ -110,7 +113,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         _rawMetricValue = cmValue.toDouble();
       } else {
 
-        double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
+        double oneSegmentValue = (200.5 - minValue) / (numberOfRulerElements);
         double kgValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
         _rawMetricValue = kgValueDouble;
 
@@ -145,12 +148,11 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         }
       } else {
 
-        double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
+        double oneSegmentValue = (200.5 - minValue) / (numberOfRulerElements);
         double kgValueDouble = index.toDouble() * oneSegmentValue + minValue.toDouble();
 
         double lbs = kgValueDouble.toDouble() * 2.2;//0462;
-
-        int lbsInt = lbs.toInt();
+        int lbsInt = lbs.round();
 
         if (lbsInt % 10 == 0) {
           _text = '$lbsInt';
@@ -170,12 +172,12 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         return (index % 10 == 0) ? 30 : (index % 5 == 0) ? 22 : 12;
       } else {
 
-        double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
+        double oneSegmentValue = (200.5 - minValue) / (numberOfRulerElements);
         double kgValueDouble = index.toDouble() * oneSegmentValue + minValue.toDouble();
 
         double lbs = kgValueDouble.toDouble() * 2.2;//0462;
 
-        int lbsInt = lbs.toInt();
+        int lbsInt = lbs.round();
         return (lbsInt % 10 == 0) ? 30 : 12;
       }
     }
