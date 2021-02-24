@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
   void authCall() {
       FocusScope.of(context).unfocus();
 
-      _authBloc = AuthWorkerBloc(_email.toLowerCase(), _password, widget.userType);
+      _authBloc = AuthWorkerBloc(AuthWorkerBlocArguments(email: _email.toLowerCase(), password: _password, userType: widget.userType));
       _authBloc.chuckListStream.listen((event) {
 
         setState(() {

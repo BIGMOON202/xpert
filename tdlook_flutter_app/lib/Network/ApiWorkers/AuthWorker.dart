@@ -22,6 +22,23 @@ class AuthWorker {
   }
 }
 
+class AuthRefreshWorker extends AuthWorker {
+  String token;
+  UserType userType;
+
+  AuthRefreshWorker(this.token, this.userType) : super(null, null, null);
+  NetworkAPI _provider = NetworkAPI();
+
+  @override
+  Future<AuthCredentials> fetchData() async {
+    print('trying to refresh token request');
+    final response = await _provider.post(userType._authRefreshEndPoint(),
+        body: {'refresh': token}, useAuth: false, tryToRefreshAuth: false);
+    return AuthCredentials.fromJson(response);
+  }
+}
+
+
 extension UserTypeEndpointExtension on UserType {
   String _authEndPoint() {
     switch (this) {
@@ -29,12 +46,28 @@ extension UserTypeEndpointExtension on UserType {
       case UserType.salesRep: return 'auth/jwt-create/';
     }
   }
+
+  String _authRefreshEndPoint() {
+    switch (this) {
+      case UserType.endWearer: return 'auth/end_wearers/jwt-refresh/';
+      case UserType.salesRep: return 'auth/jwt-refresh/';
+    }
+  }
+}
+
+class AuthWorkerBlocArguments {
+  String email;
+  String password;
+
+  String refreshToken;
+  UserType userType;
+
+  AuthWorkerBlocArguments({this.email, this.password, this.refreshToken, this.userType});
 }
 
 class AuthWorkerBloc {
-  String email;
-  String password;
-  UserType userType;
+
+  AuthWorkerBlocArguments arguments;
 
   AuthWorker _authWorker;
   StreamController _listController;
@@ -43,15 +76,21 @@ class AuthWorkerBloc {
 
   Stream<Response<AuthCredentials>>  chuckListStream;
 
-  AuthWorkerBloc(this.email, this.password, this.userType) {
-    print('Initid block with $email, $password');
+  AuthWorkerBloc(this.arguments) {
+    print('Inited block with $arguments.email, $arguments.password, $arguments.refreshToken');
     _listController = StreamController<Response<AuthCredentials>>();
 
     chuckListSink = _listController.sink;
     chuckListStream = _listController.stream;
 
     print('${_listController.hasListener}');
-    _authWorker = AuthWorker(this.email, this.password, this.userType);
+    if (arguments.refreshToken == null) {
+      print('AuthWorker with email: ${arguments.email}');
+      _authWorker = AuthWorker(arguments.email, arguments.password, arguments.userType);
+    } else {
+      print('AuthWorker with refresh: ${arguments.refreshToken} ${arguments.userType.toString()}');
+      _authWorker = AuthRefreshWorker(arguments.refreshToken, arguments.userType);
+    }
   }
 
   call() async {

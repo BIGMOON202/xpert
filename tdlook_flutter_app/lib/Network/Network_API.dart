@@ -3,198 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/AuthWorker.dart';
 
 import 'secrets.dart';
 import 'package:http/http.dart' as http;
-
-class NetworkAPI {
-
-  final Duration _timeout = Duration(seconds: 60);
-
-  final String _baseUrl = "https://${Application.hostName}/";
-
-  Future<dynamic> get(String url,  {Map<String, String> headers, bool useAuth = true}) async {
-    var responseJson;
-    try {
-
-      if (useAuth == true) {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        var accessToken = prefs.getString('access');
-        UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
-        if (accessToken == null || userType == null) {
-          //LOGOUT;
-        }
-        var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
-        if (headers == null) {
-          headers = authKey;
-        } else {
-          headers.addAll(authKey);
-        }
-      }
-
-      var finalUrl = _baseUrl + url;
-      print('$finalUrl, $headers');
-      final response = await http.get(finalUrl, headers: headers).timeout(_timeout);
-      responseJson = _response(response);
-      print('get results: $responseJson');
-    } on SocketException {
-      throw FetchDataException('No Internet connection');
-    }
-    return responseJson;
-  }
-
-  Future<dynamic> post(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true}) async {
-    return call(Request.POST, url, body: body, headers: headers, useAuth: useAuth);
-
-    // var responseJson;
-    // try {
-    //   if (useAuth == true) {
-    //     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    //     var accessToken = prefs.getString('access');
-    //     UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
-    //     if (accessToken == null || userType == null) {
-    //       //LOGOUT;
-    //     }
-    //     var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
-    //     if (headers == null) {
-    //       headers = authKey;
-    //     } else {
-    //       headers.addAll(authKey);
-    //     }
-    //   }
-    //
-    //
-    //   var finalUrl = _baseUrl + url;
-    //   print('$finalUrl, $headers, $body');
-    //   final response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
-    //   responseJson = _response(response);
-    //   print('post results: $responseJson');
-    // } on SocketException {
-    //   throw FetchDataException('No Internet connection');
-    // }
-    // return responseJson;
-  }
-
-  Future<dynamic> put(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true}) async {
-    return call(Request.PUT, url, body: body, headers: headers, useAuth: useAuth);
-  }
-
-  Future<dynamic> call(Request request, String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true}) async {
-    var responseJson;
-    try {
-      if (useAuth == true) {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        var accessToken = prefs.getString('access');
-        UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
-        if (accessToken == null || userType == null) {
-          //LOGOUT;
-        }
-        var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
-        if (headers == null) {
-          headers = authKey;
-        } else {
-          headers.addAll(authKey);
-        }
-      }
-
-
-      var finalUrl = _baseUrl + url;
-      print('$finalUrl, $headers, $body');
-      http.Response response;
-
-      switch (request) {
-        case Request.POST:
-          response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
-          break;
-
-        case Request.PUT:
-          response = await http.put(finalUrl, headers: headers, body: body).timeout(_timeout);
-          break;
-
-        case Request.GET:
-          response = await http.get(finalUrl, headers: headers).timeout(_timeout);
-          break;
-      }
-      responseJson = _response(response);
-      print('call results: $responseJson');
-    } on SocketException {
-      throw FetchDataException('No Internet connection');
-    }
-    return responseJson;
-  }
-
-
-
-
-
-
-
-
-
-    dynamic _response(http.Response response) {
-    print('----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
-    switch (response.statusCode) {
-      case 200:
-      case 201:
-        var responseJson = json.decode(utf8.decode(response.bodyBytes));
-        print(responseJson);
-        return responseJson;
-      case 400:
-        throw BadRequestException(response.body);
-      case 401:
-
-      case 403:
-        var responseJson = json.decode(utf8.decode(response.bodyBytes));
-        print(responseJson);
-        var details = responseJson['detail'];
-        print(details);
-        throw UnauthorisedException(details != null ? details : response.body);
-      case 500:
-
-      default:
-        throw FetchDataException(
-            'Error occured while Communication with Server with StatusCode : ${response.statusCode}');
-    }
-  }
-
-  bool shouldRefreshTokenFor({dynamic json}) {
-    if (json['code'] == 'token_not_valid') {
-      return true;
-    }
-    return false;
-  }
-
-  void refreshTokenOrLogout() {
-
-  }
-
-
-
-  // Future<AuthCredentials> authWith(String email, String password) async {
-  //   final http.Response response = await http.post(
-  //     _baseUrl,
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: jsonEncode(<String, String>{
-  //       'email': email,
-  //       'password': password
-  //     }),
-  //   );
-  //   if (response.statusCode == 200) {
-  //     // If the server did return a 200 UPDATED response,
-  //     // then parse the JSON.
-  //     return AuthCredentials.fromJson(jsonDecode(response.body));
-  //   } else {
-  //     // If the server did not return a 200 UPDATED response,
-  //     // then throw an exception.
-  //     throw Exception('Failed to load album');
-  //   }
-  // }
-}
 
 class CustomException implements Exception {
   final _message;
@@ -245,6 +61,18 @@ class Response<T> {
   }
 }
 
+class ParserResponse<T> {
+  ParserResponseStatus status;
+  T data;
+
+  ParserResponse.completed(this.data) : status = ParserResponseStatus.COMPLETED;
+  ParserResponse.error(this.data) : status = ParserResponseStatus.ERROR;
+  ParserResponse.repeat(this.data) : status = ParserResponseStatus.REPEAT;
+
+}
+enum ParserResponseStatus { COMPLETED, ERROR, REPEAT }
+
+
 enum Status { LOADING, COMPLETED, ERROR }
 enum Request { GET, POST, PUT }
 
@@ -257,3 +85,189 @@ extension _UserTypeNetworkExtension on UserType {
     }
   }
 }
+
+class NetworkAPI {
+
+  final Duration _timeout = Duration(seconds: 60);
+
+  final String _baseUrl = "https://${Application.hostName}/";
+
+  Future<dynamic> get(String url,  {Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
+
+    return call(Request.GET, url, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  }
+
+  Future<dynamic> post(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
+    return call(Request.POST, url, body: body, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  }
+
+  Future<dynamic> put(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
+    return call(Request.PUT, url, body: body, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  }
+
+  Future<dynamic> call(Request request, String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
+    debugPrint('call ${request} on ${url}');
+    var responseJson;
+
+    void makeCall() async {
+      try {
+        if (useAuth == true) {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          var accessToken = prefs.getString('access');
+          UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+          if (accessToken == null || userType == null) {
+            //LOGOUT;
+          }
+          var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
+          if (headers == null) {
+            headers = authKey;
+          } else {
+            headers.addAll(authKey);
+          }
+        }
+
+
+        var finalUrl = _baseUrl + url;
+        print('$finalUrl, $headers, $body');
+        http.Response response;
+
+        switch (request) {
+          case Request.POST:
+            response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
+            break;
+
+          case Request.PUT:
+            response = await http.put(finalUrl, headers: headers, body: body).timeout(_timeout);
+            break;
+
+          case Request.GET:
+            response = await http.get(finalUrl, headers: headers).timeout(_timeout);
+            break;
+        }
+
+        var parserResponse = await _response(response, tryToRefreshAuth: tryToRefreshAuth);
+        switch (parserResponse.status) {
+          case ParserResponseStatus.COMPLETED:
+            responseJson = parserResponse.data;
+            break;
+          case ParserResponseStatus.ERROR:
+            responseJson = parserResponse.data;
+            break;
+          case ParserResponseStatus.REPEAT:
+            debugPrint('should repeat call');
+            await makeCall();
+            break;
+        }
+
+        print('call results: $responseJson');
+      } on SocketException {
+        throw FetchDataException('No Internet connection');
+      }
+    }
+    await makeCall();
+
+    debugPrint('should return response JSON');
+    return responseJson;
+  }
+
+
+
+  Future<ParserResponse<dynamic>> _response(http.Response response, {bool tryToRefreshAuth = true}) async {
+    print('----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
+    switch (response.statusCode) {
+      case 200:
+      case 201:
+        var responseJson = json.decode(utf8.decode(response.bodyBytes));
+        print(responseJson);
+        return ParserResponse.completed(responseJson);
+      case 400:
+        throw BadRequestException(response.body);
+      case 401:
+      case 403:
+        var responseJson = json.decode(utf8.decode(response.bodyBytes));
+        if (tryToRefreshAuth == true) {
+          if (shouldRefreshTokenFor(json: responseJson)) {
+            print('Load new access token');
+            await refreshTokenOrLogout();
+            return ParserResponse.repeat(responseJson);
+          }
+        }
+
+        print(responseJson);
+        var details = responseJson['detail'];
+        print(details);
+        // return ParserResponse.error(responseJson);
+        throw UnauthorisedException(details != null ? details : response.body);
+      case 500:
+
+      default:
+        throw FetchDataException(
+            'Error occured while Communication with Server with StatusCode : ${response.statusCode}');
+    }
+  }
+
+  bool shouldRefreshTokenFor({dynamic json}) {
+    if (json['code'] == 'token_not_valid') {
+      return true;
+    }
+    return false;
+  }
+
+  void refreshTokenOrLogout() async {
+
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    var refreshToken = prefs.getString('refresh');
+    var userType = EnumToString.fromString(UserType.values, prefs.getString('userType'));
+
+    AuthWorkerBloc refreshAuthBloc = AuthWorkerBloc(AuthWorkerBlocArguments(refreshToken: refreshToken, userType: userType));
+
+    refreshAuthBloc.chuckListStream.listen((event) async {
+
+        switch (event.status) {
+          case Status.COMPLETED:
+            // SAVE CREDENTIANLS AND CONTINUE LAST REQUEST
+          debugPrint('REFRESH TOKEN RESPONSE: ${event.data}');
+            // _credentials = event.data;
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('refresh', event.data.refresh); // for string value
+          prefs.setString('access', event.data.access); // for string value
+
+          break;
+        //move to list
+
+          case Status.ERROR:
+            print('REFRESH TOKEN ERROR: ${event.message}');
+            //NEED TO LOGOUT
+            // _errorMessage = event.message;
+        }
+    });
+    refreshAuthBloc.call();
+  }
+
+
+
+  // Future<AuthCredentials> authWith(String email, String password) async {
+  //   final http.Response response = await http.post(
+  //     _baseUrl,
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: jsonEncode(<String, String>{
+  //       'email': email,
+  //       'password': password
+  //     }),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     // If the server did return a 200 UPDATED response,
+  //     // then parse the JSON.
+  //     return AuthCredentials.fromJson(jsonDecode(response.body));
+  //   } else {
+  //     // If the server did not return a 200 UPDATED response,
+  //     // then throw an exception.
+  //     throw Exception('Failed to load album');
+  //   }
+  // }
+}
+
+

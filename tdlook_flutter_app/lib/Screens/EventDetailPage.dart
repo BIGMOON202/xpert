@@ -399,7 +399,6 @@ class MeasuremetsListWidget extends StatelessWidget {
           measurementDate = '-';
         }
 
-
         var measurementStatus = measurement.statusName() ?? "-";
         var eventStatusColor = measurement.statusColor() ?? Colors.white;
         var eventStatusIcon = measurement.statusIconName() ?? '-';

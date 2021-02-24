@@ -149,8 +149,8 @@ class _EventsPageState extends State<EventsPage> {
 
       Future<void> removeToken() async {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.remove('refresh');
         prefs.remove('access');
+        prefs.remove('refresh');
         Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       }
 
