@@ -14,6 +14,35 @@ import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
 
+class NavigationService{
+  GlobalKey<NavigatorState> navigationKey;
+
+  static NavigationService instance = NavigationService();
+
+  NavigationService(){
+    navigationKey = GlobalKey<NavigatorState>();
+  }
+
+  Future<dynamic> pushNamedAndRemoveUntil(String _rn){
+    return navigationKey.currentState.pushNamedAndRemoveUntil(_rn,(route) => false);
+  }
+
+  Future<dynamic> navigateToReplacement(String _rn){
+    return navigationKey.currentState.pushReplacementNamed(_rn);
+  }
+  Future<dynamic> navigateTo(String _rn){
+    return navigationKey.currentState.pushNamed(_rn);
+  }
+  Future<dynamic> navigateToRoute(MaterialPageRoute _rn){
+    return navigationKey.currentState.push(_rn);
+  }
+
+  goback(){
+    return navigationKey.currentState.pop();
+
+  }
+}
+
 void main() {
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) => {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +53,7 @@ void main() {
     ],
   ).then((val) {
   runApp(MaterialApp(
+        navigatorKey: NavigationService.instance.navigationKey,
         debugShowCheckedModeBanner: false,
         // home: LookApp(),
         initialRoute: '/',

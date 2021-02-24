@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/AuthWorker.dart';
+import 'package:tdlook_flutter_app/main.dart';
 
 import 'secrets.dart';
 import 'package:http/http.dart' as http;
@@ -188,8 +189,13 @@ class NetworkAPI {
         if (tryToRefreshAuth == true) {
           if (shouldRefreshTokenFor(json: responseJson)) {
             print('Load new access token');
-            await refreshTokenOrLogout();
-            return ParserResponse.repeat(responseJson);
+            var successRefresh = await refreshTokenOrLogout();
+            if (successRefresh == true) {
+              return ParserResponse.repeat(responseJson);
+            } else {
+              NavigationService.instance.pushNamedAndRemoveUntil("/");
+              return ParserResponse.error(responseJson);
+            }
           }
         }
 
@@ -213,7 +219,7 @@ class NetworkAPI {
     return false;
   }
 
-  void refreshTokenOrLogout() async {
+  Future<bool> refreshTokenOrLogout() async {
 
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -233,11 +239,12 @@ class NetworkAPI {
           prefs.setString('refresh', event.data.refresh); // for string value
           prefs.setString('access', event.data.access); // for string value
 
-          break;
+          return true;
         //move to list
 
           case Status.ERROR:
             print('REFRESH TOKEN ERROR: ${event.message}');
+            return false;
             //NEED TO LOGOUT
             // _errorMessage = event.message;
         }

@@ -151,7 +151,7 @@ class _EventsPageState extends State<EventsPage> {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.remove('access');
         prefs.remove('refresh');
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+        NavigationService.instance.pushNamedAndRemoveUntil("/");
       }
 
       void closePopup() {
