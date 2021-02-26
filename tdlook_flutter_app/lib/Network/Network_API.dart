@@ -196,7 +196,6 @@ class NetworkAPI {
               return ParserResponse.repeat(responseJson);
             } else {
               debugPrint('successRefresh == false');
-              NavigationService.instance.pushNamedAndRemoveUntil("/");
               return ParserResponse.error(responseJson);
             }
           }
@@ -222,8 +221,29 @@ class NetworkAPI {
     return false;
   }
 
-  Future<bool> refreshTokenOrLogout() async {
+  static AuthRefresh _isRefreshingToken = AuthRefresh();
+  static Future<bool> refreshTokenOrLogout() async {
 
+    if (_isRefreshingToken.isRefreshing == false) {
+      debugPrint('_isRefreshingToken.isRefreshing == false');
+      _isRefreshingToken.setIsRefreshing(true);
+    } else {
+      debugPrint('_isRefreshingToken.isRefreshing == true');
+      // wait until isRefreshingToken == false
+
+      Future<bool> waitForEndOfRefresh() async {
+
+        Completer<bool> c = new Completer<bool>();
+
+        _isRefreshingToken.addListener(() {
+          print("_isRefreshingToken updated ${_isRefreshingToken.isRefreshing}");
+          c.complete(_isRefreshingToken.isSuccessRefresh);
+        });
+        return c.future;
+      }
+
+      return await waitForEndOfRefresh();
+    }
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var refreshToken = prefs.getString('refresh');
@@ -240,13 +260,17 @@ class NetworkAPI {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('refresh', credentials.refresh); // for string value
       prefs.setString('access', credentials.access); // for string value
-
-      return true;
+    _isRefreshingToken.isSuccessRefresh = true;
+    _isRefreshingToken.setIsRefreshing(false);
+    return true;
     } else {
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('refresh');
       prefs.remove('access');
+      _isRefreshingToken.isSuccessRefresh = false;
+      _isRefreshingToken.setIsRefreshing(false);
+    NavigationService.instance.pushNamedAndRemoveUntil("/");
       return false;
     }
 
@@ -300,6 +324,17 @@ class NetworkAPI {
   //     throw Exception('Failed to load album');
   //   }
   // }
+}
+
+class AuthRefresh with ChangeNotifier {
+
+  bool isRefreshing = false;
+  bool isSuccessRefresh;
+
+  void setIsRefreshing(bool newValue){
+    isRefreshing = newValue;
+    notifyListeners();
+  }
 }
 
 
