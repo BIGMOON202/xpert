@@ -188,11 +188,14 @@ class NetworkAPI {
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
         if (tryToRefreshAuth == true) {
           if (shouldRefreshTokenFor(json: responseJson)) {
-            print('Load new access token');
+            debugPrint('Load new access token');
             var successRefresh = await refreshTokenOrLogout();
             if (successRefresh == true) {
+              debugPrint('successRefresh == true');
+
               return ParserResponse.repeat(responseJson);
             } else {
+              debugPrint('successRefresh == false');
               NavigationService.instance.pushNamedAndRemoveUntil("/");
               return ParserResponse.error(responseJson);
             }
@@ -226,7 +229,27 @@ class NetworkAPI {
     var refreshToken = prefs.getString('refresh');
     var userType = EnumToString.fromString(UserType.values, prefs.getString('userType'));
 
+    debugPrint('refreshTokenOrLogout: $refreshToken');
     AuthWorkerBloc refreshAuthBloc = AuthWorkerBloc(AuthWorkerBlocArguments(refreshToken: refreshToken, userType: userType));
+
+    var credentials = await refreshAuthBloc.callWithFuture();
+    debugPrint('credentials: ${credentials}');
+    if (credentials != null) {
+
+      debugPrint('REFRESH TOKEN RESPONSE: ${credentials}');
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('refresh', credentials.refresh); // for string value
+      prefs.setString('access', credentials.access); // for string value
+
+      return true;
+    } else {
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('refresh');
+      prefs.remove('access');
+      return false;
+    }
+
 
     refreshAuthBloc.chuckListStream.listen((event) async {
 
@@ -251,7 +274,7 @@ class NetworkAPI {
             // _errorMessage = event.message;
         }
     });
-    refreshAuthBloc.call();
+    await refreshAuthBloc.call();
   }
 
 

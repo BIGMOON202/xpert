@@ -110,6 +110,18 @@ class AuthWorkerBloc {
     }
   }
 
+  Future<AuthCredentials> callWithFuture() async {
+
+    try {
+
+      return await _authWorker.fetchData();
+    } catch (e) {
+      return null;
+    }
+  }
+
+
+
   String handle({dynamic error}) {
     print('e: ${error} ${error.runtimeType}');
     var returnValue = error.toString();

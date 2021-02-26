@@ -159,6 +159,10 @@ class _EventsPageState extends State<EventsPage> {
 
       Future<void> removeToken() async {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('access', 'value');
+        prefs.setString('refresh', 'value');
+        return;
+        
         prefs.remove('access');
         prefs.remove('refresh');
         NavigationService.instance.pushNamedAndRemoveUntil("/");
