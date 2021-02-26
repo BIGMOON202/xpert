@@ -8,6 +8,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/ReccomendationsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:web_socket_channel/io.dart';
@@ -60,6 +61,9 @@ class UploadPhotosWorker {
 }
 
 class WaitingForResultsWorker{
+
+  RecommendationsListBLOC _bloc;
+
   MeasurementResults model;
   final Function(dynamic) onResultReady;
 
@@ -93,9 +97,10 @@ class WaitingForResultsWorker{
         print('trying to connect');
         attemptCounter += 1;
         WebSocket.connect(socketLink)
-            .timeout(Duration(seconds: 30))
+            .timeout(Duration(seconds: 10), onTimeout: onDoneClosure)
             .then((ws) {
           try {
+            print('ws: $ws');
             _channel = new IOWebSocketChannel(ws);
 
             _channel.stream.listen((message) {
@@ -135,6 +140,42 @@ class WaitingForResultsWorker{
 
         _initialConnect(attemptCounter > 3 ? _onConnectionLost : _onInitialDisconnected);
       }
+
+
+
+      //TODO remove this shit
+      _enableContinueTimer(delay: 30).then((value) {
+        debugPrint('_enableContinueTimer for check results');
+        _bloc = RecommendationsListBLOC(model.id.toString());
+        _bloc.chuckListStream.listen((event) {
+
+          switch (event.status) {
+            case Status.LOADING:
+              break;
+
+            case Status.COMPLETED:
+              if (_channel != null) {
+                _channel.sink.close();
+              }
+              _channel = null;
+
+              if (event.data.length > 0) {
+                parse('{"status": "success"}');
+              } else {
+                parse('');
+              }
+              break;
+            case Status.ERROR:
+              if (_channel != null) {
+                _channel.sink.close();
+              }
+              _channel = null;
+              parse('');
+              break;
+          }
+        });
+        _bloc.call();
+      });
 
       _initialConnect(_onInitialDisconnected);
   }
