@@ -21,7 +21,7 @@ class UpdateMeasurementWorker {
 
   NetworkAPI _provider = NetworkAPI();
   Future<MeasurementResults> uploadData() async {
-    final response = await _provider.put('measurements/${model.id}/', useAuth: true, body: model.toJson());
+    final response = await _provider.patch('measurements/${model.id}/', useAuth: true, body: model.toJson());
     print('userinfo ${response}');
     return MeasurementResults.fromJson(response);
   }
@@ -92,31 +92,39 @@ class WaitingForResultsWorker{
       }
 
 
+      // final channel = await IOWebSocketChannel.connect(socketLink);
+      //
+      // channel.stream.listen((message) {
+      //   parse(message);
+      //   print('message: $message');
+      //   channel.sink.close(status.goingAway);
+      // });
 
-      _initialConnect(void onDoneClosure()) {
+
+      _initialConnect(void onDoneClosure()) async {
         print('trying to connect');
         attemptCounter += 1;
-        WebSocket.connect(socketLink)
-            .timeout(Duration(seconds: 10), onTimeout: onDoneClosure)
-            .then((ws) {
-          try {
-            print('ws: $ws');
-            _channel = new IOWebSocketChannel(ws);
 
-            _channel.stream.listen((message) {
+        final channel = await IOWebSocketChannel.connect(socketLink);
 
-              results = message;
-              parse(message);
-              print('message: $message');
-              _channel.sink.close(status.goingAway);
-            },
-                onDone: onDoneClosure);
-
-          } catch (e) {
-            print('Error happened when opening a new websocket connection. ${e.toString()}');
-            onDoneClosure();
-          }
+        channel.stream.listen((message) {
+          parse(message);
+          print('message: $message');
+          channel.sink.close(status.goingAway);
         });
+        _channel = channel;
+            // _channel = await IOWebSocketChannel.connect(socketLink);
+            // _channel.stream.listen((message) {
+            //   if (message == "hello") {
+            //     print('message: $message');
+            //     return;
+            //   }
+            //   results = message;
+            //   parse(message);
+            //   print('message: $message');
+            //   _channel.sink.close(status.goingAway);
+            // });
+            // _channel.sink.add("hello");
       }
 
 
@@ -144,38 +152,38 @@ class WaitingForResultsWorker{
 
 
       //TODO remove this shit
-      _enableContinueTimer(delay: 30).then((value) {
-        debugPrint('_enableContinueTimer for check results');
-        _bloc = RecommendationsListBLOC(model.id.toString());
-        _bloc.chuckListStream.listen((event) {
-
-          switch (event.status) {
-            case Status.LOADING:
-              break;
-
-            case Status.COMPLETED:
-              if (_channel != null) {
-                _channel.sink.close();
-              }
-              _channel = null;
-
-              if (event.data.length > 0) {
-                parse('{"status": "success"}');
-              } else {
-                parse('');
-              }
-              break;
-            case Status.ERROR:
-              if (_channel != null) {
-                _channel.sink.close();
-              }
-              _channel = null;
-              parse('');
-              break;
-          }
-        });
-        _bloc.call();
-      });
+      // _enableContinueTimer(delay: 50).then((value) {
+      //   debugPrint('_enableContinueTimer for check results');
+      //   _bloc = RecommendationsListBLOC(model.id.toString());
+      //   _bloc.chuckListStream.listen((event) {
+      //
+      //     switch (event.status) {
+      //       case Status.LOADING:
+      //         break;
+      //
+      //       case Status.COMPLETED:
+      //         if (_channel != null) {
+      //           _channel.sink.close();
+      //         }
+      //         _channel = null;
+      //
+      //         if (event.data != null && event.data.length > 0) {
+      //           parse('{"status": "success"}');
+      //         } else {
+      //           parse(event.message);
+      //         }
+      //         break;
+      //       case Status.ERROR:
+      //         if (_channel != null) {
+      //           _channel.sink.close();
+      //         }
+      //         _channel = null;
+      //         parse('');
+      //         break;
+      //     }
+      //   });
+      //   _bloc.call();
+      // });
 
       _initialConnect(_onInitialDisconnected);
   }

@@ -75,7 +75,7 @@ enum ParserResponseStatus { COMPLETED, ERROR, REPEAT }
 
 
 enum Status { LOADING, COMPLETED, ERROR }
-enum Request { GET, POST, PUT }
+enum Request { GET, POST, PUT, PATCH }
 
 
 extension _UserTypeNetworkExtension on UserType {
@@ -100,6 +100,10 @@ class NetworkAPI {
 
   Future<dynamic> post(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
     return call(Request.POST, url, body: body, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  }
+
+  Future<dynamic> patch(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
+    return call(Request.PATCH, url, body: body, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
   }
 
   Future<dynamic> put(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
@@ -139,6 +143,10 @@ class NetworkAPI {
 
           case Request.PUT:
             response = await http.put(finalUrl, headers: headers, body: body).timeout(_timeout);
+            break;
+
+          case Request.PATCH:
+            response = await http.patch(finalUrl, headers: headers, body: body).timeout(_timeout);
             break;
 
           case Request.GET:

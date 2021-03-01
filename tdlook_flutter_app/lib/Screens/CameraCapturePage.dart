@@ -83,7 +83,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
     _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        print(event.z.abs());
+        // print(event.z.abs());
         _zAngle = event.z;
         _gyroIsValid = !(event.z.abs() > 3);
       });
