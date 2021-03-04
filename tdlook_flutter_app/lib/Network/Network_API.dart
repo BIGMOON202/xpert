@@ -115,6 +115,8 @@ class NetworkAPI {
     var responseJson;
 
     void makeCall() async {
+
+      dynamic bodyToSend = body;
       try {
         if (useAuth == true) {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -128,6 +130,9 @@ class NetworkAPI {
             headers = authKey;
           } else {
             headers.addAll(authKey);
+            if (headers['Content-Type'] == 'application/json') {
+              bodyToSend = jsonEncode(body);
+            }
           }
         }
 
@@ -138,15 +143,15 @@ class NetworkAPI {
 
         switch (request) {
           case Request.POST:
-            response = await http.post(finalUrl, headers: headers, body: body).timeout(_timeout);
+            response = await http.post(finalUrl, headers: headers, body: bodyToSend).timeout(_timeout);
             break;
 
           case Request.PUT:
-            response = await http.put(finalUrl, headers: headers, body: body).timeout(_timeout);
+            response = await http.put(finalUrl, headers: headers, body: bodyToSend).timeout(_timeout);
             break;
 
           case Request.PATCH:
-            response = await http.patch(finalUrl, headers: headers, body: body).timeout(_timeout);
+            response = await http.patch(finalUrl, headers: headers, body: bodyToSend).timeout(_timeout);
             break;
 
           case Request.GET:

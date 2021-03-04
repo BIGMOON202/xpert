@@ -36,6 +36,12 @@ class RecommendationsPage extends StatefulWidget {
 
 class _RecommendationsPageState extends State<RecommendationsPage> {
 
+  SharedPreferences prefs;
+
+  Future<void> initShared() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   List<RecommendationModel> recommendations;
   RecommendationsListBLOC _bloc;
   MeasurementsWorkerBloc _updateMeasurementBloc;
@@ -44,6 +50,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   @override
   void initState() {
     // TODO: implement initState
+    initShared();
+
     _updateMeasurementBloc = MeasurementsWorkerBloc(widget.arguments.measurement.id.toString());
     _updateMeasurementBloc.chuckListStream.listen((event) {
       switch (event.status) {
@@ -107,6 +115,26 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       }
     }
 
+    var topTextValue = '';
+    if (prefs != null) {
+      var type = EnumToString.fromString(
+          UserType.values, prefs.getString("userType"));
+      topTextValue = type == UserType.endWearer
+          ? "Your photos have been destroyed"
+          : "Photos have been destroyed";
+    }
+
+    var topText = Visibility(
+        visible: widget.arguments.showRestartButton,
+        child: Column(
+          children: [
+            Text(topTextValue, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w400)),
+            SizedBox(
+              height: 32,
+            )
+          ],
+        )
+    );
     var scaffold = Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -115,7 +143,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
           shadowColor: Colors.transparent,
         ),
         backgroundColor: _backgroundColor,
-        body: listBody()
+        body: Column(
+          children: [
+            topText,
+            Flexible(child: listBody())],
+        )
     );
 
     return scaffold;
@@ -391,9 +423,8 @@ class RecommendationsListWidget extends StatelessWidget {
     }
 
     var list = ListView.builder(itemCount: recommendations.length + 1,
-      itemBuilder: (_, index) => itemAt(index),
+      itemBuilder: (_, index) => itemAt(index)
     );
-
     _moveToHomePage() {
       print('move to home page');
 
@@ -429,13 +460,15 @@ class RecommendationsListWidget extends StatelessWidget {
       children: [Flexible(
         flex: 8,
           child: list),
-      Visibility(visible: showRestartButton, child:Flexible(flex:2,
+      Visibility(visible: showRestartButton, child:Flexible(flex:2, 
         child: Container(
           child: SafeArea(
             child: Padding(
               padding: EdgeInsets.all(12),
               child: Column(
-                children: [Flexible(child: MaterialButton(
+                children: [Flexible(child: Container(
+                    width: double.infinity,
+                    child: MaterialButton(
                   onPressed: () {
                     print('next button pressed');
                     _moveToHomePage();
@@ -449,21 +482,26 @@ class RecommendationsListWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   // padding: EdgeInsets.all(4),
-                )),
-                  Flexible(child: MaterialButton(
+                ))),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Flexible(child: Container(
+                      width: double.infinity,
+                      child:  FlatButton(
                     onPressed: () {
                       _restartAnalize();
                     },
                     textColor: Colors.white,
                     child: Text('rescan'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                    color: Colors.white.withAlpha(6),
+                    color: Colors.white.withAlpha(12),
                     height: 50,
                     padding: EdgeInsets.only(left: 12, right: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
                     ),
                     // padding: EdgeInsets.all(4),
-                  ))],
+                  )))],
               ),
             ),
           )

@@ -47,14 +47,12 @@ class UploadPhotosWorker {
     data['front_image'] = base64Front;
     data['side_image'] = base64Side;
 
-
-
     print('uploadPhoto request');
-    final Map<String, dynamic> headers = new Map<String, dynamic>();
+    final Map<String, dynamic> headers = new Map<String, String>();
     headers['accept'] = 'application/json';
     headers['Content-Type'] = 'application/json';
 
-    final response = await _provider.post('measurements/${model.id}/process_person/', useAuth: true, body: data);
+    final response = await _provider.post('measurements/${model.id}/process_person/', headers: headers, useAuth: true, body: data);
     print('uploadPhoto: ${response}');
     return PhotoUploaderModel.fromJson(response);
   }
