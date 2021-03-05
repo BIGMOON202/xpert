@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
+import 'package:tdlook_flutter_app/ScreenComponents/EventCompletionGraphWidget.dart';
 import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -242,139 +243,147 @@ class MeasuremetsListWidget extends StatelessWidget {
 
       if (index == 0) {
 
-      var eventName = event?.name ?? 'Event Name';
-      var companyName = event.agency?.name ?? '-';
-      var companyType = event.agency?.type ?? '-';
+        var eventName = event?.name ?? 'Event Name';
+        var companyName = event.agency?.name ?? '-';
+        var companyType = event.agency?.type ?? '-';
 
-      final startTimeSplit = event.createdAt.split('T');
+        final startTimeSplit = event.createdAt.split('T');
 
-      var eventStartDate = startTimeSplit.first ?? '-';
-      var eventStartTime = startTimeSplit.last.substring(0,8) ?? '-';
+        var eventStartDate = startTimeSplit.first ?? '-';
+        var eventStartTime = startTimeSplit.last.substring(0,8) ?? '-';
 
-      final endTimeSplit = event.endDate.split('T');
+        final endTimeSplit = event.endDate.split('T');
 
-      var eventEndDate = endTimeSplit.first ?? '-';
-      var eventEndTime = endTimeSplit.last.substring(0,8) ?? '-';
-      var eventStatus = event.status.displayName() ?? "In progress";
-      var eventStatusColor = Colors.white;
-      var eventStatusTextColor = event.status.textColor() ?? Colors.black;
-
-
-      var _textColor = Colors.white;
-      var _descriptionColor = HexColor.fromHex('BEC1D4');
-      var _textStyle = TextStyle(color: _textColor);
-      var _descriptionStyle = TextStyle(color: _descriptionColor);
+        var eventEndDate = endTimeSplit.first ?? '-';
+        var eventEndTime = endTimeSplit.last.substring(0,8) ?? '-';
+        var eventStatus = event.status.displayName() ?? "In progress";
+        var eventStatusColor = Colors.white;
+        var eventStatusTextColor = event.status.textColor() ?? Colors.black;
 
 
-      container = Container(
-        color: _backgroundColor,
-        child: Padding(
-            padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    color: HexColor.fromHex('1E7AE4')
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(eventName, style: TextStyle(color: Colors.white),),
-                      SizedBox(height: 18,),
-                      SizedBox(
-                          height: 80,
-                          child: Row(
-                            children: [
-                              Expanded(flex: 4,
-                                  child: Column(
-                                    children:
-                                    [
-                                      Expanded(flex: 2,
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment
-                                                .start,
-                                            children: [
-                                              SizedBox(height: 16,
-                                                width: 16,
-                                                child: ResourceImage.imageWithName('ic_event_place.png')),
-                                              SizedBox(width: 8),
-                                              Flexible(child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start,
-                                                children: [
-                                                  Expanded(child: Text(
-                                                    companyName,
-                                                    style: _textStyle,
-                                                    overflow: TextOverflow
-                                                        .ellipsis,)),
-                                                  Expanded(child: Text(
-                                                    companyType,
-                                                    style: _descriptionStyle,
-                                                    overflow: TextOverflow
-                                                        .ellipsis,))
-                                                ],))
-                                            ],)),
-                                      Expanded(flex: 1,
-                                          child: Container(
-                                            color: Colors.transparent,
+        var _textColor = Colors.white;
+        var _descriptionColor = HexColor.fromHex('BEC1D4');
+        var _textStyle = TextStyle(color: _textColor);
+        var _descriptionStyle = TextStyle(color: _descriptionColor);
+
+        Widget _configureGraphWidgetFor(Event _event) {
+          if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
+            return EventCompletionGraphWidget(event: _event);
+          } else {
+            return Container();
+          }
+        }
+        
+
+        container = Container(
+          color: _backgroundColor,
+          child: Padding(
+              padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+              child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      color: HexColor.fromHex('1E7AE4')
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(eventName, style: TextStyle(color: Colors.white),),
+                        SizedBox(height: 18,),
+                        SizedBox(
+                            height: 80,
+                            child: Row(
+                              children: [
+                                Expanded(flex: 4,
+                                    child: Column(
+                                      children:
+                                      [
+                                        Expanded(flex: 2,
                                             child: Row(
                                               crossAxisAlignment: CrossAxisAlignment
                                                   .start,
                                               children: [
                                                 SizedBox(height: 16,
                                                   width: 16,
-                                                  child: ResourceImage
-                                                      .imageWithName(
-                                                      'ic_event_date.png'),),
+                                                  child: ResourceImage.imageWithName('ic_event_place.png')),
                                                 SizedBox(width: 8),
-                                                Expanded(
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(child: Text(
-                                                            eventStartDate,
-                                                            style: _textStyle)),
-                                                        Expanded(child: Text(
-                                                            eventStartTime,
-                                                            style: _descriptionStyle)),
-                                                      ],))
-                                              ],),)),
-                                      Expanded(flex: 1,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(width: 24),
-                                              Expanded(child: Text(eventEndDate,
-                                                  style: _textStyle)),
-                                              Expanded(child: Text(eventEndTime,
-                                                  style: _descriptionStyle)),
-                                            ],))
-                                    ],
-                                  )),
-                              Expanded(
-                                flex: 2,
-                                  child: Container(
-                                    color: Colors.transparent,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(4)),
-                                            color: eventStatusColor
-                                        ),
-                                        child: Padding(
-                                            padding: EdgeInsets.all(5),
-                                            child: Text(eventStatus,
-                                              style: TextStyle( fontWeight: FontWeight.bold,
-                                                  color: eventStatusTextColor),)),)
-                                      ],),)),
-                            ],
-                          ))
-                    ],
-                  ),
-                )
-            )),
-      );
+                                                Flexible(child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment
+                                                      .start,
+                                                  children: [
+                                                    Expanded(child: Text(
+                                                      companyName,
+                                                      style: _textStyle,
+                                                      overflow: TextOverflow
+                                                          .ellipsis,)),
+                                                    Expanded(child: Text(
+                                                      companyType,
+                                                      style: _descriptionStyle,
+                                                      overflow: TextOverflow
+                                                          .ellipsis,))
+                                                  ],))
+                                              ],)),
+                                        Expanded(flex: 1,
+                                            child: Container(
+                                              color: Colors.transparent,
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment
+                                                    .start,
+                                                children: [
+                                                  SizedBox(height: 16,
+                                                    width: 16,
+                                                    child: ResourceImage
+                                                        .imageWithName(
+                                                        'ic_event_date.png'),),
+                                                  SizedBox(width: 8),
+                                                  Expanded(
+                                                      child: Row(
+                                                        children: [
+                                                          Expanded(child: Text(
+                                                              eventStartDate,
+                                                              style: _textStyle)),
+                                                          Expanded(child: Text(
+                                                              eventStartTime,
+                                                              style: _descriptionStyle)),
+                                                        ],))
+                                                ],),)),
+                                        Expanded(flex: 1,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 24),
+                                                Expanded(child: Text(eventEndDate,
+                                                    style: _textStyle)),
+                                                Expanded(child: Text(eventEndTime,
+                                                    style: _descriptionStyle)),
+                                              ],))
+                                      ],
+                                    )),
+                                Expanded(
+                                  flex: 2,
+                                    child: Container(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(4)), 
+                                                color: eventStatusColor), 
+                                            child: Padding(
+                                              padding: EdgeInsets.all(5),
+                                              child: Text(eventStatus,
+                                                style: TextStyle(fontWeight: FontWeight.bold,
+                                                    color: eventStatusTextColor),)),),
+                                          Flexible(child: _configureGraphWidgetFor(event))
+                                        ],),)),
+                              ],
+                            ))
+                      ],
+                    ),
+                  )
+              )),
+        );
 
       } else {
 

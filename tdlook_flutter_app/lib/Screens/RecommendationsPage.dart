@@ -398,6 +398,12 @@ class RecommendationsListWidget extends StatelessWidget {
                                 style: TextStyle(
                                     color: _optionColor),)]),
                         SizedBox(height: 18,),
+                        // ListView(
+                        //   shrinkWrap: true,
+                        //   physics: NeverScrollableScrollPhysics(),
+                        //   scrollDirection: Axis.horizontal,
+                        //   children: _sizeWidgets(recomendation),
+                        // )
                         Row(
                           children: _sizeWidgets(recomendation),
                         )
@@ -460,7 +466,7 @@ class RecommendationsListWidget extends StatelessWidget {
       children: [Flexible(
         flex: 8,
           child: list),
-      Visibility(visible: showRestartButton, child:Flexible(flex:2, 
+      Visibility(visible: showRestartButton, child:Flexible(flex:2,
         child: Container(
           child: SafeArea(
             child: Padding(

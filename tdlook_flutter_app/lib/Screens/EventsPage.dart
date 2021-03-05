@@ -12,6 +12,7 @@ import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
+import 'package:tdlook_flutter_app/ScreenComponents/EventCompletionGraphWidget.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
@@ -339,32 +340,33 @@ class EventsListWidget extends StatelessWidget {
 
         if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
 
-          var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount);
-          var percent = _doublePercent.isNaN ? 0 : (_doublePercent * 100).toInt();
-          var angle = _doublePercent.isNaN ? 0.0 : _doublePercent * 360;
-          var w = new Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [CustomPaint(
-                  painter: CurvePainter(color: eventStatusColor,
-                      angle: angle),
-                  child: SizedBox(width: 45, height: 45,),
-                ),
-                  Text('$percent%', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),)],
-              ),
-              SizedBox(width: 8,),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text('${_event.completeMeasuremensCount}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('/${_event.totalMeasuremensCount}', style: TextStyle(color: _descriptionColor, fontSize: 11, fontWeight: FontWeight.w400))],
-              )
-            ],
-          );
-          return w;
+          return EventCompletionGraphWidget(event: _event);
+          // var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount);
+          // var percent = _doublePercent.isNaN ? 0 : (_doublePercent * 100).toInt();
+          // var angle = _doublePercent.isNaN ? 0.0 : _doublePercent * 360;
+          // var w = new Row(
+          //   crossAxisAlignment: CrossAxisAlignment.end,
+          //   mainAxisAlignment: MainAxisAlignment.end,
+          //   children: [
+          //     Stack(
+          //       alignment: Alignment.center,
+          //       children: [CustomPaint(
+          //         painter: CurvePainter(color: eventStatusColor,
+          //             angle: angle),
+          //         child: SizedBox(width: 45, height: 45,),
+          //       ),
+          //         Text('$percent%', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),)],
+          //     ),
+          //     SizedBox(width: 8,),
+          //     Column(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [Text('${_event.completeMeasuremensCount}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+          //         Text('/${_event.totalMeasuremensCount}', style: TextStyle(color: _descriptionColor, fontSize: 11, fontWeight: FontWeight.w400))],
+          //     )
+          //   ],
+          // );
+          // return w;
         } else {
           return Container();
         }
