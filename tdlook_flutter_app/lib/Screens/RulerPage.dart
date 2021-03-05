@@ -414,48 +414,49 @@ class _RulerPageState extends State<RulerPage> {
     //   });
     // }
     //
-    // var segmentedControl = SegmentedControl(onChanged: (i) {
-    //   setState(() {
-    //     var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
-    //     _indexToJump = transferIndexTo(newSystem: newSystem);
-    //     selectedMeasurementSystem = newSystem;
-    //   });
-    //   debugPrint('_indexToJump: $_indexToJump');
-    //   // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
-    // });
+    var segmentControl = SegmentedControl(
+        onChanged: (i) {
+      setState(() {
+        var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
+        _indexToJump = transferIndexTo(newSystem: newSystem);
+        selectedMeasurementSystem = newSystem;
+      });
+      debugPrint('_indexToJump: $_indexToJump');
+      // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
+    });
 
 
-    var segmentControl = CustomSlidingSegmentedControl(
-                        data: ['in'.toUpperCase(),'cm'.toUpperCase()],
-         panelColor: HexColor.fromHex('E0E3E8'),
-         textColor: Colors.black,
-         background: HexColor.fromHex('303339'),
-         radius: 37,
-          fixedWidth: 100,
-          padding: 8,
-          innerPadding: 6,
-          onTap: (i) {
-            var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
-            if (selectedMeasurementSystem != newSystem) {
-              setState(() {
-                _indexToJump = transferIndexTo(newSystem: newSystem);
-                _lastSelectedIndex = _indexToJump;
-                selectedMeasurementSystem = newSystem;
-              });
-              debugPrint('_indexToJump: $_indexToJump');
-              _scrollController.jumpTo((_indexToJump) * _itemHeight);
-            }
-                          // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
-                          // _itemScrollController.jumpTo(index: _indexToJump);
-          },
-    );
+    // var segmentControl = CustomSlidingSegmentedControl(
+    //                     data: ['in'.toUpperCase(),'cm'.toUpperCase()],
+    //      panelColor: HexColor.fromHex('E0E3E8'),
+    //      textColor: Colors.black,
+    //      background: HexColor.fromHex('303339'),
+    //      radius: 37,
+    //       fixedWidth: 100,
+    //       padding: 8,
+    //       innerPadding: 6,
+    //       onTap: (i) {
+    //         var newSystem =  (i == 0) ? MeasurementSystem.imperial : MeasurementSystem.metric;
+    //         if (selectedMeasurementSystem != newSystem) {
+    //           setState(() {
+    //             _indexToJump = transferIndexTo(newSystem: newSystem);
+    //             _lastSelectedIndex = _indexToJump;
+    //             selectedMeasurementSystem = newSystem;
+    //           });
+    //           debugPrint('_indexToJump: $_indexToJump');
+    //           _scrollController.jumpTo((_indexToJump) * _itemHeight);
+    //         }
+    //                       // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));
+    //                       // _itemScrollController.jumpTo(index: _indexToJump);
+    //       },
+    // );
 
     var screenContainer = Column(
       children:
       [Expanded(
         child: containerForList,
       ),
-        segmentControl,
+        SizedBox(height: 104, child: segmentControl,),
         SizedBox(height: 40),
         nextButton],
     );

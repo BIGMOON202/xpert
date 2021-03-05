@@ -20,38 +20,42 @@ class _SegmentedControlState extends State<SegmentedControl> {
   static Color _unselectedTextColor = Colors.white;
   static Color _optionalTextColor = HexColor.fromHex('#858585');
 
+  static Widget imperialTab({int selected}) {
+    return Padding(padding: EdgeInsets.all(8), child: Column(
+      children: <Widget>[
+        Text(
+          'Imperial system'.toUpperCase(),
+          style: TextStyle(color: selected == 0 ?_selectedTextColor : _unselectedTextColor,
+              fontSize: 10,
+              fontWeight: FontWeight.bold),
+        ),
+        Text('IN / LB',
+          style: TextStyle(color: _optionalTextColor, fontSize: 10),),
+      ],
+    ));
+  }
 
-  static final ss = ColumnBuilder(
-    itemCount: 2,
-      itemBuilder: (_,index) => Text('Imperial system', style: TextStyle(color: _selectedTextColor, fontSize: 10, fontWeight: FontWeight.bold)),
-  );
+  static Widget metricTab({int selected}) {
+    return  Padding(padding: EdgeInsets.all(8), child: Column(
+      children: <Widget>[
+        Text(
+          'Metric system'.toUpperCase(),
+          style: TextStyle(color: selected == 1 ?_selectedTextColor : _unselectedTextColor,
+              fontSize: 10,
+              fontWeight: FontWeight.bold),
+        ),
+        Text('CM / KG',
+          style: TextStyle(color: _optionalTextColor, fontSize: 10),),
+      ],
+    ));
+  }
 
-
-  static final Widget imperial = Column(
-    children: <Widget>[
-      Text('Imperial system', style: TextStyle(color: _selectedTextColor, fontSize: 10, fontWeight: FontWeight.bold)),
-      Text('IN / LB', style: TextStyle(color: _optionalTextColor, fontSize: 10),),
-    ],
-  );
-   final Widget metric = Column(
-    children: <Widget>[
-      Text(
-        'Imperial system',
-        style: TextStyle(color: _selectedTextColor,
-            fontSize: 10,
-            fontWeight: FontWeight.bold),
-      ),
-      Text('IN / LB',
-        style: TextStyle(color: _optionalTextColor, fontSize: 10),),
-    ],
-  );
-
-  final  Map<int, Widget> elements = const <int, Widget>{
-    0: ColumnBuilder(
-      itemCount: 2,
-      // itemBuilder: (_,index) => Text('Imperial system', style: TextStyle(color: _selectedTextColor, fontSize: 10, fontWeight: FontWeight.bold)),
-    ),
-  };
+   Map<int, Widget> getElements({int selected}) {
+      Map<int, Widget> elements =  new Map<int, Widget>();
+     elements[0] = imperialTab(selected: this.segmentedControlValue);
+     elements[1] = metricTab(selected: this.segmentedControlValue);
+     return elements;
+   }
 
 
   Widget segmentedControl() {
@@ -61,7 +65,8 @@ class _SegmentedControlState extends State<SegmentedControl> {
           groupValue: segmentedControlValue,
           thumbColor: HexColor.fromHex('E0E3E8'),
           backgroundColor: HexColor.fromHex('303339'),
-          children: elements,
+          children: getElements(selected: segmentedControlValue),
+
           onValueChanged: (value) {
             setState(() {
               segmentedControlValue = value;
@@ -74,7 +79,7 @@ class _SegmentedControlState extends State<SegmentedControl> {
 
   @override
   Widget build(BuildContext context) {
-    return segmentedControl();
+    return Expanded(child: segmentedControl());
   }
 }
 
