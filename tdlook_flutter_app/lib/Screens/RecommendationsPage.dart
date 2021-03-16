@@ -45,7 +45,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   List<RecommendationModel> recommendations;
   RecommendationsListBLOC _bloc;
   MeasurementsWorkerBloc _updateMeasurementBloc;
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   @override
   void initState() {
@@ -176,7 +176,7 @@ class RecommendationsListWidget extends StatelessWidget {
 
 
   // const RecommendationsListWidget({Key key, this.measurement, this.recommendations, this.showRestartButton}) : super(key: key);
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   static var _optionColor = HexColor.fromHex('898A9D');
   static var _highlightColor = HexColor.fromHex('1E7AE4');
 
@@ -363,7 +363,7 @@ class RecommendationsListWidget extends StatelessWidget {
           print('front: ${measurement.person}');
           print('front: ${measurement.person.frontParams}');
 
-          if (SharedParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null) {
+          if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null) {
             if (measurement.person.frontParams.waist != null) {
               widgets.add(Padding(padding: EdgeInsets.only(left: 12), child: _recommendationRow(title: 'Waist', size: measurement.person.frontParams.waist.toStringAsFixed(2))));
             }
@@ -440,7 +440,7 @@ class RecommendationsListWidget extends StatelessWidget {
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       if (type == UserType.endWearer) {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            EventsPage(provider: SharedParameters().selectedCompany.apiKey(),)
+            EventsPage(provider: SessionParameters().selectedCompany.apiKey(),)
         ));
       }
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
@@ -452,12 +452,12 @@ class RecommendationsListWidget extends StatelessWidget {
     _restartAnalize() {
       debugPrint('_restartAnalize');
 
-      if (SharedParameters().selectedUser == UserType.salesRep || SharedParameters().selectedCompany == CompanyType.uniforms) {
+      if (SessionParameters().selectedUser == UserType.salesRep || SessionParameters().selectedCompany == CompanyType.uniforms) {
         Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
             arguments: ChooseGenderPageArguments(measurement));
       } else {
         Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
-            arguments: BadgePageArguments(measurement, SharedParameters().selectedUser));
+            arguments: BadgePageArguments(measurement, SessionParameters().selectedUser));
       }
     }
 

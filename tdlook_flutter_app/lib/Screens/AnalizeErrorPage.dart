@@ -41,8 +41,8 @@ enum _PhotoError {
 
 class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
-  static Color _retakeButtonBackground = SharedParameters().selectionColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  static Color _retakeButtonBackground = SessionParameters().selectionColor;
   static Color _textColor = Colors.white;
   static Color _optionalTextColor = HexColor.fromHex('898A9D');
   _PhotoError _photoError;
@@ -83,13 +83,13 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
               sidePhoto: _sidePhoto, photoType: _passedPhotoType));
     } else {
 
-      if (SharedParameters().selectedUser == UserType.salesRep) {
+      if (SessionParameters().selectedUser == UserType.salesRep) {
         Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
             arguments: ChooseGenderPageArguments(widget.arguments.measurement));
         print('_restartAnalize');
       } else {
         Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
-            arguments: BadgePageArguments(widget.arguments.measurement, SharedParameters().selectedUser));
+            arguments: BadgePageArguments(widget.arguments.measurement, SessionParameters().selectedUser));
         print('_restartAnalize');
       }
     }

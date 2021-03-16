@@ -32,19 +32,20 @@ class _LoginPageState extends State<LoginPage> {
 
   String _email = '';
   String _password = '';
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+
 
   @override
   void initState() {
     // TODO: implement initState
 
     if (Application.isInDebugMode) {
-      _email = 'nusatenko+1@gmail.com';//'nusatenko13+49@gmail.com';//'annakarp13+99@gmail.com'
-      _password = 'Qaqazxsw'; //'Qaqazxsw!2';//'Qa123456789Qia.'
+      _email = 'nusatenko+1@gmail.com';//'annakarp13+99@gmail.com'
+      _password = 'Qaqazxsw';//'Qa123456789Qia.'
 
       if (widget.userType == UserType.endWearer) {
-        _email = 'nik42@ukr.net';
-        _password = '904813';
+        _email = 'garry@gmail.com';
+        _password = '723692';
       }
     }
   }

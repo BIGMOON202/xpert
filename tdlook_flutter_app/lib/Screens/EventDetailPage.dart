@@ -35,7 +35,7 @@ class EventDetailPage extends StatefulWidget {
 class _EventDetailPageState extends State<EventDetailPage> {
 
   MeasurementsListWorkerBloc _bloc;
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     _bloc = MeasurementsListWorkerBloc(widget.event.id.toString());
     _bloc.call();
 
-    SharedParameters().selectedUser = widget.userType;
+    SessionParameters().selectedUser = widget.userType;
 
     if (widget.measurementsList != null && widget.measurementsList.data.length > 0) {
       // widget.measurementsList.data =  widget.measurementsList.data.where((i) => i.endWearer.id == widget.currentUserId).toList();
@@ -111,7 +111,7 @@ class MeasuremetsListWidget extends StatelessWidget {
   final UserType userType;
 
   const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType, this.currentUserId}) : super(key: key);
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
 
   @override
@@ -185,7 +185,7 @@ class MeasuremetsListWidget extends StatelessWidget {
 
       if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
         // if sales rep - open gender
-        if (SharedParameters().selectedCompany == CompanyType.armor) {
+        if (SessionParameters().selectedCompany == CompanyType.armor) {
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
               BadgePage(arguments:  BadgePageArguments(measurement, userType))
           ));
@@ -465,7 +465,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                 }),
                 textColor: Colors.white,
                 child: Text('FIND MY FIT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
-                color: SharedParameters().selectionColor,
+                color: SessionParameters().selectionColor,
                 // padding: EdgeInsets.only(left: 12, right: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
@@ -482,7 +482,7 @@ class MeasuremetsListWidget extends StatelessWidget {
               flex:4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [SizedBox(height: 0.5, child: Container(color: SharedParameters().optionColor)),
+              children: [SizedBox(height: 0.5, child: Container(color: SessionParameters().optionColor)),
               SizedBox(height: 16),
                 Expanded(child:
                 content)],

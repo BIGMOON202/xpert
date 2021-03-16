@@ -137,12 +137,25 @@ VideoPlayerController _controller;
   @override
   void initState() {
 
-    _steps = [TutorialStep('Ask someone to help take 2 photos of you. Keep the device at 90° angle at the waistline.', 0),
-              TutorialStep('For the side photo turn to your left.', 6)];
+    if (SessionParameters().captureMode == CaptureMode.withFriend) {
+      _steps = [TutorialStep('Ask someone to help take 2 photos of you. Keep the device at 90° angle at the waistline.', 0),
+        TutorialStep('For the side photo turn to your left.', 6)];
 
-    var videoName = widget.gender.friendsModeVideoName;
+      var videoName = widget.gender.friendsModeVideoName;
 
-    _controller = VideoPlayerController.asset('lib/Resources/$videoName');
+      _controller = VideoPlayerController.asset('lib/Resources/$videoName');
+    } else {
+      _steps = [TutorialStep('Stand your device upright on a table.\nYou can use an object to help hold it up.', 0),
+        TutorialStep('Angle the phone so that the arrows line up on the green.', 3),
+        TutorialStep('Take 3 to 4 steps away from your device.', 7),
+        TutorialStep('Please turn up the volume and follow the voice instructions.', 14)];
+
+      var videoName = widget.gender.handsFreeModeVideoName;
+
+      _controller = VideoPlayerController.asset('lib/Resources/$videoName');
+    }
+
+
 
 
     _initializeVideoPlayerFuture = _controller.initialize();
@@ -213,13 +226,13 @@ VideoPlayerController _controller;
 
     var videoLayerContainer = Column(children: [
       Container(
-      color: SharedParameters().mainBackgroundColor,
+      color: SessionParameters().mainBackgroundColor,
       child: videoLayer,
     ),
     Padding(
       padding: EdgeInsets.only(left: 12, right: 12),
         child: LinearProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(SharedParameters().selectionColor),
+          valueColor: AlwaysStoppedAnimation<Color>(SessionParameters().selectionColor),
           backgroundColor: Colors.white.withOpacity(0.1),
       value: _videoProgress,
     )),
@@ -237,9 +250,9 @@ VideoPlayerController _controller;
                     visible: !_isPlaying,
                     child:
                 FlatButton(child:
-                  Row(children: [Icon(Icons.replay, color: SharedParameters().selectionColor,),
+                  Row(children: [Icon(Icons.replay, color: SessionParameters().selectionColor,),
                     SizedBox(width: 10,),
-                    Container(child: Text('Replay', style: TextStyle(color: SharedParameters().selectionColor),))],
+                    Container(child: Text('Replay', style: TextStyle(color: SessionParameters().selectionColor),))],
                   ),
                   onPressed: _replayAction,
                 ),
@@ -261,14 +274,16 @@ VideoPlayerController _controller;
         visible: true,
         child:Align(
             alignment: Alignment.bottomCenter,
-            child:SafeArea(child: Container(
+            child: Padding(
+              padding: EdgeInsets.only(left:12, right: 12),
+                child: SafeArea(child: Container(
                 width: double.infinity,
                 child: MaterialButton(
-                  disabledColor: SharedParameters().selectionColor.withOpacity(0.5),
+                  disabledColor: SessionParameters().selectionColor.withOpacity(0.5),
                   onPressed: _continueButtonEnable ? _moveToNextPage : null,
                   textColor: Colors.white,
                   child: CustomText('CONTINUE'),
-                  color: SharedParameters().selectionColor,
+                  color: SessionParameters().selectionColor,
                   height: 50,
                   // padding: EdgeInsets.only(left: 12, right: 12),
                   shape: RoundedRectangleBorder(
@@ -276,7 +291,7 @@ VideoPlayerController _controller;
                   ),
                   // padding: EdgeInsets.all(4),
                 )),
-            )));
+            ))));
 
     var container = Stack(
       children: [
@@ -289,10 +304,10 @@ VideoPlayerController _controller;
         appBar: AppBar(
           centerTitle: true,
           title: Text('How to take photos'),
-          backgroundColor: SharedParameters().mainBackgroundColor,
+          backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
-        backgroundColor: SharedParameters().mainBackgroundColor,
+        backgroundColor: SessionParameters().mainBackgroundColor,
         body: container);
   }
 }

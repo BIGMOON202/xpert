@@ -15,7 +15,7 @@ class ChooseRolePage extends StatefulWidget {
 
 class _ChooseRolePageState extends State<ChooseRolePage> {
 
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   static Color  _selectedColor = Colors.white.withOpacity(0.1);
 
   UserType _selectedUserType;
@@ -103,7 +103,10 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
         visible: true,
         child:Align(
             alignment: Alignment.bottomCenter,
-            child:SafeArea(child: Container(
+            child:SafeArea(child: 
+            Padding(
+              padding: EdgeInsets.only(left: 12, right: 12),
+                child: Container(
                 width: double.infinity,
                 child: MaterialButton(
                   textTheme: ButtonTextTheme.accent,
@@ -122,7 +125,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
                   ),
                   // padding: EdgeInsets.all(4),
-                )),
+                ))),
             )));
 
 

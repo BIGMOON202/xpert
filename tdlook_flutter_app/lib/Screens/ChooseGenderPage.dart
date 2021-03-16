@@ -30,7 +30,7 @@ class ChooseGenderPage extends StatefulWidget {
 class _ChooseGenderPageState extends State<ChooseGenderPage> {
 
 
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   static Color  _selectedColor = Colors.white.withOpacity(0.1);
   int _selectedGender = -1;
 
@@ -40,7 +40,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
 
     super.initState();
 
-    print('gender selectedCompany:${SharedParameters().selectedCompany}');
+    print('gender selectedCompany:${SessionParameters().selectedCompany}');
   }
 
   void _selectGender(int atIndex) {
@@ -94,7 +94,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
                         SizedBox(
                           width: 45,
                             height: 61,
-                            child:ResourceImage.imageWithName(_selectedGender == 0 ? 'ic_male_selected.png' : 'ic_male_gray.png')),
+                            child:ResourceImage.imageWithName(_selectedGender == 0 ? Gender.male.selectedImageName() : Gender.male.unselectedImageName())),
                         SizedBox(height: 24),
                         Text('Male', style: TextStyle(color: Colors.white),),
                       ],
@@ -114,7 +114,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
                   SizedBox(
                     width: 45,
                       height:61,
-                      child:ResourceImage.imageWithName(_selectedGender == 1 ? 'ic_female_blue.png' : "ic_female_unselected.png")),
+                      child:ResourceImage.imageWithName(_selectedGender == 1 ? Gender.female.selectedImageName() : Gender.female.unselectedImageName())),
                   SizedBox(height: 24),
                   Text('Female', style: TextStyle(color: Colors.white),),
                 ],
@@ -156,7 +156,6 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
       ],
     );
 
-    // TODO: implement build
     var scaffold = Scaffold(
       appBar: AppBar(
         centerTitle: true,

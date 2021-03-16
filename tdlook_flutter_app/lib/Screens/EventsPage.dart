@@ -48,7 +48,7 @@ class _EventsPageState extends State<EventsPage> {
 
   final GlobalKey<InnerDrawerState> _innerDrawerKey = GlobalKey<InnerDrawerState>();
 
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   void _toggle()
   {
@@ -67,7 +67,7 @@ class _EventsPageState extends State<EventsPage> {
     _bloc = EventListWorkerBloc(widget.provider);
     _userInfoBloc = UserInfoBloc();
     print('get userInfo ${_userInfoBloc}');
-    print('list selectedCompany:${SharedParameters().selectedCompany}');
+    print('list selectedCompany:${SessionParameters().selectedCompany}');
 
     Future<Void> fetchUserType() async {
       prefs = await SharedPreferences.getInstance();
@@ -87,7 +87,7 @@ class _EventsPageState extends State<EventsPage> {
           case Status.COMPLETED:
             print('completed header');
             if (_userType == UserType.salesRep) {
-              SharedParameters().selectedCompany = event.data.provider;
+              SessionParameters().selectedCompany = event.data.provider;
             }
             print('company = ${event.data.provider.apiKey()}');
             setState(() {
@@ -282,7 +282,7 @@ class EventsListWidget extends StatelessWidget {
   final Tuple2<EventList, MeasurementsList> resultsList;
 
   const EventsListWidget({Key key, this.resultsList, this.userType, this.userId}) : super(key: key);
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
 
   @override
@@ -510,7 +510,7 @@ class UserInfoHeader extends StatelessWidget {
   final UserType userType;
 
   const UserInfoHeader({Key key, this.userInfo, this.userType}) : super(key:key);
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   @override
   Widget build(BuildContext context) {

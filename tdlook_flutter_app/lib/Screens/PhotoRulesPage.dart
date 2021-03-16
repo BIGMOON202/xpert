@@ -67,14 +67,16 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
         visible: true,
         child:Align(
             alignment: Alignment.bottomCenter,
-            child:SafeArea(child: Container(
+            child:Padding(
+              padding: EdgeInsets.only(left: 12, right: 12),
+                child: SafeArea(child: Container(
                 width: double.infinity,
                 child: MaterialButton(
-                  disabledColor: SharedParameters().selectionColor.withOpacity(0.5),
+                  disabledColor: SessionParameters().selectionColor.withOpacity(0.5),
                   onPressed: _continueButtonEnable ? _moveToNextPage : null,
                   textColor: Colors.white,
                   child: CustomText('let\'s start'.toUpperCase()),
-                  color: SharedParameters().selectionColor,
+                  color: SessionParameters().selectionColor,
                   height: 50,
                   // padding: EdgeInsets.only(left: 12, right: 12),
                   shape: RoundedRectangleBorder(
@@ -82,7 +84,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                   ),
                   // padding: EdgeInsets.all(4),
                 )),
-            )));
+            ))));
 
     print('selectedGender: ${widget.gender.toString()}');
 
@@ -100,10 +102,10 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
         appBar: AppBar(
           centerTitle: true,
           title: Text('Take a ${widget.photoType.name()} photo'),
-          backgroundColor: SharedParameters().mainBackgroundColor,
+          backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
-        backgroundColor: SharedParameters().mainBackgroundColor,
+        backgroundColor: SessionParameters().mainBackgroundColor,
         body: container);
 
   }

@@ -16,7 +16,7 @@ class ChooseCompanyPage extends StatefulWidget {
 
 class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
 
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   static Color  _selectedColor = Colors.white.withOpacity(0.1);
 
   CompanyType _selectedCompanyType;
@@ -102,9 +102,9 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
     );
 
     void _moveToNextPage() {
-      SharedParameters().selectedCompany = _selectedCompanyType;
+      SessionParameters().selectedCompany = _selectedCompanyType;
 
-      print('selectedCompany:${SharedParameters().selectedCompany}');
+      print('selectedCompany:${SessionParameters().selectedCompany}');
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
           EventsPage(provider: _selectedCompanyType.apiKey(),)
         // EventsPage()
@@ -115,7 +115,9 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
         visible: true,
         child:Align(
             alignment: Alignment.bottomCenter,
-            child:SafeArea(child: Container(
+            child: Padding(
+              padding: EdgeInsets.only(left: 12, right: 12),
+                child:SafeArea(child: Container(
                 width: double.infinity,
                 child: MaterialButton(
                   textTheme: ButtonTextTheme.accent,
@@ -135,7 +137,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
                   ),
                   // padding: EdgeInsets.all(4),
                 )),
-            )));
+            ))));
 
 
     var bottomPart = new FractionallySizedBox (

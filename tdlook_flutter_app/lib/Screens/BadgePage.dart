@@ -28,7 +28,7 @@ class BadgePage extends StatefulWidget {
 class _BadgePageState extends State<BadgePage> {
 
   String _enteredbadge = '';
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
 
   void _moveToNextScreen() {

@@ -12,6 +12,17 @@ enum MeasurementSystem {
 }
 
 extension GenderExtension on Gender {
+
+  String get handsFreeModeVideoName {
+    switch (this) {
+      case Gender.male:
+        return 'Male_Hands_Free.mp4';
+
+      case Gender.female:
+        return 'Female_Hands_Free.mp4';
+    }
+  }
+
    String get friendsModeVideoName {
     switch (this) {
       case Gender.male:
@@ -21,6 +32,20 @@ extension GenderExtension on Gender {
         return 'Female_Friend_Widget.mp4';
     }
   }
+
+   String unselectedImageName() {
+     switch (this) {
+       case Gender.male: return 'ic_male_gray.png';
+       case Gender.female: return 'ic_female_unselected.png';
+     }
+   }
+
+   String selectedImageName() {
+     switch (this) {
+       case Gender.male: return 'ic_male_selected.png';
+       case Gender.female: return 'ic_female_blue.png';
+     }
+   }
 
   String apiFlag() {
     switch (this) {
@@ -105,7 +130,25 @@ extension CompanyTypeExtension on CompanyType {
   }
 }
 
+enum CaptureMode {
+  withFriend,
+  handsFree
+}
 
+extension CaptureModeExtension on CaptureMode {
+  String selectedImageName({Gender gender}) {
+    switch (this) {
+      case CaptureMode.withFriend: return 'ic_friends_mode_selected.png';
+      case CaptureMode.handsFree: return gender.selectedImageName() ?? '';
+    }
+  }
+  String unselectedImageName({Gender gender}) {
+    switch (this) {
+      case CaptureMode.withFriend: return 'ic_friends_mode_unselected.png';
+      case CaptureMode.handsFree: return gender.unselectedImageName() ?? '';
+    }
+  }
+}
 
 enum PhotoType {
   front,

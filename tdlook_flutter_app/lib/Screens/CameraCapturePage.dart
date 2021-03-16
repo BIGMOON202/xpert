@@ -254,7 +254,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
           shadowColor: Colors.transparent,
         ),
         extendBodyBehindAppBar: true,
-        backgroundColor: SharedParameters().mainBackgroundColor,
+        backgroundColor: SessionParameters().mainBackgroundColor,
         body: Stack(
         children: [
           FutureBuilder(future: _initializeCameraFuture,

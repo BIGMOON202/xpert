@@ -79,7 +79,7 @@ class _SegmentedControlState extends State<SegmentedControl> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(child: segmentedControl());
+    return segmentedControl();
   }
 }
 

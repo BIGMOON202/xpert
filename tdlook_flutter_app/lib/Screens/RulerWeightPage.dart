@@ -9,6 +9,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -285,16 +286,24 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     void _moveToNextPage() {
       widget.measurement.weight = _rawMetricValue;
 
-      print('company: ${SharedParameters().selectedCompany.apiKey()}');
-      if (SharedParameters().selectedCompany == CompanyType.armor) {
+      print('company: ${SessionParameters().selectedCompany.apiKey()}');
+      if (SessionParameters().selectedCompany == CompanyType.armor) {
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
             RulerPageClavicle(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem, measurements: widget.measurement
               ,),
         ));
       } else {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
-        ));
+
+        if (SessionParameters().selectedUser == UserType.endWearer) {
+          Navigator.pushNamed(context, ChooseCaptureModePage.route,
+              arguments: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement));
+
+        } else {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
+          ));
+        }
+
       }
     }
 

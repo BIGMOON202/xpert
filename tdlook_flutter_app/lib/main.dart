@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCompanyPage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
@@ -89,6 +90,10 @@ void main() {
           } else if (settings.name == BadgePage.route) {
             if (settings.arguments is BadgePageArguments) {
               return MaterialPageRoute(settings: settings, builder: (context) => BadgePage(arguments: settings.arguments));
+            }
+          } else if (settings.name == ChooseCaptureModePage.route) {
+            if (settings.arguments is ChooseCaptureModePageArguments) {
+              return MaterialPageRoute(settings: settings, builder: (context) => ChooseCaptureModePage(argument: settings.arguments));
             }
           }
         },

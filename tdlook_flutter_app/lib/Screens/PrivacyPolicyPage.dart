@@ -26,7 +26,7 @@ class PrivacyPolicyPage extends StatefulWidget {
 
 class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
-  static Color _backgroundColor = SharedParameters().mainBackgroundColor;
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
 
   WebViewController _controller;
@@ -137,13 +137,15 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
       if (widget.showApply == true) {
         return Expanded(
             flex: 2,
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(15.0),
+                        topRight: Radius.circular(15.0)),
+                    color: _backgroundColor),
             child: SafeArea(
                 child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15.0),
-                            topRight: Radius.circular(15.0)),
-                        color: _backgroundColor),
+
                     child: Column(
                         children:[
                           Container(
@@ -164,7 +166,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                                       )),
                                   Flexible(child: Text('I accept Terms and Conditions and Privacy Policy',
                                     style: TextStyle(color: Colors.white), maxLines: 3))],)),
-                          nextButton]))));
+                          nextButton])))));
       } else {
         return Container();
       }
