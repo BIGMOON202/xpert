@@ -44,7 +44,7 @@ class CameraCapturePage extends StatefulWidget {
 
 class _CameraCapturePageState extends State<CameraCapturePage> {
 
-
+  CaptureMode _captureMode;
   XFile _frontPhoto;
   XFile _sidePhoto;
 
@@ -65,7 +65,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
     print('selectedGender on camera: ${widget.gender.apiFlag()}');
 
-
+    _captureMode = SessionParameters().captureMode;
     _frontPhoto = widget.frontPhoto;
     _sidePhoto = widget.sidePhoto;
 
@@ -96,7 +96,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     WidgetsFlutterBinding.ensureInitialized();
     cameras = await availableCameras();
 
-    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    var camera = _captureMode == CaptureMode.withFriend ? cameras[0] : cameras[1];
+    controller = CameraController(camera, ResolutionPreset.medium);
     _initializeCameraFuture = controller.initialize();
     _initializeCameraFuture.then((_) {
       if (!mounted) {
@@ -205,83 +206,132 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       _moveToNextPage();
     }
 
-    var frameWidget = SafeArea(child: Center(child: Padding(padding: EdgeInsets.only(top: 8, left: 40, right: 40, bottom: 34) ,child:
-    FittedBox(
-      child: ResourceImage.imageWithName(_gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
-      fit: BoxFit.fitWidth,
-      ),
-    ),
-    ));
-
-    var rulerContainer = Align(
-      alignment: Alignment.centerLeft,
-        child: SizedBox(width: 48,
-          height: 360,
-          child: GyroWidget(angle: _zAngle,),),
-    );
-
-    var align = Align(
-        alignment: Alignment.bottomCenter,
-        child:SafeArea(child: Container(
-            width: 100,
-            height: 200,
-            child:
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-            Opacity(opacity: _gyroIsValid ? 1.0 : 0.7,
-                child: MaterialButton(
-              onPressed: _gyroIsValid ? _handleTap : null,
-              // textColor: Colors.white,
-              child: Stack(
-                alignment: Alignment.center,
-                  children:[
-                ResourceImage.imageWithName('ic_capture.png'),
-                    Visibility(visible: _isTakingPicture, child: CircularProgressIndicator())]),
-            ))]
-            )
+    Widget frameWidget(){
+      if (_captureMode == CaptureMode.withFriend) {
+        return SafeArea(child: Center(child: Padding(padding: EdgeInsets.only(top: 8, left: 40, right: 40, bottom: 34) ,child:
+        FittedBox(
+          child: ResourceImage.imageWithName(_gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
+          fit: BoxFit.fitWidth,
+        ),
         ),
         ));
+      } else {
 
-    if ((controller == null) || (!controller.value.isInitialized)) {
-      return Container();
-    }
-    return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: activePhotoType() == PhotoType.front ? Text('Front photo') : Text('Side photo'),
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-        ),
-        extendBodyBehindAppBar: true,
-        backgroundColor: SessionParameters().mainBackgroundColor,
-        body: Stack(
-        children: [
-          FutureBuilder(future: _initializeCameraFuture,
-            builder: (context, snapshot){
-          if (snapshot.connectionState == ConnectionState.done) {
-            return AspectRatio(
-                aspectRatio: deviceRatio,
-                child: Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.diagonal3Values(xScale(), 1, 1),
-              child: CameraPreview(controller),
-              ));
+        Widget subWidget() {
+          if (_gyroIsValid == false) {
+            return Container(
+                decoration: BoxDecoration(
+                    color: _gyroIsValid ? Colors.transparent : Colors.black.withAlpha(100),
+                    borderRadius: BorderRadius.all(Radius.circular(30))
+                ),
+                child:
+          Center(child:
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            // crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+            Padding(padding: EdgeInsets.only(left:35), child: SizedBox(width: 96, height: 360, child: GyroWidget(angle: _zAngle, captureMode: _captureMode,))),
+                SizedBox(height: 39),
+                Text('Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 16))
+          ])));
           } else {
-            return Center(child: CircularProgressIndicator());
+            return Container();
           }
-        }),
-          frameWidget,
-          align,
-          rulerContainer
-        ],
-    ));
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+              border: Border.all(
+                width: 10,
+                color: _gyroIsValid ? Colors.green : Colors.red,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(40))
+          ),
+          child: subWidget());
+      }
+    }
+
+    Widget rulerContainer() {
+      if (_captureMode == CaptureMode.withFriend) {
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: SizedBox(width: 48,
+            height: 360,
+            child: GyroWidget(angle: _zAngle, captureMode: _captureMode,),),
+        );
+      } else {
+        return Container();
+    }}
+
+
+      Widget captureButton()  {
+      if (_captureMode == CaptureMode.withFriend) {
+      return Align(
+          alignment: Alignment.bottomCenter,
+          child:SafeArea(child: Container(
+              width: 100,
+              height: 200,
+              child:
+              Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Opacity(opacity: _gyroIsValid ? 1.0 : 0.7,
+                        child: MaterialButton(
+                          onPressed: _gyroIsValid ? _handleTap : null,
+                          // textColor: Colors.white,
+                          child: Stack(
+                              alignment: Alignment.center,
+                              children:[
+                                ResourceImage.imageWithName('ic_capture.png'),
+                                Visibility(visible: _isTakingPicture, child: CircularProgressIndicator())]),
+                        ))]
+              )
+          ),
+          ));
+      } else {
+        return Container();
+      }}
+
+      if ((controller == null) || (!controller.value.isInitialized)) {
+        return Container();
+      }
+      return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: activePhotoType() == PhotoType.front ? Text('Front photo') : Text('Side photo'),
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+          ),
+          extendBodyBehindAppBar: true,
+          backgroundColor: SessionParameters().mainBackgroundColor,
+          body: Stack(
+            children: [
+              FutureBuilder(future: _initializeCameraFuture,
+                  builder: (context, snapshot){
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return AspectRatio(
+                          aspectRatio: deviceRatio,
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.diagonal3Values(xScale(), 1, 1),
+                            child: CameraPreview(controller),
+                          ));
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  }),
+              frameWidget(),
+              captureButton(),
+              rulerContainer()
+            ],
+          ));
+    }
   }
-}
 
 class GyroWidget extends StatefulWidget {
   final double angle;
-  const GyroWidget({Key key, this.angle}): super(key: key);
+  final CaptureMode captureMode;
+  const GyroWidget({Key key, this.angle, this.captureMode}): super(key: key);
   @override
   _GyroWidgetState createState() => _GyroWidgetState();
 }
@@ -313,16 +363,22 @@ class _GyroWidgetState extends State<GyroWidget> {
     var arrow = Positioned(
         top: arrowTopOffset(),
         child: SizedBox(
-          width: 8,
+          width: 16,
           height: _arrowHeight,
           child: ResourceImage.imageWithName('ic_pointer.png'),
     ));
 
+    Widget image() {
+      if (widget.captureMode == CaptureMode.withFriend) {
+        return ResourceImage.imageWithName('ic_gyro_ruler.png');
+      } else {
+        return ResourceImage.imageWithName('big_gyro.png');
+      }
+    }
 
     return Stack(
-        children:[Row(children: [Expanded(child:Container()), Expanded(child:Stack(children: [arrow]))]),
-          Row(children: [Expanded(flex: 2, child: ResourceImage.imageWithName('ic_gyro_ruler.png')),
-    Expanded(child: Container())])]);
+        children:[Row(children: [Expanded(flex:3, child:Container()), Expanded(flex:2, child:Stack(children: [arrow]))]),
+          Row(children: [Expanded(flex: 2, child: image()), Expanded(child: Container())])]);
   }
 }
 
