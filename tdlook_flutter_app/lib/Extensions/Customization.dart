@@ -29,6 +29,7 @@ class SessionParameters {
   CaptureMode captureMode;
 
   Color mainBackgroundColor = HexColor.fromHex('16181B');
+  Color mainFontColor = Colors.white;
   Color selectionColor = HexColor.fromHex('1E7AE4');
   Color optionColor = HexColor.fromHex('D8D8D8');
 }

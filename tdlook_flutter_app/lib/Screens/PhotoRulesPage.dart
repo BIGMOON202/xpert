@@ -4,6 +4,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/SoundCheckPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
@@ -28,11 +29,16 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
   void _moveToNextPage() {
 
-
-    Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-    // RulerPageWeight(),
+    if (widget.photoType == PhotoType.front && SessionParameters().captureMode == CaptureMode.handsFree) {
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+        SoundCheckPage(photoType: widget.photoType, measurement: widget.measurement, gender: widget.gender)
+      ));
+    } else {
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement, frontPhoto: widget.frontPhoto, gender: widget.gender, arguments: widget.arguments)
-    ));
+      ));
+    }
+
   }
 
   Future<bool> _enableContinueTimer() async {
@@ -91,7 +97,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
     var container = Stack(
       children: [
         Padding(padding: EdgeInsets.only(top: 70, left: 20, right: 20),
-        child: ResourceImage.imageWithName(widget.photoType.rulesImageNameFor(gender:widget.gender))
+        child: ResourceImage.imageWithName(widget.photoType.rulesImageNameFor(gender:widget.gender, captureMode: SessionParameters().captureMode))
         ),
         SizedBox(height: 50),
         nextButton,

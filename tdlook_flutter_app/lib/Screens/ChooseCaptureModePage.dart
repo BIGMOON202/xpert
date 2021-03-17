@@ -39,7 +39,7 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
     // TODO: implement initState
     super.initState();
 
-    _passedGender = Gender.male;// widget.argument.gender;
+    _passedGender = widget.argument.gender;
   }
 
   void _selectMode(CaptureMode newMode) {

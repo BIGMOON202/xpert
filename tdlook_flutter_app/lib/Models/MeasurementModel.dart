@@ -166,12 +166,22 @@ extension PhotoTypeExtension on PhotoType {
     }
   }
 
-  String rulesImageNameFor({Gender gender}) {
-    switch (this) {
-      case PhotoType.front:
-        return gender == Gender.male ? 'howToTakeFront_male.png' : 'howToTakeFront_female.png';
-      case PhotoType.side:
-        return gender == Gender.male ? 'howToTakeSide_male.png' : 'howToTakeSide_female.png';
+  String rulesImageNameFor({Gender gender, CaptureMode captureMode}) {
+    if (captureMode == CaptureMode.withFriend) {
+      switch (this) {
+        case PhotoType.front:
+          return gender == Gender.male ? 'howToTakeFront_male.png' : 'howToTakeFront_female.png';
+        case PhotoType.side:
+          return gender == Gender.male ? 'howToTakeSide_male.png' : 'howToTakeSide_female.png';
+      }
+    } else {
+      switch (this) {
+        case PhotoType.front:
+          return gender == Gender.male ? 'how_take_male_front_hadsfree.png' : 'how_take_female_front_hadsfree.png';
+        case PhotoType.side:
+          return gender == Gender.male ? 'how_take_male_side_hadsfree.png' : 'how_take_female_side_hadsfree.png';
+      }
     }
+
   }
 }
