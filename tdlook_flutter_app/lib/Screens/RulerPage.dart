@@ -64,13 +64,8 @@ class _RulerPageState extends State<RulerPage> {
       sortedKeys.remove(elem);
       visibleItems.remove(elem);
     }
-
-    // debugPrint('visible: ${sortedKeys.toString()}');
-
-
     var minVisible = sortedKeys.first;
     var maxVisible = sortedKeys.last;
-    // debugPrint('min: $minVisible\nmax: $maxVisible');
     _updateValuesFor(minVisible, maxVisible);
   }
 
@@ -87,8 +82,6 @@ class _RulerPageState extends State<RulerPage> {
 
     _scrollController = ScrollController();
 
-    debugPrint('INIT RULER H');
-
     if (selectedMeasurementSystem == MeasurementSystem.metric) {
       numberOfRulerElements = maxValue - minValue;
     } else {
@@ -104,45 +97,20 @@ class _RulerPageState extends State<RulerPage> {
     int selectedIndex;
 
     if (minIndex == 0) {
-      // debugPrint('minIndex is visible');
-      // debugPrint('${maxIndex * _maxNumberOfVisibleElements}');
-      // debugPrint('selectedIndex:${(maxIndex * _itemHeight - _listHeight * 0.5) / _itemHeight}');
       selectedIndex = ((maxIndex * _itemHeight - _listHeight * 0.5) / _itemHeight).toInt();
-
     } else if (maxIndex == numberOfRulerElements) {
-      debugPrint('maxIndex is visible');
-      debugPrint('maxIndex:$maxIndex');
-      debugPrint('${maxIndex * _maxNumberOfVisibleElements}');
-      debugPrint('selectedIndex:${(maxIndex * _itemHeight - _listHeight * 0.5) / _itemHeight}');
       selectedIndex = maxIndex - (((maxIndex - minIndex) * _itemHeight - _listHeight * 0.5)/_itemHeight).toInt();
     } else {
-      // debugPrint('minIndex and maxIndex are visible');
-      // debugPrint('maxIndex:$maxIndex');
-      // debugPrint('minIndex:$minIndex');
-      // debugPrint('center:${(maxIndex - minIndex) * 0.5}');
       selectedIndex = (maxIndex - (_maxNumberOfVisibleElements * 0.5).round()).round();
-      // debugPrint('selectedIndex:${selectedIndex}');
     }
 
     if (selectedIndex < 0) { selectedIndex = 0;}
     else if (selectedIndex > numberOfRulerElements) { selectedIndex = numberOfRulerElements;}
 
-    // selectedIndex += 1;
-    // if (minIndex == 0) {
-    //     selectedIndex = maxIndex - rulerGap;
-    // } else if (maxIndex == numberOfRulerElements) {
-    //   selectedIndex = minIndex + rulerGap;
-    // } else {
-    //   selectedIndex = maxIndex - rulerGap;
-    // }
-
     _lastSelectedIndex = selectedIndex;
-    debugPrint('selectedIndex: $selectedIndex');
 
 
-      // var dif = (maxIndex - minIndex) - rulerGap;
       int cmValue = selectedIndex + minValue;
-      // debugPrint('cm: $cmValue');
       if (selectedMeasurementSystem == MeasurementSystem.metric) {
         setState(() {
           _value = '$cmValue';
@@ -172,28 +140,18 @@ class _RulerPageState extends State<RulerPage> {
 
     var indexValue = ((maxValue - minValue) / 27);
     var newIndex = _lastSelectedIndex;
-    debugPrint('last index: $_lastSelectedIndex');
 
     if (newSystem == MeasurementSystem.imperial) {
       var indexValue = ((maxValue - minValue) / 27);
-      debugPrint('index value: $indexValue');
       var double = _lastSelectedIndex / indexValue;
-      debugPrint('new index double: $double');
       newIndex = double.round();
       if (newIndex <= 17) {
         newIndex += 1;
       }
-      debugPrint('new index: $newIndex');
-
     } else {
-      debugPrint('index value: $indexValue');
-
       var double = _lastSelectedIndex * indexValue;
-      debugPrint('new index double: $double');
       newIndex = double.round();
     }
-
-    debugPrint('new index: $newIndex');
     return newIndex;
   }
 
@@ -345,7 +303,7 @@ class _RulerPageState extends State<RulerPage> {
         child: Center(
           child:  Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
+            // crossAxisAlignment: CrossAxisAlignment.baseline,
             children: [
 
                      Text(_value, style: TextStyle(
@@ -390,7 +348,6 @@ class _RulerPageState extends State<RulerPage> {
       width: double.infinity,
       child: MaterialButton(
         onPressed: () {
-          debugPrint('next button pressed');
           _moveToNextPage();
         },
         textColor: Colors.white,
@@ -443,7 +400,6 @@ class _RulerPageState extends State<RulerPage> {
                 _lastSelectedIndex = _indexToJump;
                 selectedMeasurementSystem = newSystem;
               });
-              debugPrint('_indexToJump: $_indexToJump');
               _scrollController.jumpTo((_indexToJump) * _itemHeight);
             }
                           // _itemScrollController.scrollTo(index: _indexToJump, duration: Duration(milliseconds: 300));

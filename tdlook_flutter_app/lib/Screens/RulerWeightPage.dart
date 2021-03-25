@@ -249,7 +249,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         child: Center(
           child:  Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
+            // crossAxisAlignment: CrossAxisAlignment.baseline,
             children: [
 
               Text(_value, style: TextStyle(

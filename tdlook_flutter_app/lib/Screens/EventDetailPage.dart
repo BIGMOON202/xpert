@@ -226,9 +226,9 @@ class MeasuremetsListWidget extends StatelessWidget {
 
       print('cameraStatus: ${cameraStatus.toString()}');
 
-      if (await cameraStatus.isUndetermined) {
+      if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false) {
         askForPermissions();
-      } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied) {
+      } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied || await cameraStatus.isPermanentlyDenied) {
         openSetting();
         // The OS restricts access, for example because of parental controls.
       } else {

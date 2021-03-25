@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeWorker.dart';
 import 'dart:async';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'WaitingPage.dart';
@@ -44,9 +46,11 @@ class CameraCapturePage extends StatefulWidget {
 
 class _CameraCapturePageState extends State<CameraCapturePage> {
 
+  HandsFreeWorker _handsFreeWorker;
   CaptureMode _captureMode;
   XFile _frontPhoto;
   XFile _sidePhoto;
+  PhotoType _photoType;
 
   List<CameraDescription> cameras;
   CameraController controller;
@@ -57,11 +61,18 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   bool _gyroIsValid = true;
   bool _isTakingPicture = false;
 
+  String _timerText = '';
   double _zAngle = 0;
 
   @override
   void initState() {
     super.initState();
+
+    if (widget.arguments != null) {
+      _photoType = widget.arguments.photoType;
+    } else {
+      _photoType = widget.photoType;
+    }
 
     print('selectedGender on camera: ${widget.gender.apiFlag()}');
 
@@ -86,6 +97,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         // print(event.z.abs());
         _zAngle = event.z;
         _gyroIsValid = !(event.z.abs() > 3);
+        _handsFreeWorker?.handle(isValidGyroChange: _gyroIsValid);
       });
     }));
   }
@@ -103,13 +115,34 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       if (!mounted) {
         return;
       }
-      cameraRatio = controller.value.aspectRatio;
+
+      cameraRatio = controller.value.previewSize.height / controller.value.previewSize.width; //controller.value.aspectRatio;
       setState(() {});
     });
+
+    if (_captureMode == CaptureMode.handsFree) {
+      print('_handsFreeWorker init');
+      _handsFreeWorker = HandsFreeWorker();
+      _handsFreeWorker.reset();
+      _handsFreeWorker.onCaptureBlock = (){
+        print('Should take photo');
+        _handleTap();
+      };
+      _handsFreeWorker.onTimerUpdateBlock = (String val) {
+        print('timer text: $val');
+        setState(() {
+          _timerText = val;
+        });
+      };
+
+
+      _handsFreeWorker.start();
+    }
   }
 
   @override
   void dispose() {
+    _handsFreeWorker.pause();
     controller?.dispose();
 
     for (StreamSubscription<dynamic> subscription in _streamSubscriptions) {
@@ -120,10 +153,89 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   PhotoType activePhotoType() {
-    if (widget.arguments != null) {
-      return widget.arguments.photoType;
+    return _photoType;
+  }
+
+  void _handleTap() async {
+    setState(() {
+      _isTakingPicture = true;
+    });
+    XFile file = await controller.takePicture();
+    // Uint8List imageBytes = await file.readAsBytes();
+    // String va = base64Encode(imageBytes);
+
+    setState(() {
+      _isTakingPicture = false;
+    });
+
+    if (activePhotoType() == PhotoType.front) {
+      _frontPhoto = file;
+    } else {
+      _sidePhoto = file;
     }
-    return widget.photoType;
+    if (SessionParameters().captureMode == CaptureMode.handsFree) {
+      if (activePhotoType() == PhotoType.front) {
+        if (widget.arguments != null) {
+          _photoType = PhotoType.side;
+        } else {
+          _photoType = PhotoType.side;
+        }
+        _handsFreeWorker.increaseStep();
+      } else {
+        _moveToNextPage();
+      }
+    } else {
+      _moveToNextPage();
+    }
+  }
+
+  void _moveToNextPage() {
+    if (widget.arguments == null) {
+      if (_photoType == PhotoType.front) {
+
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            PhotoRulesPage(photoType: PhotoType.side,
+                measurement: widget.measurement,
+                frontPhoto: _frontPhoto,
+                gender: widget.gender),
+        ));
+      } else {
+
+        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+            arguments: WaitingPageArguments(
+                measurement: widget.measurement,
+                frontPhoto: _frontPhoto,
+                sidePhoto: _sidePhoto, shouldUploadMeasurements: true));
+      }
+    } else {
+      if (_photoType == PhotoType.front) {
+
+        if (widget.arguments.sidePhoto == null) {
+          //make side photo
+
+          Navigator.pushNamed(context, CameraCapturePage.route,
+              arguments: CameraCapturePageArguments(measurement: widget.arguments.measurement,
+                  frontPhoto: _frontPhoto,
+                  sidePhoto: widget.arguments.sidePhoto));
+
+        } else {
+          //make calculations
+          Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+              arguments: WaitingPageArguments(
+                  measurement: widget.arguments.measurement,
+                  frontPhoto: _frontPhoto,
+                  sidePhoto: widget.arguments.sidePhoto, shouldUploadMeasurements: false));
+        }
+      } else {
+
+        //make calculations
+        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+            arguments: WaitingPageArguments(
+                measurement: widget.arguments.measurement,
+                frontPhoto: widget.arguments.frontPhoto,
+                sidePhoto: _sidePhoto, shouldUploadMeasurements: false));
+      }
+    }
   }
 
   @override
@@ -136,75 +248,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     }
     final yScale = 1;
 
-    void _moveToNextPage() {
-      if (widget.arguments == null) {
-        if (widget.photoType == PhotoType.front) {
 
-
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              PhotoRulesPage(photoType: PhotoType.side,
-                  measurement: widget.measurement,
-                  frontPhoto: _frontPhoto,
-                  gender: widget.gender),
-          ));
-        } else {
-
-          Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
-              arguments: WaitingPageArguments(
-                  measurement: widget.measurement,
-              frontPhoto: _frontPhoto,
-              sidePhoto: _sidePhoto, shouldUploadMeasurements: true));
-        }
-      } else {
-        if (widget.arguments.photoType == PhotoType.front) {
-
-          if (widget.arguments.sidePhoto == null) {
-            //make side photo
-
-            Navigator.pushNamed(context, CameraCapturePage.route,
-                arguments: CameraCapturePageArguments(measurement: widget.arguments.measurement,
-                    frontPhoto: _frontPhoto,
-                    sidePhoto: widget.arguments.sidePhoto));
-
-          } else {
-            //make calculations
-            Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
-                arguments: WaitingPageArguments(
-                    measurement: widget.arguments.measurement,
-                    frontPhoto: _frontPhoto,
-                    sidePhoto: widget.arguments.sidePhoto, shouldUploadMeasurements: false));
-          }
-        } else {
-
-          //make calculations
-          Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
-              arguments: WaitingPageArguments(
-                  measurement: widget.arguments.measurement,
-                  frontPhoto: widget.arguments.frontPhoto,
-                  sidePhoto: _sidePhoto, shouldUploadMeasurements: false));
-        }
-      }
-    }
-
-    void _handleTap() async {
-      setState(() {
-        _isTakingPicture = true;
-      });
-      XFile file = await controller.takePicture();
-      // Uint8List imageBytes = await file.readAsBytes();
-      // String va = base64Encode(imageBytes);
-
-      setState(() {
-        _isTakingPicture = false;
-      });
-
-      if (activePhotoType() == PhotoType.front) {
-        _frontPhoto = file;
-      } else {
-        _sidePhoto = file;
-      }
-      _moveToNextPage();
-    }
 
     Widget frameWidget(){
       if (_captureMode == CaptureMode.withFriend) {
@@ -224,8 +268,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                     color: _gyroIsValid ? Colors.transparent : Colors.black.withAlpha(100),
                     borderRadius: BorderRadius.all(Radius.circular(30))
                 ),
-                child:
-          Center(child:
+                child: Stack(children:
+          [
+            Center(child:
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             // crossAxisAlignment: CrossAxisAlignment.center,
@@ -233,7 +278,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
             Padding(padding: EdgeInsets.only(left:35), child: SizedBox(width: 96, height: 360, child: GyroWidget(angle: _zAngle, captureMode: _captureMode,))),
                 SizedBox(height: 39),
                 Text('Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 16))
-          ])));
+          ]))]));
           } else {
             return Container();
           }
@@ -322,7 +367,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                   }),
               frameWidget(),
               captureButton(),
-              rulerContainer()
+              rulerContainer(),
+              Visibility(visible: _timerText != '', child: Center(child: Text(_timerText, style: TextStyle(fontSize: 270, color: Colors.green))))
             ],
           ));
     }

@@ -1,3 +1,5 @@
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +21,24 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
   static Color  _selectedColor = Colors.white.withOpacity(0.1);
 
   UserType _selectedUserType;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /*
+    void play() async {
+      AudioCache player = AudioCache();
+      player.fixedPlayer = AudioPlayer();
+      await player.play('HandsFreeAudio/tf1.1.mp3');
+      debugPrint('player.fixedPlayer ${player.fixedPlayer}');
+      player.fixedPlayer.onPlayerStateChanged.listen((event) {
+        print('State: ${event.toString()}');
+      });
+    }
+
+    play();*/
+  }
 
 
   void _selectUserType(int atIndex) {
@@ -124,7 +144,6 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                     borderRadius: BorderRadius.circular(6),
 
                   ),
-                  // padding: EdgeInsets.all(4),
                 ))),
             )));
 

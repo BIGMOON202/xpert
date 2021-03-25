@@ -278,7 +278,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         child: Center(
           child:  Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
+            // crossAxisAlignment: CrossAxisAlignment.baseline,
             children: [
 
               Flexible(child:Container(
