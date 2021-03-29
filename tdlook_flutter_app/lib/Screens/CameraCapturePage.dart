@@ -110,7 +110,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     cameras = await availableCameras();
 
     var camera = _captureMode == CaptureMode.withFriend ? cameras[0] : cameras[1];
-    controller = CameraController(camera, ResolutionPreset.medium);
+    controller = CameraController(camera, ResolutionPreset.high);
     _initializeCameraFuture = controller.initialize();
     _initializeCameraFuture.then((_) {
       if (!mounted) {
@@ -148,22 +148,36 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     if (_photoType == PhotoType.front) {
       initialStep = TFStep.frontPlacePhoneVertically;
     } else {
-      initialStep = TFStep.frontDone;
+      initialStep = TFStep.sideIntro;
     }
     _handsFreeWorker.shouldStartWith(step: initialStep);
+  }
+
+  void _cancelGyroUpdates() {
+    for (StreamSubscription<dynamic> subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
+  }
+
+  void _stopPage() {
+    _handsFreeWorker?.stop();
+
+    _cancelGyroUpdates();
+
+    setState(() {
+      controller?.dispose();
+      controller = null;
+    });
   }
 
   @override
   void dispose() {
     print('dipose camera page');
-    _handsFreeWorker.pause();
-    controller?.dispose();
 
-    for (StreamSubscription<dynamic> subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
-
+    _stopPage();
+    print('did dipose camera page');
     super.dispose();
+    print('did super dipose camera page');
   }
 
   PhotoType activePhotoType() {
@@ -201,6 +215,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   void _moveToNextPage() {
+    _stopPage();
     _handsFreeWorker.pause();
     _handsFreeWorker = null;
 

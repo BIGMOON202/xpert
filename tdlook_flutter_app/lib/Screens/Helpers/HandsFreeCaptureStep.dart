@@ -1,4 +1,6 @@
 
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
+
 enum TFStep {
   frontPlacePhoneVertically, frontGreat, frontTakeSteps, frontCheckBody, frontCheckFeet, frontHoldPosition, frontDone,
   sideIntro, sideTurnBody, sideStayStill, sideDone, great
@@ -54,6 +56,10 @@ extension TFStepExtension on TFStep {
   }
 
   double afterDelayValue() {
+    if (Application.isInDebugMode) {
+      return 0.0;
+    }
+
     switch (this) {
       case TFStep.great: return 2.0;
       case TFStep.frontPlacePhoneVertically: return 2.0;

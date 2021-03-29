@@ -1,7 +1,9 @@
 
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
@@ -19,6 +21,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'ChooseGenderPage.dart';
+import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 
 class EventDetailPage extends StatefulWidget {
   final String currentUserId;
@@ -36,6 +39,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   MeasurementsListWorkerBloc _bloc;
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -50,6 +54,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
     }
   }
 
+  Future<void> _refreshList() {
+    _bloc.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -57,7 +65,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
     Widget listBody() {
       if (widget.measurementsList != null && widget.measurementsList.data.length != 0) {
         print('config list body');
-        return MeasuremetsListWidget(event: widget.event, measurementsList: widget.measurementsList, userType: widget.userType,);
+        return MeasuremetsListWidget(event: widget.event,
+            measurementsList: widget.measurementsList,
+            userType: widget.userType,
+            onRefreshList: _refreshList,
+            refreshController: _refreshController);
       } else {
         print('config list body async');
         return StreamBuilder<Response<MeasurementsList>>(
@@ -73,7 +85,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   return MeasuremetsListWidget(event: widget.event,
                     measurementsList: snapshot.data.data,
                     userType: widget.userType,
-                    currentUserId: widget.currentUserId);
+                    currentUserId: widget.currentUserId,
+                    onRefreshList: _refreshList,
+                    refreshController: _refreshController);
                   break;
                 case Status.ERROR:
                   return Error(
@@ -109,9 +123,18 @@ class MeasuremetsListWidget extends StatelessWidget {
   final Event event;
   final MeasurementsList measurementsList;
   final UserType userType;
+  final RefreshController refreshController;
+  final AsyncCallback onRefreshList;
 
-  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType, this.currentUserId}) : super(key: key);
+
+  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType, this.currentUserId, this.onRefreshList, this.refreshController}) : super(key: key);
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+
+  void _pullRefresh() async {
+    await onRefreshList();
+    refreshController.loadComplete();
+    // why use freshWords var? https://stackoverflow.com/a/52992836/2301224
+  }
 
 
   @override
@@ -496,10 +519,11 @@ class MeasuremetsListWidget extends StatelessWidget {
           child: Padding(
               padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
               child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      color: Colors.black
-                  ),
+                color: Colors.black,
+                  // decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.all(Radius.circular(5)),
+                  //     color: Colors.black
+                  // ),
                   child: Padding(
                     padding: EdgeInsets.all(12),
                     child: Column(
@@ -602,9 +626,34 @@ class MeasuremetsListWidget extends StatelessWidget {
       measurementsCount = 0;
       emptyStateViewCount = 1;
     }
-    var list = ListView.builder(itemCount: measurementsCount + emptyStateViewCount + eventInfoViewCount,
+    var listView = ListView.builder(itemCount: measurementsCount + emptyStateViewCount + eventInfoViewCount,
       itemBuilder: (_, index) => itemAt(index:index, showEmptyView: emptyStateViewCount == 1),
     );
+
+    Color _refreshColor = HexColor.fromHex('#898A9D');
+    var list = SmartRefresher(
+        header: CustomHeader(
+          builder: (BuildContext context, RefreshStatus mode){
+            Widget body;
+            if(mode == RefreshStatus.idle || mode == RefreshStatus.canRefresh){
+              body = Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:[ Icon(Icons.arrow_downward, color: _refreshColor,),
+                    SizedBox(width: 6),
+                    Text(mode.title(), style: TextStyle(color: _refreshColor, fontSize: 12),)
+                  ]);
+            } else {
+              body = Container();
+            }
+            return Container(
+              height: 55.0,
+              child: Center(child:body),
+            );
+          },
+        ),
+        controller: refreshController,
+        onLoading: _pullRefresh,
+        child: listView, onRefresh: onRefreshList);
     return list;
   }
 }

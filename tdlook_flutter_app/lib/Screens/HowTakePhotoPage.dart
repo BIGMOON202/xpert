@@ -46,7 +46,7 @@ VideoPlayerController _controller;
   List<Timer> _activeTimers = List<Timer>();
 
   Future<bool> _enableContinueTimer() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
   }
 
   @override
@@ -125,7 +125,7 @@ VideoPlayerController _controller;
     });
 
     if(_controller.value.position == Duration(seconds: 0, minutes: 0, hours: 0)) {
-      print('video Started');
+      // print('video Started');
     }
 
     if(_controller.value.position == _controller.value.duration) {

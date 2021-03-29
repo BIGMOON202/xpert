@@ -42,13 +42,13 @@ class UploadPhotosWorker {
     final Map<String, dynamic> data = new Map<String, dynamic>();
 
 
-    var compressedFront = await FlutterNativeImage.compressImage(frontPhoto.path, quality: 50);
+    var compressedFront = await FlutterNativeImage.compressImage(frontPhoto.path, quality: 70);
     var frontBytes = await compressedFront.readAsBytes();
     var origFront = await frontPhoto.readAsBytes();
     print('size of front:${origFront.lengthInBytes} - ${frontBytes.lengthInBytes}');
     var base64Front = base64Encode(frontBytes);
 
-    var compressedSide = await FlutterNativeImage.compressImage(sidePhoto.path, quality: 50);
+    var compressedSide = await FlutterNativeImage.compressImage(sidePhoto.path, quality: 70);
     var sideBytes = await compressedSide.readAsBytes();
     var base64Side = base64Encode(sideBytes);
     data['front_image'] = base64Front;

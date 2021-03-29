@@ -1,9 +1,11 @@
 import 'dart:ffi';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inner_drawer/inner_drawer.dart';
 import 'package:package_info/package_info.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Painter.dart';
@@ -25,7 +27,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:tuple/tuple.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
+import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 class EventsPage extends StatefulWidget {
 
   final String provider;
@@ -46,6 +48,9 @@ class _EventsPageState extends State<EventsPage> {
   EventsListWidget listWidget;
   SharedPreferences prefs;
 
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+
   final GlobalKey<InnerDrawerState> _innerDrawerKey = GlobalKey<InnerDrawerState>();
 
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
@@ -58,6 +63,10 @@ class _EventsPageState extends State<EventsPage> {
       //InnerDrawerDirection.start OR InnerDrawerDirection.end
         direction: InnerDrawerDirection.start
     );
+  }
+
+  Future<void> _refreshList() {
+    _bloc.call();
   }
 
   @override
@@ -217,7 +226,11 @@ class _EventsPageState extends State<EventsPage> {
               case Status.COMPLETED:
                 var userId = _userInfo != null ? _userInfo.id.toString() : null;
                 prefs.setString('temp_user', userId ?? '');
-                listWidget = EventsListWidget(resultsList: snapshot.data.data, userType: _userType, userId: userId);
+                listWidget = EventsListWidget(resultsList: snapshot.data.data,
+                    userType: _userType,
+                    userId: userId,
+                    onRefreshList: _refreshList,
+                    refreshController: _refreshController);
                 return listWidget;
                 break;
               case Status.ERROR:
@@ -280,10 +293,17 @@ class EventsListWidget extends StatelessWidget {
   final String userId;
   final UserType userType;
   final Tuple2<EventList, MeasurementsList> resultsList;
+  final AsyncCallback onRefreshList;
+  final RefreshController refreshController;
 
-  const EventsListWidget({Key key, this.resultsList, this.userType, this.userId}) : super(key: key);
+  const EventsListWidget({Key key, this.resultsList, this.userType, this.userId, this.onRefreshList, this.refreshController}) : super(key: key);
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
+  void _pullRefresh() async {
+    await onRefreshList();
+    refreshController.loadComplete();
+    // why use freshWords var? https://stackoverflow.com/a/52992836/2301224
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -498,9 +518,34 @@ class EventsListWidget extends StatelessWidget {
       return gesture;
     }
 
-    var list = ListView.builder(itemCount: resultsList.item1.data.length,
+    var listView = ListView.builder(itemCount: resultsList.item1.data.length,
       itemBuilder: (_, index) => itemAt(index),
     );
+
+    Color _refreshColor = HexColor.fromHex('#898A9D');
+    var list = SmartRefresher(
+      header: CustomHeader(
+        builder: (BuildContext context, RefreshStatus mode){
+          Widget body;
+          if(mode == RefreshStatus.idle || mode == RefreshStatus.canRefresh){
+            body = Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+                children:[ Icon(Icons.arrow_downward, color: _refreshColor,),
+              SizedBox(width: 6),
+              Text(mode.title(), style: TextStyle(color: _refreshColor, fontSize: 12),)
+            ]);
+          } else {
+            body = Container();
+          }
+          return Container(
+            height: 55.0,
+            child: Center(child:body),
+          );
+        },
+      ),
+      controller: refreshController,
+        onLoading: _pullRefresh,
+        child: listView, onRefresh: onRefreshList);
     return list;
   }
 }

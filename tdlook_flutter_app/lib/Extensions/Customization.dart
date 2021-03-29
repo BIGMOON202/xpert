@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'Colors+Extension.dart';
 
@@ -27,6 +28,8 @@ class SessionParameters {
   CompanyType selectedCompany;
   UserType selectedUser;
   CaptureMode captureMode;
+
+  int get delayForPageAction => Application.isInDebugMode ? 0 : 3;
 
   Color mainBackgroundColor = HexColor.fromHex('16181B');
   Color mainFontColor = Colors.white;

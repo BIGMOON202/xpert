@@ -29,10 +29,19 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
   void _moveToNextPage() {
 
-    if (widget.photoType == PhotoType.front && SessionParameters().captureMode == CaptureMode.handsFree) {
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-        SoundCheckPage(photoType: widget.photoType, measurement: widget.measurement, gender: widget.gender)
-      ));
+    if (SessionParameters().captureMode == CaptureMode.handsFree) {
+
+      if (widget.photoType == PhotoType.front) {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+        PhotoRulesPage(photoType: PhotoType.side, gender: widget.gender, measurement: widget.measurement)
+        ));
+
+      } else {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            SoundCheckPage(photoType: PhotoType.front, measurement: widget.measurement, gender: widget.gender)
+        ));
+      }
+
     } else {
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
       CameraCapturePage(photoType: widget.photoType, measurement: widget.measurement, frontPhoto: widget.frontPhoto, gender: widget.gender, arguments: widget.arguments)
@@ -42,7 +51,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
   }
 
   Future<bool> _enableContinueTimer() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
   }
 
   void _runContinueButtonTimer() {
@@ -81,7 +90,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                   disabledColor: SessionParameters().selectionColor.withOpacity(0.5),
                   onPressed: _continueButtonEnable ? _moveToNextPage : null,
                   textColor: Colors.white,
-                  child: CustomText('let\'s start'.toUpperCase()),
+                  child: CustomText('next'.toUpperCase()),
                   color: SessionParameters().selectionColor,
                   height: 50,
                   // padding: EdgeInsets.only(left: 12, right: 12),

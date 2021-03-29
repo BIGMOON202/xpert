@@ -27,7 +27,7 @@ class _SoundCheckPageState extends State<SoundCheckPage> {
   bool _continueButtonEnable = false;
 
   Future<bool> _enableContinueTimer() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
   }
 
   void _runContinueButtonTimer() {

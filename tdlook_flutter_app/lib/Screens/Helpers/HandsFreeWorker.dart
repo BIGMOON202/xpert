@@ -36,7 +36,8 @@ class HandsFreeWorker {
   TFStep _forceFirstStep = TFStep.frontPlacePhoneVertically;
 
   set forceFistStep(TFStep value) => {
-    _forceFirstStep = value,
+  print('set forceFistStep ${value}'),
+  _forceFirstStep = value,
     if (value == null) {
       _initialStep = value
     }
@@ -48,13 +49,6 @@ class HandsFreeWorker {
   set gyroHasChangedDuringStep(bool value) => {
     _gyroHasChangedDuringStep = value
   };
-
-  // set step(TFStep value) => {
-  // debugPrint('observer change step: $value'),
-  // _step = value,
-  // gyroHasChangedDuringStep = false,
-  //   handleNewStep(_step)
-  // };
 
   set gyroIsValid(bool value) => {
 
@@ -101,17 +95,30 @@ class HandsFreeWorker {
     player.fixedPlayer?.stop();
     pauseTimer = null;
     onTimerUpdateBlock('');
+
+    checkGyroIn5sec();
   }
 
   void reset() {
     print('reset()');
 
+    forceFistStep = _initialStep;
     _captureTimer?.cancel();
     _captureTimer = null;
     pauseTimer?.cancel();
-      pauseTimer = null;
-      player.fixedPlayer.stop();
-      _step = null;
+    pauseTimer = null;
+    _step = null;
+    player.fixedPlayer.stop();
+  }
+
+  void stop() {
+    print('stop()');
+    _captureTimer?.cancel();
+    _captureTimer = null;
+    pauseTimer?.cancel();
+    pauseTimer = null;
+    _step = null;
+    player.fixedPlayer.stop();
   }
 
   void handleNewStep(TFStep newStep) async {
@@ -133,13 +140,19 @@ class HandsFreeWorker {
       player.fixedPlayer = AudioPlayer();
       player.fixedPlayer?.startHeadlessService();
       debugPrint('should play: $audioFile');
+      _isPlaying = true;
       await player.play(audioFile);
       debugPrint('playing: $audioFile');
-      _isPlaying = true;
       player.fixedPlayer.onPlayerStateChanged.listen((event) {
         print('new player status: ${event}');
         if (event != AudioPlayerState.PLAYING) {
           _isPlaying = false;
+        }
+
+        if (event == AudioPlayerState.COMPLETED) {
+          if (_step == null) {
+            return;
+          }
           moveToNextStep();
         }
       });
@@ -178,14 +191,14 @@ class HandsFreeWorker {
 
     // Gyro became valid, but launch "great" sound only if there is no other help command in the queue.
     print('pauseTimer: ${pauseTimer}');
-  if (pauseTimer != null) { return; }
+    if (pauseTimer != null) { return; }
 
-    print('enableContinueTimer for 2 seconds before continue after gyro is ok');
-    FutureExtension.enableContinueTimer(delay: 2).then((value) {
-    if (_gyroIsValid == false) {return;}
-    start(andReset: false);
-  });
-  }
+      print('enableContinueTimer for 2 seconds before continue after gyro is ok');
+      FutureExtension.enableContinueTimer(delay: 2).then((value) {
+        if (_gyroIsValid == false) {return;}
+      start(andReset: false);
+    });
+    }
   }
 
   void setNew(TFStep newStep) {
@@ -198,19 +211,19 @@ class HandsFreeWorker {
     }
 
     switch (newStep) {
-      case TFStep.frontGreat:
-      // case TFStep.retakeFrontGreat:
-      // case TFStep.retakeOnlyFrontGreat:
-      // case TFStep.retakeOnlySideGreat:
-        if (_gyroHasChangedDuringStep == false && _gyroIsValid == true) {
-          var newStepIndex = newStep.index + 1;
-          if (TFStep.values.length > newStepIndex) {
-            setNew(TFStep.values[newStepIndex]);
-          }
-        } else {
-          assignNewStep();
-        }
-        return;
+      // case TFStep.frontGreat:
+      // // case TFStep.retakeFrontGreat:
+      // // case TFStep.retakeOnlyFrontGreat:
+      // // case TFStep.retakeOnlySideGreat:
+      //   if (_gyroHasChangedDuringStep == false && _gyroIsValid == true) {
+      //     var newStepIndex = newStep.index + 1;
+      //     if (TFStep.values.length > newStepIndex) {
+      //       setNew(TFStep.values[newStepIndex]);
+      //     }
+      //   } else {
+      //     assignNewStep();
+      //   }
+      //   return;
       default:
         assignNewStep();
         return;
@@ -222,11 +235,36 @@ class HandsFreeWorker {
   }
 
   Timer _captureTimer;
+  Timer checkGyroTimer;
+  ///check is gyro is still incorrect - if so, replay intro
+  void checkGyroIn5sec() {
+    debugPrint('check gyro after 5 sec');
+    if (checkGyroTimer != null) {
+      debugPrint('checkGyroTimer != null');
+      return;
+    }
+    const duration = const Duration(seconds: 5);
+    checkGyroTimer = Timer(duration, () {
+
+      debugPrint('checked gyro after 5 sec');
+      checkGyroTimer = null;
+
+      if (_gyroIsValid == true || _step == null) {return;}
+      start(andReset: true);
+    });
+
+    FutureExtension.enableContinueTimer(delay: 5).then((value) {
+
+    });
+  }
 
   void moveToNextStep() {
     print('moveToNextStep');
     if (_gyroIsValid == false) {
+      checkGyroIn5sec();
       return;
+    } else {
+      checkGyroTimer = null;
     }
     print('moveToNextStep 1');
 
