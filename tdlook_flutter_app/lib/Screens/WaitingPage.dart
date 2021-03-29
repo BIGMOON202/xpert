@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:screen/screen.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
@@ -40,6 +41,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
 
 
   _handleResult(AnalizeResult result) {
+    Screen.keepOn(false);
     print('move to recomendations');
     animationController.dispose();
     if (result.status != 'error') {
@@ -71,6 +73,8 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+
+    Screen.keepOn(true);
     animationController = new AnimationController(
       vsync: this,
       duration: new Duration(seconds: 20),

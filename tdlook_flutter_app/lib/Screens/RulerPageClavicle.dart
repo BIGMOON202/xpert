@@ -120,11 +120,9 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       } else {
         double cmValue = minValue.toDouble() + selectedIndex.toDouble() * 0.25;
 
-        print('raw: $cmValue');
         double oneSegmentValue = (maxValue - minValue) / (numberOfRulerElements);
         double cmValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
 
-        print('index: $selectedIndex');
 
         _rawMetricValue = cmValue * 2.54;
 
@@ -135,7 +133,6 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
 
 
         var part = (inch - inchInt.toDouble()).abs();
-        print('part: $part');
 
         int multiplyPart = 0;
         if (part < 1/4) {
@@ -158,8 +155,8 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
           _valueMeasure = '${multiplyPart}/4';
         }
 
-        print('inch: $inch');
-        print('inchInt: $inchInt');
+        // print('inch: $inch');
+        // print('inchInt: $inchInt');
       }
 
     });
@@ -324,6 +321,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
             arguments: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements));
 
       } else {
+        SessionParameters().captureMode = CaptureMode.withFriend;
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
             HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
         ));
@@ -349,30 +347,6 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
           // padding: EdgeInsets.all(4),
         )),
     );
-
-    var containerForButton = Align(
-      alignment: Alignment.bottomCenter,
-      child: nextButton,
-    );
-
-    var segmentControl = Visibility(visible: false, child: CustomSlidingSegmentedControl(
-      // thumbColor: HexColor.fromHex('E0E3E8'),
-      //  backgroundColor: HexColor.fromHex('303339'),
-      data: ['CM', 'IN'],
-      panelColor: HexColor.fromHex('E0E3E8'),
-      textColor: Colors.black,
-      background: HexColor.fromHex('303339'),
-      radius: 37,
-      fixedWidth: 100,
-      padding: 8,
-      innerPadding: 6,
-      onTap: (i) {
-        setState(() {
-          // selectedMeasurementSystem = i;
-          print('selected segment is $i');
-        });
-      },
-    ));
 
     var screenContainer = Column(
       children:

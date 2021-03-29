@@ -113,7 +113,11 @@ VideoPlayerController _controller;
   void _checkVideoProgress(){
     // Implement your calls inside these conditions' bodies :
 
-    var progress = _controller.value.position.inMilliseconds / _controller.value.duration.inMilliseconds;
+    var progress = 0.0;
+
+    if  (_controller.value.position != null) {
+      progress = _controller.value.position.inMilliseconds / _controller.value.duration.inMilliseconds;
+    }
 
     setState(() {
       _videoProgress = progress;

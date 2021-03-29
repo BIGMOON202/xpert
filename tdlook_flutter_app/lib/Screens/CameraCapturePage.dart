@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeWorker.dart';
 import 'dart:async';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -123,6 +124,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     if (_captureMode == CaptureMode.handsFree) {
       print('_handsFreeWorker init');
       _handsFreeWorker = HandsFreeWorker();
+      _setupHandsFreeInitialStepIfNeeded();
+
       _handsFreeWorker.reset();
       _handsFreeWorker.onCaptureBlock = (){
         print('Should take photo');
@@ -140,8 +143,19 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     }
   }
 
+  void _setupHandsFreeInitialStepIfNeeded() {
+    TFStep initialStep;
+    if (_photoType == PhotoType.front) {
+      initialStep = TFStep.frontPlacePhoneVertically;
+    } else {
+      initialStep = TFStep.frontDone;
+    }
+    _handsFreeWorker.shouldStartWith(step: initialStep);
+  }
+
   @override
   void dispose() {
+    print('dipose camera page');
     _handsFreeWorker.pause();
     controller?.dispose();
 
@@ -175,12 +189,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     }
     if (SessionParameters().captureMode == CaptureMode.handsFree) {
       if (activePhotoType() == PhotoType.front) {
-        if (widget.arguments != null) {
           _photoType = PhotoType.side;
-        } else {
-          _photoType = PhotoType.side;
-        }
-        _handsFreeWorker.increaseStep();
+          _setupHandsFreeInitialStepIfNeeded();
+        // _handsFreeWorker.increaseStep();
       } else {
         _moveToNextPage();
       }
@@ -190,6 +201,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   void _moveToNextPage() {
+    _handsFreeWorker.pause();
+    _handsFreeWorker = null;
+
     if (widget.arguments == null) {
       if (_photoType == PhotoType.front) {
 

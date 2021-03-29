@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/ReccomendationsListWorker.dart';
@@ -39,10 +40,16 @@ class UploadPhotosWorker {
   Future<PhotoUploaderModel> uploadData() async {
 
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    var frontBytes = await frontPhoto.readAsBytes();
+
+
+    var compressedFront = await FlutterNativeImage.compressImage(frontPhoto.path, quality: 50);
+    var frontBytes = await compressedFront.readAsBytes();
+    var origFront = await frontPhoto.readAsBytes();
+    print('size of front:${origFront.lengthInBytes} - ${frontBytes.lengthInBytes}');
     var base64Front = base64Encode(frontBytes);
 
-    var sideBytes = await sidePhoto.readAsBytes();
+    var compressedSide = await FlutterNativeImage.compressImage(sidePhoto.path, quality: 50);
+    var sideBytes = await compressedSide.readAsBytes();
     var base64Side = base64Encode(sideBytes);
     data['front_image'] = base64Front;
     data['side_image'] = base64Side;

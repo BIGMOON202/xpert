@@ -59,13 +59,11 @@ class HandsFreeWorker {
   set gyroIsValid(bool value) => {
 
     if (_gyroIsValid != value) {
-      debugPrint('gyroIsValid changed: ${value}, old: ${_gyroIsValid}'),
-      _gyroIsValid = value,
+      debugPrint('gyroIsValid will change: ${value}, old: ${_gyroIsValid}'),
       _gyroHasChangedDuringStep = true,
       // handle(isValidGyroChange: value)
-    } else {
-      _gyroIsValid = value
-    }
+    },
+    _gyroIsValid = value
   };
 
 
@@ -77,7 +75,7 @@ class HandsFreeWorker {
       reset();
     }
 
-    debugPrint('initial step: $_initialStep');
+    debugPrint('initial step: ${_initialStep.toString()}');
     debugPrint('player: ${player.fixedPlayer}');
     if (_isPlaying == true && _step?.couldBeInterrapted() == false) {
       return;
@@ -92,25 +90,32 @@ class HandsFreeWorker {
         forceFistStep = TFStep.values[newStepIndex];
         firstStep = TFStep.great;
       }
-
     }
 
     setNew(firstStep);
   }
 
   void pause() {
-
+    _captureTimer?.cancel();
+    _captureTimer = null;
+    player.fixedPlayer?.stop();
+    pauseTimer = null;
+    onTimerUpdateBlock('');
   }
 
   void reset() {
     print('reset()');
+
+    _captureTimer?.cancel();
+    _captureTimer = null;
+    pauseTimer?.cancel();
       pauseTimer = null;
       player.fixedPlayer.stop();
       _step = null;
   }
 
   void handleNewStep(TFStep newStep) async {
-      debugPrint('handleNewSte:$newStep');
+      debugPrint('handleNewSte: ${newStep.toString()}');
       // dev.debugger();
 
       if (newStep == null) {
@@ -133,7 +138,7 @@ class HandsFreeWorker {
       _isPlaying = true;
       player.fixedPlayer.onPlayerStateChanged.listen((event) {
         print('new player status: ${event}');
-        if (event == AudioPlayerState.COMPLETED) {
+        if (event != AudioPlayerState.PLAYING) {
           _isPlaying = false;
           moveToNextStep();
         }
@@ -141,25 +146,13 @@ class HandsFreeWorker {
   }
 
   void shouldStartWith({TFStep step}) {
-    print('shouldStartWith: ${step}');
+    print('shouldStartWith: ${step.toString()}');
     _initialStep = step;
     forceFistStep = step;
     if (_gyroIsValid == true) {
       start();
     }
   }
-  /*
-  func shouldStart(with step: CapturingMessageName?) {
-        _initialStep = step
-        initialStep = step
-        if self.gyroIsValid == true {
-            start()
-        } else {
-//            reset()
-        }
-    }
-   */
-
 
   // This function is called once gyro is changed (became valid or invalid)
   void handle({bool isValidGyroChange}) {
@@ -168,6 +161,7 @@ class HandsFreeWorker {
   if (oldValue == isValidGyroChange) {
     return;
   }
+
   print('hanldle new gyro: ${isValidGyroChange}');
     // dev.debugger();
 
@@ -186,7 +180,7 @@ class HandsFreeWorker {
     print('pauseTimer: ${pauseTimer}');
   if (pauseTimer != null) { return; }
 
-    print('_step != null && isValidGyroChange == true && oldValue == false');
+    print('enableContinueTimer for 2 seconds before continue after gyro is ok');
     FutureExtension.enableContinueTimer(delay: 2).then((value) {
     if (_gyroIsValid == false) {return;}
     start(andReset: false);
@@ -227,6 +221,8 @@ class HandsFreeWorker {
     moveToNextStep();
   }
 
+  Timer _captureTimer;
+
   void moveToNextStep() {
     print('moveToNextStep');
     if (_gyroIsValid == false) {
@@ -253,17 +249,17 @@ class HandsFreeWorker {
     if (_step != null && _step.shouldShowTimer() == true) {
       var interval = _step.afterDelayValue();
       var timerInterval = 1.0;
-      Timer _timer;
       print('shouldShowTimer');
 
       const oneSec = const Duration(seconds: 1);
-      _timer = new Timer.periodic(
+      _captureTimer = new Timer.periodic(
         oneSec,
             (Timer timer) {
           if (interval == 0) {
             // fire complete
             timer.cancel();
             onTimerUpdateBlock('');
+            _captureTimer = null;
           } else {
             interval--;
             print("timer interval $interval");

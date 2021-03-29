@@ -299,6 +299,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
               arguments: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement));
 
         } else {
+          SessionParameters().captureMode = CaptureMode.withFriend;
           Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
               HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
           ));
