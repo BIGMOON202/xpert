@@ -133,7 +133,6 @@ class MeasuremetsListWidget extends StatelessWidget {
   void _pullRefresh() async {
     await onRefreshList();
     refreshController.loadComplete();
-    // why use freshWords var? https://stackoverflow.com/a/52992836/2301224
   }
 
 

@@ -1,7 +1,9 @@
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
@@ -17,6 +19,7 @@ import 'package:tdlook_flutter_app/Screens/EventDetailPage.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 
 class RecommendationsPageArguments {
   MeasurementResults measurement;
@@ -37,9 +40,16 @@ class RecommendationsPage extends StatefulWidget {
 class _RecommendationsPageState extends State<RecommendationsPage> {
 
   SharedPreferences prefs;
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   Future<void> initShared() async {
     prefs = await SharedPreferences.getInstance();
+  }
+
+
+  Future<void> _refreshList() {
+    _updateMeasurementBloc.call;
+    _bloc.call();
   }
 
   List<RecommendationModel> recommendations;
@@ -83,7 +93,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         return RecommendationsListWidget(
           measurement: widget.arguments.measurement,
           recommendations: recommendations,
-          showRestartButton: widget.arguments.showRestartButton,);
+          showRestartButton: widget.arguments.showRestartButton,
+            onRefreshList: _refreshList,
+            refreshController: _refreshController);
       } else {
         print('config list recom async');
         return StreamBuilder<Response<List<RecommendationModel>>>(
@@ -99,7 +111,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                   return RecommendationsListWidget(
                       measurement: widget.arguments.measurement,
                       recommendations: snapshot.data.data,
-                      showRestartButton: widget.arguments.showRestartButton);
+                      showRestartButton: widget.arguments.showRestartButton,
+                      onRefreshList: _refreshList,
+                      refreshController: _refreshController);
                   break;
                 case Status.ERROR:
                   return Error(
@@ -158,6 +172,8 @@ class RecommendationsListWidget extends StatelessWidget {
   MeasurementResults measurement;
   bool showRestartButton;
   List<RecommendationModel> recommendations;
+  AsyncCallback onRefreshList;
+  RefreshController refreshController;
 
   SharedPreferences prefs;
 
@@ -165,12 +181,14 @@ class RecommendationsListWidget extends StatelessWidget {
     prefs = await SharedPreferences.getInstance();
   }
 
-  RecommendationsListWidget({MeasurementResults measurement, List<RecommendationModel> recommendations, bool showRestartButton}) {
+
+  RecommendationsListWidget({MeasurementResults measurement, List<RecommendationModel> recommendations, bool showRestartButton, AsyncCallback onRefreshList, RefreshController refreshController}) {
 
     this.measurement = measurement;
     this.recommendations = recommendations;
     this.showRestartButton = showRestartButton;
-
+    this.refreshController = refreshController;
+    this.onRefreshList = onRefreshList;
     initShared();
   }
 
@@ -181,6 +199,10 @@ class RecommendationsListWidget extends StatelessWidget {
   static var _highlightColor = HexColor.fromHex('1E7AE4');
 
 
+  void _pullRefresh() async {
+    await onRefreshList();
+    refreshController.loadComplete();
+  }
 
 
   @override
@@ -428,9 +450,36 @@ class RecommendationsListWidget extends StatelessWidget {
       return gesture;
     }
 
-    var list = ListView.builder(itemCount: recommendations.length + 1,
+    var listView = ListView.builder(itemCount: recommendations.length + 1,
       itemBuilder: (_, index) => itemAt(index)
     );
+
+    Color _refreshColor = HexColor.fromHex('#898A9D');
+    var list = SmartRefresher(
+        header: CustomHeader(
+          builder: (BuildContext context, RefreshStatus mode){
+            Widget body;
+            if(mode == RefreshStatus.idle || mode == RefreshStatus.canRefresh){
+              body = Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:[ Icon(Icons.arrow_downward, color: _refreshColor,),
+                    SizedBox(width: 6),
+                    Text(mode.title(), style: TextStyle(color: _refreshColor, fontSize: 12),)
+                  ]);
+            } else {
+              body = Container();
+            }
+            return Container(
+              height: 55.0,
+              child: Center(child:body),
+            );
+          },
+        ),
+        controller: refreshController,
+        onLoading: _pullRefresh,
+        child: listView, onRefresh: onRefreshList);
+
+
     _moveToHomePage() {
       print('move to home page');
 
