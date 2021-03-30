@@ -210,7 +210,7 @@ class RecommendationsListWidget extends StatelessWidget {
 
     Widget _recommendationRow({String title, String size}) {
 
-      var _textSize = size ?? 'Unable to identify size';
+      var _textSize = size ?? 'Size is outside of size range';
       Color _textColor = size != null ? _highlightColor : Colors.red;
       Widget _icon;
       if (size != null) {
