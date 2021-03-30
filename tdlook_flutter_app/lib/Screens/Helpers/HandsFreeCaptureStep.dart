@@ -3,7 +3,18 @@ import 'package:tdlook_flutter_app/Extensions/Application.dart';
 
 enum TFStep {
   frontPlacePhoneVertically, frontGreat, frontTakeSteps, frontCheckBody, frontCheckFeet, frontHoldPosition, frontDone,
-  sideIntro, sideTurnBody, sideStayStill, sideDone, great
+  sideIntro, sideTurnBody, sideStayStill, sideDone, great,
+
+  /*
+  retakeFrontIntro, retakeFrontGreat, retakeFrontTakeSteps, retakeFrontCheckFeet, retakeFrontHoldPosition, retakeFrontDone,
+  retakeSideIntro, retakeSideTurnBody, retakeSideStayStill, retakeSideDone,
+
+  retakeOnlyFrontIntro, retakeOnlyFrontGreat,
+  retakeOnlyFrontTakeSteps, retakeOnlyFrontCheckBody,
+  retakeOnlyFrontCheckFeet, retakeOnlyFrontHoldPosition,retakeOnlyFrontDone,
+
+  retakeOnlySideIntro, retakeOnlySideGreat, retakeOnlySideTakeSteps, retakeOnlySideCheckBody,
+  retakeOnlySideTurnBody, retakeOnlySideStayStill, retakeOnlySideDone*/
 }
 
 extension TFStepExtension on TFStep {
@@ -23,42 +34,44 @@ extension TFStepExtension on TFStep {
       case TFStep.sideStayStill:                return "tf2.3";
       case TFStep.sideDone:                     return "tf2.4";
 
-    // case .retakeFrontIntro:             return "tf3.1"
-    // case .retakeFrontGreat:             return "tf3.2"
-    // case .retakeFrontTakeSteps:         return "tf3.3"
-    // case .retakeFrontCheckFeet:         return "tf3.4"
-    // case .retakeFrontHoldPosition:      return "tf1.6"
-    // case .retakeFrontDone:              return "tf3.5"
-    //
-    // case .retakeSideIntro:              return "tf4.1"
-    // case .retakeSideTurnBody:           return "tf4.2"
-    // case .retakeSideStayStill:          return "tf4.3"
-    // case .retakeSideDone:               return "tf4.4"
-    //
-    // case .retakeOnlyFrontIntro:         return "tf5.1"
-    // case .retakeOnlyFrontGreat:         return "tf5.2"
-    // case .retakeOnlyFrontTakeSteps:     return "tf5.3"
-    // case .retakeOnlyFrontCheckBody:     return "tf5.4"
-    // case .retakeOnlyFrontCheckFeet:     return "tf5.5"
-    // case .retakeOnlyFrontHoldPosition:  return "tf5.6"
-    // case .retakeOnlyFrontDone:          return "tf5.7"
-    //
-    // case .retakeOnlySideIntro:          return "tf6.1"
-    // case .retakeOnlySideGreat:          return "tf6.2"
-    // case .retakeOnlySideTakeSteps:      return "tf6.3"
-    // case .retakeOnlySideCheckBody:      return "tf6.4"
-    // case .retakeOnlySideTurnBody:       return "tf6.5"
-    // case .retakeOnlySideStayStill:      return "tf6.6"
-    // case .retakeOnlySideDone:           return "tf6.7"
+      /*
+    case TFStep.retakeFrontIntro:             return "tf3.1";
+    case TFStep.retakeFrontGreat:             return "tf3.2";
+    case TFStep.retakeFrontTakeSteps:         return "tf3.3";
+    case TFStep.retakeFrontCheckFeet:         return "tf3.4";
+    case TFStep.retakeFrontHoldPosition:      return "tf1.6";
+    case TFStep.retakeFrontDone:              return "tf3.5";
+
+    case TFStep.retakeSideIntro:              return "tf4.1";
+    case TFStep.retakeSideTurnBody:           return "tf4.2";
+    case TFStep.retakeSideStayStill:          return "tf4.3";
+    case TFStep.retakeSideDone:               return "tf4.4";
+
+    case TFStep.retakeOnlyFrontIntro:         return "tf5.1";
+    case TFStep.retakeOnlyFrontGreat:         return "tf5.2";
+    case TFStep.retakeOnlyFrontTakeSteps:     return "tf5.3";
+    case TFStep.retakeOnlyFrontCheckBody:     return "tf5.4";
+    case TFStep.retakeOnlyFrontCheckFeet:     return "tf5.5";
+    case TFStep.retakeOnlyFrontHoldPosition:  return "tf5.6";
+    case TFStep.retakeOnlyFrontDone:          return "tf5.7";
+
+    case TFStep.retakeOnlySideIntro:          return "tf6.1";
+    case TFStep.retakeOnlySideGreat:          return "tf6.2";
+    case TFStep.retakeOnlySideTakeSteps:      return "tf6.3";
+    case TFStep.retakeOnlySideCheckBody:      return "tf6.4";
+    case TFStep.retakeOnlySideTurnBody:       return "tf6.5";
+    case TFStep.retakeOnlySideStayStill:      return "tf6.6";
+    case TFStep.retakeOnlySideDone:           return "tf6.7";
+    */
 
     case TFStep.great:                        return "tf1.2";
     }
   }
 
   double afterDelayValue() {
-    if (Application.isInDebugMode) {
-      return 0.0;
-    }
+    // if (Application.isInDebugMode) {
+    //   return 0.0;
+    // }
 
     switch (this) {
       case TFStep.great: return 2.0;

@@ -289,16 +289,39 @@ class HandsFreeWorker {
       var timerInterval = 1.0;
       print('shouldShowTimer');
 
+
+      AudioCache _tickPlayer = AudioCache();
+      _tickPlayer.fixedPlayer?.startHeadlessService();
+
+      void _playTimerTick() {
+        var audioFile = 'HandsFreeAudio\/timer-new.mp3';
+        _tickPlayer.fixedPlayer = AudioPlayer();
+        _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.RELEASE);
+        debugPrint('should play tick: $audioFile');
+        _tickPlayer.play(audioFile);
+      }
+
+
+      _playTimerTick();
       const oneSec = const Duration(seconds: 1);
       _captureTimer = new Timer.periodic(
         oneSec,
             (Timer timer) {
+          if (interval <= 1) {
+            _tickPlayer.fixedPlayer.stop();
+            _tickPlayer = null;
+          }
+
           if (interval == 0) {
+
             // fire complete
             timer.cancel();
             onTimerUpdateBlock('');
             _captureTimer = null;
+
           } else {
+
+            // _playTimerTick();
             interval--;
             print("timer interval $interval");
             onTimerUpdateBlock( interval > 0 ? '${interval.toStringAsFixed(0)}': '');
