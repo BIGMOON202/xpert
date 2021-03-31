@@ -77,6 +77,12 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
     // TODO: implement build
 
 
+    String _nextButtonTitle = 'Let\'s start';
+    if (SessionParameters().captureMode == CaptureMode.handsFree && widget.photoType == PhotoType.front) {
+      _nextButtonTitle = 'next';
+    }
+
+
     var nextButton = Visibility(
 
         visible: true,
@@ -90,7 +96,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                   disabledColor: SessionParameters().selectionColor.withOpacity(0.5),
                   onPressed: _continueButtonEnable ? _moveToNextPage : null,
                   textColor: Colors.white,
-                  child: CustomText('next'.toUpperCase()),
+                  child: CustomText(_nextButtonTitle.toUpperCase()),
                   color: SessionParameters().selectionColor,
                   height: 50,
                   // padding: EdgeInsets.only(left: 12, right: 12),

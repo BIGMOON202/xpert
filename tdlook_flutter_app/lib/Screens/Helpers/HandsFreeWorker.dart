@@ -7,6 +7,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Extensions/Future+Extension.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'dart:developer' as dev;
+enum OptionalSound {
+  tick, capture, placePhone
+}
+
+extension OptionalSoundExtension on OptionalSound {
+  String get fileName {
+    switch (this) {
+      case OptionalSound.tick: return 'timer_tick';
+      case OptionalSound.capture: return 'iPhone_Camera_Shutter_1';
+      case OptionalSound.placePhone: return '';
+    }
+  }
+
+  bool get respectsSilentMode {
+    switch (this) {
+      case OptionalSound.tick: return false;
+      case OptionalSound.capture: return true;
+    }
+  }
+}
+
 class HandsFreeWorker {
 
   static final HandsFreeWorker _instance = HandsFreeWorker._internal();
@@ -23,6 +44,7 @@ class HandsFreeWorker {
   }
 
   static String _playerID = 'handsFreePlayer';
+  static String _tickPlayerID = 'tickPlayerID';
 
   bool _isPlaying = false;
   AudioCache player = AudioCache();
@@ -66,9 +88,18 @@ class HandsFreeWorker {
   void start({bool andReset}) {
 
     // dev.debugger();
+    TFStep _firstStep;
+
     debugPrint('start and reset: $andReset');
     if (andReset == true) {
       reset();
+      _firstStep = _forceFirstStep;
+    } else {
+      _firstStep = _initialStep;
+      var newStepIndex = _initialStep.index + 1;
+      if (TFStep.values.length > newStepIndex) {
+        _firstStep = TFStep.values[newStepIndex];
+      }
     }
 
     debugPrint('initial step: ${_initialStep.toString()}');
@@ -77,18 +108,7 @@ class HandsFreeWorker {
       return;
     }
 
-    var firstStep = _forceFirstStep;
-
-    if (_initialStep != null && _gyroHasChangedDuringStep == true && _gyroIsValid == true) {
-      debugPrint('2');
-      var newStepIndex = _initialStep.index + 1;
-      if (TFStep.values.length > newStepIndex) {
-        forceFistStep = TFStep.values[newStepIndex];
-        firstStep = TFStep.great;
-      }
-    }
-
-    setNew(firstStep);
+    setNew(_firstStep);
   }
 
   void pause() {
@@ -213,6 +233,7 @@ class HandsFreeWorker {
       if (_gyroIsValid == false) {
         debugPrint('checked gyro after 2 sec: _gyroIsValid == false');
         return;}
+      // moveToNextStep();
       start(andReset: false);
     });
     }
@@ -247,10 +268,6 @@ class HandsFreeWorker {
     }
   }
 
-  void resume() {
-    moveToNextStep();
-  }
-
   Timer _captureTimer;
   Timer checkGyroTimer;
   ///check is gyro is still incorrect - if so, replay intro
@@ -260,6 +277,7 @@ class HandsFreeWorker {
       debugPrint('checkGyroTimer != null');
       return;
     }
+
     const duration = const Duration(seconds: 5);
     checkGyroTimer = Timer(duration, () {
 
@@ -268,10 +286,6 @@ class HandsFreeWorker {
 
       if (_gyroIsValid == true || _step == null) {return;}
       start(andReset: true);
-    });
-
-    FutureExtension.enableContinueTimer(delay: 5).then((value) {
-
     });
   }
 
@@ -301,34 +315,30 @@ class HandsFreeWorker {
 
     pauseTimer = null;
 
+    AudioCache _tickPlayer;
+
+    void _playSound(OptionalSound sound) {
+      if (_tickPlayer == null) {
+        _tickPlayer = AudioCache();
+      }
+      var audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
+      _tickPlayer.fixedPlayer = AudioPlayer(playerId: _tickPlayerID);
+      _tickPlayer.respectSilence = sound.respectsSilentMode;
+      _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.STOP);
+      _tickPlayer.fixedPlayer?.startHeadlessService();
+      debugPrint('should play tick: $audioFile');
+      _tickPlayer.play(audioFile);
+    }
+
     if (_step != null && _step.shouldShowTimer() == true) {
       var interval = _step.afterDelayValue();
       var timerInterval = 1.0;
       print('shouldShowTimer');
 
-
-      AudioCache _tickPlayer;
-
-      void _playTimerTick() {
-        _tickPlayer = AudioCache();
-        _tickPlayer.fixedPlayer?.startHeadlessService();
-
-        var audioFile = 'HandsFreeAudio\/timer-new.mp3';
-        _tickPlayer.fixedPlayer = AudioPlayer(playerId: _playerID);
-        _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.STOP);
-        debugPrint('should play tick: $audioFile');
-        _tickPlayer.play(audioFile);
-      }
-
-
       const oneSec = const Duration(seconds: 1);
       _captureTimer = new Timer.periodic(
         oneSec,
             (Timer timer) {
-          if (interval <= 1) {
-            _tickPlayer.fixedPlayer.stop();
-            _tickPlayer = null;
-          }
 
           if (interval == 0) {
 
@@ -338,10 +348,7 @@ class HandsFreeWorker {
             _captureTimer = null;
 
           } else {
-
-            if (_tickPlayer == null) {
-              _playTimerTick();
-            }
+            _playSound(OptionalSound.tick);
             interval--;
             print("timer interval $interval");
             onTimerUpdateBlock( interval > 0 ? '${interval.toStringAsFixed(0)}': '');
@@ -361,6 +368,7 @@ class HandsFreeWorker {
       }
 
       if (_step.shouldCaptureAfter() == true) {
+        _playSound(OptionalSound.capture);
         onCaptureBlock();
       } else {
         increaseStep();

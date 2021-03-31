@@ -118,7 +118,10 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         return;
       }
 
-      cameraRatio = controller.value.previewSize.height / controller.value.previewSize.width; //controller.value.aspectRatio;
+      cameraRatio = controller.value.previewSize.height / controller.value.previewSize.width;
+
+      FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
+      controller.setFlashMode(flashMode);
       setState(() {});
     });
 
@@ -141,7 +144,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       };
 
 
-      _handsFreeWorker.start();
+      _handsFreeWorker.start(andReset: true);
     }
   }
 

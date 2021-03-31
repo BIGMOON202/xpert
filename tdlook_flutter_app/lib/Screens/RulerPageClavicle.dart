@@ -317,8 +317,10 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       widget.measurements.clavicle = _rawMetricValue;
 
       if (SessionParameters().selectedUser == UserType.endWearer) {
-        Navigator.pushNamed(context, ChooseCaptureModePage.route,
-            arguments: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements));
+
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
+        ));
 
       } else {
         SessionParameters().captureMode = CaptureMode.withFriend;

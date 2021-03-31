@@ -25,19 +25,6 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
   @override
   void initState() {
     super.initState();
-
-    /*
-    void play() async {
-      AudioCache player = AudioCache();
-      player.fixedPlayer = AudioPlayer();
-      await player.play('HandsFreeAudio/tf1.1.mp3');
-      debugPrint('player.fixedPlayer ${player.fixedPlayer}');
-      player.fixedPlayer.onPlayerStateChanged.listen((event) {
-        print('State: ${event.toString()}');
-      });
-    }
-
-    play();*/
   }
 
 

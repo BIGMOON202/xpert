@@ -295,8 +295,10 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
       } else {
 
         if (SessionParameters().selectedUser == UserType.endWearer) {
-          Navigator.pushNamed(context, ChooseCaptureModePage.route,
-              arguments: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement));
+
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+          ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement))
+          ));
 
         } else {
           SessionParameters().captureMode = CaptureMode.withFriend;
