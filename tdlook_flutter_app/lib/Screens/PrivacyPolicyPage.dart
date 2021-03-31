@@ -1,14 +1,16 @@
 import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' as io;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 
@@ -38,20 +40,33 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   bool _isApplied = false;
   bool _navigationRequestAllowed = true;
+  String privacyURL;
 
   _loadHtmlFromAssets() async {
-    String fileText = await rootBundle.loadString('assets/PRIVACY.html');
+    var fileText = await rootBundle.loadString('assets/PRIVACY.html');
 
-    _controller.loadUrl( Uri.dataFromString(
+    privacyURL =  Uri.dataFromString(
         fileText,
         mimeType: 'text/html',
         encoding: Encoding.getByName('utf-8')
-    ).toString()).then((value) => {
+    ).toString();
+    _controller.loadUrl(privacyURL).then((value) => {
         setState(() {
         // _navigationRequestAllowed = false;
         })
     });
+  }
 
+  Future<void>  _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override void initState() {
@@ -61,7 +76,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
     // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
 
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    if (io.Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   void _moveToNextPage() {
@@ -103,8 +118,15 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         _loadHtmlFromAssets();
       },
       navigationDelegate: (NavigationRequest request) {
-        if (_navigationRequestAllowed == true) {
+        print('request ${request.url}');
+        
+        if (request.url == privacyURL) {
+          print('navigate');
           return NavigationDecision.navigate;
+        }
+        print('prevent');
+        if (Application.shouldOpenLinks) {
+          _launchInBrowser(request.url);
         }
         return NavigationDecision.prevent;
       },
@@ -117,7 +139,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
               child:Container(
                 width: double.infinity,
                 child: MaterialButton(
-
                   onPressed: _isApplied == true ? _moveToNextPage : null,
                   disabledColor: Colors.white.withOpacity(0.5),
                   textColor: Colors.black,
@@ -127,7 +148,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                   // padding: EdgeInsets.only(left: 12, right: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
-
                   ),
                   // padding: EdgeInsets.all(4),
                 )),

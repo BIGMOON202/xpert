@@ -128,7 +128,7 @@ class Parent {
   int id;
   String firstName;
   String lastName;
-  int company;
+  String company;
   String provider;
   String role;
 

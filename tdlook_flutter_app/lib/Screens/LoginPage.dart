@@ -40,8 +40,8 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
 
     if (Application.isInDebugMode) {
-      _email = 'nusatenko+1@gmail.com';//'annakarp13+99@gmail.com'
-      _password = 'Qaqazxsw';//'Qa123456789Qia.'
+      _email = 'andrew+sl@3dlook.me';//'annakarp13+99@gmail.com'
+      _password = 'Qa123456789Qa.';//'Qa123456789Qia.'
 
       if (widget.userType == UserType.endWearer) {
         _email = 'john@gmail.com';//'garry@gmail.com';

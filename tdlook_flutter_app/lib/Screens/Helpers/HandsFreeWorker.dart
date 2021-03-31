@@ -22,6 +22,8 @@ class HandsFreeWorker {
     return _instance;
   }
 
+  static String _playerID = 'handsFreePlayer';
+
   bool _isPlaying = false;
   AudioCache player = AudioCache();
 
@@ -90,6 +92,7 @@ class HandsFreeWorker {
   }
 
   void pause() {
+    print('called pause');
     _captureTimer?.cancel();
     _captureTimer = null;
     player.fixedPlayer?.stop();
@@ -137,7 +140,7 @@ class HandsFreeWorker {
 
       var audioFile = 'HandsFreeAudio\/${newStep.audioTrackName()}.mp3';
 
-      player.fixedPlayer = AudioPlayer();
+      player.fixedPlayer = AudioPlayer(playerId: _playerID);
       player.fixedPlayer?.startHeadlessService();
       debugPrint('should play: $audioFile');
       _isPlaying = true;
@@ -175,6 +178,7 @@ class HandsFreeWorker {
     return;
   }
 
+  Timer _checkGyroAfter2Sec;
   print('hanldle new gyro: ${isValidGyroChange}');
     // dev.debugger();
 
@@ -191,11 +195,24 @@ class HandsFreeWorker {
 
     // Gyro became valid, but launch "great" sound only if there is no other help command in the queue.
     print('pauseTimer: ${pauseTimer}');
-    if (pauseTimer != null) { return; }
+    if (pauseTimer != null) {
+      print('pauseTimer != null');
+      return;
+    }
 
       print('enableContinueTimer for 2 seconds before continue after gyro is ok');
-      FutureExtension.enableContinueTimer(delay: 2).then((value) {
-        if (_gyroIsValid == false) {return;}
+    if (_checkGyroAfter2Sec != null) {
+      print('_checkGyroAfter2Sec != null');
+      return;
+    }
+    print('will checkGyroAfter2Sec');
+    const duration = const Duration(seconds: 1);
+    _checkGyroAfter2Sec = Timer(duration, () {
+      debugPrint('checking gyro after 2 sec');
+      _checkGyroAfter2Sec = null;
+      if (_gyroIsValid == false) {
+        debugPrint('checked gyro after 2 sec: _gyroIsValid == false');
+        return;}
       start(andReset: false);
     });
     }
@@ -290,19 +307,20 @@ class HandsFreeWorker {
       print('shouldShowTimer');
 
 
-      AudioCache _tickPlayer = AudioCache();
-      _tickPlayer.fixedPlayer?.startHeadlessService();
+      AudioCache _tickPlayer;
 
       void _playTimerTick() {
+        _tickPlayer = AudioCache();
+        _tickPlayer.fixedPlayer?.startHeadlessService();
+
         var audioFile = 'HandsFreeAudio\/timer-new.mp3';
-        _tickPlayer.fixedPlayer = AudioPlayer();
-        _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.RELEASE);
+        _tickPlayer.fixedPlayer = AudioPlayer(playerId: _playerID);
+        _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.STOP);
         debugPrint('should play tick: $audioFile');
         _tickPlayer.play(audioFile);
       }
 
 
-      _playTimerTick();
       const oneSec = const Duration(seconds: 1);
       _captureTimer = new Timer.periodic(
         oneSec,
@@ -321,7 +339,9 @@ class HandsFreeWorker {
 
           } else {
 
-            // _playTimerTick();
+            if (_tickPlayer == null) {
+              _playTimerTick();
+            }
             interval--;
             print("timer interval $interval");
             onTimerUpdateBlock( interval > 0 ? '${interval.toStringAsFixed(0)}': '');

@@ -7,7 +7,7 @@ class Application {
   }
 
   static API get apiType {
-    return API.test;
+    return API.prod;
   }
 
   static String get hostName {
@@ -17,6 +17,10 @@ class Application {
       case API.prod:
         return 'wlb-xpertfit.3dlook.me';
     }
+  }
+
+  static bool get shouldOpenLinks {
+    return true;
   }
 }
 

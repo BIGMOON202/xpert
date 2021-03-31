@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:screen/screen.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
@@ -122,6 +123,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     });
 
     if (_captureMode == CaptureMode.handsFree) {
+      Screen.keepOn(true);
       print('_handsFreeWorker init');
       _handsFreeWorker = HandsFreeWorker();
       _setupHandsFreeInitialStepIfNeeded();
@@ -215,8 +217,10 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   void _moveToNextPage() {
+    Screen.keepOn(false);
+
     _stopPage();
-    _handsFreeWorker.pause();
+    _handsFreeWorker?.pause();
     _handsFreeWorker = null;
 
     if (widget.arguments == null) {
