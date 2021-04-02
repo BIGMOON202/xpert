@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:screen/screen.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
+import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeAnalizer.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeWorker.dart';
 import 'dart:async';
@@ -24,8 +26,9 @@ class CameraCapturePageArguments {
   final PhotoType photoType;
   final XFile frontPhoto;
   final XFile sidePhoto;
+  final PhotoError previousPhotosError;
 
-  CameraCapturePageArguments({this.measurement, this.photoType, this.frontPhoto, this.sidePhoto});
+  CameraCapturePageArguments({this.measurement, this.photoType, this.frontPhoto, this.sidePhoto, this.previousPhotosError});
 }
 
 class CameraCapturePage extends StatefulWidget {
@@ -48,7 +51,7 @@ class CameraCapturePage extends StatefulWidget {
 
 class _CameraCapturePageState extends State<CameraCapturePage> {
 
-  HandsFreeWorker _handsFreeWorker;
+  HandsFreeAnalizer _handsFreeWorker;
   CaptureMode _captureMode;
   XFile _frontPhoto;
   XFile _sidePhoto;
@@ -69,6 +72,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   @override
   void initState() {
     super.initState();
+
+    print('passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
 
     if (widget.arguments != null) {
       _photoType = widget.arguments.photoType;
@@ -93,13 +98,23 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     //   });
     // });
 
+    bool updatedFirstStep = false;
 
     _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
         // print(event.z.abs());
         _zAngle = event.z;
+        var oldGyroPosition = _gyroIsValid;
+
         _gyroIsValid = !(event.z.abs() > 3);
-        _handsFreeWorker?.handle(isValidGyroChange: _gyroIsValid);
+
+        if (oldGyroPosition == true && _gyroIsValid == false && updatedFirstStep == false) {
+          print('update initial step');
+          updatedFirstStep = true;
+          _setupHandsFreeInitialStepIfNeeded();
+        }
+
+        _handsFreeWorker?.gyroIsValid = _gyroIsValid;
       });
     }));
   }
@@ -120,18 +135,18 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
       cameraRatio = controller.value.previewSize.height / controller.value.previewSize.width;
 
-      FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
-      controller.setFlashMode(flashMode);
+      // FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
+      controller.setFlashMode(FlashMode.off);
       setState(() {});
     });
 
     if (_captureMode == CaptureMode.handsFree) {
       Screen.keepOn(true);
       print('_handsFreeWorker init');
-      _handsFreeWorker = HandsFreeWorker();
+      _handsFreeWorker = HandsFreeAnalizer();
       _setupHandsFreeInitialStepIfNeeded();
 
-      _handsFreeWorker.reset();
+      // _handsFreeWorker.reset();
       _handsFreeWorker.onCaptureBlock = (){
         print('Should take photo');
         _handleTap();
@@ -142,20 +157,42 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
           _timerText = val;
         });
       };
-
-
-      _handsFreeWorker.start(andReset: true);
+      // _handsFreeWorker.start(andReset: true);
     }
   }
 
   void _setupHandsFreeInitialStepIfNeeded() {
     TFStep initialStep;
-    if (_photoType == PhotoType.front) {
-      initialStep = TFStep.frontPlacePhoneVertically;
-    } else {
-      initialStep = TFStep.sideIntro;
-    }
-    _handsFreeWorker.shouldStartWith(step: initialStep);
+    PhotoError previousError = widget?.arguments?.previousPhotosError;
+    print('previousError $previousError');
+      switch (previousError) {
+        case PhotoError.both:
+          if (_photoType == PhotoType.front) {
+            initialStep = _gyroIsValid ? TFStep.retakeFrontIntro : TFStep.retakeFrontGreat;
+          } else {
+            initialStep = TFStep.retakeSideIntro;
+          }
+          break;
+
+        case PhotoError.front:
+          initialStep = _gyroIsValid ? TFStep.retakeOnlyFrontIntro : TFStep.retakeOnlyFrontGreat;
+          break;
+
+        case PhotoError.side:
+          initialStep = _gyroIsValid ? TFStep.retakeOnlySideIntro : TFStep.retakeOnlySideGreat;
+          break;
+
+        default:
+          if (_photoType == PhotoType.front) {
+            initialStep = TFStep.frontGreat;
+          } else {
+            initialStep = TFStep.sideIntro;
+          }
+      }
+
+    print('previousError $initialStep');
+    _handsFreeWorker.firstStepInFlow = initialStep;
+    _handsFreeWorker.moveToNextFlowIfGyroIsValid();
   }
 
   void _cancelGyroUpdates() {
@@ -165,7 +202,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   void _stopPage() {
-    _handsFreeWorker?.stop();
+    // _handsFreeWorker?.stop();
 
     _cancelGyroUpdates();
 
@@ -177,9 +214,13 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
   @override
   void dispose() {
+    _handsFreeWorker?.dispose();
+
     print('dipose camera page');
 
-    _stopPage();
+    _cancelGyroUpdates();
+    controller?.dispose();
+    controller = null;
     print('did dipose camera page');
     super.dispose();
     print('did super dipose camera page');
@@ -207,7 +248,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       _sidePhoto = file;
     }
     if (SessionParameters().captureMode == CaptureMode.handsFree) {
-      if (activePhotoType() == PhotoType.front) {
+      if (activePhotoType() == PhotoType.front && widget.arguments?.previousPhotosError != PhotoError.front) {
           _photoType = PhotoType.side;
           _setupHandsFreeInitialStepIfNeeded();
         // _handsFreeWorker.increaseStep();
@@ -223,9 +264,10 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     Screen.keepOn(false);
 
     _stopPage();
-    _handsFreeWorker?.pause();
-    _handsFreeWorker = null;
+    // _handsFreeWorker?.pause();
+    // _handsFreeWorker = null;
 
+    print('widget.arguments: ${widget.arguments}');
     if (widget.arguments == null) {
       if (_photoType == PhotoType.front) {
 
@@ -244,33 +286,56 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                 sidePhoto: _sidePhoto, shouldUploadMeasurements: true));
       }
     } else {
-      if (_photoType == PhotoType.front) {
+      if (_captureMode == CaptureMode.withFriend) {
+        if (_photoType == PhotoType.front) {
 
-        if (widget.arguments.sidePhoto == null) {
-          //make side photo
+          if (widget.arguments.sidePhoto == null) {
+            //make side photo
 
-          Navigator.pushNamed(context, CameraCapturePage.route,
-              arguments: CameraCapturePageArguments(measurement: widget.arguments.measurement,
-                  frontPhoto: _frontPhoto,
-                  sidePhoto: widget.arguments.sidePhoto));
+            Navigator.pushNamed(context, CameraCapturePage.route,
+                arguments: CameraCapturePageArguments(measurement: widget.arguments.measurement,
+                    frontPhoto: _frontPhoto,
+                    sidePhoto: widget.arguments.sidePhoto));
 
+          } else {
+            //make calculations
+            Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+                arguments: WaitingPageArguments(
+                    measurement: widget.arguments.measurement,
+                    frontPhoto: _frontPhoto,
+                    sidePhoto: widget.arguments.sidePhoto, shouldUploadMeasurements: false));
+          }
         } else {
+
           //make calculations
           Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
               arguments: WaitingPageArguments(
                   measurement: widget.arguments.measurement,
-                  frontPhoto: _frontPhoto,
-                  sidePhoto: widget.arguments.sidePhoto, shouldUploadMeasurements: false));
+                  frontPhoto: widget.arguments.frontPhoto,
+                  sidePhoto: _sidePhoto, shouldUploadMeasurements: false));
         }
+
+
       } else {
 
-        //make calculations
+        XFile _frontToUpload = _frontPhoto;
+        XFile _sideToUpload = _sidePhoto;
+
+        if (widget.arguments.frontPhoto != null) {
+          _frontToUpload = widget.arguments.frontPhoto;
+        }
+        if (widget.arguments.sidePhoto != null) {
+          _sideToUpload = widget.arguments.sidePhoto;
+        }
+
         Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
             arguments: WaitingPageArguments(
                 measurement: widget.arguments.measurement,
-                frontPhoto: widget.arguments.frontPhoto,
-                sidePhoto: _sidePhoto, shouldUploadMeasurements: false));
+                frontPhoto: _frontToUpload,
+                sidePhoto: _sideToUpload, shouldUploadMeasurements: false));
+
       }
+
     }
   }
 
@@ -404,7 +469,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
               frameWidget(),
               captureButton(),
               rulerContainer(),
-              Visibility(visible: _timerText != '', child: Center(child: Text(_timerText, style: TextStyle(fontSize: 270, color: Colors.green))))
+              Visibility(visible: _timerText != '', child: Center(child: Text(_timerText, style: TextStyle(fontSize: 270, color: Colors.green)))),
+              Visibility(visible: _isTakingPicture, child: Container(color: Colors.white))
             ],
           ));
     }

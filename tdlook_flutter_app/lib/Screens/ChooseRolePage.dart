@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
+import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Screens/LoginPage.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
@@ -101,6 +102,13 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
     );
 
     void _moveToNextPage() {
+
+      // SessionParameters().captureMode = CaptureMode.handsFree;
+      // Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+      //     CameraCapturePage(photoType: PhotoType.front, measurement: null, gender: Gender.male)
+      // ));
+      //
+      // return;
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
         LoginPage(userType: _selectedUserType)
         ));

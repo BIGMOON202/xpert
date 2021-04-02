@@ -7,26 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Extensions/Future+Extension.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'dart:developer' as dev;
-enum OptionalSound {
-  tick, capture, placePhone
-}
-
-extension OptionalSoundExtension on OptionalSound {
-  String get fileName {
-    switch (this) {
-      case OptionalSound.tick: return 'timer_tick';
-      case OptionalSound.capture: return 'iPhone_Camera_Shutter_1';
-      case OptionalSound.placePhone: return '';
-    }
-  }
-
-  bool get respectsSilentMode {
-    switch (this) {
-      case OptionalSound.tick: return false;
-      case OptionalSound.capture: return true;
-    }
-  }
-}
 
 class HandsFreeWorker {
 
@@ -35,7 +15,7 @@ class HandsFreeWorker {
 
     print('init HandsFreeWorker');
     player.fixedPlayer = AudioPlayer();
-    player.fixedPlayer?.startHeadlessService();
+    // player.fixedPlayer?.startHeadlessService();
     // initialization logic
   }
 
@@ -57,7 +37,7 @@ class HandsFreeWorker {
   VoidCallback onCaptureBlock;
   ValueChanged<String> onTimerUpdateBlock;
 
-  TFStep _forceFirstStep = TFStep.frontPlacePhoneVertically;
+  TFStep _forceFirstStep = TFStep.frontGreat;
 
   set forceFistStep(TFStep value) => {
   print('set forceFistStep ${value}'),
@@ -79,10 +59,24 @@ class HandsFreeWorker {
     if (_gyroIsValid != value) {
       debugPrint('gyroIsValid will change: ${value}, old: ${_gyroIsValid}'),
       _gyroHasChangedDuringStep = true,
-      // handle(isValidGyroChange: value)
+      handle(isValidGyroChange: value)
     },
     _gyroIsValid = value
   };
+
+
+  AudioCache _tickPlayer;
+  void _playSound(TFOptionalSound sound) {
+    if (_tickPlayer == null) {
+      _tickPlayer = AudioCache();
+    }
+    var audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
+    _tickPlayer.respectSilence = sound.respectsSilentMode;
+    _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.STOP);
+    _tickPlayer.fixedPlayer?.startHeadlessService();
+    debugPrint('should play tick: $audioFile');
+    _tickPlayer.play(audioFile);
+  }
 
 
   void start({bool andReset}) {
@@ -142,7 +136,10 @@ class HandsFreeWorker {
     pauseTimer = null;
     _step = null;
     player.fixedPlayer.stop();
+    _tickPlayer?.fixedPlayer?.release();
+    _tickPlayer?.fixedPlayer?.stop();
   }
+
 
   void handleNewStep(TFStep newStep) async {
       debugPrint('handleNewSte: ${newStep.toString()}');
@@ -270,6 +267,7 @@ class HandsFreeWorker {
 
   Timer _captureTimer;
   Timer checkGyroTimer;
+
   ///check is gyro is still incorrect - if so, replay intro
   void checkGyroIn5sec() {
     debugPrint('check gyro after 5 sec');
@@ -315,21 +313,6 @@ class HandsFreeWorker {
 
     pauseTimer = null;
 
-    AudioCache _tickPlayer;
-
-    void _playSound(OptionalSound sound) {
-      if (_tickPlayer == null) {
-        _tickPlayer = AudioCache();
-      }
-      var audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
-      _tickPlayer.fixedPlayer = AudioPlayer(playerId: _tickPlayerID);
-      _tickPlayer.respectSilence = sound.respectsSilentMode;
-      _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.STOP);
-      _tickPlayer.fixedPlayer?.startHeadlessService();
-      debugPrint('should play tick: $audioFile');
-      _tickPlayer.play(audioFile);
-    }
-
     if (_step != null && _step.shouldShowTimer() == true) {
       var interval = _step.afterDelayValue();
       var timerInterval = 1.0;
@@ -348,7 +331,7 @@ class HandsFreeWorker {
             _captureTimer = null;
 
           } else {
-            _playSound(OptionalSound.tick);
+            _playSound(TFOptionalSound.tick);
             interval--;
             print("timer interval $interval");
             onTimerUpdateBlock( interval > 0 ? '${interval.toStringAsFixed(0)}': '');
@@ -368,7 +351,7 @@ class HandsFreeWorker {
       }
 
       if (_step.shouldCaptureAfter() == true) {
-        _playSound(OptionalSound.capture);
+        _playSound(TFOptionalSound.capture);
         onCaptureBlock();
       } else {
         increaseStep();

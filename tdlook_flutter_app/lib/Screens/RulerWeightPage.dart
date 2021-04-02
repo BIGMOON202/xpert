@@ -248,6 +248,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         flex: 1,
         child: Center(
           child:  Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.center,
             // crossAxisAlignment: CrossAxisAlignment.baseline,
             children: [
@@ -259,12 +260,12 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
               ),
               ),
 
-              Text(_valueMeasure, style: TextStyle(
+              Padding(padding: EdgeInsets.only(bottom: 7), child: Text(_valueMeasure, style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 20,
                   color: Colors.white
               ),
-              )
+              ))
             ],
           ),
         ),

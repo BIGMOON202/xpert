@@ -33,7 +33,7 @@ class AnalizeErrorPage extends StatefulWidget {
   _AnalizeErrorPageState createState() => _AnalizeErrorPageState();
 }
 
-enum _PhotoError {
+enum PhotoError {
   front,
   side,
   both
@@ -45,7 +45,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
   static Color _retakeButtonBackground = SessionParameters().selectionColor;
   static Color _textColor = Colors.white;
   static Color _optionalTextColor = HexColor.fromHex('898A9D');
-  _PhotoError _photoError;
+  PhotoError _photoError;
 
   String _buttonTitle = '';
 
@@ -58,14 +58,14 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
       PhotoType _passedPhotoType;
 
 
-      if (_photoError == _PhotoError.both) {
+      if (_photoError == PhotoError.both) {
         _frontPhoto = null;
         _sidePhoto = null;
         _passedPhotoType = PhotoType.front;
-      } else if(_photoError ==_PhotoError.front) {
+      } else if(_photoError ==PhotoError.front) {
         _frontPhoto = null;
         _passedPhotoType = PhotoType.front;
-      } else if (_photoError == _PhotoError.side) {
+      } else if (_photoError == PhotoError.side) {
         _sidePhoto = null;
         _passedPhotoType = PhotoType.side;
       }
@@ -73,14 +73,14 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
       print('front: ${_frontPhoto != null}');
       print('side: ${_sidePhoto != null}');
       print('photoType: ${_passedPhotoType.index}');
-
+      print('_photoError: ${_photoError.index}');
       print('push camera');
 
       Navigator.pushNamedAndRemoveUntil(context, CameraCapturePage.route, (route) => false,
           arguments: CameraCapturePageArguments(
               measurement: widget.arguments.measurement,
               frontPhoto: _frontPhoto,
-              sidePhoto: _sidePhoto, photoType: _passedPhotoType));
+              sidePhoto: _sidePhoto, photoType: _passedPhotoType, previousPhotosError: _photoError));
     } else {
 
       if (SessionParameters().selectedUser == UserType.salesRep) {
@@ -115,14 +115,14 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
 
       if (detail.length > 1) {
         title = 'Retake both photos';
-        _photoError = _PhotoError.both;
+        _photoError = PhotoError.both;
         print('photoType${_photoError.index}');
       } else {
         var photoType = detail.first.type;
         if (photoType == ErrorProcessingType.side_skeleton_processing) {
-          _photoError = _PhotoError.side;
+          _photoError = PhotoError.side;
         } else  {
-          _photoError = _PhotoError.front;
+          _photoError = PhotoError.front;
         }
         print('photoType${_photoError.index}');
         title = 'Retake ${photoType.name()} photo';
@@ -157,6 +157,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
       var _title = errorDetail.uiTitle();
       var _description = errorDetail.uiDescription();
       return Padding(padding:EdgeInsets.only(left: 20, right: 20), child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
           children:[
             SizedBox(
               width: 70,

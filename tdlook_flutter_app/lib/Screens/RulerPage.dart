@@ -303,7 +303,7 @@ class _RulerPageState extends State<RulerPage> {
         child: Center(
           child:  Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.baseline,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
 
                      Text(_value, style: TextStyle(
@@ -313,12 +313,12 @@ class _RulerPageState extends State<RulerPage> {
                                  ),
                                ),
 
-                      Text(_valueMeasure, style: TextStyle(
+              Padding(padding: EdgeInsets.only(bottom: 7), child:Text(_valueMeasure, style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 20,
                                   color: Colors.white
                                   ),
-                                )
+                                ))
             ],
           ),
         ),

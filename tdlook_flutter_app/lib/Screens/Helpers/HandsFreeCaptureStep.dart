@@ -1,11 +1,42 @@
 
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 
+enum TFOptionalSound {
+  tick, capture, placePhone, placePhoneRetakeFront,placePhoneRetakeOnlySide
+}
+
+extension OptionalSoundExtension on TFOptionalSound {
+  String get fileName {
+    switch (this) {
+      case TFOptionalSound.tick: return 'tick';
+      case TFOptionalSound.capture: return 'iPhone_Camera_Shutter_1';
+      case TFOptionalSound.placePhone: return 'tf1.1';
+      case TFOptionalSound.placePhoneRetakeFront: return 'tf3.1';
+      case TFOptionalSound.placePhoneRetakeOnlySide: return 'tf6.1';
+    }
+  }
+
+  bool get respectsSilentMode {
+    switch (this) {
+      case TFOptionalSound.tick:
+      case TFOptionalSound.placePhone:
+      case TFOptionalSound.placePhoneRetakeFront:
+      case TFOptionalSound.placePhoneRetakeOnlySide:
+        return false;
+
+      case TFOptionalSound.capture: return true;
+
+    }
+  }
+}
+
+
 enum TFStep {
-  frontPlacePhoneVertically, frontGreat, frontTakeSteps, frontCheckBody, frontCheckFeet, frontHoldPosition, frontDone,
+  //frontPlacePhoneVertically
+  frontGreat, frontTakeSteps, frontCheckBody, frontCheckFeet, frontHoldPosition, frontDone,
   sideIntro, sideTurnBody, sideStayStill, sideDone, great,
 
-  /*
+
   retakeFrontIntro, retakeFrontGreat, retakeFrontTakeSteps, retakeFrontCheckFeet, retakeFrontHoldPosition, retakeFrontDone,
   retakeSideIntro, retakeSideTurnBody, retakeSideStayStill, retakeSideDone,
 
@@ -14,14 +45,14 @@ enum TFStep {
   retakeOnlyFrontCheckFeet, retakeOnlyFrontHoldPosition,retakeOnlyFrontDone,
 
   retakeOnlySideIntro, retakeOnlySideGreat, retakeOnlySideTakeSteps, retakeOnlySideCheckBody,
-  retakeOnlySideTurnBody, retakeOnlySideStayStill, retakeOnlySideDone*/
+  retakeOnlySideTurnBody, retakeOnlySideStayStill, retakeOnlySideDone
 }
 
 extension TFStepExtension on TFStep {
   String audioTrackName() {
 
     switch (this) {
-      case TFStep.frontPlacePhoneVertically:    return "tf1.1";
+      // case TFStep.frontPlacePhoneVertically:    return "tf1.1";
       case TFStep.frontGreat:                   return "tf1.2";
       case TFStep.frontTakeSteps:               return "tf1.3";
       case TFStep.frontCheckBody:               return "tf1.4";
@@ -34,7 +65,6 @@ extension TFStepExtension on TFStep {
       case TFStep.sideStayStill:                return "tf2.3";
       case TFStep.sideDone:                     return "tf2.4";
 
-      /*
     case TFStep.retakeFrontIntro:             return "tf3.1";
     case TFStep.retakeFrontGreat:             return "tf3.2";
     case TFStep.retakeFrontTakeSteps:         return "tf3.3";
@@ -62,7 +92,7 @@ extension TFStepExtension on TFStep {
     case TFStep.retakeOnlySideTurnBody:       return "tf6.5";
     case TFStep.retakeOnlySideStayStill:      return "tf6.6";
     case TFStep.retakeOnlySideDone:           return "tf6.7";
-    */
+
 
     case TFStep.great:                        return "tf1.2";
     }
@@ -70,25 +100,26 @@ extension TFStepExtension on TFStep {
 
   double afterDelayValue() {
     // if (Application.isInDebugMode) {
+    //   if (this == TFStep.frontHoldPosition || this == TFStep.sideStayStill) {
+    //     return 4;
+    //   }
     //   return 0.0;
     // }
 
     switch (this) {
       case TFStep.great: return 2.0;
-      case TFStep.frontPlacePhoneVertically: return 2.0;
+      // case TFStep.frontPlacePhoneVertically: return 2.0;
 
       case TFStep.frontTakeSteps: return 3.0;
+
       case TFStep.frontHoldPosition:
+      case TFStep.retakeFrontHoldPosition:
+      case TFStep. retakeOnlyFrontHoldPosition:
 
-      // case TFStep.retakeFrontHoldPosition:
-      //
-      // case TFStep. retakeOnlyFrontHoldPosition:
-
-      case TFStep.sideStayStill: return 4;
-
-    // case TFStep.retakeSideStayStill:
-    //
-    // case TFStep.retakeOnlySideStayStill:
+      case TFStep.sideStayStill:
+      case TFStep.retakeSideStayStill:
+      case TFStep.retakeOnlySideStayStill:
+      return 4;
 
       default: return 1;
     }
@@ -98,15 +129,15 @@ extension TFStepExtension on TFStep {
     switch (this) {
       case TFStep.frontHoldPosition:
 
-      // case TFStep.retakeFrontHoldPosition:
+      case TFStep.retakeFrontHoldPosition:
       //
-      // case TFStep. retakeOnlyFrontHoldPosition:
+      case TFStep. retakeOnlyFrontHoldPosition:
       //
       case TFStep.sideStayStill:
 
-      // case TFStep.retakeSideStayStill:
+      case TFStep.retakeSideStayStill:
       //
-      // case TFStep.retakeOnlySideStayStill:
+      case TFStep.retakeOnlySideStayStill:
         return true;
 
       default:
@@ -119,15 +150,15 @@ extension TFStepExtension on TFStep {
     switch (this) {
       case TFStep.frontHoldPosition:
 
-      // case TFStep.retakeFrontHoldPosition:
+      case TFStep.retakeFrontHoldPosition:
       //
-      // case TFStep.retakeOnlyFrontHoldPosition:
+      case TFStep.retakeOnlyFrontHoldPosition:
       //
       case TFStep.sideStayStill:
 
-      // case TFStep.retakeSideStayStill:
+      case TFStep.retakeSideStayStill:
       //
-      // case TFStep.retakeOnlySideStayStill:
+      case TFStep.retakeOnlySideStayStill:
         return true;
 
       default:
@@ -137,7 +168,7 @@ extension TFStepExtension on TFStep {
 
   bool couldBeInterrapted() {
     switch (this) {
-      case TFStep.frontPlacePhoneVertically: return false;
+      // case TFStep.frontPlacePhoneVertically: return false;
       default: return true;
     }
   }

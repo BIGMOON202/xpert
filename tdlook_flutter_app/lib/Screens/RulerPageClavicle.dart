@@ -274,6 +274,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         flex: 2,
         child: Center(
           child:  Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.center,
             // crossAxisAlignment: CrossAxisAlignment.baseline,
             children: [
@@ -289,12 +290,12 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
               Visibility(
                 // visible: widget.selectedMeasurementSystem == MeasurementSystem.metric,
                   child:Container(
-                  child: Text(_valueMeasure, style: TextStyle(
+                  child: Padding(padding: EdgeInsets.only(bottom: 7), child: Text(_valueMeasure, style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: widget.selectedMeasurementSystem == MeasurementSystem.metric ? 20 : 30,
                   color: Colors.white
               ),
-              )))
+              ))))
             ],
           ),
         ),
