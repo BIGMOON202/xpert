@@ -24,7 +24,8 @@ extension OptionalSoundExtension on TFOptionalSound {
       case TFOptionalSound.placePhoneRetakeOnlySide:
         return false;
 
-      case TFOptionalSound.capture: return true;
+      case TFOptionalSound.capture:
+        return true;
 
     }
   }

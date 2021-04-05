@@ -73,7 +73,6 @@ class HandsFreeWorker {
     var audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
     _tickPlayer.respectSilence = sound.respectsSilentMode;
     _tickPlayer.fixedPlayer.setReleaseMode(ReleaseMode.STOP);
-    _tickPlayer.fixedPlayer?.startHeadlessService();
     debugPrint('should play tick: $audioFile');
     _tickPlayer.play(audioFile);
   }

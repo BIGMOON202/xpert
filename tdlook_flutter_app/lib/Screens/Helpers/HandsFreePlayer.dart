@@ -18,6 +18,7 @@ class HandsFreePlayer {
   ValueChanged<String> onTimerUpdateBlock;
 
   Timer _timerPauseBetweenSteps;
+  Timer _captureTimer;
   Timer _timerTickingBeforePhoto;
 
 
@@ -42,6 +43,7 @@ class HandsFreePlayer {
     print('player was stopped');
     _timerTickingBeforePhoto?.cancel();
     _timerPauseBetweenSteps?.cancel();
+    _captureTimer?.cancel();
     player?.fixedPlayer?.stop();
   }
 
@@ -77,12 +79,19 @@ class HandsFreePlayer {
 
     // handle the pause after step
     var duration = Duration(seconds: step.afterDelayValue().toInt());
-    print('duration');
+    print('duration $duration');
+    var durationToCapture = Duration(seconds: step.afterDelayValue().toInt());
+    if (step.shouldCaptureAfter()) {
+      _captureTimer = Timer(durationToCapture, () {
+        if (step.shouldCaptureAfter() == true) {
+          playSound(sound: TFOptionalSound.capture);
+        }
+      });
+    }
     _timerPauseBetweenSteps = Timer(duration, () {
       print('timer fired after ${duration}');
 
       if (step.shouldCaptureAfter() == true) {
-        playSound(sound: TFOptionalSound.capture);
         Timer(Duration(milliseconds: 100), onCaptureBlock);
       } else {
         _moveToNext(step: step);
@@ -95,7 +104,6 @@ class HandsFreePlayer {
     player.fixedPlayer = AudioPlayer(playerId: _playerID);
     player.respectSilence = sound.respectsSilentMode;
     player.fixedPlayer?.setReleaseMode(ReleaseMode.STOP);
-    player.fixedPlayer?.startHeadlessService();
     debugPrint('should play sound: $audioFile');
     player.play(audioFile);
   }
