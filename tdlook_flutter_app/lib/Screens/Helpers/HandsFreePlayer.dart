@@ -29,6 +29,9 @@ class HandsFreePlayer {
     player.respectSilence = false;
     debugPrint('should play: $audioFile');
     // _isPlaying = true;
+    player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
+    print('volumeIsOn: $volumeIsOn');
+
     await player.play(audioFile);
     debugPrint('playing: $audioFile');
     player.fixedPlayer.onPlayerStateChanged.listen((event) {
@@ -105,6 +108,9 @@ class HandsFreePlayer {
     player.respectSilence = sound.respectsSilentMode;
     player.fixedPlayer?.setReleaseMode(ReleaseMode.STOP);
     debugPrint('should play sound: $audioFile');
+
+    player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
+    print('volumeIsOn: $volumeIsOn');
     player.play(audioFile);
   }
 
@@ -117,5 +123,12 @@ class HandsFreePlayer {
     if (TFStep.values.length > newStepIndex) {
       playStep(step: TFStep.values[newStepIndex]);
     }
+  }
+
+  bool volumeIsOn = true;
+
+  void setSound({bool on}) {
+    volumeIsOn = on;
+    player.fixedPlayer.setVolume(on ? 1 : 0);
   }
 }

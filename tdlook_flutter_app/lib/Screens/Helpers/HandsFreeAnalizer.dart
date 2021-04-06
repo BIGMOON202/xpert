@@ -96,12 +96,12 @@ class HandsFreeAnalizer {
   }
 
   void stopFlow() {
+    _timerCheckGyroIsStillValid?.cancel();
     _currentStep = null;
   }
 
   void gyroBecameInvalid() {
     // cancel checking gyro - because it became invalid
-    _timerCheckGyroIsStillValid?.cancel();
 
     stopFlow();
     isGyroStillInvalid();
@@ -130,6 +130,18 @@ class HandsFreeAnalizer {
     if (_gyroIsValid == true) {
       startFlow();
     }
+  }
+
+  void handleAppState(AppLifecycleState state) {
+    bool shouldStop = (state != AppLifecycleState.resumed);
+    print('should Stop HF: $shouldStop');
+    if (shouldStop == true) {
+      stopFlow();
+      dispose();
+    } else {
+      isGyroStillInvalid();
+    }
+    // _player.setSound(on: shouldStop);
   }
 
   TFOptionalSound _placeVerticallySoundName() {

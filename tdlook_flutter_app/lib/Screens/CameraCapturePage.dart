@@ -49,7 +49,7 @@ class CameraCapturePage extends StatefulWidget {
   _CameraCapturePageState createState() => _CameraCapturePageState();
 }
 
-class _CameraCapturePageState extends State<CameraCapturePage> {
+class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindingObserver {
 
   HandsFreeAnalizer _handsFreeWorker;
   CaptureMode _captureMode;
@@ -72,6 +72,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     print('passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
 
@@ -113,6 +115,20 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
           updatedFirstStep = true;
           _setupHandsFreeInitialStepIfNeeded();
         }
+
+        _handsFreeWorker?.gyroIsValid = _gyroIsValid;
+      });
+    }));
+  }
+
+  void subscribeOnGyroUpdates() {
+    _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
+      setState(() {
+        // print(event.z.abs());
+        _zAngle = event.z;
+        var oldGyroPosition = _gyroIsValid;
+
+        _gyroIsValid = !(event.z.abs() > 3);
 
         _handsFreeWorker?.gyroIsValid = _gyroIsValid;
       });
@@ -214,6 +230,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _handsFreeWorker?.dispose();
 
     print('dipose camera page');
@@ -224,6 +241,19 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     print('did dipose camera page');
     super.dispose();
     print('did super dipose camera page');
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('appState: $state');
+    bool shouldStop = (state != AppLifecycleState.resumed);
+    if (shouldStop == true) {
+      _cancelGyroUpdates();
+    } else {
+      subscribeOnGyroUpdates();
+    }
+    _handsFreeWorker.handleAppState(state);
   }
 
   PhotoType activePhotoType() {
