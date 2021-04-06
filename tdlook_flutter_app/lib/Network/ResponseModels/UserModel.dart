@@ -49,7 +49,14 @@ class User {
     uuid = json['uuid'];
     role = json['role'];
     status = json['status'];
-    company = json['company'] != null ? new Company.fromJson(json['company']) : null;
+    var companyInfo = json['company'];
+    if (companyInfo != null) {
+      if (companyInfo is String) {
+        company = Company(name: companyInfo);
+      } else {
+        company = new Company.fromJson(json['company']);
+      }
+    }
     if (json['provider'] != null) {
       provider = json['provider'] == 'FH' ? CompanyType.uniforms : json['provider'] == 'SL' ? CompanyType.armor : null;
     }
