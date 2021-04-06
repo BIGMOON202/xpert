@@ -80,11 +80,16 @@ class HandsFreeAnalizer {
     });
   }
 
-  void dispose() {
+  void dispose({bool andPlayFinalStep = false}) {
+
 
     print('dispose handsFree');
     _gyroIsValid = null;
-    _player.stop();
+    if (andPlayFinalStep == true) {
+      _player.playSound(sound: TFOptionalSound.waitForResults);
+    } else {
+      _player.stop();
+    }
     _timerCheckGyroIsStillValid?.cancel();
     _timerCheckGyroEvery5Sec?.cancel();
   }

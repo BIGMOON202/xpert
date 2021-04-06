@@ -68,6 +68,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
   String _timerText = '';
   double _zAngle = 0;
+  bool isMovingToResultAfterHF = false;
 
   @override
   void initState() {
@@ -231,7 +232,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _handsFreeWorker?.dispose();
+    _handsFreeWorker?.dispose(andPlayFinalStep: isMovingToResultAfterHF);
 
     print('dipose camera page');
 
@@ -296,7 +297,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     _stopPage();
     // _handsFreeWorker?.pause();
     // _handsFreeWorker = null;
-
+    if (_captureMode == CaptureMode.handsFree) {
+      isMovingToResultAfterHF = true;
+    }
     print('widget.arguments: ${widget.arguments}');
     if (widget.arguments == null) {
       if (_photoType == PhotoType.front) {
@@ -336,7 +339,6 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
                     sidePhoto: widget.arguments.sidePhoto, shouldUploadMeasurements: false));
           }
         } else {
-
           //make calculations
           Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
               arguments: WaitingPageArguments(

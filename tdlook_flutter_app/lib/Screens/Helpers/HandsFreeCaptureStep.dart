@@ -2,7 +2,7 @@
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 
 enum TFOptionalSound {
-  tick, capture, placePhone, placePhoneRetakeFront,placePhoneRetakeOnlySide
+  tick, capture, placePhone, placePhoneRetakeFront,placePhoneRetakeOnlySide, waitForResults
 }
 
 extension OptionalSoundExtension on TFOptionalSound {
@@ -13,6 +13,7 @@ extension OptionalSoundExtension on TFOptionalSound {
       case TFOptionalSound.placePhone: return 'tf1.1';
       case TFOptionalSound.placePhoneRetakeFront: return 'tf3.1';
       case TFOptionalSound.placePhoneRetakeOnlySide: return 'tf6.1';
+      case TFOptionalSound.waitForResults: return 'tf2.4';
     }
   }
 
@@ -22,6 +23,7 @@ extension OptionalSoundExtension on TFOptionalSound {
       case TFOptionalSound.placePhone:
       case TFOptionalSound.placePhoneRetakeFront:
       case TFOptionalSound.placePhoneRetakeOnlySide:
+      case TFOptionalSound.waitForResults:
         return false;
 
       case TFOptionalSound.capture:
