@@ -334,7 +334,7 @@ class AnalizeResult {
     event = json['event'];
     status = json['status'];
     errorCode = json['error_code'];
-    if (json['detail'] != null) {
+    if (errorCode != null && errorCode == 'validation_error' && json['detail'] != null) {
       detail = new List<Detail>();
       json['detail'].forEach((v) {
         detail.add(new Detail.fromJson(v));

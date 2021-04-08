@@ -44,6 +44,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
     Screen.keepOn(false);
     print('move to recomendations');
     animationController.dispose();
+    _updateMeasurementBloc.dispose();
     if (result.status != 'error') {
         widget.arguments.measurement.isComplete = true;
 
@@ -97,7 +98,7 @@ class _WaitingPageState extends State<WaitingPage> with SingleTickerProviderStat
 
       switch (event.status) {
         case Status.LOADING:
-          print('STATUS: ${event.message}');
+          // print('STATUS: ${event.message}');
           setState(() {
             _stateName = event.message;
           });

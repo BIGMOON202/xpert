@@ -101,8 +101,10 @@ class HandsFreeAnalizer {
   }
 
   void stopFlow() {
+    _timerCheckGyroEvery5Sec?.cancel();
     _timerCheckGyroIsStillValid?.cancel();
     _currentStep = null;
+    // _player.stop();
   }
 
   void gyroBecameInvalid() {

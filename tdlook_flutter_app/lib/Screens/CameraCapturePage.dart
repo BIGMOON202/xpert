@@ -219,23 +219,23 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   }
 
   void _stopPage() {
-    // _handsFreeWorker?.stop();
-
     _cancelGyroUpdates();
+    _handsFreeWorker?.onCaptureBlock = null;
+    _handsFreeWorker?.onTimerUpdateBlock = null;
+    _handsFreeWorker?.stopFlow();
+    _handsFreeWorker?.dispose(andPlayFinalStep: isMovingToResultAfterHF);
+    // _cancelGyroUpdates();
 
-    setState(() {
-      controller?.dispose();
-      controller = null;
-    });
+    // setState(() {
+    //   controller?.dispose();
+    //   controller = null;
+    // });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _handsFreeWorker?.dispose(andPlayFinalStep: isMovingToResultAfterHF);
-
     print('dipose camera page');
-
     _cancelGyroUpdates();
     controller?.dispose();
     controller = null;
@@ -245,17 +245,17 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   }
 
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('appState: $state');
-    bool shouldStop = (state != AppLifecycleState.resumed);
-    if (shouldStop == true) {
-      _cancelGyroUpdates();
-    } else {
-      subscribeOnGyroUpdates();
-    }
-    _handsFreeWorker.handleAppState(state);
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   print('appState: $state');
+  //   bool shouldStop = (state != AppLifecycleState.resumed);
+  //   if (shouldStop == true) {
+  //     _cancelGyroUpdates();
+  //   } else {
+  //     subscribeOnGyroUpdates();
+  //   }
+  //   _handsFreeWorker.handleAppState(state);
+  // }
 
   PhotoType activePhotoType() {
     return _photoType;
@@ -294,11 +294,15 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   void _moveToNextPage() {
     Screen.keepOn(false);
 
-    _stopPage();
+
     // _handsFreeWorker?.pause();
     // _handsFreeWorker = null;
     if (_captureMode == CaptureMode.handsFree) {
       isMovingToResultAfterHF = true;
+    }
+
+    if (_captureMode == CaptureMode.handsFree) {
+      _stopPage();
     }
     print('widget.arguments: ${widget.arguments}');
     if (widget.arguments == null) {
