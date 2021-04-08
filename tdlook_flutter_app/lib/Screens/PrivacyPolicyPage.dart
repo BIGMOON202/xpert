@@ -1,12 +1,15 @@
 import 'dart:ffi';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -32,6 +35,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
 
   WebViewController _controller;
+  double contentHeight = 0;
 
   String get colorStr {
     var color = Colors.black;
@@ -40,7 +44,9 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   bool _isApplied = false;
   bool _navigationRequestAllowed = true;
+  ScrollController _scrollController;
   String privacyURL;
+  bool _scrollButtonIsHidden = false;
 
   _loadHtmlFromAssets() async {
     var fileText = await rootBundle.loadString('assets/PRIVACY.html');
@@ -73,6 +79,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     // TODO: implement initState
     super.initState();
 
+    _scrollController = ScrollController();
 
     // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
 
@@ -113,9 +120,19 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           mimeType: 'text/html',
           encoding: Encoding.getByName('utf-8'))
           .toString(),
+      javascriptMode: JavascriptMode.unrestricted,
       onWebViewCreated: (WebViewController webViewController) {
         _controller = webViewController;
         _loadHtmlFromAssets();
+      },
+      onPageFinished: (some) async {
+        double height = double.parse(
+            await _controller.evaluateJavascript(
+                "document.documentElement.scrollHeight;"));
+        setState(() {
+          contentHeight = height;
+          print('height = $contentHeight');
+        });
       },
       navigationDelegate: (NavigationRequest request) {
         print('request ${request.url}');
@@ -131,6 +148,8 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         return NavigationDecision.prevent;
       },
     );
+
+
 
     var nextButton = Align(
             alignment: Alignment.bottomCenter,
@@ -155,9 +174,20 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
     Widget bottomPart() {
       if (widget.showApply == true) {
-        return Expanded(
-            flex: 2,
-            child: Container(
+        return
+          VisibilityDetector(
+            key: Key('ApplyPrivacy'),
+      onVisibilityChanged: (visibilityInfo) {
+      var visiblePercentage = visibilityInfo.visibleFraction;
+
+      setState(() {
+        _scrollButtonIsHidden = visiblePercentage > 0;
+        print('_scrollButtonIsHidden: $_scrollButtonIsHidden');
+      });
+
+      },
+      child:
+          Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(15.0),
@@ -193,6 +223,34 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
     }
 
+    void _scrollToBottom() {
+      setState(() {
+        _scrollButtonIsHidden = true;
+      });
+      _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.ease);
+    }
+
+    var scrollToBottomButton = Visibility(
+      visible: !_scrollButtonIsHidden,
+        child: FlatButton(
+      child: Container(
+        child: SizedBox(
+          width: 96,
+          height: 34,
+          child: Icon(MdiIcons.chevronDown, color: Colors.white),),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(17)),
+          border: Border.all(
+            color: Colors.white ,
+            width: 1.0 ,
+          ),
+        ),
+      ),
+        onPressed: _scrollToBottom));
+
     var container = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -200,8 +258,19 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           flex: 8,
           child: Container(
             color: Colors.black,
-          child: webView)),
-        bottomPart(),
+          child: Stack( 
+              children: [
+                SingleChildScrollView(
+                  controller: _scrollController,
+                    child: Column(children: [Container( height: max(MediaQuery.of(context).size.height, contentHeight),
+                    child: webView),
+                  bottomPart()])),
+    Align(
+    alignment: Alignment.bottomCenter,
+    child:SafeArea(child:  Padding(
+                  padding: EdgeInsets.only(bottom: 23),
+                  child: scrollToBottomButton)))
+              ]))),
     ]);
 
     // TODO: implement build
@@ -217,7 +286,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           container,
         ])
     );
-
 
     return scaffold;
   }
