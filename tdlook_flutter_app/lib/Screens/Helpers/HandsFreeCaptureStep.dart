@@ -117,7 +117,7 @@ extension TFStepExtension on TFStep {
 
       case TFStep.frontHoldPosition:
       case TFStep.retakeFrontHoldPosition:
-      case TFStep. retakeOnlyFrontHoldPosition:
+      case TFStep.retakeOnlyFrontHoldPosition:
 
       case TFStep.sideStayStill:
       case TFStep.retakeSideStayStill:

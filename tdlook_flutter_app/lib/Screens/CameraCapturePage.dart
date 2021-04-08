@@ -117,6 +117,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
           _setupHandsFreeInitialStepIfNeeded();
         }
 
+        if (oldGyroPosition == true && _gyroIsValid == false && greatSoundPlayedAfterFront == false) {
+          print('update initial step');
+          greatSoundPlayedAfterFront = true;
+          _setupHandsFreeInitialStepIfNeeded();
+        }
+
         _handsFreeWorker?.gyroIsValid = _gyroIsValid;
       });
     }));
@@ -178,6 +184,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     }
   }
 
+  var greatSoundPlayedAfterFront = false;
+
   void _setupHandsFreeInitialStepIfNeeded() {
     TFStep initialStep;
     PhotoError previousError = widget?.arguments?.previousPhotosError;
@@ -187,7 +195,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
           if (_photoType == PhotoType.front) {
             initialStep = _gyroIsValid ? TFStep.retakeFrontIntro : TFStep.retakeFrontGreat;
           } else {
-            initialStep = TFStep.retakeSideIntro;
+            initialStep = greatSoundPlayedAfterFront ? TFStep.retakeSideIntro : TFStep.retakeFrontDone;
           }
           break;
 
@@ -203,7 +211,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
           if (_photoType == PhotoType.front) {
             initialStep = TFStep.frontGreat;
           } else {
-            initialStep = TFStep.sideIntro;
+            initialStep = greatSoundPlayedAfterFront ? TFStep.sideIntro : TFStep.frontDone;
           }
       }
 
@@ -245,17 +253,17 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   }
 
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   print('appState: $state');
-  //   bool shouldStop = (state != AppLifecycleState.resumed);
-  //   if (shouldStop == true) {
-  //     _cancelGyroUpdates();
-  //   } else {
-  //     subscribeOnGyroUpdates();
-  //   }
-  //   _handsFreeWorker.handleAppState(state);
-  // }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('appState: $state');
+    bool shouldStop = (state != AppLifecycleState.resumed);
+    if (shouldStop == true) {
+      _cancelGyroUpdates();
+    } else {
+      subscribeOnGyroUpdates();
+    }
+    _handsFreeWorker.handleAppState(state);
+  }
 
   PhotoType activePhotoType() {
     return _photoType;
@@ -280,6 +288,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     }
     if (SessionParameters().captureMode == CaptureMode.handsFree) {
       if (activePhotoType() == PhotoType.front && widget.arguments?.previousPhotosError != PhotoError.front) {
+          greatSoundPlayedAfterFront = false;
           _photoType = PhotoType.side;
           _setupHandsFreeInitialStepIfNeeded();
         // _handsFreeWorker.increaseStep();
