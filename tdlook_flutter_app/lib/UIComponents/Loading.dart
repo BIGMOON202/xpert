@@ -5,14 +5,19 @@ class Loading extends StatelessWidget {
   final String loadingMessage;
   const Loading({Key key, this.loadingMessage}) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
+    String _message = loadingMessage;
+    if (loadingMessage == null) {
+      _message = '';
+    }
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            loadingMessage,
+            _message,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,

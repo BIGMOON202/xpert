@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,10 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
 import 'package:tuple/tuple.dart';
 
 class EventListWorker {
+  String role;
+  String userId;
+
+  EventListWorker({this.role, this.userId});
 
   NetworkAPI _provider = NetworkAPI();
 
@@ -18,7 +23,11 @@ class EventListWorker {
 
 
     // var accessToken = prefs.getString('access');
-    final response = await _provider.get('events/',useAuth: true);
+    var link = 'events/';
+    if (role != null && role == 'dealer' && userId != null) {
+      link = 'events/?user=$userId';
+    }
+    final response = await _provider.get(link,useAuth: true);
     if (_provider.shouldRefreshTokenFor(json:response)) {
 
     } else {
@@ -76,10 +85,10 @@ class EventListWorkerBloc {
     chuckListStream = _listController.stream;
   }
 
-  void set(UserType usertype) {
+  void set(UserType usertype, [String parsedAPIRole, String userId]) {
     this.userType = usertype;
     if (this.userType == UserType.salesRep) {
-      _eventListWorker = EventListWorker();
+      _eventListWorker = EventListWorker(role: parsedAPIRole, userId: userId);
     } else {
       _eventListWorker = EventListWorkerEndwearer(provider);
     }

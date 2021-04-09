@@ -2,6 +2,12 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 
+enum UserRole {
+  dealer,
+  end_wearer,
+  sales_rep
+}
+
 class User {
   int id;
   String uuid;
@@ -53,6 +59,8 @@ class User {
     if (companyInfo != null) {
       if (companyInfo is String) {
         company = Company(name: companyInfo);
+      } else if (companyInfo is int) {
+        company = Company(name: companyInfo.toString());
       } else {
         company = new Company.fromJson(json['company']);
       }
@@ -135,7 +143,7 @@ class Parent {
   int id;
   String firstName;
   String lastName;
-  String company;
+  Company company;
   String provider;
   String role;
 
@@ -151,7 +159,16 @@ class Parent {
     id = json['id'];
     firstName = json['first_name'];
     lastName = json['last_name'];
-    company = json['company'];
+    var companyInfo = json['company'];
+    if (companyInfo != null) {
+      if (companyInfo is String) {
+        company = Company(name: companyInfo);
+      } else if (companyInfo is int) {
+        company = Company(name: companyInfo.toString());
+      } else {
+        company = new Company.fromJson(json['company']);
+      }
+    }
     provider = json['provider'];
     role = json['role'];
   }

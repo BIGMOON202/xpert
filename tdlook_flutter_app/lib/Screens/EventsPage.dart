@@ -83,25 +83,26 @@ class _EventsPageState extends State<EventsPage> {
 
       _userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
 
-      _bloc.set(_userType);
-      _bloc.call();
-
       _userInfoBloc.set(_userType);
-      _userInfoBloc.chuckListStream.listen((event) {
+      _userInfoBloc.chuckListStream.listen((user) {
 
-        switch (event.status) {
+        switch (user.status) {
           case Status.LOADING:
             print('loading header');
             break;
           case Status.COMPLETED:
             print('completed header');
             if (_userType == UserType.salesRep) {
-              SessionParameters().selectedCompany = event.data.provider;
+              SessionParameters().selectedCompany = user.data.provider;
             }
-            print('company = ${event.data.provider.apiKey()}');
+            print('company = ${user.data.provider.apiKey()}');
             setState(() {
-              _userInfo = event.data;
+              _userInfo = user.data;
             });
+
+            _bloc.set(_userType, user.data.role, user.data.id?.toString());
+            _bloc.call();
+
             break;
           case Status.ERROR:
             break;
@@ -241,7 +242,7 @@ class _EventsPageState extends State<EventsPage> {
                 break;
             }
           }
-          return Container();
+          return Loading();
         },
       ),
       );
