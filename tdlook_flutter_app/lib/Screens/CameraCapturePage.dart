@@ -245,6 +245,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     WidgetsBinding.instance.removeObserver(this);
     print('dipose camera page');
     _cancelGyroUpdates();
+    _stopPage();
     controller?.dispose();
     controller = null;
     print('did dipose camera page');
