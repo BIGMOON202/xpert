@@ -86,13 +86,18 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
       if (SessionParameters().selectedUser == UserType.salesRep) {
         Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
             arguments: ChooseGenderPageArguments(widget.arguments.measurement));
-        print('_restartAnalize');
       } else {
-        Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
-            arguments: BadgePageArguments(widget.arguments.measurement, SessionParameters().selectedUser));
-        print('_restartAnalize');
+
+        if (SessionParameters().selectedCompany == CompanyType.armor) {
+          Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
+              arguments: BadgePageArguments(widget.arguments.measurement, SessionParameters().selectedUser));
+        } else {
+          Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
+              arguments: ChooseGenderPageArguments(widget.arguments.measurement));
+        }
       }
     }
+    debugPrint('_restartAnalize');
   }
 
 
