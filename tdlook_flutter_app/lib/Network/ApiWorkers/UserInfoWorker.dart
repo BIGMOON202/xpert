@@ -5,12 +5,23 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
 
 class UserInfoWorker {
   UserType userType;
+  String accessKey;
 
-  UserInfoWorker(this.userType);
+  UserInfoWorker(this.userType, this.accessKey);
 
   NetworkAPI _provider = NetworkAPI();
   Future<User> fetchData() async {
-    final response = await _provider.get('${userType.apiUserInfoEnpoint()}/me/', useAuth: true);
+
+    Map<String, String> headers;
+    bool useAuth;
+
+    if (accessKey != null) {
+      headers = {'Authorization':'${userType.authPreffix()} ${accessKey}'};
+      useAuth = false;
+    } else {
+      useAuth = true;
+    }
+    final response = await _provider.get('${userType.apiUserInfoEnpoint()}/me/', useAuth: useAuth, headers: headers);
     print('userinfo ${response}');
     return User.fromJson(response);
   }
@@ -18,6 +29,7 @@ class UserInfoWorker {
 
 class UserInfoBloc {
   UserType userType;
+  String accessKey;
 
   UserInfoWorker _userInfoWorker;
   StreamController _listController;
@@ -33,14 +45,13 @@ class UserInfoBloc {
     chuckListStream = _listController.stream;
   }
 
-  void set(UserType userType) {
+  void set({UserType userType, String accessKey}) {
     this.userType = userType;
 
-    _userInfoWorker = UserInfoWorker(userType);
+    _userInfoWorker = UserInfoWorker(userType, accessKey);
   }
 
   call() async {
-
     chuckListSink.add(Response.loading('Getting User Info'));
     try {
       User info = await _userInfoWorker.fetchData();

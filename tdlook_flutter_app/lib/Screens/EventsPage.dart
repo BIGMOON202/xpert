@@ -83,7 +83,7 @@ class _EventsPageState extends State<EventsPage> {
 
       _userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
 
-      _userInfoBloc.set(_userType);
+      _userInfoBloc.set(userType: _userType);
       _userInfoBloc.chuckListStream.listen((user) {
 
         switch (user.status) {

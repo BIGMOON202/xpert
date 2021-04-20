@@ -78,7 +78,7 @@ enum Status { LOADING, COMPLETED, ERROR }
 enum Request { GET, POST, PUT, PATCH }
 
 
-extension _UserTypeNetworkExtension on UserType {
+extension UserTypeNetworkExtension on UserType {
   String authPreffix() {
     switch (this) {
       case UserType.salesRep: return 'JWT';

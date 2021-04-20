@@ -5,6 +5,7 @@ import 'package:otp_text_field/style.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/UserInfoWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
@@ -25,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Status _authRequestStatus;
   AuthWorkerBloc _authBloc;
+  UserInfoBloc _userInfoBloc;
 
   String _errorMessage = '';
 
@@ -40,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
 
     if (Application.isInDebugMode) {
-      _email = 'andrew+dealerinv@3dlook.me';//'annakarp13+99@gmail.com'
+      _email = 'bab-yaga@gmail.com';//'annakarp13+99@gmail.com'
       _password = 'Qa123456789Qa.';//'Qa123456789Qia.'
 
       if (widget.userType == UserType.endWearer) {
@@ -50,11 +52,49 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+
+
   void _moveToNextScreen() {
 
-    Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      PrivacyPolicyPage(credentials: _credentials, userType: widget.userType)
-    ));
+    print('move tor');
+    _moveToNext(){
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+          PrivacyPolicyPage(credentials: _credentials, userType: widget.userType)
+      ));
+    }
+
+    //check if user is valid to login
+    _userInfoBloc = UserInfoBloc();
+    _userInfoBloc.set(userType: widget.userType, accessKey: _credentials.access);
+    _userInfoBloc.chuckListStream.listen((user) {
+      switch (user.status) {
+        case Status.LOADING:
+          print('loading header');
+          break;
+        case Status.COMPLETED:
+          print('completed header');
+
+          print('ROLE: ${user.data.role}');
+          if ((user.data.role == null) || ((user.data.role != null) && (user.data.role == 'dealer' || user.data.role == 'sales_rep' || user.data.role == ''))) {
+              //continue flow
+            _moveToNext();
+          } else {
+            // show error
+            setState(() {
+              _errorMessage = 'This type of user is not enable to Login in mobile application';
+            });
+          }
+          // print('company = ${user.data.provider.apiKey()}');
+
+          break;
+        case Status.ERROR:
+          break;
+      }
+    });
+    _userInfoBloc.call();
+
+
+
   }
 
   void authCall() {
