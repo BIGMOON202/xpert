@@ -179,7 +179,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
             key: Key('ApplyPrivacy'),
       onVisibilityChanged: (visibilityInfo) {
       var visiblePercentage = visibilityInfo.visibleFraction;
-
+      print('onVisibilityChanged $visiblePercentage');
       setState(() {
         _scrollButtonIsHidden = visiblePercentage > 0;
         print('_scrollButtonIsHidden: $_scrollButtonIsHidden');
@@ -233,9 +233,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           curve: Curves.ease);
     }
 
-    var scrollToBottomButton = Visibility(
-      visible: !_scrollButtonIsHidden,
-        child: FlatButton(
+    var scrollToBottomButton = FlatButton(
       child: Container(
         child: SizedBox(
           width: 96,
@@ -249,13 +247,13 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           ),
         ),
       ),
-        onPressed: _scrollToBottom));
+        onPressed: _scrollToBottom);
 
     var container = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          flex: 8,
+          // flex: 8,
           child: Container(
             color: Colors.black,
           child: Stack( 
@@ -264,13 +262,15 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                   controller: _scrollController,
                     child: Column(children: [Container( height: max(MediaQuery.of(context).size.height, contentHeight),
                     child: webView),
-                  bottomPart()])),
-    Align(
-    alignment: Alignment.bottomCenter,
-    child:SafeArea(child:  Padding(
-                  padding: EdgeInsets.only(bottom: 23),
-                  child: scrollToBottomButton)))
+                  bottomPart()]))
               ]))),
+        Visibility(
+        visible: !_scrollButtonIsHidden,
+        child: Align(
+            alignment: Alignment.bottomCenter,
+            child:SafeArea(child:  Padding(
+                padding: EdgeInsets.only(bottom: 16, top: 16),
+                child: scrollToBottomButton))))
     ]);
 
     // TODO: implement build

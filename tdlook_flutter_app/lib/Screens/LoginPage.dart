@@ -46,8 +46,8 @@ class _LoginPageState extends State<LoginPage> {
       _password = 'Qa123456789Qa.';//'Qa123456789Qia.'
 
       if (widget.userType == UserType.endWearer) {
-        _email = 'john@gmail.com';//'garry@gmail.com';
-        _password = '211567';//'723692';
+        _email = '3dlook.test+ew5@gmail.com';//'garry@gmail.com';
+        _password = '076068';//'723692';
       }
     }
   }
