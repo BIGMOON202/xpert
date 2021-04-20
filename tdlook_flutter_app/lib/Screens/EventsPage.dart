@@ -28,6 +28,8 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:tuple/tuple.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
+import 'package:intl/intl.dart';
+
 class EventsPage extends StatefulWidget {
 
   final String provider;
@@ -338,15 +340,14 @@ class EventsListWidget extends StatelessWidget {
       var companyName = event?.agency?.name ?? '-';
       var companyType = event?.agency?.type ?? '-';
 
-      final startTimeSplit = event.createdAt.split('T');
+      final startTime = event.startDateTime.toLocal();
+      var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
+      var eventStartTime = DateFormat('K:mm a').format(startTime);
 
-      var eventStartDate = startTimeSplit.first ?? '-';
-      var eventStartTime = startTimeSplit.last.substring(0,8) ?? '-';
+      final endTime = event.endDateTime.toLocal();
+      var eventEndDate = DateFormat('d MMM yyyy').format(endTime);
+      var eventEndTime = DateFormat('K:mm a').format(endTime);
 
-      final endTimeSplit = event.endDate.split('T');
-
-      var eventEndDate = endTimeSplit.first ?? '-';
-      var eventEndTime = endTimeSplit.last.substring(0,8) ?? '-';
       var eventStatus = event.status.displayName() ?? "In progress";
       var eventStatusColor = event.status.displayColor() ?? Colors.white;
 

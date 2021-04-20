@@ -20,6 +20,7 @@ import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
+import 'package:intl/intl.dart';
 
 class RecommendationsPageArguments {
   MeasurementResults measurement;
@@ -251,11 +252,12 @@ class RecommendationsListWidget extends StatelessWidget {
         var userName = measurement.endWearer.name ?? '-';
         var userEmail = measurement.endWearer.email ?? '-';
 
-        var completeTimeSplit = measurement.completedAt?.split('T');
+        var completeTimeSplit = measurement.completedAtTime;
         var measurementDate;
         if (completeTimeSplit != null) {
-          var completeDate = completeTimeSplit?.first ?? '-';
-          var completeTime = completeTimeSplit?.last?.substring(0,8) ?? '-';
+          final completedTime = completeTimeSplit.toLocal();
+          var completeDate = DateFormat('d MMM yyyy').format(completedTime);
+          var completeTime = DateFormat('K:mm a').format(completedTime);
           measurementDate = '$completeDate,$completeTime';
         } else {
           measurementDate = '-';

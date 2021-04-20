@@ -22,6 +22,7 @@ import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsListWorker.dar
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
+import 'package:intl/intl.dart';
 
 class EventDetailPage extends StatefulWidget {
   final String currentUserId;
@@ -269,15 +270,14 @@ class MeasuremetsListWidget extends StatelessWidget {
         var companyName = event.agency?.name ?? '-';
         var companyType = event.agency?.type ?? '-';
 
-        final startTimeSplit = event.createdAt.split('T');
+        final startTime = event.startDateTime.toLocal();
+        var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
+        var eventStartTime = DateFormat('K:mm a').format(startTime);
 
-        var eventStartDate = startTimeSplit.first ?? '-';
-        var eventStartTime = startTimeSplit.last.substring(0,8) ?? '-';
+        final endTime = event.endDateTime.toLocal();
+        var eventEndDate = DateFormat('d MMM yyyy').format(endTime);
+        var eventEndTime = DateFormat('K:mm a').format(endTime);
 
-        final endTimeSplit = event.endDate.split('T');
-
-        var eventEndDate = endTimeSplit.first ?? '-';
-        var eventEndTime = endTimeSplit.last.substring(0,8) ?? '-';
         var eventStatus = event.status.displayName() ?? "In progress";
         var eventStatusColor = Colors.white;
         var eventStatusTextColor = event.status.textColor() ?? Colors.black;

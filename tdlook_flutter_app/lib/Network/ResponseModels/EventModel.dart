@@ -36,6 +36,8 @@ class Event {
   int salesRepId;
   String startDate;
   String endDate;
+  DateTime startDateTime;
+  DateTime endDateTime;
   EventStatus status;
   String createdAt;
   bool progress;
@@ -69,6 +71,8 @@ class Event {
     salesRepId = json['sales_rep_id'];
     startDate = json['start_date'];
     endDate = json['end_date'];
+    startDateTime = DateTime.parse(startDate);
+    endDateTime = DateTime.parse(endDate);
     status = EnumToString.fromString(EventStatus.values, json['status']);
     createdAt = json['created_at'];
     progress = json['progress'];
@@ -245,6 +249,8 @@ class MeasurementResults {
   bool isActive;
   bool isComplete;
   String completedAt;
+  DateTime completedAtTime;
+
   EndWearer endWearer;
   Event event;
   String gender;
@@ -265,6 +271,9 @@ class MeasurementResults {
     isActive = json['is_active'];
     isComplete = json['is_complete'];
     completedAt = json['completed_at'];
+    if (completedAt != null) {
+      completedAtTime = DateTime.parse(completedAt);
+    }
     endWearer = json['end_wearer'] != null ? new EndWearer.fromJson(json['end_wearer']) : null;
     event = json['event'] != null ? new Event.fromJson(json['event']) : null;
     gender = json['gender'];
