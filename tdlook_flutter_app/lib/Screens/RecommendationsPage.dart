@@ -49,14 +49,47 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
 
   Future<void> _refreshList() {
+    setState(() {
+      recommendations.clear();
+      recommendations = null;
+    });
     _updateMeasurementBloc.call;
     _bloc.call();
   }
 
   List<RecommendationModel> recommendations;
+  List<RecommendationModel> _filteredRecommendations;
+
   RecommendationsListBLOC _bloc;
   MeasurementsWorkerBloc _updateMeasurementBloc;
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  TextEditingController _controller = new TextEditingController();
+
+  _clearText() {
+    _controller.clear();
+    filter(withText:'');
+  }
+  onSearchTextChanged(String newText) {
+    print('update: $newText');
+    filter(withText: newText);
+  }
+
+  filter({String withText}) async {
+    if (recommendations == null) return;
+
+    List<RecommendationModel> filtered;
+    if (withText.isEmpty) {
+      filtered = recommendations;
+    } else {
+      filtered = await recommendations.where((element) => (element.product.name.containsIgnoreCase(withText) || element.product.style.containsIgnoreCase(withText))).toList();
+      print('filtered: $filtered');
+    }
+
+    setState(() {
+      _filteredRecommendations = filtered;
+    });
+  }
+
 
   @override
   void initState() {
@@ -82,6 +115,21 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     _updateMeasurementBloc.call();
 
     _bloc = RecommendationsListBLOC(widget.arguments.measurement.id.toString());
+    _bloc.chuckListStream.listen((event) {
+      switch (event.status) {
+        case Status.LOADING:
+          break;
+        case Status.COMPLETED:
+          setState(() {
+            print('events: ${event.data}');
+            recommendations = event.data;
+            _filteredRecommendations = recommendations;
+          });
+          break;
+        case Status.ERROR:
+          break;
+      }
+    });
     _bloc.call();
   }
 
@@ -89,44 +137,15 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   Widget build(BuildContext context) {
 
     Widget listBody() {
-      if (recommendations != null && recommendations.length != 0) {
-        print('config list recom');
+      if (recommendations == null) {
+        return Loading();
+      } else {
         return RecommendationsListWidget(
-          measurement: widget.arguments.measurement,
-          recommendations: recommendations,
-          showRestartButton: widget.arguments.showRestartButton,
+            measurement: widget.arguments.measurement,
+            recommendations: _filteredRecommendations,
+            showRestartButton: widget.arguments.showRestartButton,
             onRefreshList: _refreshList,
             refreshController: _refreshController);
-      } else {
-        print('config list recom async');
-        return StreamBuilder<Response<List<RecommendationModel>>>(
-          stream: _bloc.chuckListStream,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              print('recom list status: ${snapshot.data.status}');
-              switch (snapshot.data.status) {
-                case Status.LOADING:
-                  return Loading(loadingMessage: snapshot.data.message);
-                  break;
-                case Status.COMPLETED:
-                  return RecommendationsListWidget(
-                      measurement: widget.arguments.measurement,
-                      recommendations: snapshot.data.data,
-                      showRestartButton: widget.arguments.showRestartButton,
-                      onRefreshList: _refreshList,
-                      refreshController: _refreshController);
-                  break;
-                case Status.ERROR:
-                  return Error(
-                    errorMessage: snapshot.data.message,
-                    onRetryPressed: () => _bloc.call(),
-                  );
-                  break;
-              }
-            }
-            return Container();
-          },
-        );
       }
     }
 
@@ -137,6 +156,38 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       topTextValue = type == UserType.endWearer
           ? "Your photos have been destroyed"
           : "Photos have been destroyed";
+    }
+
+    Widget searchBar() {
+      if (recommendations == null || recommendations.isEmpty) {
+        return Container();
+      } else {
+        return Container(
+          height: 64,
+          color: SessionParameters().mainBackgroundColor,
+          child: new Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              color: SessionParameters().mainFontColor.withOpacity(0.1),
+              child: TextFormField(
+                textAlign: TextAlign.center,
+                style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 13),
+                controller: _controller,
+                decoration: new InputDecoration(
+                    filled: true,
+                    suffixIcon: Visibility(visible: _controller.value.text.isNotEmpty, child: IconButton(
+                      onPressed: () => _clearText(),
+                      icon: Icon(Icons.clear, color: SessionParameters().mainFontColor.withOpacity(0.8),),
+                    )),
+                    prefixIcon: Icon(Icons.search, color: SessionParameters().mainFontColor.withOpacity(0.8),),
+                    hintText: 'Type to search', hintStyle: TextStyle(color: SessionParameters().mainFontColor.withOpacity(0.8), fontSize: 13), border: InputBorder.none),
+                onChanged: onSearchTextChanged,
+              ),
+            ),
+          ),
+        );
+      }
+
     }
 
     var topText = Visibility(
@@ -161,6 +212,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         body: Column(
           children: [
             topText,
+            searchBar(),
             Flexible(child: listBody())],
         )
     );
@@ -201,8 +253,8 @@ class RecommendationsListWidget extends StatelessWidget {
 
 
   void _pullRefresh() async {
-    await onRefreshList();
     refreshController.loadComplete();
+    onRefreshList();
   }
 
 
@@ -387,7 +439,7 @@ class RecommendationsListWidget extends StatelessWidget {
           print('front: ${measurement.person}');
           print('front: ${measurement.person.frontParams}');
 
-          if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null) {
+          if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null && size != null) {
             if (measurement.person.frontParams.waist != null) {
               widgets.add(Padding(padding: EdgeInsets.only(left: 12), child: _recommendationRow(title: 'Waist', size: measurement.person.frontParams.waist.toStringAsFixed(2))));
             }
@@ -468,13 +520,13 @@ class RecommendationsListWidget extends StatelessWidget {
                     SizedBox(width: 6),
                     Text(mode.title(), style: TextStyle(color: _refreshColor, fontSize: 12),)
                   ]);
+              return Container(
+                height: 55.0,
+                child: Center(child:body),
+              );
             } else {
-              body = Container();
+              return Container();
             }
-            return Container(
-              height: 55.0,
-              child: Center(child:body),
-            );
           },
         ),
         controller: refreshController,
@@ -569,4 +621,8 @@ class RecommendationsListWidget extends StatelessWidget {
 
     return container;
   }
+}
+
+extension StringExtensions on String {
+  bool containsIgnoreCase(String secondString) => this.toLowerCase().contains(secondString.toLowerCase());
 }
