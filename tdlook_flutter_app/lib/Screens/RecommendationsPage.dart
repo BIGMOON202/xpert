@@ -438,9 +438,7 @@ class RecommendationsListWidget extends StatelessWidget {
 
           print('front: ${measurement.person}');
           print('front: ${measurement.person.frontParams}');
-
-          recommendation.product.brand == 'pants';
-
+          
           if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null && size != null) {
 
             if (recommendation.product.brand == 'pants') {
