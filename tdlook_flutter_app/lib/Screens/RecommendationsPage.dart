@@ -180,7 +180,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                       icon: Icon(Icons.clear, color: SessionParameters().mainFontColor.withOpacity(0.8),),
                     )),
                     prefixIcon: Icon(Icons.search, color: SessionParameters().mainFontColor.withOpacity(0.8),),
-                    hintText: 'Type to search', hintStyle: TextStyle(color: SessionParameters().mainFontColor.withOpacity(0.8), fontSize: 13), border: InputBorder.none),
+                    hintText: 'Search by Product name or Style ID', hintStyle: TextStyle(color: SessionParameters().mainFontColor.withOpacity(0.8), fontSize: 13), border: InputBorder.none),
                 onChanged: onSearchTextChanged,
               ),
             ),
