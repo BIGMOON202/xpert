@@ -544,7 +544,7 @@ class _GyroWidgetState extends State<GyroWidget> {
       var arrowOffset = _arrowHeight * 0.5;
       var angle = widget.angle._roundToPrecision(0);
       var center = _rulerHeight * 0.5;
-      var errorGapValue = (center - 20) / 10;
+      var errorGapValue = (center - 100) / 10;
 
 
       var position = (angle * errorGapValue + center);
