@@ -439,7 +439,27 @@ class RecommendationsListWidget extends StatelessWidget {
           print('front: ${measurement.person}');
           print('front: ${measurement.person.frontParams}');
 
+          recommendation.product.brand == 'pants';
+
           if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null && size != null) {
+
+            if (recommendation.product.brand == 'pants') {
+              widgets.clear();
+              widgets.add(_recommendationRow(title: 'Waist', size: size));
+              return widgets;
+            }
+
+            if (recommendation.product.brand == 'long_sleeve_shirts') {
+              if (measurement.person.frontParams.sleeve != null) {
+                widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Sleeve', size: measurement.person.frontParams.sleeve.toStringAsFixed(2))));
+              }
+              return widgets;
+            }
+
+            if (recommendation.product.brand == 'short_sleeve_shirts') {
+              return widgets;
+            }
+
             if (measurement.person.frontParams.waist != null) {
               widgets.add(Padding(padding: EdgeInsets.only(left: 12), child: _recommendationRow(title: 'Waist', size: measurement.person.frontParams.waist.toStringAsFixed(2))));
             }

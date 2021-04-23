@@ -359,6 +359,7 @@ class FrontParams {
   double rise;
   double inseam;
   double waist;
+  double sleeve;
 
   FrontParams({this.rise, this.inseam, this.waist});
 
@@ -366,6 +367,7 @@ class FrontParams {
     rise = json['rise'];
     inseam = json['inside_leg_height'];
     waist = json['waist'];
+    waist = json['sleeve'];
   }
 }
 
