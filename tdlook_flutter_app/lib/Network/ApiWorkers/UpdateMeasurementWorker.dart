@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsWorker.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/ReccomendationsListWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
@@ -211,9 +212,12 @@ class UpdateMeasurementBloc {
   XFile sidePhoto;
   bool shouldUploadMeasurements;
   bool isUploadingSuccess = false;
+  bool isMeasurementsReceived = false;
 
   UploadPhotosWorker _uploadPhotosWorker;
   UpdateMeasurementWorker _userInfoWorker;
+  MeasurementsWorker _checkMeasurementWorker;
+
   WaitingForResultsWorker _waitingForResultsWorker;
   StreamController _listController;
 
@@ -234,7 +238,10 @@ class UpdateMeasurementBloc {
     try {
       Map valueMap = json.decode(result);
       AnalizeResult info = await getResults(valueMap);
-      chuckListSink.add(Response.completed(info));
+      if (!isMeasurementsReceived) {
+        isMeasurementsReceived = true;
+        chuckListSink.add(Response.completed(info));
+      }
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
       print(e);
@@ -252,6 +259,7 @@ class UpdateMeasurementBloc {
     }
     _uploadPhotosWorker = UploadPhotosWorker(model, frontPhoto, sidePhoto);
     _waitingForResultsWorker = WaitingForResultsWorker(model, handle);
+    _checkMeasurementWorker = MeasurementsWorker(model.id.toString());
   }
 
   Future<bool> _enableContinueTimer({int delay}) async {
@@ -290,6 +298,7 @@ class UpdateMeasurementBloc {
         print("Did active");
         if (isUploadingSuccess) {
           print("Start observeResults");
+          checkMeasurementCompletion();
           observeResults();
         } else {
           print("Start uploadPhotos");
@@ -300,6 +309,16 @@ class UpdateMeasurementBloc {
         print("Did inactive");
         _waitingForResultsWorker.close();
         break;
+    }
+  }
+
+  checkMeasurementCompletion() async {
+    MeasurementResults measurement = await _checkMeasurementWorker.fetchData();
+    if (measurement.isComplete != null && measurement.isComplete == true) {
+      if (!isMeasurementsReceived) {
+        isMeasurementsReceived = true;
+        chuckListSink.add(Response.completed(AnalizeResult()));
+      }
     }
   }
 
