@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:screen/screen.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
@@ -105,11 +106,11 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
     _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        // print(event.z.abs());
+        // print('z:${event.z}\nx:${event.x}\ny:${event.y}');
         _zAngle = event.z;
         var oldGyroPosition = _gyroIsValid;
 
-        _gyroIsValid = !(event.z.abs() > 3);
+        _gyroIsValid = !(event.z.abs() > 3 || event.x.abs()>3);
 
         if (oldGyroPosition == true && _gyroIsValid == false && updatedFirstStep == false) {
           print('update initial step');
@@ -160,6 +161,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
       // FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
       controller.setFlashMode(FlashMode.off);
+      controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
       setState(() {});
     });
 
