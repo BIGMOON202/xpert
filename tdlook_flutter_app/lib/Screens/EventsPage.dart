@@ -29,6 +29,7 @@ import 'package:tuple/tuple.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 import 'package:intl/intl.dart';
+import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 
 class EventsPage extends StatefulWidget {
 
@@ -52,10 +53,45 @@ class _EventsPageState extends State<EventsPage> {
 
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
+  Response<Tuple2<EventList, MeasurementsList>> events;
+  Response<Tuple2<EventList, MeasurementsList>> originalEvents;
+  Tuple2<EventList, MeasurementsList> filteredevents;
 
   final GlobalKey<InnerDrawerState> _innerDrawerKey = GlobalKey<InnerDrawerState>();
 
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  TextEditingController _searchController = new TextEditingController();
+
+  _clearText() {
+    _searchController.clear();
+    filter(withText:'');
+  }
+
+  onSearchTextChanged(String newText) {
+    print('update: $newText');
+    filter(withText: newText);
+  }
+
+  filter({String withText}) async {
+    if (originalEvents == null) return;
+
+    if (withText.isEmpty) {
+      print('or: ${originalEvents.data.item1.data.length}');
+      setState(() {
+        events = originalEvents;
+        filteredevents = originalEvents.data;
+      });
+    } else {
+      _bloc.call(eventName: withText);
+      // List<Event> filtered = await events.data.item1.data.where((element) => (element.name.containsIgnoreCase(withText) || element.agency.name.containsIgnoreCase(withText))).toList();
+      //
+      // setState(() {
+      //   // filteredevents.item1.data = filtered;
+      // });
+    }
+
+
+  }
 
   void _toggle()
   {
@@ -68,6 +104,7 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Future<void> _refreshList() {
+    originalEvents = null;
     _bloc.call();
   }
 
@@ -93,7 +130,6 @@ class _EventsPageState extends State<EventsPage> {
             print('loading header');
             break;
           case Status.COMPLETED:
-            print('completed header');
             if (_userType == UserType.salesRep) {
               SessionParameters().selectedCompany = user.data.provider;
             }
@@ -113,6 +149,23 @@ class _EventsPageState extends State<EventsPage> {
       _userInfoBloc.call();
     }
 
+    _bloc.chuckListStream.listen((event) {
+      switch (event.status) {
+        case Status.LOADING:
+          break;
+        case Status.COMPLETED:
+          filteredevents = event.data;
+          if (originalEvents == null) {
+            originalEvents = event;
+          }
+          break;
+        case Status.ERROR:
+          break;
+      }
+      setState(() {
+          events = event;
+      });
+    });
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
 
@@ -124,7 +177,6 @@ class _EventsPageState extends State<EventsPage> {
     fetchUserType();
   }
 
-  StreamBuilder _builder;
   Widget _createdHeader;
 
   @override
@@ -205,6 +257,68 @@ class _EventsPageState extends State<EventsPage> {
       );
     }
 
+    Widget searchBar() {
+      if (originalEvents == null || originalEvents.data?.item1?.data?.isEmpty == true) {
+        return Container();
+      } else {
+        return Container(
+          height: 64,
+          color: SessionParameters().mainBackgroundColor,
+          child: new Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              color: SessionParameters().mainFontColor.withOpacity(0.1),
+              child: TextFormField(
+                textAlign: TextAlign.center,
+                style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 13),
+                controller: _searchController,
+                decoration: new InputDecoration(
+                    filled: true,
+                    suffixIcon: Visibility(visible: _searchController.value.text.isNotEmpty, child: IconButton(
+                      onPressed: () => _clearText(),
+                      icon: Icon(Icons.clear, color: SessionParameters().mainFontColor.withOpacity(0.8),),
+                    )),
+                    prefixIcon: Icon(Icons.search, color: SessionParameters().mainFontColor.withOpacity(0.8),),
+                    hintText: 'Type to search', hintStyle: TextStyle(color: SessionParameters().mainFontColor.withOpacity(0.8), fontSize: 13), border: InputBorder.none),
+                onChanged: onSearchTextChanged,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    Widget list() {
+      Widget _child() {
+        if (events != null) {
+          switch (events.status) {
+            case Status.LOADING:
+              return Loading(loadingMessage: events.message);
+              break;
+            case Status.COMPLETED:
+              var userId = _userInfo != null ? _userInfo.id.toString() : null;
+              prefs.setString('temp_user', userId ?? '');
+              print('buided after complete');
+              listWidget = EventsListWidget(resultsList: filteredevents,
+                  userType: _userType,
+                  userId: userId,
+                  onRefreshList: _refreshList,
+                  refreshController: _refreshController);
+              return listWidget;
+              break;
+            case Status.ERROR:
+              return Error(
+                errorMessage: events.message,
+                onRetryPressed: () => _bloc.call(),
+              );
+              break;
+          }
+        }
+        return Loading();
+      }
+
+      return Flexible(child: _child());
+    }
 
     var scaffold = Scaffold(
       appBar: AppBar(
@@ -217,36 +331,12 @@ class _EventsPageState extends State<EventsPage> {
         shadowColor: Colors.transparent,
       ),
       backgroundColor: _backgroundColor,
-      body: StreamBuilder<Response<Tuple2<EventList, MeasurementsList>>>(
-        stream: _bloc.chuckListStream,
-        builder: (context, snapshot) {
-          print('configure StreamBuilder');
-          if (snapshot.hasData) {
-            switch (snapshot.data.status) {
-              case Status.LOADING:
-                return Loading(loadingMessage: snapshot.data.message);
-                break;
-              case Status.COMPLETED:
-                var userId = _userInfo != null ? _userInfo.id.toString() : null;
-                prefs.setString('temp_user', userId ?? '');
-                listWidget = EventsListWidget(resultsList: snapshot.data.data,
-                    userType: _userType,
-                    userId: userId,
-                    onRefreshList: _refreshList,
-                    refreshController: _refreshController);
-                return listWidget;
-                break;
-              case Status.ERROR:
-                return Error(
-                  errorMessage: snapshot.data.message,
-                  onRetryPressed: () => _bloc.call(),
-                );
-                break;
-            }
-          }
-          return Loading();
-        },
-      ),
+      body: Column(
+        children: [
+          searchBar(),
+          list()
+        ],
+      )
       );
 
 
@@ -521,8 +611,10 @@ class EventsListWidget extends StatelessWidget {
     }
 
     var listView = ListView.builder(itemCount: resultsList.item1.data.length,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       itemBuilder: (_, index) => itemAt(index),
     );
+
 
     Color _refreshColor = HexColor.fromHex('#898A9D');
     var list = SmartRefresher(

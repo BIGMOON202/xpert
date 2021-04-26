@@ -16,7 +16,7 @@ class EventListWorker {
 
   NetworkAPI _provider = NetworkAPI();
 
-  Future<Tuple2<EventList, MeasurementsList>> fetchData() async {
+  Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName}) async {
 
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -26,8 +26,17 @@ class EventListWorker {
     var link = 'events/';
     if (role != null && role == 'dealer' && userId != null) {
       link = 'events/?user=$userId';
+      if (eventName != null) {
+        link = link + '&search=${eventName}';
+      }
+    } else if (eventName != null) {
+      link = link + '?search=${eventName}';
     }
+
+    print('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
+    print('events: ${response.length}');
+
     if (_provider.shouldRefreshTokenFor(json:response)) {
 
     } else {
@@ -43,12 +52,18 @@ class EventListWorkerEndwearer extends EventListWorker {
   EventListWorkerEndwearer(this.provider);
 
   @override
-  Future<Tuple2<EventList, MeasurementsList>> fetchData() async {
+  Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName}) async {
 
     print('get measurements');
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
     // var accessToken = prefs.getString('access');
-    final response = await _provider.get('measurements?provider=$provider',useAuth: true);
+    // /measurements/?event__name=<event_name>
+    var link = 'measurements?provider=$provider';
+        if (eventName != null) {
+          link = link + '&search=${eventName}';
+        }
+    print('link: ${link}');
+    final response = await _provider.get(link,useAuth: true);
 
     var list = MeasurementsList.fromJson(response);
 
@@ -58,7 +73,7 @@ class EventListWorkerEndwearer extends EventListWorker {
     list.data.forEach((element) {
       events.add(element.event);
     });
-    // print('events: ${events.length}');
+    print('events: ${events.length}');
 
     return Tuple2(EventList(data: events, paging: Paging(count: events.length)), list);
   }
@@ -94,12 +109,12 @@ class EventListWorkerBloc {
     }
   }
 
-  call() async {
+  call({String eventName}) async {
 
     chuckListSink.add(Response.loading('Getting events list'));
     try {
       print('try block');
-      Tuple2<EventList, MeasurementsList> list = await _eventListWorker.fetchData();
+      Tuple2<EventList, MeasurementsList> list = await _eventListWorker.fetchData(eventName: eventName);
       print('${list.item1.data.length}');
       chuckListSink.add(Response.completed(list));
     } catch (e) {
