@@ -21,7 +21,7 @@ import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 import 'package:intl/intl.dart';
-
+import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 class RecommendationsPageArguments {
   MeasurementResults measurement;
   bool showRestartButton;
@@ -187,7 +187,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
           ),
         );
       }
-
     }
 
     var topText = Visibility(
@@ -601,7 +600,7 @@ class RecommendationsListWidget extends StatelessWidget {
                     _moveToHomePage();
                   },
                   textColor: Colors.white,
-                  child: Text('Complete my Profile'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+                  child: Text('Complete${SessionParameters().selectedUser == UserType.endWearer ? ' my': ''} Profile'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
                   color: HexColor.fromHex('1E7AE4'),
                   height: 50,
                   padding: EdgeInsets.only(left: 12, right: 12),
@@ -639,8 +638,4 @@ class RecommendationsListWidget extends StatelessWidget {
 
     return container;
   }
-}
-
-extension StringExtensions on String {
-  bool containsIgnoreCase(String secondString) => this.toLowerCase().contains(secondString.toLowerCase());
 }
