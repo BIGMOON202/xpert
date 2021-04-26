@@ -45,6 +45,7 @@ class NavigationService{
 }
 
 void main() {
+
     // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) => {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations(
@@ -54,6 +55,15 @@ void main() {
     ],
   ).then((val) {
   runApp(MaterialApp(
+        theme: ThemeData(
+          appBarTheme: AppBarTheme(
+            brightness: Brightness.light
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white)
+              )
+          )),
         navigatorKey: NavigationService.instance.navigationKey,
         debugShowCheckedModeBanner: false,
         // home: LookApp(),
@@ -149,6 +159,9 @@ class _LookAppState extends State<LookApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
+        statusBarIconBrightness: Brightness.dark
+    ));
     return _activeWidget();
   }
 }
@@ -161,6 +174,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
+        appBarTheme: Theme.of(context).appBarTheme.copyWith(brightness: Brightness.light),
         inputDecorationTheme: InputDecorationTheme(
             border: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.white)
