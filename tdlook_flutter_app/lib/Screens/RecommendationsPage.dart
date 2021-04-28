@@ -70,7 +70,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     filter(withText:'');
   }
   onSearchTextChanged(String newText) {
-    print('update: $newText');
     filter(withText: newText);
   }
 
@@ -82,7 +81,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       filtered = recommendations;
     } else {
       filtered = await recommendations.where((element) => (element.product.name.containsIgnoreCase(withText) || element.product.style.containsIgnoreCase(withText))).toList();
-      print('filtered: $filtered');
     }
 
     setState(() {
@@ -121,7 +119,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
           break;
         case Status.COMPLETED:
           setState(() {
-            print('events: ${event.data}');
             recommendations = event.data;
             _filteredRecommendations = recommendations;
           });
@@ -424,48 +421,46 @@ class RecommendationsListWidget extends StatelessWidget {
         // return Container(color: Colors.orange);
 
         var recomendation = recommendations[index - 1];
+        print('type: ${recomendation.product.sizechartType}');
         var title = recomendation.product.name;
         var code = recomendation.product.style.toString();
         var size = recomendation.size;
         var _textStyle = TextStyle(color: Colors.white);
 
+        var inseamValue = measurement.person.frontParams.inseam?.inImperial?.toStringAsFixed(0);
+        var sleeveValue = measurement.person.frontParams.sleeve?.inImperial?.toStringAsFixed(0);
+        var riseValue = measurement.person.frontParams.rise?.inImperial?.toStringAsFixed(0);
+        var waistValue = measurement.person.frontParams.waist?.inImperial?.toStringAsFixed(0);
+
         List<Widget> _sizeWidgets(RecommendationModel recommendation) {
           var widgets =  List<Widget>();
 
           var column = _recommendationRow(title: 'Size', size: size);
-          widgets.add(column);
 
-          print('front: ${measurement.person}');
-          print('front: ${measurement.person.frontParams}');
-          
-          if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null && size != null) {
 
-            if (recommendation.product.brand == 'pants') {
-              widgets.clear();
-              widgets.add(_recommendationRow(title: 'Waist', size: size));
-              return widgets;
-            }
 
-            if (recommendation.product.brand == 'long_sleeve_shirts') {
-              if (measurement.person.frontParams.sleeve != null) {
-                widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Sleeve', size: measurement.person.frontParams.sleeve.toStringAsFixed(2))));
+
+          if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null) {
+
+            print('config for ${recommendation.product} - ${measurement.gender}');
+            if (recommendation.product.sizechartType == 'pants' && recommendation.product.gender == 'male') {
+              widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
+              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Rise', size: recommendation.sizeSecond)));
+              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Inseam', size: inseamValue)));
+            } else if (recommendation.product.sizechartType == 'pants' && recommendation.product.gender == 'female') {
+              widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
+              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Inseam', size: inseamValue)));
+            } else if (recommendation.product.sizechartType == 'long_sleeve_shirt') {
+              widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
+              if (recommendation.sizeSecond != null) {
+                widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Sleeve', size: recommendation.sizeSecond)));
               }
-              return widgets;
+            } else if (recommendation.product.sizechartType == 'short_sleeve_shirt') {
+              widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
+            } else {
+              widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
             }
-
-            if (recommendation.product.brand == 'short_sleeve_shirts') {
-              return widgets;
-            }
-
-            if (measurement.person.frontParams.waist != null) {
-              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child: _recommendationRow(title: 'Waist', size: measurement.person.frontParams.waist.toStringAsFixed(2))));
-            }
-            if (measurement.person.frontParams.rise != null) {
-              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Rise', size: measurement.person.frontParams.rise.toStringAsFixed(2))));
-            }
-            if (measurement.person.frontParams.inseam != null) {
-              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Inseam', size: measurement.person.frontParams.inseam.toStringAsFixed(2))));
-            }
+            return widgets;
           }
           return widgets;
         }

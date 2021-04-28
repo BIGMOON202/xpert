@@ -371,6 +371,12 @@ class FrontParams {
   }
 }
 
+extension InchExtension on double {
+  double get inImperial{
+    return this / 2.54;
+  }
+}
+
 class Messages {
   int id;
   String type;

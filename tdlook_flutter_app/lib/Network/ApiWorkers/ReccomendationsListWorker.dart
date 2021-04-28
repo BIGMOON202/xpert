@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
@@ -15,7 +16,6 @@ class RecommendationsListWorker {
 
     final response = await _provider.get('measurements/${measurementId}/get_recommendations/',useAuth: true);
 
-    print('olo: $response');
     var results = List<RecommendationModel>();
     results = (response as List)?.map((item) => RecommendationModel.fromJson(item))?.toList();
     return results;
@@ -45,17 +45,12 @@ class RecommendationsListBLOC {
   }
 
   call() async {
-    print('call auth');
-
     chuckListSink.add(Response.loading('Getting measurements'));
     try {
-      print('try block');
       List<RecommendationModel> measurementsList = await _recommendationsListWorker.fetchData();
-      print('$measurementsList');
       chuckListSink.add(Response.completed(measurementsList));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      print(e);
     }
   }
 
@@ -80,7 +75,7 @@ class RecommendationModel {
         this.product});
 
   RecommendationModel.fromJson(Map<String, dynamic> json) {
-    print(json);
+    debugPrint(json.toString());
     measurement = json['measurement'];
     size = json['size'];
     sizeSecond = json['size_second'];
@@ -147,6 +142,7 @@ class Product {
   String style;
   String gender;
   String status;
+  String sizechartType;
   String createdAt;
 
   Product(
@@ -168,6 +164,7 @@ class Product {
     gender = json['gender'];
     status = json['status'];
     createdAt = json['created_at'];
+    sizechartType = json['sizechart_type'];
   }
 
   Map<String, dynamic> toJson() {
