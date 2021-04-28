@@ -1,11 +1,14 @@
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 
+import 'RulerViewController.dart';
+
 class RulerValues {
-  Map<String, String> values = Map<String, String>();
+  Map<String, String> map = Map<String, String>();
+  List<String> _values = <String>[];
   RulerValues.heights(MeasurementSystem system) {
     switch (system) {
       case MeasurementSystem.imperial:
-        values = {
+        map = {
           "4’11\”": "150",
           "5’0\”": "153",
           "5’1\”": "155",
@@ -38,7 +41,7 @@ class RulerValues {
         };
         break;
       case MeasurementSystem.metric:
-        values = {
+        map = {
           "150": "4’11\”",
           "151": "4’11\”",
           "152": "5’0\”",
@@ -113,11 +116,44 @@ class RulerValues {
         };
         break;
     }
+    _values = map.keys.toList();
   }
 
-  List<String> get valuesList => values.keys.toList();
-  int get length => values.keys.length;
-  String getValueAtIndex(int index) => values.keys.toList()[index] ?? "0";
-  String getConverted(String key) => values[key] ?? key;
-  String getRawValue(String key) => values[key] ?? key;
+  RulerValues.weights(MeasurementSystem system) {
+    switch (system) {
+      case MeasurementSystem.imperial:
+        _values = 88.to(441);
+        break;
+      case MeasurementSystem.metric:
+        _values = 40.to(200);
+        break;
+    }
+  }
+
+  int get length => values.length;
+  List<String> get values => _values;
+  String getValueAtIndex(int index) => _values[index] ?? "0";
+  String getConvertedHeight(String value) => map[value] ?? value;
+  String getConvertedWeight(String value) => _lbToKg(value);
+  String _lbToKg(String value) {
+    final v = value.getIntValue();
+    final kg = (v / 2.2).round();
+    return "$kg";
+  }
+
+  // String convertValue(
+  //     String value, MeasurementSystem system, RulerViewType type) {
+  //   switch (type) {
+  //     case RulerViewType.heights:
+  //       return map[value] ?? value;
+  //       break;
+  //     case RulerViewType.weights:
+  //       break;
+  //   }
+  // }
+}
+
+extension RangeExtension on int {
+  List<String> to(int maxInclusive, {int step = 1}) =>
+      [for (int i = this; i <= maxInclusive; i += step) "$i"];
 }

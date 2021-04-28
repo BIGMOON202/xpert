@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +7,9 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerValues.dart';
+import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerView.dart';
+import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerViewController.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -16,21 +17,172 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPageClavicle.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 
-
 class RulerPageWeight extends StatefulWidget {
-
   final Gender gender;
   final MeasurementSystem selectedMeasurementSystem;
   final MeasurementResults measurement;
-  const RulerPageWeight ({ Key key, this.gender , this.selectedMeasurementSystem, this.measurement}): super(key: key);
+  const RulerPageWeight(
+      {Key key, this.gender, this.selectedMeasurementSystem, this.measurement})
+      : super(key: key);
 
   @override
   _RulerPageWeightState createState() => _RulerPageWeightState();
 }
 
 class _RulerPageWeightState extends State<RulerPageWeight> {
+  String _currentValue;
+  double _currentRawValue;
+  RulerViewController _controller;
 
-  ItemPositionsListener _itemPositionsListener =  ItemPositionsListener.create();
+  final Color _backgroundColor = HexColor.fromHex('16181B');
+  MeasurementSystem get _system => widget.selectedMeasurementSystem;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = RulerViewController(
+        measurementSystem: _system,
+        type: RulerViewType.weights,
+        onChangedValue: _onChangedValue);
+    _currentValue = _controller.defaultImperialValue;
+  }
+
+  void _onChangedValue(String value, double rawValue) {
+    setState(() {
+      _currentValue = value;
+      _currentRawValue = rawValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('End-wearer\'s height?'),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      backgroundColor: _backgroundColor,
+      body: Column(
+        children: [
+          _buildRuler(),
+          // _buildSpaser(),
+          _buildContinueButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRuler() {
+    return Expanded(
+      child: Row(
+        children: [
+          Expanded(
+            child: Center(
+                child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  _currentValue,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 60,
+                      color: Colors.white),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 10, bottom: 10),
+                  child: Text(
+                    _controller.measurementSystem == MeasurementSystem.metric
+                        ? "kg"
+                        : "lbs",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        color: Colors.white),
+                  ),
+                )
+              ],
+            )),
+          ),
+          RulerView(controller: _controller),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildSpaser() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 40),
+  //     child: SizedBox(height: 52),
+  //   );
+  // }
+
+  Widget _buildContinueButton() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 12, right: 12, top: 92),
+        child: SizedBox(
+          width: double.infinity,
+          child: MaterialButton(
+            onPressed: () {
+              _moveToNextPage();
+            },
+            textColor: Colors.white,
+            child: CustomText('NEXT'),
+            color: HexColor.fromHex('1E7AE4'),
+            height: 50,
+            padding: EdgeInsets.only(left: 12, right: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _moveToNextPage() {
+    widget.measurement.weight = _currentRawValue;
+    print('company: ${SessionParameters().selectedCompany.apiKey()}');
+    print(">> height: ${widget.measurement.height}");
+    print(">> weight: ${widget.measurement.weight}");
+    if (SessionParameters().selectedCompany == CompanyType.armor) {
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => RulerPageClavicle(
+              gender: widget.gender,
+              selectedMeasurementSystem: widget.selectedMeasurementSystem,
+              measurements: widget.measurement,
+            ),
+          ));
+    } else {
+      if (SessionParameters().selectedUser == UserType.endWearer) {
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (BuildContext context) => ChooseCaptureModePage(
+                    argument: ChooseCaptureModePageArguments(
+                        gender: widget.gender,
+                        measurement: widget.measurement))));
+      } else {
+        SessionParameters().captureMode = CaptureMode.withFriend;
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (BuildContext context) => HowTakePhotoPage(
+                    gender: widget.gender, measurements: widget.measurement)));
+      }
+    }
+  }
+}
+
+//////////////////////////// OLD ///////////////////////////
+
+class _RulerPageWeightStateOld extends State<RulerPageWeight> {
+  ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
   ItemScrollController _itemScrollController;
 
   int minValue = 40;
@@ -44,7 +196,6 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   double _rawMetricValue = 40;
   static Color _backgroundColor = HexColor.fromHex('16181B');
 
-
   @override
   void initState() {
     if (widget.selectedMeasurementSystem == MeasurementSystem.imperial) {
@@ -53,7 +204,6 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     numberOfRulerElements = maxValue - minValue;
 
     _itemPositionsListener.itemPositions.addListener(() {
-
       var positions = _itemPositionsListener.itemPositions.value;
 
       int min;
@@ -65,9 +215,9 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         min = positions
             .where((ItemPosition position) => position.itemTrailingEdge > 0)
             .reduce((ItemPosition min, ItemPosition position) =>
-        position.itemTrailingEdge < min.itemTrailingEdge
-            ? position
-            : min)
+                position.itemTrailingEdge < min.itemTrailingEdge
+                    ? position
+                    : min)
             .index;
         // Determine the last visible item by finding the item with the
         // greatest leading edge that is less than 1.  i.e. the last
@@ -75,16 +225,13 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         max = positions
             .where((ItemPosition position) => position.itemLeadingEdge < 1)
             .reduce((ItemPosition max, ItemPosition position) =>
-        position.itemLeadingEdge > max.itemLeadingEdge
-            ? position
-            : max)
+                position.itemLeadingEdge > max.itemLeadingEdge ? position : max)
             .index;
       }
 
       if (rulerGap == 0) {
         rulerGap = max - min;
       }
-
 
       // print('W min:$min max $max');
 
@@ -95,7 +242,6 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   }
 
   void _updateValuesFor(int minIndex, int maxIndex) {
-
     int selectedIndex;
     if (minIndex == 0) {
       selectedIndex = maxIndex - rulerGap;
@@ -113,22 +259,20 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         _valueMeasure = 'kg';
         _rawMetricValue = cmValue.toDouble();
       } else {
-
         double oneSegmentValue = (200.5 - minValue) / (numberOfRulerElements);
-        double kgValueDouble = selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
+        double kgValueDouble =
+            selectedIndex.toDouble() * oneSegmentValue + minValue.toDouble();
         _rawMetricValue = kgValueDouble;
 
-        double lbs = kgValueDouble.toDouble() * 2.2;//0462;
+        double lbs = kgValueDouble.toDouble() * 2.2; //0462;
         _valueMeasure = 'lbs';
-        _value = '${lbs.round()}';// lbs.toStringAsFixed(0);
+        _value = '${lbs.round()}'; // lbs.toStringAsFixed(0);
       }
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     // _addListener();
     if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
       numberOfRulerElements = maxValue - minValue;
@@ -136,10 +280,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
       numberOfRulerElements = 352;
     }
 
-
-
     Widget _textWidgetForRuler({int index}) {
-
       String _text = '';
 
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
@@ -148,11 +289,11 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
           _text = '$kgValue';
         }
       } else {
-
         double oneSegmentValue = (200.5 - minValue) / (numberOfRulerElements);
-        double kgValueDouble = index.toDouble() * oneSegmentValue + minValue.toDouble();
+        double kgValueDouble =
+            index.toDouble() * oneSegmentValue + minValue.toDouble();
 
-        double lbs = kgValueDouble.toDouble() * 2.2;//0462;
+        double lbs = kgValueDouble.toDouble() * 2.2; //0462;
         int lbsInt = lbs.round();
 
         if (lbsInt % 10 == 0) {
@@ -160,23 +301,27 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         }
       }
 
-      Text widgetToRetun = Text(_text, style: TextStyle(
-          color: Colors.white),);
+      Text widgetToRetun = Text(
+        _text,
+        style: TextStyle(color: Colors.white),
+      );
 
       return widgetToRetun;
     }
 
     double _lineWidthForRulerAt({int index}) {
-
-
       if (widget.selectedMeasurementSystem == MeasurementSystem.metric) {
-        return (index % 10 == 0) ? 30 : (index % 5 == 0) ? 22 : 12;
+        return (index % 10 == 0)
+            ? 30
+            : (index % 5 == 0)
+                ? 22
+                : 12;
       } else {
-
         double oneSegmentValue = (200.5 - minValue) / (numberOfRulerElements);
-        double kgValueDouble = index.toDouble() * oneSegmentValue + minValue.toDouble();
+        double kgValueDouble =
+            index.toDouble() * oneSegmentValue + minValue.toDouble();
 
-        double lbs = kgValueDouble.toDouble() * 2.2;//0462;
+        double lbs = kgValueDouble.toDouble() * 2.2; //0462;
 
         int lbsInt = lbs.round();
         return (lbsInt % 10 == 0) ? 30 : 12;
@@ -185,41 +330,43 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
     var itemCount = numberOfRulerElements + 1;
     var _lineOffset = 7.0;
-    ScrollablePositionedList _listView =   ScrollablePositionedList.builder(itemBuilder: (_,index) => Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      // crossAxisAlignment: CrossAxisAlignment.baseline,
-      children: [Expanded(
-          child:  Center(
-            child:     Container(height: 1,
+    ScrollablePositionedList _listView = ScrollablePositionedList.builder(
+      itemBuilder: (_, index) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        // crossAxisAlignment: CrossAxisAlignment.baseline,
+        children: [
+          Expanded(
+              child: Center(
+            child: Container(
+                height: 1,
                 width: _lineWidthForRulerAt(index: index),
                 color: Colors.white,
                 margin: EdgeInsets.only(
                   top: _lineOffset,
                   bottom: _lineOffset,
                 )),
+          )),
+          SizedBox(
+            width: 30,
+            child: _textWidgetForRuler(index: index),
           )
+        ],
       ),
-        SizedBox(
-          width: 30,
-          child: _textWidgetForRuler(index: index),
-        )
-      ],
-    ),
-      padding: EdgeInsets.only(top:(_listHeight*0.5-_lineOffset) ,bottom: (_listHeight*0.5-_lineOffset)),
+      padding: EdgeInsets.only(
+          top: (_listHeight * 0.5 - _lineOffset),
+          bottom: (_listHeight * 0.5 - _lineOffset)),
       itemCount: itemCount,
       itemPositionsListener: _itemPositionsListener,
-      itemScrollController: _itemScrollController,);
-
-
+      itemScrollController: _itemScrollController,
+    );
 
     var listView = Stack(
-      children: [ SizeProviderWidget(
-          onChildSize: (size) {
-            // _listView.padding = EdgeInsets.only(top:300);
-          },
-          child:  _listView
-      ),
-
+      children: [
+        SizeProviderWidget(
+            onChildSize: (size) {
+              // _listView.padding = EdgeInsets.only(top:300);
+            },
+            child: _listView),
         Align(
           alignment: Alignment.centerLeft,
           child: SizedBox(
@@ -242,34 +389,36 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     );
 
     var containerForList = Row(
-
       // color: _backgroundColor,
-      children: [   Flexible(
-        flex: 1,
-        child: Center(
-          child:  Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.baseline,
-            children: [
-
-              Text(_value, style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 50,
-                  color: Colors.white
-              ),
-              ),
-
-              Padding(padding: EdgeInsets.only(bottom: 7), child: Text(_valueMeasure, style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 20,
-                  color: Colors.white
-              ),
-              ))
-            ],
+      children: [
+        Flexible(
+          flex: 1,
+          child: Center(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.baseline,
+              children: [
+                Text(
+                  _value,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 50,
+                      color: Colors.white),
+                ),
+                Padding(
+                    padding: EdgeInsets.only(bottom: 7),
+                    child: Text(
+                      _valueMeasure,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20,
+                          color: Colors.white),
+                    ))
+              ],
+            ),
           ),
         ),
-      ),
         Align(
           alignment: Alignment.centerRight,
           child: Container(
@@ -281,7 +430,8 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         ),
         SizedBox(
           width: 60,
-        )],
+        )
+      ],
     );
 
     void _moveToNextPage() {
@@ -289,46 +439,54 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
       print('company: ${SessionParameters().selectedCompany.apiKey()}');
       if (SessionParameters().selectedCompany == CompanyType.armor) {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            RulerPageClavicle(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem, measurements: widget.measurement
-              ,),
-        ));
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (BuildContext context) => RulerPageClavicle(
+                gender: widget.gender,
+                selectedMeasurementSystem: widget.selectedMeasurementSystem,
+                measurements: widget.measurement,
+              ),
+            ));
       } else {
-
         if (SessionParameters().selectedUser == UserType.endWearer) {
-
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement))
-          ));
-
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (BuildContext context) => ChooseCaptureModePage(
+                      argument: ChooseCaptureModePageArguments(
+                          gender: widget.gender,
+                          measurement: widget.measurement))));
         } else {
           SessionParameters().captureMode = CaptureMode.withFriend;
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
-          ));
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (BuildContext context) => HowTakePhotoPage(
+                      gender: widget.gender,
+                      measurements: widget.measurement)));
         }
-
       }
     }
 
-    var nextButton = SafeArea(child:SizedBox(
-        width: double.infinity,
-        child: MaterialButton(
-          onPressed: () {
-            print('next button pressed');
-            _moveToNextPage();
-          },
-          textColor: Colors.white,
-          child: CustomText('NEXT'),
-          color: HexColor.fromHex('1E7AE4'),
-          height: 50,
-          padding: EdgeInsets.only(left: 12, right: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-
-          ),
-          // padding: EdgeInsets.all(4),
-        )),
+    var nextButton = SafeArea(
+      child: SizedBox(
+          width: double.infinity,
+          child: MaterialButton(
+            onPressed: () {
+              print('next button pressed');
+              _moveToNextPage();
+            },
+            textColor: Colors.white,
+            child: CustomText('NEXT'),
+            color: HexColor.fromHex('1E7AE4'),
+            height: 50,
+            padding: EdgeInsets.only(left: 12, right: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+            // padding: EdgeInsets.all(4),
+          )),
     );
 
     var containerForButton = Align(
@@ -336,35 +494,37 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
       child: nextButton,
     );
 
-    var segmentControl = Visibility(visible: false, child: CustomSlidingSegmentedControl(
-      // thumbColor: HexColor.fromHex('E0E3E8'),
-      //  backgroundColor: HexColor.fromHex('303339'),
-      data: ['KG', 'LBS'],
-      panelColor: HexColor.fromHex('E0E3E8'),
-      textColor: Colors.black,
-      background: HexColor.fromHex('303339'),
-      radius: 37,
-      fixedWidth: 100,
-      padding: 8,
-      innerPadding: 6,
-      onTap: (i) {
-        setState(() {
-          // selectedMeasurementSystem = i;
-          print('selected segment is $i');
-        });
-      },
-    ));
+    var segmentControl = Visibility(
+        visible: false,
+        child: CustomSlidingSegmentedControl(
+          // thumbColor: HexColor.fromHex('E0E3E8'),
+          //  backgroundColor: HexColor.fromHex('303339'),
+          data: ['KG', 'LBS'],
+          panelColor: HexColor.fromHex('E0E3E8'),
+          textColor: Colors.black,
+          background: HexColor.fromHex('303339'),
+          radius: 37,
+          fixedWidth: 100,
+          padding: 8,
+          innerPadding: 6,
+          onTap: (i) {
+            setState(() {
+              // selectedMeasurementSystem = i;
+              print('selected segment is $i');
+            });
+          },
+        ));
 
     var screenContainer = Column(
-      children:
-      [Expanded(
-        child: containerForList,
-      ),
+      children: [
+        Expanded(
+          child: containerForList,
+        ),
         // segmentControl,
         SizedBox(height: 85),
-        nextButton],
+        nextButton
+      ],
     );
-
 
     var scaffold = Scaffold(
       appBar: AppBar(
