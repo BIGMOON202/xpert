@@ -198,6 +198,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         )
     );
     var scaffold = Scaffold(
+      resizeToAvoidBottomInset: false,
         appBar: AppBar(
           centerTitle: true,
           title: Text(widget.arguments.showRestartButton ? 'Thank you': 'Profile details'),
