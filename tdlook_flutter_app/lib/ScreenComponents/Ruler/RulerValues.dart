@@ -140,17 +140,6 @@ class RulerValues {
     final kg = (v / 2.2).round();
     return "$kg";
   }
-
-  // String convertValue(
-  //     String value, MeasurementSystem system, RulerViewType type) {
-  //   switch (type) {
-  //     case RulerViewType.heights:
-  //       return map[value] ?? value;
-  //       break;
-  //     case RulerViewType.weights:
-  //       break;
-  //   }
-  // }
 }
 
 extension RangeExtension on int {
