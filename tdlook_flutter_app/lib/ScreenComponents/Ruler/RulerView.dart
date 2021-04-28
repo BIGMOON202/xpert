@@ -266,7 +266,6 @@ class _RulerViewState extends State<RulerView> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
-              // crossAxisAlignment: CrossAxisAlignment.baseline,
               children: [
                 Expanded(
                   child: Center(
