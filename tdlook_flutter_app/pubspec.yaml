@@ -38,7 +38,7 @@ dependencies:
   shared_preferences: ^0.5.6
   enum_to_string: ^1.0.14
   flutter_launcher_icons: ^0.9.0
-  otp_text_field: ^1.0.2
+  pin_code_fields: ^7.0.0
   webview_flutter: ^1.0.7
   tuple: ^2.0.0
   material_design_icons_flutter: ^4.0.5855
