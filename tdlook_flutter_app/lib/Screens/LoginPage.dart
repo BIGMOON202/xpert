@@ -37,12 +37,12 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     // TODO: implement initState
     if (Application.isInDebugMode) {
-      _email = 'andrew+fhsr@3dlook.me'; //'annakarp13+99@gmail.com'
+      _email = 'andrew+slsr@3dlook.me'; //'annakarp13+99@gmail.com'
       _password = 'Qa123456789Qa.'; //'Qa123456789Qia.'
 
       if (widget.userType == UserType.endWearer) {
-        _email = 'ew5@mail.com'; //'garry@gmail.com';
-        _password = '520630'; //'723692';
+        _email = 'annakarp13+test3@gmail.com'; //'garry@gmail.com';
+        _password = '749192'; //'723692';
       }
     }
   }
