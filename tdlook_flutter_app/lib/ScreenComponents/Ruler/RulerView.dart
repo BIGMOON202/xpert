@@ -31,6 +31,8 @@ class _RulerViewState extends State<RulerView> {
   final ScrollController _controller = ScrollController();
   final double _rowHeight = 20;
   final double _lineHeight = 1;
+  final double _contentWidth = 140;
+  final double _centerLineWidth = 80;
 
   String _selectedImperialValue;
   String _selectedMetricValue;
@@ -153,7 +155,7 @@ class _RulerViewState extends State<RulerView> {
     return Padding(
       padding: const EdgeInsets.only(right: 60, top: 60, bottom: 60),
       child: SizedBox(
-        width: 102,
+        width: _contentWidth,
         child: _buldRuler(),
       ),
     );
@@ -239,7 +241,7 @@ class _RulerViewState extends State<RulerView> {
               ),
               color: Colors.white.withOpacity(0.9),
             ),
-            width: 66,
+            width: _centerLineWidth,
             height: 2,
           ),
         ),
@@ -280,11 +282,14 @@ class _RulerViewState extends State<RulerView> {
                   ),
                 ),
                 SizedBox(
-                  width: 30,
+                  width: 54,
                   height: _rowHeight,
                   child: Align(
                       alignment: Alignment.centerRight,
-                      child: _textWidgetForRuler(index: index) ?? SizedBox()),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 24),
+                        child: _textWidgetForRuler(index: index) ?? SizedBox(),
+                      )),
                 ),
               ],
             ),
