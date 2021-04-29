@@ -462,6 +462,8 @@ class RecommendationsListWidget extends StatelessWidget {
               widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
             }
             return widgets;
+          } else {
+            widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
           }
           return widgets;
         }

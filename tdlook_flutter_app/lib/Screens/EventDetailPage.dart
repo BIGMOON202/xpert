@@ -420,12 +420,15 @@ class MeasuremetsListWidget extends StatelessWidget {
         var userName = measurement.endWearer.name ?? '-';
         var userEmail = measurement.endWearer.email ?? '-';
 
-        var completeTimeSplit = measurement.completedAt?.split('T');
+
+        final completeMeasureTime = measurement.completedAtTime?.toLocal();
+
         var measurementDate;
-        if (completeTimeSplit != null) {
-          var completeDate = completeTimeSplit?.first ?? '-';
-          var completeTime = completeTimeSplit?.last?.substring(0,8) ?? '-';
-          measurementDate = '$completeDate,$completeTime';
+        if (completeMeasureTime != null) {
+          var completeDate = DateFormat('d MMM yyyy').format(completeMeasureTime);
+          var completeTime = DateFormat('K:mm a').format(completeMeasureTime);
+
+          measurementDate = '$completeDate, $completeTime';
         } else {
           measurementDate = '-';
         }
