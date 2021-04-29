@@ -69,63 +69,95 @@ class ParserResponse<T> {
   ParserResponse.completed(this.data) : status = ParserResponseStatus.COMPLETED;
   ParserResponse.error(this.data) : status = ParserResponseStatus.ERROR;
   ParserResponse.repeat(this.data) : status = ParserResponseStatus.REPEAT;
-
 }
-enum ParserResponseStatus { COMPLETED, ERROR, REPEAT }
 
+enum ParserResponseStatus { COMPLETED, ERROR, REPEAT }
 
 enum Status { LOADING, COMPLETED, ERROR }
 enum Request { GET, POST, PUT, PATCH }
 
-
 extension UserTypeNetworkExtension on UserType {
   String authPreffix() {
     switch (this) {
-      case UserType.salesRep: return 'JWT';
-      case UserType.endWearer: return 'EWJWT';
+      case UserType.salesRep:
+        return 'JWT';
+      case UserType.endWearer:
+        return 'EWJWT';
     }
   }
 }
 
 class NetworkAPI {
-
   final Duration _timeout = Duration(seconds: 60);
 
   final String _baseUrl = "https://${Application.hostName}/";
 
-  Future<dynamic> get(String url,  {Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
-
-    return call(Request.GET, url, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  Future<dynamic> get(String url,
+      {Map<String, String> headers,
+      bool useAuth = true,
+      bool tryToRefreshAuth = true}) async {
+    return call(Request.GET, url,
+        headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
   }
 
-  Future<dynamic> post(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
-    return call(Request.POST, url, body: body, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  Future<dynamic> post(String url,
+      {Map<String, dynamic> body,
+      Map<String, String> headers,
+      bool useAuth = true,
+      bool tryToRefreshAuth = true}) async {
+    return call(Request.POST, url,
+        body: body,
+        headers: headers,
+        useAuth: useAuth,
+        tryToRefreshAuth: tryToRefreshAuth);
   }
 
-  Future<dynamic> patch(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
-    return call(Request.PATCH, url, body: body, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  Future<dynamic> patch(String url,
+      {Map<String, dynamic> body,
+      Map<String, String> headers,
+      bool useAuth = true,
+      bool tryToRefreshAuth = true}) async {
+    return call(Request.PATCH, url,
+        body: body,
+        headers: headers,
+        useAuth: useAuth,
+        tryToRefreshAuth: tryToRefreshAuth);
   }
 
-  Future<dynamic> put(String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
-    return call(Request.PUT, url, body: body, headers: headers, useAuth: useAuth, tryToRefreshAuth: tryToRefreshAuth);
+  Future<dynamic> put(String url,
+      {Map<String, dynamic> body,
+      Map<String, String> headers,
+      bool useAuth = true,
+      bool tryToRefreshAuth = true}) async {
+    return call(Request.PUT, url,
+        body: body,
+        headers: headers,
+        useAuth: useAuth,
+        tryToRefreshAuth: tryToRefreshAuth);
   }
 
-  Future<dynamic> call(Request request, String url, {Map <String, dynamic> body, Map<String, String> headers, bool useAuth = true, bool tryToRefreshAuth = true}) async {
+  Future<dynamic> call(Request request, String url,
+      {Map<String, dynamic> body,
+      Map<String, String> headers,
+      bool useAuth = true,
+      bool tryToRefreshAuth = true}) async {
     debugPrint('call ${request} on ${url}');
     var responseJson;
 
     void makeCall() async {
-
       dynamic bodyToSend = body;
       try {
         if (useAuth == true) {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           var accessToken = prefs.getString('access');
-          UserType userType = EnumToString.fromString(UserType.values, prefs.getString("userType"));
+          UserType userType = EnumToString.fromString(
+              UserType.values, prefs.getString("userType"));
           if (accessToken == null || userType == null) {
             //LOGOUT;
           }
-          var authKey = {'Authorization':'${userType.authPreffix()} $accessToken'};
+          var authKey = {
+            'Authorization': '${userType.authPreffix()} $accessToken'
+          };
           if (headers == null) {
             headers = authKey;
           } else {
@@ -136,30 +168,38 @@ class NetworkAPI {
           }
         }
 
+        var finalUrl = Uri.parse(_baseUrl + url);
 
-        var finalUrl = _baseUrl + url;
         print('$finalUrl, $headers, $body');
         http.Response response;
 
         switch (request) {
           case Request.POST:
-            response = await http.post(finalUrl, headers: headers, body: bodyToSend).timeout(_timeout);
+            response = await http
+                .post(finalUrl, headers: headers, body: bodyToSend)
+                .timeout(_timeout);
             break;
 
           case Request.PUT:
-            response = await http.put(finalUrl, headers: headers, body: bodyToSend).timeout(_timeout);
+            response = await http
+                .put(finalUrl, headers: headers, body: bodyToSend)
+                .timeout(_timeout);
             break;
 
           case Request.PATCH:
-            response = await http.patch(finalUrl, headers: headers, body: bodyToSend).timeout(_timeout);
+            response = await http
+                .patch(finalUrl, headers: headers, body: bodyToSend)
+                .timeout(_timeout);
             break;
 
           case Request.GET:
-            response = await http.get(finalUrl, headers: headers).timeout(_timeout);
+            response =
+                await http.get(finalUrl, headers: headers).timeout(_timeout);
             break;
         }
 
-        var parserResponse = await _response(response, tryToRefreshAuth: tryToRefreshAuth);
+        var parserResponse =
+            await _response(response, tryToRefreshAuth: tryToRefreshAuth);
         switch (parserResponse.status) {
           case ParserResponseStatus.COMPLETED:
             responseJson = parserResponse.data;
@@ -178,16 +218,17 @@ class NetworkAPI {
         throw FetchDataException('No Internet connection');
       }
     }
+
     await makeCall();
 
     debugPrint('should return response JSON');
     return responseJson;
   }
 
-
-
-  Future<ParserResponse<dynamic>> _response(http.Response response, {bool tryToRefreshAuth = true}) async {
-    print('----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
+  Future<ParserResponse<dynamic>> _response(http.Response response,
+      {bool tryToRefreshAuth = true}) async {
+    print(
+        '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
     switch (response.statusCode) {
       case 200:
       case 201:
@@ -236,7 +277,6 @@ class NetworkAPI {
 
   static AuthRefresh _isRefreshingToken = AuthRefresh();
   static Future<bool> refreshTokenOrLogout() async {
-
     if (_isRefreshingToken.isRefreshing == false) {
       debugPrint('_isRefreshingToken.isRefreshing == false');
       _isRefreshingToken.setIsRefreshing(true);
@@ -245,11 +285,11 @@ class NetworkAPI {
       // wait until isRefreshingToken == false
 
       Future<bool> waitForEndOfRefresh() async {
-
         Completer<bool> c = new Completer<bool>();
 
         _isRefreshingToken.addListener(() {
-          print("_isRefreshingToken updated ${_isRefreshingToken.isRefreshing}");
+          print(
+              "_isRefreshingToken updated ${_isRefreshingToken.isRefreshing}");
           c.complete(_isRefreshingToken.isSuccessRefresh);
         });
         return c.future;
@@ -260,39 +300,37 @@ class NetworkAPI {
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var refreshToken = prefs.getString('refresh');
-    var userType = EnumToString.fromString(UserType.values, prefs.getString('userType'));
+    var userType =
+        EnumToString.fromString(UserType.values, prefs.getString('userType'));
 
     debugPrint('refreshTokenOrLogout: $refreshToken');
-    AuthWorkerBloc refreshAuthBloc = AuthWorkerBloc(AuthWorkerBlocArguments(refreshToken: refreshToken, userType: userType));
+    AuthWorkerBloc refreshAuthBloc = AuthWorkerBloc(AuthWorkerBlocArguments(
+        refreshToken: refreshToken, userType: userType));
 
     var credentials = await refreshAuthBloc.callWithFuture();
     debugPrint('credentials: ${credentials}');
     if (credentials != null) {
-
       debugPrint('REFRESH TOKEN RESPONSE: ${credentials}');
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('refresh', credentials.refresh); // for string value
       prefs.setString('access', credentials.access); // for string value
-    _isRefreshingToken.isSuccessRefresh = true;
-    _isRefreshingToken.setIsRefreshing(false);
-    return true;
+      _isRefreshingToken.isSuccessRefresh = true;
+      _isRefreshingToken.setIsRefreshing(false);
+      return true;
     } else {
-
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('refresh');
       prefs.remove('access');
       _isRefreshingToken.isSuccessRefresh = false;
       _isRefreshingToken.setIsRefreshing(false);
-    NavigationService.instance.pushNamedAndRemoveUntil("/");
+      NavigationService.instance.pushNamedAndRemoveUntil("/");
       return false;
     }
 
-
     refreshAuthBloc.chuckListStream.listen((event) async {
-
-        switch (event.status) {
-          case Status.COMPLETED:
-            // SAVE CREDENTIANLS AND CONTINUE LAST REQUEST
+      switch (event.status) {
+        case Status.COMPLETED:
+          // SAVE CREDENTIANLS AND CONTINUE LAST REQUEST
           debugPrint('REFRESH TOKEN RESPONSE: ${event.data}');
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('refresh', event.data.refresh); // for string value
@@ -300,21 +338,19 @@ class NetworkAPI {
 
           return true;
 
-          case Status.ERROR:
-            print('REFRESH TOKEN ERROR: ${event.message}');
+        case Status.ERROR:
+          print('REFRESH TOKEN ERROR: ${event.message}');
 
-            final SharedPreferences prefs = await SharedPreferences.getInstance();
-            prefs.remove('refresh');
-            prefs.remove('access'); // for string value
-            return false;
-            //NEED TO LOGOUT
-            // _errorMessage = event.message;
-        }
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.remove('refresh');
+          prefs.remove('access'); // for string value
+          return false;
+        //NEED TO LOGOUT
+        // _errorMessage = event.message;
+      }
     });
     await refreshAuthBloc.call();
   }
-
-
 
   // Future<AuthCredentials> authWith(String email, String password) async {
   //   final http.Response response = await http.post(
@@ -340,14 +376,11 @@ class NetworkAPI {
 }
 
 class AuthRefresh with ChangeNotifier {
-
   bool isRefreshing = false;
   bool isSuccessRefresh;
 
-  void setIsRefreshing(bool newValue){
+  void setIsRefreshing(bool newValue) {
     isRefreshing = newValue;
     notifyListeners();
   }
 }
-
-
