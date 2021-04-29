@@ -137,8 +137,45 @@ class MeasuremetsListWidget extends StatelessWidget {
   }
 
 
+
+
   @override
   Widget build(BuildContext context) {
+
+    void _moveToMeasurementAt(int index) {
+
+      var measurement = measurementsList.data[index];
+      print('open measurement\n '
+          'id:${measurement.id}\n'
+          'uuid:${measurement.uuid}');
+      // if (Application.isInDebugMode) {
+      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+      //   ));
+      //   return;
+      // }
+
+      if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
+        // if sales rep - open gender
+        if (SessionParameters().selectedCompany == CompanyType.armor) {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              BadgePage(arguments:  BadgePageArguments(measurement, userType))
+          ));
+        } else {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+          ));
+        }
+
+      } else if (measurement.isComplete == true) {
+
+        Navigator.pushNamed(context, RecommendationsPage.route,
+            arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
+
+      } else if (event.status != EventStatus.in_progress) {
+        // _showCupertinoDialog('Event is not in progress now');
+      }
+    }
 
     _showCupertinoDialog(String text) {
       showDialog(
@@ -158,10 +195,13 @@ class MeasuremetsListWidget extends StatelessWidget {
           ));
     }
 
-    Future<void> askForPermissions() async {
+    Future<void> askForPermissionsAndMove(int index) async {
       Map<Permission, PermissionStatus> statuses = await [
         Permission.camera,
       ].request();
+      if (statuses[Permission.camera] == PermissionStatus.granted) {
+        _moveToMeasurementAt(index);
+      }
     }
 
     void closePopup() {
@@ -193,40 +233,7 @@ class MeasuremetsListWidget extends StatelessWidget {
     }
 
 
-    void _moveToMeasurementAt(int index) {
 
-      var measurement = measurementsList.data[index];
-      print('open measurement\n '
-          'id:${measurement.id}\n'
-          'uuid:${measurement.uuid}');
-      // if (Application.isInDebugMode) {
-      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-      //   ));
-      //   return;
-      // }
-
-      if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
-        // if sales rep - open gender
-        if (SessionParameters().selectedCompany == CompanyType.armor) {
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              BadgePage(arguments:  BadgePageArguments(measurement, userType))
-          ));
-        } else {
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-          ));
-        }
-
-        } else if (measurement.isComplete == true) {
-
-          Navigator.pushNamed(context, RecommendationsPage.route,
-              arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
-
-        } else if (event.status != EventStatus.in_progress) {
-        // _showCupertinoDialog('Event is not in progress now');
-      }
-      }
 
     Future<void> checkPermissionsAndMoveTo({int index}) async {
 
@@ -250,7 +257,7 @@ class MeasuremetsListWidget extends StatelessWidget {
       print('cameraStatus: ${cameraStatus.toString()}');
 
       if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false) {
-        askForPermissions();
+        askForPermissionsAndMove(index);
       } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied || await cameraStatus.isPermanentlyDenied) {
         openSetting();
         // The OS restricts access, for example because of parental controls.
