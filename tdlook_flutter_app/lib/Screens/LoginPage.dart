@@ -45,10 +45,6 @@ class _LoginPageState extends State<LoginPage> {
         _password = '749192'; //'723692';
       }
     }
-    Future<void>.delayed(const Duration(seconds: 2), () {
-      final List<int> list = <int>[];
-      print(list[100]);
-    });
   }
 
   void _moveToNextScreen() {
