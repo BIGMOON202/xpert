@@ -25,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/main.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
 import 'package:tuple/tuple.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
@@ -60,16 +61,21 @@ class _EventsPageState extends State<EventsPage> {
       GlobalKey<InnerDrawerState>();
 
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
-  TextEditingController _searchController = new TextEditingController();
+  TextEditingController _searchController = TextEditingController();
 
   _clearText() {
     _searchController.clear();
     filter(withText: '');
   }
 
-  onSearchTextChanged(String newText) {
-    print('update: $newText');
-    filter(withText: newText);
+  onSearchTextChanged(String text) {
+    // print('update: $text');
+    var searchText = EmojiUtils.removeAllEmoji(text ?? '');
+    if (searchText.length <= 1) {
+      searchText = '';
+    }
+    print("searchText: $searchText");
+    filter(withText: searchText);
   }
 
   filter({String withText}) async {
@@ -239,7 +245,7 @@ class _EventsPageState extends State<EventsPage> {
           barrierDismissible: false,
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-                content: new Text('Are you sure that you want to logout?'),
+                content: Text('Are you sure that you want to logout?'),
                 actions: <Widget>[
                   CupertinoDialogAction(
                     child: Text("Yes"),
