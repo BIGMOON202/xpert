@@ -21,9 +21,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static m0(choose) => "${Intl.select(choose, {'true': 'What’s your clavicle?', 'other': 'End-Wearer’s clavicle?', })}";
 
-  static m1(choose) => "${Intl.select(choose, {'true': 'What’s your height?', 'other': 'End-Wearer’s height?', })}";
+  static m1(choose) => "${Intl.select(choose, {'true': 'Select your gender', 'other': 'Measure an end-wearer', })}";
 
-  static m2(choose) => "${Intl.select(choose, {'true': 'What’s your weight?', 'other': 'End-Wearer’s weight?', })}";
+  static m2(choose) => "${Intl.select(choose, {'true': 'What’s your height?', 'other': 'End-Wearer’s height?', })}";
+
+  static m3(choose) => "${Intl.select(choose, {'true': 'What’s your weight?', 'other': 'End-Wearer’s weight?', })}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
@@ -31,8 +33,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "common_ok" : MessageLookupByLibrary.simpleMessage("Ok"),
     "common_yes" : MessageLookupByLibrary.simpleMessage("Yes"),
     "page_title_choose_clavicle_as_ew" : m0,
-    "page_title_choose_height_as_ew" : m1,
-    "page_title_choose_weight_as_ew" : m2,
+    "page_title_choose_gender_as_ew" : m1,
+    "page_title_choose_height_as_ew" : m2,
+    "page_title_choose_weight_as_ew" : m3,
     "title" : MessageLookupByLibrary.simpleMessage("Uniform Pro")
   };
 }

@@ -10,6 +10,7 @@ import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPage.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
 
 class ChooseGenderPageArguments{
   MeasurementResults measurement;
@@ -33,10 +34,11 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   static Color  _selectedColor = Colors.white.withOpacity(0.1);
   int _selectedGender = -1;
+  UserType _userType;
 
   @override
   void initState() {
-
+    _userType = SessionParameters().selectedUser;
 
     super.initState();
 
@@ -156,10 +158,11 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
       ],
     );
 
+    final isEW = _userType == UserType.endWearer;
     var scaffold = Scaffold(
-      appBar: AppBar(
+    appBar: AppBar(
         centerTitle: true,
-        title: Text('Measure an end-wearer'),
+        title: Text(S.current.page_title_choose_gender_as_ew(isEW)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),

@@ -116,6 +116,20 @@ class S {
       args: [choose],
     );
   }
+
+  /// `{choose, select, true {Select your gender} other {Measure an end-wearer}}`
+  String page_title_choose_gender_as_ew(Object choose) {
+    return Intl.select(
+      choose,
+      {
+        'true': 'Select your gender',
+        'other': 'Measure an end-wearer',
+      },
+      name: 'page_title_choose_gender_as_ew',
+      desc: '',
+      args: [choose],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
