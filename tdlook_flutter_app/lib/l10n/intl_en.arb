@@ -3,5 +3,8 @@
     "title": "Uniform Pro",
     "common_yes": "Yes",
     "common_no": "No",
-    "common_ok": "Ok"
+    "common_ok": "Ok",
+
+    "page_title_choose_height_as_ew": "{choose, select, true {What’s your height?} other {End-Wearer’s height?}}",
+    "page_title_choose_weight_as_ew": "{choose, select, true {What’s your weight?} other {End-Wearer’s weight?}}"
 }

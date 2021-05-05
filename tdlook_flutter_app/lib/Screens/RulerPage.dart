@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
@@ -9,6 +10,7 @@ import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerViewController.da
 import 'package:tdlook_flutter_app/Screens/RulerWeightPage.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/SegmentedControl.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
 
 import '../Models/MeasurementModel.dart';
 
@@ -25,12 +27,14 @@ class _RulerPageState extends State<RulerPage> {
   String _currentValue;
   double _currentRawValue;
   RulerViewController _controller;
+  UserType _userType;
 
   final Color _backgroundColor = HexColor.fromHex('16181B');
 
   @override
   void initState() {
     super.initState();
+    _userType = SessionParameters().selectedUser;
     _controller = RulerViewController(
         measurementSystem: MeasurementSystem.imperial,
         type: RulerViewType.heights,
@@ -47,10 +51,11 @@ class _RulerPageState extends State<RulerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isEW = _userType == UserType.endWearer;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('End-wearer\'s height?'),
+        title: Text(S.current.page_title_choose_height_as_ew(isEW)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),
@@ -58,7 +63,7 @@ class _RulerPageState extends State<RulerPage> {
       body: Column(
         children: [
           _buildRuler(),
-          _buildSegmentedControll(),
+          _buildSegmentedControl(),
           _buildContinueButton(),
         ],
       ),
@@ -102,7 +107,7 @@ class _RulerPageState extends State<RulerPage> {
     );
   }
 
-  Widget _buildSegmentedControll() {
+  Widget _buildSegmentedControl() {
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12, bottom: 40),
       child: Container(

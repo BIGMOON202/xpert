@@ -74,6 +74,34 @@ class S {
       args: [],
     );
   }
+
+  /// `{choose, select, true {What’s your height?} other {End-Wearer’s height?}}`
+  String page_title_choose_height_as_ew(Object choose) {
+    return Intl.select(
+      choose,
+      {
+        'true': 'What’s your height?',
+        'other': 'End-Wearer’s height?',
+      },
+      name: 'page_title_choose_height_as_ew',
+      desc: '',
+      args: [choose],
+    );
+  }
+
+  /// `{choose, select, true {What’s your weight?} other {End-Wearer’s weight?}}`
+  String page_title_choose_weight_as_ew(Object choose) {
+    return Intl.select(
+      choose,
+      {
+        'true': 'What’s your weight?',
+        'other': 'End-Wearer’s weight?',
+      },
+      name: 'page_title_choose_weight_as_ew',
+      desc: '',
+      args: [choose],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

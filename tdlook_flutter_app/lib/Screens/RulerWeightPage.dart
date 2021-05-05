@@ -11,6 +11,7 @@ import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPageClavicle.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
 
 class RulerPageWeight extends StatefulWidget {
   final Gender gender;
@@ -28,6 +29,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   String _currentValue;
   double _currentRawValue;
   RulerViewController _controller;
+  UserType _userType;
 
   final Color _backgroundColor = HexColor.fromHex('16181B');
   MeasurementSystem get _system => widget.selectedMeasurementSystem;
@@ -35,6 +37,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   @override
   void initState() {
     super.initState();
+    _userType = SessionParameters().selectedUser;
     _controller = RulerViewController(
         measurementSystem: _system,
         type: RulerViewType.weights,
@@ -51,10 +54,11 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
   @override
   Widget build(BuildContext context) {
+    final isEW = _userType == UserType.endWearer;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('End-wearer\'s height?'),
+        title: Text(S.current.page_title_choose_weight_as_ew(isEW)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),
