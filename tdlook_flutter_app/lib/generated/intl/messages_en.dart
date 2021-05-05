@@ -19,17 +19,20 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static m0(choose) => "${Intl.select(choose, {'true': 'What’s your height?', 'other': 'End-Wearer’s height?', })}";
+  static m0(choose) => "${Intl.select(choose, {'true': 'What’s your clavicle?', 'other': 'End-Wearer’s clavicle?', })}";
 
-  static m1(choose) => "${Intl.select(choose, {'true': 'What’s your weight?', 'other': 'End-Wearer’s weight?', })}";
+  static m1(choose) => "${Intl.select(choose, {'true': 'What’s your height?', 'other': 'End-Wearer’s height?', })}";
+
+  static m2(choose) => "${Intl.select(choose, {'true': 'What’s your weight?', 'other': 'End-Wearer’s weight?', })}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static _notInlinedMessages(_) => <String, Function> {
     "common_no" : MessageLookupByLibrary.simpleMessage("No"),
     "common_ok" : MessageLookupByLibrary.simpleMessage("Ok"),
     "common_yes" : MessageLookupByLibrary.simpleMessage("Yes"),
-    "page_title_choose_height_as_ew" : m0,
-    "page_title_choose_weight_as_ew" : m1,
+    "page_title_choose_clavicle_as_ew" : m0,
+    "page_title_choose_height_as_ew" : m1,
+    "page_title_choose_weight_as_ew" : m2,
     "title" : MessageLookupByLibrary.simpleMessage("Uniform Pro")
   };
 }

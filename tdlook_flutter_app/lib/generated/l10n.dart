@@ -102,6 +102,20 @@ class S {
       args: [choose],
     );
   }
+
+  /// `{choose, select, true {What’s your clavicle?} other {End-Wearer’s clavicle?}}`
+  String page_title_choose_clavicle_as_ew(Object choose) {
+    return Intl.select(
+      choose,
+      {
+        'true': 'What’s your clavicle?',
+        'other': 'End-Wearer’s clavicle?',
+      },
+      name: 'page_title_choose_clavicle_as_ew',
+      desc: '',
+      args: [choose],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

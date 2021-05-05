@@ -14,6 +14,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
 import 'CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
@@ -46,10 +47,11 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
   var _listHeight = 300.0;
 
   static Color _backgroundColor = HexColor.fromHex('16181B');
-
+  UserType _userType;
 
   @override
   void initState() {
+    _userType = SessionParameters().selectedUser;
     _itemPositionsListener.itemPositions.addListener(() {
 
       var positions = _itemPositionsListener.itemPositions.value;
@@ -215,9 +217,9 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       mainAxisAlignment: MainAxisAlignment.center,
       // crossAxisAlignment: CrossAxisAlignment.baseline,
       children: [Expanded(
-          child:  Center(
-            child:     Container(height: 1,
-                width:  _lineWidthForRulerAt(index: index),
+          child: Center(
+            child: Container(height: 1,
+                width: _lineWidthForRulerAt(index: index),
                 color: Colors.white,
                 margin: EdgeInsets.only(
                   top: _lineOffset,
@@ -361,11 +363,11 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         nextButton],
     );
 
-
+    final isEW = _userType == UserType.endWearer;
     var scaffold = Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('End-wearer\'s clavicle?'),
+        title: Text(S.current.page_title_choose_clavicle_as_ew(isEW)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),
