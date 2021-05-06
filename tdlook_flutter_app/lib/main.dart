@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
+import 'package:tdlook_flutter_app/Screens/WaistLevelPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';

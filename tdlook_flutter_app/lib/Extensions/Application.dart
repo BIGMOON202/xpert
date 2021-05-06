@@ -7,7 +7,7 @@ class Application {
   }
 
   static API get apiType {
-    return API.test;
+    return API.prod;
   }
 
   static String get hostName {
