@@ -257,6 +257,7 @@ class MeasurementResults {
   double height;
   double weight;
   double clavicle;
+  String waistLevel;
   Person person;
   String createdAt;
   String updatedAt;
@@ -303,6 +304,7 @@ class MeasurementResults {
     // if (this.event != null) {
     //   data['event'] = this.event.toJson();
     // }
+    data['waist_level'] = this.waistLevel;
     data['gender'] = this.gender;
     data['height'] = this.height.toInt().toString();
     data['weight'] = this.weight.toInt().toString();

@@ -96,7 +96,7 @@ void main() async {
           // home: LookApp(),
           initialRoute: '/',
           routes: {
-            '/': (context) => WaistLevelPage(),
+            '/': (context) => LookApp(),
             '/events_list': (context) => EventsPage(),
             '/choose_company': (context) => ChooseCompanyPage()
           },

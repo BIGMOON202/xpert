@@ -1,14 +1,34 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
+import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
+import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 enum WaistLevel {
   high, mid, low
 }
-extension WaistLevel on WaistLevel {
+extension WaistLevelExtension on WaistLevel {
+  String get apiFlag {
+    switch (this) {
+      case WaistLevel.high: return 'high';
+      case WaistLevel.mid:  return 'mid';
+      case WaistLevel.low: return 'low';
+    }
+  }
+
+  String get imageName {
+    switch (this) {
+      case WaistLevel.high: return 'high_waist.png';
+      case WaistLevel.mid:  return 'mid_waist.png';
+      case WaistLevel.low: return 'low_waist.png';
+    }
+  }
   String get title {
     switch (this) {
       case WaistLevel.high: return 'At the waist level';
@@ -17,7 +37,7 @@ extension WaistLevel on WaistLevel {
     }
   }
 
-  int get index {
+  int get indexTitle {
     switch (this) {
       case WaistLevel.high: return 1;
       case WaistLevel.mid:  return 2;
@@ -27,59 +47,71 @@ extension WaistLevel on WaistLevel {
 }
 
 class WaistLevelPage extends StatefulWidget {
+  final Gender gender;
+  final MeasurementSystem selectedMeasurementSystem;
+  final MeasurementResults measurements;
+
+  const WaistLevelPage ({ Key key, this.gender , this.selectedMeasurementSystem, this.measurements}): super(key: key);
+
   @override
   _WaistLevelPageState createState() => _WaistLevelPageState();
 }
 
 class _WaistLevelPageState extends State<WaistLevelPage> {
 
+
+  WaistLevel selectedLevel = WaistLevel.high;
   void _moveToNextPage() {
-    // if (SessionParameters().captureMode == CaptureMode.handsFree) {
-    //   if (widget.photoType == PhotoType.front) {
-    //     Navigator.push(
-    //         context,
-    //         CupertinoPageRoute(
-    //             builder: (BuildContext context) => PhotoRulesPage(
-    //                 photoType: PhotoType.side,
-    //                 gender: widget.gender,
-    //                 measurement: widget.measurement)));
-    //   } else {
-    //     Navigator.push(
-    //         context,
-    //         CupertinoPageRoute(
-    //             builder: (BuildContext context) => SoundCheckPage(
-    //                 photoType: PhotoType.front,
-    //                 measurement: widget.measurement,
-    //                 gender: widget.gender)));
-    //   }
-    // } else {
-    //   Navigator.push(
-    //       context,
-    //       CupertinoPageRoute(
-    //           builder: (BuildContext context) => CameraCapturePage(
-    //               photoType: widget.photoType,
-    //               measurement: widget.measurement,
-    //               frontPhoto: widget.frontPhoto,
-    //               gender: widget.gender,
-    //               arguments: widget.arguments)));
-    // }
+
+    widget.measurements.waistLevel = selectedLevel.apiFlag;
+
+    if (SessionParameters().selectedUser == UserType.endWearer) {
+
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+          ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
+      ));
+
+    } else {
+      SessionParameters().captureMode = CaptureMode.withFriend;
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+          HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
+      ));
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
 
     Widget waistOptionWidget({WaistLevel level}) {
-      return Container(decoration: BoxDecoration(
+      return GestureDetector(
+        onTap:  () {
+          setState(() {
+            this.selectedLevel = level;
+          });
+        },
+          child: Container(decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(5)),
           color: Colors.white.withOpacity(0.1)),
-      child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 20, right: 20), child: Container(color: Colors.pink)));
+      child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 20, right: 20),
+          child: Row(children: [
+            AspectRatio(aspectRatio: 1, child: CircleAvatar(backgroundColor: Colors.white.withOpacity(0.1),
+              child: Text('${level.indexTitle}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SessionParameters().mainFontColor)))),
+          SizedBox(width: 14),
+          Expanded(child: Text(level.title, maxLines: 2, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SessionParameters().mainFontColor),)),
+            SizedBox(width: 14),
+          Radio(value: level.index, groupValue: this.selectedLevel.index, onChanged: (int newVal) {
+            setState(() {
+              this.selectedLevel = WaistLevel.values[newVal];
+            });
+          })],))));
     }
     
-    var image = Padding(padding: EdgeInsets.all(23), child: ResourceImage.imageWithName('high_waist.png'));
+    var image = Padding(padding: EdgeInsets.all(23), child: ResourceImage.imageWithName(this.selectedLevel.imageName));
 
     var middleText = Text('Please determine what best describes  how you wear your trousers?',
-        style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 18), textAlign: TextAlign.center,);
+        style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 18, fontWeight: FontWeight.w600), textAlign: TextAlign.center,);
       var optionsWidget = Padding(padding: EdgeInsets.only(
           top:40,
           bottom: 40,
@@ -124,7 +156,7 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('End wearer’s waist level  preference'),
+          title: Text('End wearer’s waist level preference', textAlign: TextAlign.center),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),

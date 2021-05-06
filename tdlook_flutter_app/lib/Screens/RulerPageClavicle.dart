@@ -12,6 +12,7 @@ import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
+import 'package:tdlook_flutter_app/Screens/WaistLevelPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
@@ -319,18 +320,15 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     void _moveToNextPage() {
       widget.measurements.clavicle = _rawMetricValue;
 
-      if (SessionParameters().selectedUser == UserType.endWearer) {
-
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
-        ));
-
-      } else {
-        SessionParameters().captureMode = CaptureMode.withFriend;
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
-        ));
-      }
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => WaistLevelPage(
+              gender: widget.gender,
+              selectedMeasurementSystem: widget.selectedMeasurementSystem,
+              measurements: widget.measurements,
+            ),
+          ));
 
     }
 
