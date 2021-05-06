@@ -1,24 +1,20 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen/screen.dart';
-import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeAnalizer.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
-import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeWorker.dart';
 import 'dart:async';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/constants/keys.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'WaitingPage.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:sensors/sensors.dart';
 import 'dart:math' as math;
-import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 
@@ -29,11 +25,15 @@ class CameraCapturePageArguments {
   final XFile sidePhoto;
   final PhotoError previousPhotosError;
 
-  CameraCapturePageArguments({this.measurement, this.photoType, this.frontPhoto, this.sidePhoto, this.previousPhotosError});
+  CameraCapturePageArguments(
+      {this.measurement,
+      this.photoType,
+      this.frontPhoto,
+      this.sidePhoto,
+      this.previousPhotosError});
 }
 
 class CameraCapturePage extends StatefulWidget {
-
   static const String route = '/capture_photo';
 
   final XFile frontPhoto;
@@ -43,15 +43,22 @@ class CameraCapturePage extends StatefulWidget {
   final Gender gender;
   final CameraCapturePageArguments arguments;
 
-  const CameraCapturePage ({ Key key, this.photoType, this.gender, this.measurement, this.frontPhoto, this.sidePhoto, this.arguments}): super(key: key);
-
+  const CameraCapturePage(
+      {Key key,
+      this.photoType,
+      this.gender,
+      this.measurement,
+      this.frontPhoto,
+      this.sidePhoto,
+      this.arguments})
+      : super(key: key);
 
   @override
   _CameraCapturePageState createState() => _CameraCapturePageState();
 }
 
-class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindingObserver {
-
+class _CameraCapturePageState extends State<CameraCapturePage>
+    with WidgetsBindingObserver {
   HandsFreeAnalizer _handsFreeWorker;
   CaptureMode _captureMode;
   XFile _frontPhoto;
@@ -63,21 +70,23 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   Future<void> _initializeCameraFuture;
 
   List<double> _gyroscopeValues;
-  List<StreamSubscription<dynamic>> _streamSubscriptions = <StreamSubscription<dynamic>>[];
+  List<StreamSubscription<dynamic>> _streamSubscriptions =
+      <StreamSubscription<dynamic>>[];
   bool _gyroIsValid = true;
   bool _isTakingPicture = false;
 
   String _timerText = '';
   double _zAngle = 0;
   bool isMovingToResultAfterHF = false;
+  bool isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addObserver(this);
 
-    print('passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
+    print(
+        'passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
 
     if (widget.arguments != null) {
       _photoType = widget.arguments.photoType;
@@ -93,7 +102,6 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
     initCamera();
 
-
     // accelerometerEvents.listen((AccelerometerEvent event) {
     //   setState(() {
     //     print(event.z.abs());
@@ -104,21 +112,26 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
     bool updatedFirstStep = false;
 
-    _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
+    _streamSubscriptions
+        .add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
         // print('z:${event.z}\nx:${event.x}\ny:${event.y}');
         _zAngle = event.z;
         var oldGyroPosition = _gyroIsValid;
 
-        _gyroIsValid = !(event.z.abs() > 3 || event.x.abs()>3);
+        _gyroIsValid = !(event.z.abs() > 3 || event.x.abs() > 3);
 
-        if (oldGyroPosition == true && _gyroIsValid == false && updatedFirstStep == false) {
+        if (oldGyroPosition == true &&
+            _gyroIsValid == false &&
+            updatedFirstStep == false) {
           print('update initial step');
           updatedFirstStep = true;
           _setupHandsFreeInitialStepIfNeeded();
         }
 
-        if (oldGyroPosition == true && _gyroIsValid == false && greatSoundPlayedAfterFront == false) {
+        if (oldGyroPosition == true &&
+            _gyroIsValid == false &&
+            greatSoundPlayedAfterFront == false) {
           print('update initial step');
           greatSoundPlayedAfterFront = true;
           _setupHandsFreeInitialStepIfNeeded();
@@ -130,7 +143,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   }
 
   void subscribeOnGyroUpdates() {
-    _streamSubscriptions.add(accelerometerEvents.listen((AccelerometerEvent event) {
+    _streamSubscriptions
+        .add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
         // print(event.z.abs());
         _zAngle = event.z;
@@ -149,7 +163,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     WidgetsFlutterBinding.ensureInitialized();
     cameras = await availableCameras();
 
-    var camera = _captureMode == CaptureMode.withFriend ? cameras[0] : cameras[1];
+    var camera =
+        _captureMode == CaptureMode.withFriend ? cameras[0] : cameras[1];
     controller = CameraController(camera, ResolutionPreset.high);
     _initializeCameraFuture = controller.initialize();
     _initializeCameraFuture.then((_) {
@@ -157,12 +172,15 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         return;
       }
 
-      cameraRatio = controller.value.previewSize.height / controller.value.previewSize.width;
+      cameraRatio = controller.value.previewSize.height /
+          controller.value.previewSize.width;
 
       // FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
       controller.setFlashMode(FlashMode.off);
       controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-      setState(() {});
+      setState(() {
+        isDisposed = false;
+      });
     });
 
     if (_captureMode == CaptureMode.handsFree) {
@@ -172,7 +190,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       _setupHandsFreeInitialStepIfNeeded();
 
       // _handsFreeWorker.reset();
-      _handsFreeWorker.onCaptureBlock = (){
+      _handsFreeWorker.onCaptureBlock = () {
         print('Should take photo');
         _handleTap();
       };
@@ -192,30 +210,38 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     TFStep initialStep;
     PhotoError previousError = widget?.arguments?.previousPhotosError;
     print('previousError $previousError');
-      switch (previousError) {
-        case PhotoError.both:
-          if (_photoType == PhotoType.front) {
-            initialStep = _gyroIsValid ? TFStep.retakeFrontIntro : TFStep.retakeFrontGreat;
-          } else {
-            initialStep = greatSoundPlayedAfterFront ? TFStep.retakeSideIntro : TFStep.retakeFrontDone;
-          }
-          break;
+    switch (previousError) {
+      case PhotoError.both:
+        if (_photoType == PhotoType.front) {
+          initialStep =
+              _gyroIsValid ? TFStep.retakeFrontIntro : TFStep.retakeFrontGreat;
+        } else {
+          initialStep = greatSoundPlayedAfterFront
+              ? TFStep.retakeSideIntro
+              : TFStep.retakeFrontDone;
+        }
+        break;
 
-        case PhotoError.front:
-          initialStep = _gyroIsValid ? TFStep.retakeOnlyFrontIntro : TFStep.retakeOnlyFrontGreat;
-          break;
+      case PhotoError.front:
+        initialStep = _gyroIsValid
+            ? TFStep.retakeOnlyFrontIntro
+            : TFStep.retakeOnlyFrontGreat;
+        break;
 
-        case PhotoError.side:
-          initialStep = _gyroIsValid ? TFStep.retakeOnlySideIntro : TFStep.retakeOnlySideGreat;
-          break;
+      case PhotoError.side:
+        initialStep = _gyroIsValid
+            ? TFStep.retakeOnlySideIntro
+            : TFStep.retakeOnlySideGreat;
+        break;
 
-        default:
-          if (_photoType == PhotoType.front) {
-            initialStep = TFStep.frontGreat;
-          } else {
-            initialStep = greatSoundPlayedAfterFront ? TFStep.sideIntro : TFStep.frontDone;
-          }
-      }
+      default:
+        if (_photoType == PhotoType.front) {
+          initialStep = TFStep.frontGreat;
+        } else {
+          initialStep =
+              greatSoundPlayedAfterFront ? TFStep.sideIntro : TFStep.frontDone;
+        }
+    }
 
     print('previousError $initialStep');
     _handsFreeWorker.firstStepInFlow = initialStep;
@@ -249,12 +275,11 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     _cancelGyroUpdates();
     _stopPage();
     controller?.dispose();
-    controller = null;
+    // controller = null;
     print('did dipose camera page');
     super.dispose();
     print('did super dipose camera page');
   }
-
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -290,10 +315,11 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       _sidePhoto = file;
     }
     if (SessionParameters().captureMode == CaptureMode.handsFree) {
-      if (activePhotoType() == PhotoType.front && widget.arguments?.previousPhotosError != PhotoError.front) {
-          greatSoundPlayedAfterFront = false;
-          _photoType = PhotoType.side;
-          _setupHandsFreeInitialStepIfNeeded();
+      if (activePhotoType() == PhotoType.front &&
+          widget.arguments?.previousPhotosError != PhotoError.front) {
+        greatSoundPlayedAfterFront = false;
+        _photoType = PhotoType.side;
+        _setupHandsFreeInitialStepIfNeeded();
         // _handsFreeWorker.increaseStep();
       } else {
         _moveToNextPage();
@@ -305,7 +331,6 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
   void _moveToNextPage() {
     Screen.keepOn(false);
-
 
     // _handsFreeWorker?.pause();
     // _handsFreeWorker = null;
@@ -319,53 +344,56 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     print('widget.arguments: ${widget.arguments}');
     if (widget.arguments == null) {
       if (_photoType == PhotoType.front) {
-
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            PhotoRulesPage(photoType: PhotoType.side,
-                measurement: widget.measurement,
-                frontPhoto: _frontPhoto,
-                gender: widget.gender),
-        ));
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (BuildContext context) => PhotoRulesPage(
+                  photoType: PhotoType.side,
+                  measurement: widget.measurement,
+                  frontPhoto: _frontPhoto,
+                  gender: widget.gender),
+            ));
       } else {
-
-        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+        Navigator.pushNamedAndRemoveUntil(
+            context, WaitingPage.route, (route) => false,
             arguments: WaitingPageArguments(
                 measurement: widget.measurement,
                 frontPhoto: _frontPhoto,
-                sidePhoto: _sidePhoto, shouldUploadMeasurements: true));
+                sidePhoto: _sidePhoto,
+                shouldUploadMeasurements: true));
       }
     } else {
       if (_captureMode == CaptureMode.withFriend) {
         if (_photoType == PhotoType.front) {
-
           if (widget.arguments.sidePhoto == null) {
             //make side photo
 
             Navigator.pushNamed(context, CameraCapturePage.route,
-                arguments: CameraCapturePageArguments(measurement: widget.arguments.measurement,
+                arguments: CameraCapturePageArguments(
+                    measurement: widget.arguments.measurement,
                     frontPhoto: _frontPhoto,
                     sidePhoto: widget.arguments.sidePhoto));
-
           } else {
             //make calculations
-            Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+            Navigator.pushNamedAndRemoveUntil(
+                context, WaitingPage.route, (route) => false,
                 arguments: WaitingPageArguments(
                     measurement: widget.arguments.measurement,
                     frontPhoto: _frontPhoto,
-                    sidePhoto: widget.arguments.sidePhoto, shouldUploadMeasurements: false));
+                    sidePhoto: widget.arguments.sidePhoto,
+                    shouldUploadMeasurements: false));
           }
         } else {
           //make calculations
-          Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+          Navigator.pushNamedAndRemoveUntil(
+              context, WaitingPage.route, (route) => false,
               arguments: WaitingPageArguments(
                   measurement: widget.arguments.measurement,
                   frontPhoto: widget.arguments.frontPhoto,
-                  sidePhoto: _sidePhoto, shouldUploadMeasurements: false));
+                  sidePhoto: _sidePhoto,
+                  shouldUploadMeasurements: false));
         }
-
-
       } else {
-
         XFile _frontToUpload = _frontPhoto;
         XFile _sideToUpload = _sidePhoto;
 
@@ -376,72 +404,83 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
           _sideToUpload = widget.arguments.sidePhoto;
         }
 
-        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+        Navigator.pushNamedAndRemoveUntil(
+            context, WaitingPage.route, (route) => false,
             arguments: WaitingPageArguments(
                 measurement: widget.arguments.measurement,
                 frontPhoto: _frontToUpload,
-                sidePhoto: _sideToUpload, shouldUploadMeasurements: false));
-
+                sidePhoto: _sideToUpload,
+                shouldUploadMeasurements: false));
       }
-
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
     double xScale() {
       return cameraRatio / deviceRatio;
     }
+
     final yScale = 1;
 
-
-
-    Widget frameWidget(){
+    Widget frameWidget() {
       if (_captureMode == CaptureMode.withFriend) {
-        return SafeArea(child: Center(child: Padding(padding: EdgeInsets.only(top: 8, left: 40, right: 40, bottom: 34) ,child:
-        FittedBox(
-          child: ResourceImage.imageWithName(_gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
-          fit: BoxFit.fitWidth,
-        ),
-        ),
+        return SafeArea(
+            child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 8, left: 40, right: 40, bottom: 34),
+            child: FittedBox(
+              child: ResourceImage.imageWithName(
+                  _gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          ),
         ));
       } else {
-
         Widget subWidget() {
           if (_gyroIsValid == false) {
             return Container(
                 decoration: BoxDecoration(
-                    color: _gyroIsValid ? Colors.transparent : Colors.black.withAlpha(100),
-                    borderRadius: BorderRadius.all(Radius.circular(30))
-                ),
-                child: Stack(children:
-          [
-            Center(child:
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-            Padding(padding: EdgeInsets.only(left:35), child: SizedBox(width: 96, height: 360, child: GyroWidget(angle: _zAngle, captureMode: _captureMode,))),
-                SizedBox(height: 39),
-                Text('Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 16))
-          ]))]));
+                    color: _gyroIsValid
+                        ? Colors.transparent
+                        : Colors.black.withAlpha(100),
+                    borderRadius: BorderRadius.all(Radius.circular(30))),
+                child: Stack(children: [
+                  Center(
+                      child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                        Padding(
+                            padding: EdgeInsets.only(left: 35),
+                            child: SizedBox(
+                                width: 96,
+                                height: 360,
+                                child: GyroWidget(
+                                  angle: _zAngle,
+                                  captureMode: _captureMode,
+                                ))),
+                        SizedBox(height: 39),
+                        Text(
+                            'Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white, fontSize: 16))
+                      ]))
+                ]));
           } else {
             return Container();
           }
         }
 
         return Container(
-          decoration: BoxDecoration(
-              border: Border.all(
-                width: 10,
-                color: _gyroIsValid ? Colors.green : Colors.red,
-              ),
-              borderRadius: BorderRadius.all(Radius.circular(40))
-          ),
-          child: subWidget());
+            decoration: BoxDecoration(
+                border: Border.all(
+                  width: 10,
+                  color: _gyroIsValid ? Colors.green : Colors.red,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(40))),
+            child: subWidget());
       }
     }
 
@@ -449,60 +488,90 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       if (_captureMode == CaptureMode.withFriend) {
         return Align(
           alignment: Alignment.centerLeft,
-          child: SizedBox(width: 48,
+          child: SizedBox(
+            width: 48,
             height: 360,
-            child: GyroWidget(angle: _zAngle, captureMode: _captureMode,),),
+            child: GyroWidget(
+              angle: _zAngle,
+              captureMode: _captureMode,
+            ),
+          ),
         );
       } else {
         return Container();
-    }}
+      }
+    }
 
-
-      Widget captureButton()  {
+    Widget captureButton() {
       if (_captureMode == CaptureMode.withFriend) {
-      return Align(
-          alignment: Alignment.bottomCenter,
-          child:SafeArea(child: Container(
-              width: 100,
-              height: 200,
-              child:
-              Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Opacity(opacity: _gyroIsValid ? 1.0 : 0.7,
-                        child: MaterialButton(
-                          onPressed: _gyroIsValid ? _handleTap : null,
-                          // textColor: Colors.white,
-                          child: Stack(
-                              alignment: Alignment.center,
-                              children:[
+        return Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Container(
+                  width: 100,
+                  height: 200,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Opacity(
+                            opacity: _gyroIsValid ? 1.0 : 0.7,
+                            child: MaterialButton(
+                              onPressed: _gyroIsValid ? _handleTap : null,
+                              // textColor: Colors.white,
+                              child:
+                                  Stack(alignment: Alignment.center, children: [
                                 ResourceImage.imageWithName('ic_capture.png'),
-                                Visibility(visible: _isTakingPicture, child: CircularProgressIndicator())]),
-                        ))]
-              )
-          ),
-          ));
+                                Visibility(
+                                    visible: _isTakingPicture,
+                                    child: CircularProgressIndicator())
+                              ]),
+                            ))
+                      ])),
+            ));
       } else {
         return Container();
-      }}
-
-      if ((controller == null) || (!controller.value.isInitialized)) {
-        return Container();
       }
-      return Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: activePhotoType() == PhotoType.front ? Text('Front photo') : Text('Side photo'),
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-          ),
-          extendBodyBehindAppBar: true,
-          backgroundColor: SessionParameters().mainBackgroundColor,
-          body: Stack(
-            children: [
-              FutureBuilder(future: _initializeCameraFuture,
-                  builder: (context, snapshot){
-                    if (snapshot.connectionState == ConnectionState.done) {
+    }
+
+    if ((controller == null) || (!controller.value.isInitialized)) {
+      return Container();
+    }
+    return VisibilityDetector(
+      key: Keys.cameraCapturePageKey,
+      onVisibilityChanged: (visibilityInfo) {
+        var visiblePercentage = visibilityInfo.visibleFraction * 100;
+        if (visiblePercentage == 100) {
+          if (isDisposed) {
+            initCamera();
+          }
+        } else {
+          controller?.dispose()?.whenComplete(() {
+            setState(() {
+              isDisposed = true;
+            });
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: activePhotoType() == PhotoType.front
+              ? Text('Front photo')
+              : Text('Side photo'),
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+        ),
+        extendBodyBehindAppBar: true,
+        backgroundColor: SessionParameters().mainBackgroundColor,
+        body: Stack(
+          children: [
+            Container(
+              color: Colors.black,
+              child: FutureBuilder(
+                  future: _initializeCameraFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done &&
+                        !isDisposed) {
                       return AspectRatio(
                           aspectRatio: deviceRatio,
                           child: Transform(
@@ -514,27 +583,34 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
                       return Center(child: CircularProgressIndicator());
                     }
                   }),
-              frameWidget(),
-              captureButton(),
-              rulerContainer(),
-              Visibility(visible: _timerText != '', child: Center(child: Text(_timerText, style: TextStyle(fontSize: 270, color: Colors.green)))),
-              Visibility(visible: _isTakingPicture, child: Container(color: Colors.white))
-            ],
-          ));
-    }
+            ),
+            frameWidget(),
+            captureButton(),
+            rulerContainer(),
+            Visibility(
+                visible: _timerText != '',
+                child: Center(
+                    child: Text(_timerText,
+                        style: TextStyle(fontSize: 270, color: Colors.green)))),
+            Visibility(
+                visible: _isTakingPicture,
+                child: Container(color: Colors.white))
+          ],
+        ),
+      ),
+    );
   }
+}
 
 class GyroWidget extends StatefulWidget {
   final double angle;
   final CaptureMode captureMode;
-  const GyroWidget({Key key, this.angle, this.captureMode}): super(key: key);
+  const GyroWidget({Key key, this.angle, this.captureMode}) : super(key: key);
   @override
   _GyroWidgetState createState() => _GyroWidgetState();
 }
 
 class _GyroWidgetState extends State<GyroWidget> {
-
-
   double _rulerHeight = 360;
   double _arrowHeight = 40;
 
@@ -548,12 +624,11 @@ class _GyroWidgetState extends State<GyroWidget> {
       var center = _rulerHeight * 0.5;
       var errorGapValue = (center - 100) / 10;
 
-
       var position = (angle * errorGapValue + center);
 
       // 0 - 360
 
-    return position - arrowOffset;
+      return position - arrowOffset;
     }
 
     var arrow = Positioned(
@@ -562,7 +637,7 @@ class _GyroWidgetState extends State<GyroWidget> {
           width: 16,
           height: _arrowHeight,
           child: ResourceImage.imageWithName('ic_pointer.png'),
-    ));
+        ));
 
     Widget image() {
       if (widget.captureMode == CaptureMode.withFriend) {
@@ -572,9 +647,16 @@ class _GyroWidgetState extends State<GyroWidget> {
       }
     }
 
-    return Stack(
-        children:[Row(children: [Expanded(flex:3, child:Container()), Expanded(flex:2, child:Stack(children: [arrow]))]),
-          Row(children: [Expanded(flex: 2, child: image()), Expanded(child: Container())])]);
+    return Stack(children: [
+      Row(children: [
+        Expanded(flex: 3, child: Container()),
+        Expanded(flex: 2, child: Stack(children: [arrow]))
+      ]),
+      Row(children: [
+        Expanded(flex: 2, child: image()),
+        Expanded(child: Container())
+      ])
+    ]);
   }
 }
 
