@@ -34,7 +34,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>We need access to your calendar to remind you about new events</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Can I use the camera please?</string>
+	<string>In order to find the recommended size, you need to take 2 photos of yourself: front and side. Please allow camera access to take photos from inside the XpertFit application</string>
 	<key>NSContactsUsageDescription</key>
 	<string>We need access to your contact list to give your ability to info with the Dealer</string>
 	<key>NSMicrophoneUsageDescription</key>
