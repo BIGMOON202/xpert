@@ -60,26 +60,29 @@ class Event {
         this.completeMeasuremensCount});
 
   Event.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    agency =
-    json['agency'] != null ? new Agency.fromJson(json['agency']) : null;
-    agencyId = json['agency_id'];
-    salesRep = json['sales_rep'] != null
-        ? new SalesRep.fromJson(json['sales_rep'])
-        : null;
-    salesRepId = json['sales_rep_id'];
-    startDate = json['start_date'];
-    endDate = json['end_date'];
-    startDateTime = DateTime.parse(startDate);
-    endDateTime = DateTime.parse(endDate);
-    status = EnumToString.fromString(EventStatus.values, json['status']);
-    createdAt = json['created_at'];
-    progress = json['progress'];
+      id = json['id'];
+      name = json['name'];
+      agency =
+      json['agency'] != null ? new Agency.fromJson(json['agency']) : null;
+      agencyId = json['agency_id'];
+      salesRep = json['sales_rep'] != null
+          ? new SalesRep.fromJson(json['sales_rep'])
+          : null;
+      salesRepId = json['sales_rep_id'];
+      startDate = json['start_date'];
+      endDate = json['end_date'];
+      startDateTime = DateTime.parse(startDate);
+      endDateTime = DateTime.parse(endDate);
+      status = EnumToString.fromString(EventStatus.values, json['status']);
+      createdAt = json['created_at'];
+      progress = json['progress'];
 
-    totalMeasuremensCount = json['total_measurements_count'] != null ? json['total_measurements_count'] : 0;
-    completeMeasuremensCount = json['complete_measurements_count'] != null ? json['complete_measurements_count'] : 0;
-
+      totalMeasuremensCount = json['total_measurements_count'] != null
+          ? json['total_measurements_count']
+          : 0;
+      completeMeasuremensCount = json['complete_measurements_count'] != null
+          ? json['complete_measurements_count']
+          : 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -217,15 +220,17 @@ class EndWearer {
   EndWearer({this.id, this.name, this.email, this.phone, this.isActive, this.creator, this.event, this.createdAt, this.updatedAt});
 
   EndWearer.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    email = json['email'];
-    phone = json['phone'];
-    isActive = json['is_active'];
-    creator = json['creator'];
-    event = json['event'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
+    if (json is Map<String, dynamic>) {
+      id = json['id'];
+      name = json['name'];
+      email = json['email'];
+      phone = json['phone'];
+      isActive = json['is_active'];
+      creator = json['creator'];
+      event = json['event'];
+      createdAt = json['created_at'];
+      updatedAt = json['updated_at'];
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -275,8 +280,15 @@ class MeasurementResults {
     if (completedAt != null) {
       completedAtTime = DateTime.parse(completedAt);
     }
-    endWearer = json['end_wearer'] != null ? new EndWearer.fromJson(json['end_wearer']) : null;
-    event = json['event'] != null ? new Event.fromJson(json['event']) : null;
+
+    if ((json['end_wearer'] != null) && (json['end_wearer'] is Map<String, dynamic>)) {
+      endWearer = new EndWearer.fromJson(json['end_wearer']) ;
+    }
+
+    if ((json['event'] != null) && (json['event'] is Map<String, dynamic>)) {
+      event = new Event.fromJson(json['event']);
+    }
+
     gender = json['gender'];
     height = json['height'] != null ? double.parse(json['height'].toString()) : 0.0 ;
     weight = json['weight'] != null ? double.parse(json['weight'].toString()) : 0.0 ;
@@ -304,7 +316,9 @@ class MeasurementResults {
     // if (this.event != null) {
     //   data['event'] = this.event.toJson();
     // }
-    data['waist_level'] = this.waistLevel;
+    if (this.waistLevel != null) {
+      data['waist_level'] = this.waistLevel;
+    }
     data['gender'] = this.gender;
     data['height'] = this.height.toInt().toString();
     data['weight'] = this.weight.toInt().toString();

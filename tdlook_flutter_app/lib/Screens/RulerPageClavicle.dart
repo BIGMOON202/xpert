@@ -320,16 +320,18 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     void _moveToNextPage() {
       widget.measurements.clavicle = _rawMetricValue;
 
-      Navigator.push(
-          context,
-          CupertinoPageRoute(
-            builder: (BuildContext context) => WaistLevelPage(
-              gender: widget.gender,
-              selectedMeasurementSystem: widget.selectedMeasurementSystem,
-              measurements: widget.measurements,
-            ),
-          ));
+      if (SessionParameters().selectedUser == UserType.endWearer) {
 
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
+        ));
+
+      } else {
+        SessionParameters().captureMode = CaptureMode.withFriend;
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
+        ));
+      }
     }
 
     var nextButton = SafeArea(child:SizedBox(
