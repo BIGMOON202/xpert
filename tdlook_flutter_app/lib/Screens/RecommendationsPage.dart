@@ -65,12 +65,16 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   TextEditingController _controller = new TextEditingController();
 
+  String filterText = '';
+
   _clearText() {
+    filterText = '';
     _controller.clear();
-    filter(withText:'');
+    filter(withText:filterText);
   }
   onSearchTextChanged(String newText) {
-    filter(withText: newText);
+    filterText = newText;
+    filter(withText: filterText);
   }
 
   filter({String withText}) async {
@@ -120,7 +124,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         case Status.COMPLETED:
           setState(() {
             recommendations = event.data;
-            _filteredRecommendations = recommendations;
+            if (filterText.isEmpty == true) {
+              _filteredRecommendations = recommendations;
+            } else {
+              filter(withText: filterText);
+            }
           });
           break;
         case Status.ERROR:
