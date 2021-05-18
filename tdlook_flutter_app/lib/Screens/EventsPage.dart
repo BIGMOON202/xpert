@@ -31,6 +31,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 import 'package:intl/intl.dart';
 import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
+import 'package:tdlook_flutter_app/Extensions/Future+Extension.dart';
 
 class EventsPage extends StatefulWidget {
   final String provider;
@@ -71,12 +72,19 @@ class _EventsPageState extends State<EventsPage> {
   onSearchTextChanged(String text) {
     // print('update: $text');
     var searchText = EmojiUtils.removeAllEmoji(text ?? '');
-    if (searchText.length <= 1) {
+    if (searchText.length < 1) {
       searchText = '';
     }
     print("searchText: $searchText");
-    filter(withText: searchText);
+    FutureExtension.enableContinueTimer(delay: 1).then((value) {
+      print('should search $searchText - $text');
+      if (searchText == text) {
+        print('searching');
+        filter(withText: searchText);
+      }
+    });
   }
+
 
   filter({String withText}) async {
     if (originalEvents == null) return;
