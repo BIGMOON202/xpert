@@ -120,7 +120,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
             alignment: Alignment.bottomCenter,
             child:SafeArea(child: 
             Padding(
-              padding: EdgeInsets.only(left: 12, right: 12),
+              padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
                 child: Container(
                 width: double.infinity,
                 child: MaterialButton(

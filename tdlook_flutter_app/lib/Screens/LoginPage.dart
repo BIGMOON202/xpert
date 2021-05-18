@@ -37,8 +37,8 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     // TODO: implement initState
     if (Application.isInDebugMode) {
-      _email = 'lukas.deschamps@mail.com'; //'annakarp13+99@gmail.com'
-      _password = '7vuD4P3!_y'; //'Qa123456789Qia.'
+      _email = 'andrew+fhsr@3dlook.me'; //'annakarp13+99@gmail.com'
+      _password = 'Qa123456789Qa.'; //'Qa123456789Qia.'
 
       if (widget.userType == UserType.endWearer) {
         _email = 'annakarp13+test3@gmail.com'; //'garry@gmail.com';
@@ -300,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   color: _backgroundColor),
               child: Padding(
-                  padding: EdgeInsets.only(top: 30, left: 12, right: 12),
+                  padding: EdgeInsets.only(top: 30, left: 12, right: 12, bottom: 12),
                   child: Stack(children: [
                     SingleChildScrollView(
                         child: Column(

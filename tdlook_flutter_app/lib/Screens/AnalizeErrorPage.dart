@@ -224,6 +224,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
       children: [Flexible(
           child: configFor(result: widget.arguments?.result)),
       SafeArea(
+          child: Padding(padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
           child: Container(
               width: double.infinity,
               child: MaterialButton(
@@ -239,7 +240,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 // padding: EdgeInsets.all(4),
-              ),))],
+              ))))],
     );
 
 

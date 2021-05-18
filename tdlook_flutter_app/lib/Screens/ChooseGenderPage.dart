@@ -131,7 +131,10 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
       visible: _selectedGender >= 0,
         child:Align(
           alignment: Alignment.bottomCenter,
-          child:SafeArea(child: Container(
+          child:SafeArea(child:
+              Padding(padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                child:
+          Container(
             width: double.infinity,
             child: MaterialButton(
                 onPressed: () {
@@ -149,7 +152,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
               ),
               // padding: EdgeInsets.all(4),
             )),
-      )));
+      ))));
 
     var container = Stack(
       children: [

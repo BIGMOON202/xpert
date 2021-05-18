@@ -154,7 +154,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     var nextButton = Align(
             alignment: Alignment.bottomCenter,
             child:Padding(
-              padding: EdgeInsets.only(left: 12, right: 12),
+              padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
               child:Container(
                 width: double.infinity,
                 child: MaterialButton(

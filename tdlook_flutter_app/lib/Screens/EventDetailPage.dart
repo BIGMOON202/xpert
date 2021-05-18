@@ -9,6 +9,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/EventInfoWorker.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/EventCompletionGraphWidget.dart';
 import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
@@ -38,15 +39,36 @@ class EventDetailPage extends StatefulWidget {
 
 class _EventDetailPageState extends State<EventDetailPage> {
 
+  Event event;
+  EventInfoWorkerBloc _eventInfoWorkerBloc;
   MeasurementsListWorkerBloc _bloc;
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
+    event = widget.event;
     // TODO: implement initState
-    _bloc = MeasurementsListWorkerBloc(widget.event.id.toString());
+    _bloc = MeasurementsListWorkerBloc(event.id.toString());
     _bloc.call();
+
+    _eventInfoWorkerBloc = EventInfoWorkerBloc(event.id.toString());
+    _eventInfoWorkerBloc.chuckListStream.listen((updatedEvent) {
+      switch (updatedEvent.status) {
+        case Status.LOADING:
+          break;
+
+        case Status.COMPLETED:
+          setState(() {
+            print('updated: ${updatedEvent.data}');
+            this.event = updatedEvent.data;
+          });
+          break;
+        case Status.ERROR:
+          break;
+      }
+    });
+    _eventInfoWorkerBloc.call();
 
     SessionParameters().selectedUser = widget.userType;
 
@@ -66,7 +88,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     Widget listBody() {
       if (widget.measurementsList != null && widget.measurementsList.data.length != 0) {
         print('config list body');
-        return MeasuremetsListWidget(event: widget.event,
+        return MeasuremetsListWidget(event: event,
             measurementsList: widget.measurementsList,
             userType: widget.userType,
             onRefreshList: _refreshList,
@@ -83,7 +105,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   return Loading(loadingMessage: snapshot.data.message);
                   break;
                 case Status.COMPLETED:
-                  return MeasuremetsListWidget(event: widget.event,
+                  return MeasuremetsListWidget(event: event,
                     measurementsList: snapshot.data.data,
                     userType: widget.userType,
                     currentUserId: widget.currentUserId,

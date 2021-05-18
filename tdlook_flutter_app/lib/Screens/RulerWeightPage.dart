@@ -122,7 +122,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
   Widget _buildContinueButton() {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, top: 92),
+        padding: const EdgeInsets.only(left: 12, right: 12, top: 92, bottom: 12),
         child: SizedBox(
           width: double.infinity,
           child: MaterialButton(

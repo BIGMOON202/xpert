@@ -276,7 +276,7 @@ VideoPlayerController _controller;
         child:Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: EdgeInsets.only(left:12, right: 12),
+              padding: EdgeInsets.only(left:12, right: 12, bottom: 12),
                 child: SafeArea(child: Container(
                 width: double.infinity,
                 child: MaterialButton(
