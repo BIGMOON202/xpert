@@ -128,6 +128,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         centerTitle: true,
         title: Text('Event details'),
         backgroundColor: Colors.transparent,

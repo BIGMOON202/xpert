@@ -138,6 +138,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
     return Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           centerTitle: true,
           title: Text('Take a ${widget.photoType.name()} photo'),
           backgroundColor: SessionParameters().mainBackgroundColor,

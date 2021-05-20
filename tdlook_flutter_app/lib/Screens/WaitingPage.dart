@@ -204,6 +204,7 @@ class _WaitingPageState extends State<WaitingPage>
 
     var scaffold = Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           centerTitle: true,
           title: Text('XpertFit is building your perfect fit'),
           backgroundColor: Colors.transparent,

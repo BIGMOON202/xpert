@@ -164,7 +164,8 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
     final isEW = _userType == UserType.endWearer;
     var scaffold = Scaffold(
     appBar: AppBar(
-        centerTitle: true,
+      brightness: Brightness.dark,
+      centerTitle: true,
         title: Text(S.current.page_title_choose_gender_as_ew(isEW)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

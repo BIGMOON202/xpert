@@ -366,6 +366,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     final isEW = _userType == UserType.endWearer;
     var scaffold = Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         centerTitle: true,
         title: Text(S.current.page_title_choose_clavicle_as_ew(isEW)),
         backgroundColor: Colors.transparent,

@@ -208,6 +208,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     var scaffold = Scaffold(
       resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          brightness: Brightness.dark,
           centerTitle: true,
           title: Text(widget.arguments.showRestartButton ? 'Thank you': 'Profile details'),
           backgroundColor: Colors.transparent,

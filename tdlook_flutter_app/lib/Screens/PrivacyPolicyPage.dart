@@ -276,6 +276,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     // TODO: implement build
     var scaffold = Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           centerTitle: true,
           title: Text('Privacy policy and T&C'),
           backgroundColor: Colors.transparent,

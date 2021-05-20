@@ -134,6 +134,7 @@ class _BadgePageState extends State<BadgePage> {
 
     var scaffold = Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           centerTitle: true,
           title: Text(widget.arguments.userType == UserType.endWearer ? 'Your Badge ID' : 'End-wearer\'s Badge ID'),
           backgroundColor: Colors.transparent,

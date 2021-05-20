@@ -112,6 +112,7 @@ class _SoundCheckPageState extends State<SoundCheckPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         centerTitle: true,
         title: Text('Soundcheck'),
         backgroundColor: Colors.transparent,

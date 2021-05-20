@@ -155,6 +155,7 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
     );
     return Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           centerTitle: true,
           title: Text(SessionParameters().selectedUser == UserType.endWearer ? 'Waist level preference' : 'End wearer’s waist level preference', textAlign: TextAlign.center),
           backgroundColor: SessionParameters().mainBackgroundColor,

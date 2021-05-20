@@ -184,6 +184,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         centerTitle: true,
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,

@@ -54,6 +54,7 @@ class _RulerPageState extends State<RulerPage> {
     final isEW = _userType == UserType.endWearer;
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         centerTitle: true,
         title: Text(S.current.page_title_choose_height_as_ew(isEW)),
         backgroundColor: Colors.transparent,

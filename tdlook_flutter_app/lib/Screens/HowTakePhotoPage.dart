@@ -303,6 +303,7 @@ VideoPlayerController _controller;
 
     return Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           centerTitle: true,
           title: Text('How to take photos'),
           backgroundColor: SessionParameters().mainBackgroundColor,

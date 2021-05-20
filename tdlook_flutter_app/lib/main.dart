@@ -223,8 +223,11 @@ class _LookAppState extends State<LookApp> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
-        .copyWith(statusBarIconBrightness: Brightness.dark));
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    //     statusBarColor: Colors.white
+    // ));
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
+    //     .copyWith(statusBarIconBrightness: Brightness.dark));
     return _activeWidget();
   }
 }

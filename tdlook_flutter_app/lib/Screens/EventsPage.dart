@@ -350,6 +350,7 @@ class _EventsPageState extends State<EventsPage> {
 
     var scaffold = Scaffold(
         appBar: AppBar(
+          brightness: Brightness.dark,
           leading: IconButton(icon: const Icon(Icons.menu), onPressed: _toggle),
           automaticallyImplyLeading: false,
           centerTitle: true,

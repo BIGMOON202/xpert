@@ -203,6 +203,7 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         centerTitle: true,
         title: Text('Let\'s take two photos'),
         backgroundColor: Colors.transparent,

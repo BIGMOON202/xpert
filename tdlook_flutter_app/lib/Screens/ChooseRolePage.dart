@@ -2,6 +2,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
@@ -187,6 +188,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         centerTitle: true,
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
@@ -194,7 +196,6 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
       backgroundColor: Colors.black,
       body: stack,
     );
-
     return scaffold;
   }
 }
