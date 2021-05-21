@@ -499,15 +499,16 @@ class RecommendationsListWidget extends StatelessWidget {
                                     color: _optionColor),)]),
                         SizedBox(height: 18,),
                         // ListView(
-                        //   shrinkWrap: true,
+                        //   // shrinkWrap: true,
                         //   physics: NeverScrollableScrollPhysics(),
                         //   scrollDirection: Axis.horizontal,
                         //   children: _sizeWidgets(recomendation),
-                        // )
-                        Row(
+                        // ),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                            child: Expanded(child: Row(
                           children: _sizeWidgets(recomendation),
-                        )
-
+                        )))
                       ],
                     ),
                   )
