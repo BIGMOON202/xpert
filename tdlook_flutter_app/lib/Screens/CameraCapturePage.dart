@@ -165,7 +165,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
 
     var camera =
         _captureMode == CaptureMode.withFriend ? cameras[0] : cameras[1];
-    controller = CameraController(camera, ResolutionPreset.high);
+    controller = CameraController(camera, ResolutionPreset.high, enableAudio: false);
     _initializeCameraFuture = controller.initialize();
     _initializeCameraFuture.then((_) {
       if (!mounted) {

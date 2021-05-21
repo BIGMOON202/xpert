@@ -42,7 +42,7 @@ VideoPlayerController _controller;
   String _currentStepName = '';
   List<TutorialStep> _steps;
   List<Future> _runningSteps;
-  bool _isPlaying = false;
+  bool _isPlaying = true;
   List<Timer> _activeTimers = List<Timer>();
 
   Future<bool> _enableContinueTimer() async {

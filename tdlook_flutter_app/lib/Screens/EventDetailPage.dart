@@ -222,6 +222,7 @@ class MeasuremetsListWidget extends StatelessWidget {
       Map<Permission, PermissionStatus> statuses = await [
         Permission.camera,
       ].request();
+
       if (statuses[Permission.camera] == PermissionStatus.granted) {
         _moveToMeasurementAt(index);
       }
@@ -232,6 +233,7 @@ class MeasuremetsListWidget extends StatelessWidget {
     }
 
     Future<void> openSetting() async {
+      print('open settings');
       showDialog(
           barrierDismissible: false,
           context: context,
@@ -273,13 +275,8 @@ class MeasuremetsListWidget extends StatelessWidget {
         }
       }
 
-
-
       var cameraStatus = await Permission.camera.status;
-
-      print('cameraStatus: ${cameraStatus.toString()}');
-
-      if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false) {
+      if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false && await Permission.camera.isDenied == false) {
         askForPermissionsAndMove(index);
       } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied || await cameraStatus.isPermanentlyDenied) {
         openSetting();

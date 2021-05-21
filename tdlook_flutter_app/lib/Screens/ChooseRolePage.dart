@@ -46,7 +46,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
 
     var buttonsContainer = Align(
-      alignment: Alignment.center,
+      alignment: Alignment.topCenter,
       child: Container(
         height: 182,
         color: _backgroundColor,
@@ -74,6 +74,8 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                               child:ResourceImage.imageWithName(_selectedUserType == UserType.endWearer ? UserType.endWearer.selectedImageName() : UserType.endWearer.unselectedImageName())),
                           SizedBox(height: 24),
                           Text('I\'m the end-wearer', style: TextStyle(color: Colors.white),),
+                          SizedBox(height: 4),
+                          Text('Measure yourself', style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12),),
                         ],
                       ),
                     ))),
@@ -94,6 +96,8 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                           child:ResourceImage.imageWithName(_selectedUserType == UserType.salesRep ? UserType.salesRep.selectedImageName() : UserType.salesRep.unselectedImageName())),
                       SizedBox(height: 24),
                       Text('I\'m the sales rep', style: TextStyle(color: Colors.white),),
+                      SizedBox(height: 4),
+                      Text('Measure end-wearers', style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12),),
                     ],
                   ),
                 )),
