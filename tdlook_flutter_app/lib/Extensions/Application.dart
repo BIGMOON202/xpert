@@ -22,6 +22,10 @@ class Application {
   static bool get shouldOpenLinks {
     return true;
   }
+
+  static bool get shouldShowWaistLevel {
+    return false;
+  }
 }
 
 enum API {

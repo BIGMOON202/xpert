@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
@@ -160,15 +161,32 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
             ),
           ));
     } else {
-      Navigator.push(
-          context,
-          CupertinoPageRoute(
-            builder: (BuildContext context) => WaistLevelPage(
-              gender: widget.gender,
-              selectedMeasurementSystem: widget.selectedMeasurementSystem,
-              measurements: widget.measurement,
-            ),
+
+      if (Application.shouldShowWaistLevel) {
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (BuildContext context) => WaistLevelPage(
+                gender: widget.gender,
+                selectedMeasurementSystem: widget.selectedMeasurementSystem,
+                measurements: widget.measurement,
+              ),
+            ));
+      } else {
+
+        if (SessionParameters().selectedUser == UserType.endWearer) {
+
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement))
           ));
+
+        } else {
+          SessionParameters().captureMode = CaptureMode.withFriend;
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
+          ));
+        }
+      }
     }
   }
 }
