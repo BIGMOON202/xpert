@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
+import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -295,7 +296,7 @@ class MeasuremetsListWidget extends StatelessWidget {
 
         var eventName = event?.name ?? 'Event Name';
         var companyName = event.agency?.name ?? '-';
-        var companyType = event.agency?.type ?? '-';
+        var companyType = event?.agency?.type.replaceAll('_', ' ').capitalizeFirst() ?? '-';
 
         final startTime = event.startDateTime.toLocal();
         var eventStartDate = DateFormat('d MMM yyyy').format(startTime);

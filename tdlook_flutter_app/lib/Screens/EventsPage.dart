@@ -469,7 +469,7 @@ class EventsListWidget extends StatelessWidget {
       print('itemAt: $index $event');
       var eventName = event.name ?? 'Event Name';
       var companyName = event?.agency?.name ?? '-';
-      var companyType = event?.agency?.type ?? '-';
+      var companyType = event?.agency?.type.replaceAll('_', ' ').capitalizeFirst() ?? '-';
 
       final startTime = event.startDateTime.toLocal();
       var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
