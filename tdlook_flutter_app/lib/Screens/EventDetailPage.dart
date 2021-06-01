@@ -219,16 +219,6 @@ class MeasuremetsListWidget extends StatelessWidget {
           ));
     }
 
-    Future<void> askForPermissionsAndMove(int index) async {
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.camera,
-      ].request();
-
-      if (statuses[Permission.camera] == PermissionStatus.granted) {
-        _moveToMeasurementAt(index);
-      }
-    }
-
     void closePopup() {
       Navigator.of(context, rootNavigator: true).pop("Discard");
     }
@@ -258,8 +248,19 @@ class MeasuremetsListWidget extends StatelessWidget {
       );
     }
 
+    Future<void> askForPermissionsAndMove(int index) async {
+      print('askForPermissionsAndMove');
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.camera,
+      ].request();
 
-
+      print('statuses: $statuses');
+      if (statuses[Permission.camera] == PermissionStatus.granted) {
+        _moveToMeasurementAt(index);
+      } else if (statuses[Permission.camera] == PermissionStatus.permanentlyDenied) {
+        openSetting();
+      }
+    }
 
     Future<void> checkPermissionsAndMoveTo({int index}) async {
 
@@ -277,7 +278,18 @@ class MeasuremetsListWidget extends StatelessWidget {
       }
 
       var cameraStatus = await Permission.camera.status;
-      if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false && await Permission.camera.isDenied == false) {
+      var isPermanentlyDenied = await Permission.camera.isPermanentlyDenied;
+      var isDenied = await Permission.camera.isDenied;
+      var isGranted = await Permission.camera.isGranted;
+      var isRestricted = await Permission.camera.isRestricted;
+
+      print('isRestricted: $isRestricted');
+      print('isGranted: $isGranted');
+      print('status: $cameraStatus');
+      print('isPermanentlyDenied: $isPermanentlyDenied');
+      print('isDenied: $isDenied');
+
+      if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false && await Permission.camera.isRestricted == false) {
         askForPermissionsAndMove(index);
       } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied || await cameraStatus.isPermanentlyDenied) {
         openSetting();
