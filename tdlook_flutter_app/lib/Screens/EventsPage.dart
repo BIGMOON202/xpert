@@ -216,8 +216,8 @@ class _EventsPageState extends State<EventsPage> {
 
     Widget _createDrawerItem(
         {Icon icon, Image image, String text, GestureTapCallback onTap}) {
-      return ListTile(
-        title: Row(
+      return GestureDetector(
+        child:  Row(
           children: <Widget>[
             icon ?? SizedBox(width: 26, height: 26, child: image),
             Padding(
@@ -225,6 +225,7 @@ class _EventsPageState extends State<EventsPage> {
               child: Text(
                 text,
                 style: TextStyle(color: Colors.white, fontSize: 14),
+                maxLines: 2,
               ),
             )
           ],
@@ -382,12 +383,13 @@ class _EventsPageState extends State<EventsPage> {
                     Divider(
                       color: Colors.white,
                     ),
+                    SizedBox(height: 18),
                     _createDrawerItem(
                         icon: new Icon(
                           MdiIcons.shieldCheckOutline,
                           color: HexColor.fromHex('898A9D'),
                         ),
-                        text: 'Privacy Policy and Terms & Conditions',
+                        text: 'Privacy Policy and \nTerms & Conditions',
                         onTap: () {
                           Navigator.push(
                               context,

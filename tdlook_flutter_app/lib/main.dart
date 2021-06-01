@@ -77,6 +77,7 @@ void main() async {
     originalOnError(details);
   };
 
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   SystemChrome.setPreferredOrientations(
     [
       DeviceOrientation.portraitUp,

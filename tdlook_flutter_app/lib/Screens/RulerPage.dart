@@ -72,7 +72,7 @@ class _RulerPageState extends State<RulerPage> {
   }
 
   Widget _buildRuler() {
-    return Expanded(
+    return Flexible(
       child: Row(
         children: [
           Expanded(
@@ -81,13 +81,16 @@ class _RulerPageState extends State<RulerPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
+                FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
                   _currentValue,
-                  style: TextStyle(
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 60,
                       color: Colors.white),
-                ),
+                )),
                 if (_controller.measurementSystem == MeasurementSystem.metric)
                   Padding(
                     padding: EdgeInsets.only(left: 10, bottom: 10),
