@@ -14,7 +14,9 @@ class Application {
     switch (Application.apiType) {
       case API.test:
         return 'wlb-expertfit-test.3dlook.me';
-      case API.prod:
+      case API.stage:
+        return 'wlb-xpertfit-stage.3dlook.me';
+      case API.release:
         return 'wlb-xpertfit.3dlook.me';
     }
   }
@@ -30,5 +32,6 @@ class Application {
 
 enum API {
   test,
-  prod
+  stage,
+  release
 }
