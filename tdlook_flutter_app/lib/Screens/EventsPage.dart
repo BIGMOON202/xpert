@@ -217,7 +217,9 @@ class _EventsPageState extends State<EventsPage> {
     Widget _createDrawerItem(
         {Icon icon, Image image, String text, GestureTapCallback onTap}) {
       return GestureDetector(
-        child:  Row(
+        child: Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Row(
           children: <Widget>[
             icon ?? SizedBox(width: 26, height: 26, child: image),
             Padding(
@@ -229,7 +231,7 @@ class _EventsPageState extends State<EventsPage> {
               ),
             )
           ],
-        ),
+        )),
         onTap: onTap,
       );
     }

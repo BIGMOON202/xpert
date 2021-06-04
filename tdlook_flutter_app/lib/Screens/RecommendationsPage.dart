@@ -470,6 +470,7 @@ class RecommendationsListWidget extends StatelessWidget {
             } else {
               widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
             }
+
             return widgets;
           } else {
             widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
@@ -493,7 +494,7 @@ class RecommendationsListWidget extends StatelessWidget {
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [Expanded(child:Text(title, style: TextStyle(color: Colors.white), maxLines: 5) ),
+                            children: [Flexible(child:Text(title, style: TextStyle(color: Colors.white), maxLines: 5) ),
                               Text(code,
                                 style: TextStyle(
                                     color: _optionColor),)]),
@@ -504,11 +505,15 @@ class RecommendationsListWidget extends StatelessWidget {
                         //   scrollDirection: Axis.horizontal,
                         //   children: _sizeWidgets(recomendation),
                         // ),
-                        SingleChildScrollView(
+                      SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                            child: Expanded(child: Row(
-                          children: _sizeWidgets(recomendation),
-                        )))
+                          child: Row(
+                        children: _sizeWidgets(recomendation))),
+                        // SingleChilqdScrollView(
+                        //   scrollDirection: Axis.horizontal,
+                        //     child: Flexible(child: Row(
+                        //   children: _sizeWidgets(recomendation),
+                        // )))
                       ],
                     ),
                   )
