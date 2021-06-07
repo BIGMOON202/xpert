@@ -24,6 +24,8 @@ class Paging {
     this.previous
   });
 
+  String get description => 'count: $count\npageItemLimit: $pageItemLimit\nnext: $next\nprevious: $previous';
+
   factory Paging.fromRawJson(String str) => Paging.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());

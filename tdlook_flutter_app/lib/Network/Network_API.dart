@@ -88,6 +88,7 @@ extension UserTypeNetworkExtension on UserType {
 }
 
 class NetworkAPI {
+  static int itemsPerPage = 10;
   final Duration _timeout = Duration(seconds: 60);
 
   final String _baseUrl = "https://${Application.hostName}/";
