@@ -1,3 +1,4 @@
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
 import 'dart:convert';
 import 'package:enum_to_string/enum_to_string.dart';
@@ -43,6 +44,7 @@ class Event {
   bool progress;
   int totalMeasuremensCount;
   int completeMeasuremensCount;
+  List<dynamic> productTypes;
 
   Event(
       {this.id,
@@ -57,7 +59,8 @@ class Event {
         this.createdAt,
         this.progress,
         this.totalMeasuremensCount,
-        this.completeMeasuremensCount});
+        this.completeMeasuremensCount,
+        this.productTypes});
 
   Event.fromJson(Map<String, dynamic> json) {
       id = json['id'];
@@ -83,6 +86,7 @@ class Event {
       completeMeasuremensCount = json['complete_measurements_count'] != null
           ? json['complete_measurements_count']
           : 0;
+      productTypes = json['product_types'] != null ? json['product_types'] : [];
   }
 
   Map<String, dynamic> toJson() {
@@ -108,6 +112,24 @@ class Event {
     data['progress'] = this.progress;
     return data;
   }
+}
+
+extension EventExtension on Event {
+  bool shouldAskForWaistLevel() {
+    if (Application.isInDebugMode) {
+      return true;
+    }
+    var pantsKey = EnumToString.convertToString(EventProduct.pants);
+    if (this.productTypes.contains(pantsKey)) {
+      return true;
+    }
+    return false;
+  }
+}
+
+
+enum EventProduct {
+  long_sleeve_shirt, pants, outerwear
 }
 
 enum EventStatus {
@@ -147,7 +169,6 @@ extension EventStatusExtension on EventStatus {
       case EventStatus.scheduled:
       case EventStatus.draft: return false;
       default: return true;
-
     }
   }
 }
@@ -255,6 +276,7 @@ class MeasurementResults {
   bool isComplete;
   String completedAt;
   DateTime completedAtTime;
+  bool askForWaistLevel;
 
   EndWearer endWearer;
   Event event;
@@ -268,6 +290,7 @@ class MeasurementResults {
   String updatedAt;
   String badgeId;
   List<Messages> messages;
+
 
   MeasurementResults({this.id, this.uuid, this.isActive, this.isComplete, this.completedAt, this.endWearer, this.event, this.gender, this.height, this.weight, this.clavicle, this.person, this.createdAt, this.updatedAt, this.messages});
 

@@ -162,7 +162,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
           ));
     } else {
 
-      if (Application.shouldShowWaistLevel) {
+      if (Application.shouldShowWaistLevel && widget.measurement.askForWaistLevel) {
         Navigator.push(
             context,
             CupertinoPageRoute(

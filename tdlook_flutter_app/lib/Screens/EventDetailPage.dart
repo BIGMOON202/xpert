@@ -169,6 +169,7 @@ class MeasuremetsListWidget extends StatelessWidget {
     void _moveToMeasurementAt(int index) {
 
       var measurement = measurementsList.data[index];
+      measurement.askForWaistLevel = event.shouldAskForWaistLevel();
       print('open measurement\n '
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');

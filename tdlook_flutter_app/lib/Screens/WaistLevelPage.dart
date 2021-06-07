@@ -94,11 +94,11 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
           child: Container(decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(5)),
           color: Colors.white.withOpacity(0.1)),
-      child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 20, right: 20),
+      child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 20, right: 0),
           child: Row(children: [
-            AspectRatio(aspectRatio: 1, child: CircleAvatar(backgroundColor: Colors.white.withOpacity(0.1),
-              child: Text('${level.indexTitle}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SessionParameters().mainFontColor)))),
-          SizedBox(width: 14),
+          //   AspectRatio(aspectRatio: 1, child: CircleAvatar(backgroundColor: Colors.white.withOpacity(0.1),
+          //     child: Text('${level.indexTitle}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SessionParameters().mainFontColor)))),
+          // SizedBox(width: 14),
           Expanded(child: Text(level.title, maxLines: 2, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SessionParameters().mainFontColor),)),
             SizedBox(width: 14),
           Radio(value: level.index, groupValue: this.selectedLevel.index, onChanged: (int newVal) {
@@ -107,10 +107,25 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
             });
           })],))));
     }
+
+    Widget imageOptionWidget({WaistLevel level}) {
+      return GestureDetector(
+          onTap:  () {
+            setState(() {
+              this.selectedLevel = level;
+            });
+          },
+          child: Container(decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(6)),
+              color: this.selectedLevel == level ? Colors.white.withOpacity(0.1) : Colors.transparent) ,
+              child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 12, right: 12),
+                  child: ResourceImage.imageWithName(level.imageName))));
+    }
     
     var image = Padding(padding: EdgeInsets.all(23), child: ResourceImage.imageWithName(this.selectedLevel.imageName));
 
-    var middleText = Text('Please determine what best describes  how you wear your trousers?',
+    var questionText = SessionParameters().selectedUser == UserType.endWearer ? 'Where do you wear your uniform pants?' : 'Where does the end-wearer wear uniform pants?';
+    var middleText = Text(questionText,
         style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 18, fontWeight: FontWeight.w600), textAlign: TextAlign.center,);
       var optionsWidget = Padding(padding: EdgeInsets.only(
           top:40,
@@ -128,7 +143,12 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
 
     var container = Column(
       children: [
-        Expanded(child: image),
+        Expanded(child: Padding(padding: EdgeInsets.only(left: 30, right: 30, bottom: 30, top: 30),
+        child: Row(children: [
+          Expanded(child: imageOptionWidget(level: WaistLevel.high)),
+          Expanded(child: imageOptionWidget(level: WaistLevel.mid)),
+          Expanded(child: imageOptionWidget(level: WaistLevel.low)),
+        ],))),
         Expanded(child: Column(children: [middleText, Expanded(child: optionsWidget)])),
         Padding(
             padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
@@ -157,7 +177,7 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
         appBar: AppBar(
           brightness: Brightness.dark,
           centerTitle: true,
-          title: Text(SessionParameters().selectedUser == UserType.endWearer ? 'Waist level preference' : 'End wearer’s waist level preference', textAlign: TextAlign.center),
+          title: Text('Waist Level Preference', textAlign: TextAlign.center),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
