@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
+import 'package:tdlook_flutter_app/Screens/PrefferedFitPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 enum WaistLevel {
@@ -65,18 +66,15 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
 
     widget.measurements.waistLevel = selectedLevel.apiFlag;
 
-    if (SessionParameters().selectedUser == UserType.endWearer) {
-
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
-      ));
-
-    } else {
-      SessionParameters().captureMode = CaptureMode.withFriend;
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
-      ));
-    }
+    Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (BuildContext context) => PrefferedFitPage(
+            gender: widget.gender,
+            selectedMeasurementSystem: widget.selectedMeasurementSystem,
+            measurements: widget.measurements,
+          ),
+        ));
   }
 
 
@@ -121,9 +119,6 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
               child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 12, right: 12),
                   child: ResourceImage.imageWithName(level.imageName))));
     }
-    
-    var image = Padding(padding: EdgeInsets.all(23), child: ResourceImage.imageWithName(this.selectedLevel.imageName));
-
     var questionText = SessionParameters().selectedUser == UserType.endWearer ? 'Where do you wear your uniform pants?' : 'Where does the end-wearer wear uniform pants?';
     var middleText = Text(questionText,
         style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 18, fontWeight: FontWeight.w600), textAlign: TextAlign.center,);

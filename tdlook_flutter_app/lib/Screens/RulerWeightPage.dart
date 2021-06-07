@@ -13,6 +13,7 @@ import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPageClavicle.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/WaistLevelPage.dart';
+import 'package:tdlook_flutter_app/Screens/PrefferedFitPage.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
 
 class RulerPageWeight extends StatefulWidget {
@@ -174,18 +175,15 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
             ));
       } else {
 
-        if (SessionParameters().selectedUser == UserType.endWearer) {
-
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement))
-          ));
-
-        } else {
-          SessionParameters().captureMode = CaptureMode.withFriend;
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
-          ));
-        }
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (BuildContext context) => PrefferedFitPage(
+                gender: widget.gender,
+                selectedMeasurementSystem: widget.selectedMeasurementSystem,
+                measurements: widget.measurement,
+              ),
+            ));
       }
     }
   }

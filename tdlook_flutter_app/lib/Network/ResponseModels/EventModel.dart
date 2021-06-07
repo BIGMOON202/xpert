@@ -285,6 +285,7 @@ class MeasurementResults {
   double weight;
   double clavicle;
   String waistLevel;
+  String fitType;
   Person person;
   String createdAt;
   String updatedAt;
@@ -341,6 +342,9 @@ class MeasurementResults {
     // }
     if (this.waistLevel != null) {
       data['waist_level'] = this.waistLevel;
+    }
+    if (this.fitType != null) {
+      data['preferred_fit'] = this.fitType;
     }
     data['gender'] = this.gender;
     data['height'] = this.height.toInt().toString();
