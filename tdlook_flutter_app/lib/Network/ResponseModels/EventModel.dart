@@ -286,6 +286,7 @@ class MeasurementResults {
   double clavicle;
   String waistLevel;
   String fitType;
+  String overlap;
   Person person;
   String createdAt;
   String updatedAt;
@@ -345,6 +346,9 @@ class MeasurementResults {
     }
     if (this.fitType != null) {
       data['preferred_fit'] = this.fitType;
+    }
+    if (this.overlap != null) {
+      data['overlap'] = this.overlap;
     }
     data['gender'] = this.gender;
     data['height'] = this.height.toInt().toString();

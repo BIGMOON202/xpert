@@ -28,6 +28,10 @@ class Application {
   static bool get shouldShowWaistLevel {
     return true;
   }
+
+  static bool get shouldShowOverlap {
+    return true;
+  }
 }
 
 enum API {
