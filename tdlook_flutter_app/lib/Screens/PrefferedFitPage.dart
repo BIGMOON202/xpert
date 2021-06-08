@@ -55,7 +55,7 @@ class PrefferedFitPage extends StatefulWidget {
 class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
 
 
-  FitType selectedType = FitType.tight;
+  FitType selectedType;
   void _moveToNextPage() {
 
     widget.measurements.fitType = selectedType.apiFlag;
@@ -96,7 +96,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
                     // SizedBox(width: 14),
                     Expanded(child: Text(type.title, maxLines: 2, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SessionParameters().mainFontColor),)),
                     SizedBox(width: 14),
-                    Radio(value: type.index, groupValue: this.selectedType.index, onChanged: (int newVal) {
+                    Radio(value: type.index, groupValue: this.selectedType != null ? this.selectedType.index: -1, onChanged: (int newVal) {
                       setState(() {
                         this.selectedType = FitType.values[newVal];
                       });
@@ -148,8 +148,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
                   child: MaterialButton(
                     disabledColor:
                     SessionParameters().selectionColor.withOpacity(0.5),
-                    onPressed:
-                    _moveToNextPage,
+                    onPressed: selectedType != null ? _moveToNextPage : null,
                     textColor: Colors.white,
                     child: CustomText('NEXT'),
                     color: SessionParameters().selectionColor,
