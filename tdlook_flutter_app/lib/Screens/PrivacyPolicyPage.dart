@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
+import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -102,9 +103,20 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
         if (widget.userType == UserType.salesRep) {
           Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
+
         } else {
           Navigator.pushNamedAndRemoveUntil(context, '/choose_company', (route) => false);
         }
+        
+        if (prefs.getBool('intro_seen') != true) {
+          Navigator.push(context, MaterialPageRoute<Null>(
+            builder: (BuildContext context) {
+              return TutorialPage();
+            },
+            fullscreenDialog: true,
+          ));
+        }
+
       }
 
       writeToken();
