@@ -95,7 +95,7 @@ class _TutorialPageState extends State<TutorialPage> {
       Navigator.pop(context);
     }
 
-    void _skip  Pages() {
+    void _skipPages() {
       //move to flow
       _closeWindow();
     }

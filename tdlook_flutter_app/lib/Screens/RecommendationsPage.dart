@@ -447,15 +447,14 @@ class RecommendationsListWidget extends StatelessWidget {
 
           var column = _recommendationRow(title: 'Size', size: size);
 
-
-
-
           if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null) {
 
             print('config for ${recommendation.product} - ${measurement.gender}');
             if (recommendation.product.sizechartType == 'pants' && recommendation.product.gender == 'male') {
               widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
-              widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Rise', size: recommendation.sizeSecond)));
+              if (recommendation.sizeSecond != null) {
+                widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Rise', size: recommendation.sizeSecond)));
+              }
               widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Inseam', size: inseamValue)));
             } else if (recommendation.product.sizechartType == 'pants' && recommendation.product.gender == 'female') {
               widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
