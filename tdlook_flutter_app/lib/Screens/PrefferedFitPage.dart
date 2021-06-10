@@ -127,9 +127,9 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
         left: 30,
         right: 30),
         child: Column(children: [
-          Expanded(child: waistOptionWidget(type: FitType.tight)),
+          SizedBox(height: 50, child: waistOptionWidget(type: FitType.tight)),
           SizedBox(height: 10),
-          Expanded(child: waistOptionWidget(type: FitType.loose)),
+          SizedBox(height: 50, child: waistOptionWidget(type: FitType.loose))
         ]));
 
 
@@ -140,7 +140,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
               Expanded(child: imageOptionWidget(type: FitType.tight)),
               Expanded(child: imageOptionWidget(type: FitType.loose)),
             ],))),
-        Expanded(child: Column(children: [middleText, Expanded(child: optionsWidget)])),
+        Expanded(child: Column(children: [middleText, optionsWidget])),
         Padding(
             padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
             child: SafeArea(
@@ -167,7 +167,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
         appBar: AppBar(
           brightness: Brightness.dark,
           centerTitle: true,
-          title: Text('If the app finds the end-wearer between sizes…', textAlign: TextAlign.center, maxLines: 2,),
+          title: Text('If the app finds the end-wearer between sizes…', textAlign: TextAlign.left, maxLines: 2,),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
