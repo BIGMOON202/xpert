@@ -117,7 +117,8 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
                   child: ResourceImage.imageWithName(type.imageName))));
     }
 
-    var questionText = '…would the end-wearer prefer the  closer-fitting size or the looser-fitting size';
+    var appealPhrase = SessionParameters().selectedUser == UserType.endWearer ? 'you' : 'the end-wearer';
+    var questionText = '…would $appealPhrase prefer the  closer-fitting size or the looser-fitting size';
     var middleText = Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Text(questionText,
       style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 18, fontWeight: FontWeight.w600), textAlign: TextAlign.center));
     var optionsWidget = Padding(padding: EdgeInsets.only(
