@@ -61,7 +61,7 @@ class WaistLevelPage extends StatefulWidget {
 class _WaistLevelPageState extends State<WaistLevelPage> {
 
 
-  WaistLevel selectedLevel = WaistLevel.high;
+  WaistLevel selectedLevel;
   void _moveToNextPage() {
 
     widget.measurements.waistLevel = selectedLevel.apiFlag;
@@ -99,7 +99,7 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
           // SizedBox(width: 14),
           Expanded(child: Text(level.title, maxLines: 2, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: SessionParameters().mainFontColor),)),
             SizedBox(width: 14),
-          Radio(value: level.index, groupValue: this.selectedLevel.index, onChanged: (int newVal) {
+          Radio(value: level.index, groupValue: this.selectedLevel?.index ?? -1, onChanged: (int newVal) {
             setState(() {
               this.selectedLevel = WaistLevel.values[newVal];
             });
@@ -153,8 +153,7 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
                   child: MaterialButton(
                     disabledColor:
                     SessionParameters().selectionColor.withOpacity(0.5),
-                    onPressed:
-                    _moveToNextPage,
+                    onPressed: selectedLevel != null ? _moveToNextPage : null,
                     textColor: Colors.white,
                     child: CustomText('NEXT'),
                     color: SessionParameters().selectionColor,
