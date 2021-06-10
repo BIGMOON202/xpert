@@ -37,6 +37,7 @@ extension _TutorialStepExtension  on _TutorialStep {
     }}
 
   String get subtitle {
+    return '';
     switch (this) {
       case _TutorialStep.twoPhotos: return 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.';
       case _TutorialStep.avatar:  return 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.';
