@@ -23,11 +23,11 @@ extension WaistLevelExtension on WaistLevel {
     }
   }
 
-  String get imageName {
+  String imageName({Gender gender}) {
     switch (this) {
-      case WaistLevel.high: return 'high_waist.png';
-      case WaistLevel.mid:  return 'mid_waist.png';
-      case WaistLevel.low: return 'low_waist.png';
+      case WaistLevel.high: return gender == Gender.male ? 'high_waist.png' : 'high_waist_female.png';
+      case WaistLevel.mid:  return gender == Gender.male ? 'mid_waist.png' : 'mid_waist_female.png';
+      case WaistLevel.low: return gender == Gender.male ? 'low_waist.png' : 'low_waist_female.png';
     }
   }
   String get title {
@@ -117,7 +117,7 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
               borderRadius: BorderRadius.all(Radius.circular(6)),
               color: this.selectedLevel == level ? Colors.white.withOpacity(0.1) : Colors.transparent) ,
               child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 12, right: 12),
-                  child: ResourceImage.imageWithName(level.imageName))));
+                  child: ResourceImage.imageWithName(level.imageName(gender: this.widget.gender)))));
     }
     var questionText = SessionParameters().selectedUser == UserType.endWearer ? 'Where do you wear your uniform pants?' : 'Where does the end-wearer wear uniform pants?';
     var middleText = Text(questionText,

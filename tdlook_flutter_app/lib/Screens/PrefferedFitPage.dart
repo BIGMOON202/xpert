@@ -21,10 +21,10 @@ extension PrefferedFitExtension on FitType {
     }
   }
 
-  String get imageName {
+  String imageName({Gender gender}) {
     switch (this) {
-      case FitType.tight: return 'tight_fit.png';
-      case FitType.loose:  return 'loose_fit.png';
+      case FitType.tight: return gender == Gender.male ? 'tight_fit.png' : 'tight_fit_female.png';
+      case FitType.loose:  return gender == Gender.male ? 'loose_fit.png' : 'loose_fit_female.png';
     }
   }
   String get title {
@@ -114,7 +114,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
               borderRadius: BorderRadius.all(Radius.circular(6)),
               color: this.selectedType == type ? Colors.white.withOpacity(0.1) : Colors.transparent) ,
               child: Padding(padding: EdgeInsets.only(top: 13, bottom: 13, left: 12, right: 12),
-                  child: ResourceImage.imageWithName(type.imageName))));
+                  child: ResourceImage.imageWithName(type.imageName(gender: this.widget.gender)))));
     }
 
     var appealPhrase = SessionParameters().selectedUser == UserType.endWearer ? 'you' : 'the end-wearer';

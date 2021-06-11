@@ -467,7 +467,7 @@ class MeasuremetsListWidget extends StatelessWidget {
         var measurementDate;
         if (completeMeasureTime != null) {
           var completeDate = DateFormat('d MMM yyyy').format(completeMeasureTime);
-          var completeTime = DateFormat('K:mm a').format(completeMeasureTime);
+          var completeTime = DateFormat('h:mm a').format(completeMeasureTime);
 
           measurementDate = '$completeDate, $completeTime';
         } else {

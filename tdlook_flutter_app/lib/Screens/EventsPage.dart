@@ -477,11 +477,11 @@ class EventsListWidget extends StatelessWidget {
 
       final startTime = event.startDateTime.toLocal();
       var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
-      var eventStartTime = DateFormat('K:mm a').format(startTime);
+      var eventStartTime = DateFormat('h:mm a').format(startTime);
 
       final endTime = event.endDateTime.toLocal();
       var eventEndDate = DateFormat('d MMM yyyy').format(endTime);
-      var eventEndTime = DateFormat('K:mm a').format(endTime);
+      var eventEndTime = DateFormat('h:mm a').format(endTime);
 
       var eventStatus = event.status.displayName() ?? "In progress";
       var eventStatusColor = event.status.displayColor() ?? Colors.white;
