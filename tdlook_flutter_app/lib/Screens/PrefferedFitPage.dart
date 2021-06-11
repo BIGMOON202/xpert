@@ -163,11 +163,13 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
             ))
       ],
     );
+
+    String titleForm = SessionParameters().selectedUser == UserType.endWearer ? 'you' :'the end-wearer';
     return Scaffold(
         appBar: AppBar(
           brightness: Brightness.dark,
           centerTitle: true,
-          title: Text('If the app finds the end-wearer between sizes…', textAlign: TextAlign.left, maxLines: 2,),
+          title: Text('If the app finds $titleForm between sizes…', textAlign: TextAlign.left, maxLines: 2,),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
