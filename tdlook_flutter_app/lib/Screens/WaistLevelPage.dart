@@ -128,11 +128,11 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
           left: 30,
           right: 30),
       child: Column(children: [
-      Expanded(child: waistOptionWidget(level: WaistLevel.high)),
+        SizedBox(height: 50, child: waistOptionWidget(level: WaistLevel.high)),
       SizedBox(height: 10),
-      Expanded(child: waistOptionWidget(level: WaistLevel.mid)),
+        SizedBox(height: 50, child: waistOptionWidget(level: WaistLevel.mid)),
       SizedBox(height: 10),
-      Expanded(child: waistOptionWidget(level: WaistLevel.low)),
+        SizedBox(height: 50, child: waistOptionWidget(level: WaistLevel.low)),
     ]));
 
 
@@ -144,7 +144,7 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
           Expanded(child: imageOptionWidget(level: WaistLevel.mid)),
           Expanded(child: imageOptionWidget(level: WaistLevel.low)),
         ],))),
-        Expanded(child: Column(children: [middleText, Expanded(child: optionsWidget)])),
+        Column(children: [middleText, optionsWidget]),
         Padding(
             padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
             child: SafeArea(

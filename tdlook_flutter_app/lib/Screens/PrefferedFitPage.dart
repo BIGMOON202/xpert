@@ -140,7 +140,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
               Expanded(child: imageOptionWidget(type: FitType.tight)),
               Expanded(child: imageOptionWidget(type: FitType.loose)),
             ],))),
-        Expanded(child: Column(children: [middleText, optionsWidget])),
+        Column(children: [middleText, optionsWidget]),
         Padding(
             padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
             child: SafeArea(
@@ -169,7 +169,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
         appBar: AppBar(
           brightness: Brightness.dark,
           centerTitle: true,
-          title: Text('If the app finds $titleForm between sizes…', textAlign: TextAlign.left, maxLines: 2,),
+          title: Text('If the app finds $titleForm between sizes…', maxLines: 2),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
