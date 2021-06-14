@@ -57,7 +57,8 @@ class _BadgePageState extends State<BadgePage> {
         visible: true,
         child:Align(
             alignment: Alignment.bottomCenter,
-            child:SafeArea(child: Container(
+            child:SafeArea(child: Padding(padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                child: Container(
                 width: double.infinity,
                 child: MaterialButton(
 
@@ -73,7 +74,7 @@ class _BadgePageState extends State<BadgePage> {
 
                   ),
                   // padding: EdgeInsets.all(4),
-                )),
+                ))),
             )));
 
     var container = Column(

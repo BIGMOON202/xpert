@@ -109,7 +109,7 @@ class S {
       choose,
       {
         'true': 'What’s your clavicle?',
-        'other': 'End-Wearer’s clavicle?',
+        'other': 'End-Wearer’s\nmanual clavicle?',
       },
       name: 'page_title_choose_clavicle_as_ew',
       desc: '',

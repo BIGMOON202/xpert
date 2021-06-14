@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/ArmorTypePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
@@ -61,18 +62,9 @@ class _OverlapPageState extends State<OverlapPage> {
   void _moveToNextPage() {
     this.widget.measurements.overlap = selectedLevel.apiFlag;
 
-    if (SessionParameters().selectedUser == UserType.endWearer) {
-
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
-      ));
-
-    } else {
-      SessionParameters().captureMode = CaptureMode.withFriend;
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
-      ));
-    }
+    Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+        ArmorTypePage(gender: widget.gender, selectedMeasurementSystem: widget.selectedMeasurementSystem, measurements: widget.measurements)
+    ));
   }
 
   @override

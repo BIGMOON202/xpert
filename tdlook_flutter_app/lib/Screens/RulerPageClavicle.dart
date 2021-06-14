@@ -380,7 +380,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       appBar: AppBar(
         brightness: Brightness.dark,
         centerTitle: true,
-        title: Text(S.current.page_title_choose_clavicle_as_ew(isEW)),
+        title: Text(S.current.page_title_choose_clavicle_as_ew(isEW), textAlign: TextAlign.center),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
       ),

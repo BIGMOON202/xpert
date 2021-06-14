@@ -286,6 +286,7 @@ class MeasurementResults {
   double clavicle;
   String waistLevel;
   String fitType;
+  bool outerCarrier;
   String overlap;
   Person person;
   String createdAt;
@@ -350,11 +351,14 @@ class MeasurementResults {
     if (this.overlap != null) {
       data['overlap'] = this.overlap;
     }
+    if (this.outerCarrier != null) {
+      data['outer_carrier'] = this.outerCarrier;
+    }
     data['gender'] = this.gender;
     data['height'] = this.height.toInt().toString();
     data['weight'] = this.weight.toInt().toString();
     if (this.clavicle != null && this.clavicle > 0) {
-      data['clavicle'] = this.clavicle.toString();
+      data['manual_clavicle'] = this.clavicle.toString();
     }
     if (this.badgeId != null && this.badgeId.isEmpty == false) {
       data['badge_id'] = this.badgeId;

@@ -19,7 +19,7 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static m0(choose) => "${Intl.select(choose, {'true': 'What’s your clavicle?', 'other': 'End-Wearer’s clavicle?', })}";
+  static m0(choose) => "${Intl.select(choose, {'true': 'What’s your clavicle?', 'other': 'End-Wearer’s\nmanual clavicle?', })}";
 
   static m1(choose) => "${Intl.select(choose, {'true': 'Select your gender', 'other': 'Measure an end-wearer', })}";
 
