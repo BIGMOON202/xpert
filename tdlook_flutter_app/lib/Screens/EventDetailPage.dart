@@ -573,7 +573,7 @@ class MeasuremetsListWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           // crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Expanded(flex: 2, child:Text(userName, style: TextStyle(color: Colors.white)),),
@@ -586,26 +586,27 @@ class MeasuremetsListWidget extends StatelessWidget {
                                 child: Text('You', style: TextStyle(color: Colors.white))))))) : Container(),
                               Spacer(),
                               Container(
-                                    color: Colors.transparent,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [Container(
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(4)),
-                                              color: eventStatusColor.withOpacity(
-                                                  0.1)
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(5),
-                                            child: Row(
-                                                children:[
-                                                  SizedBox(width: 12, height: 12, child: ResourceImage.imageWithName(eventStatusIcon),),
+                                color: Colors.transparent,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(4)),
+                                          color: eventStatusColor.withOpacity(
+                                              0.1)
+                                      ),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(5),
+                                        child: Row(
+                                            children:[
+                                              SizedBox(width: 12, height: 12, child: ResourceImage.imageWithName(eventStatusIcon),),
                                               SizedBox(width: 6,),
                                               Text(measurementStatus,
-                                              style: TextStyle(
-                                                  color: eventStatusColor),)]),)
-                                      )],),)]),
+                                                style: TextStyle(
+                                                    color: eventStatusColor),)]),)
+                                  )],),)
+                              ]),
                         SizedBox(height: 18,),
                         SizedBox(
                             height: showDate ? 52 : canAddMeasurement ? 90 : 170,
