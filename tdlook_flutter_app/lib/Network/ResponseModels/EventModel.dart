@@ -352,7 +352,7 @@ class MeasurementResults {
       data['overlap'] = this.overlap;
     }
     if (this.outerCarrier != null) {
-      data['outer_carrier'] = this.outerCarrier;
+      data['outer_carrier'] = this.outerCarrier.toString();
     }
     data['gender'] = this.gender;
     data['height'] = this.height.toInt().toString();
