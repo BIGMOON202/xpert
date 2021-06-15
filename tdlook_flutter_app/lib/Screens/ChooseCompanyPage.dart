@@ -31,8 +31,8 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
   Widget build(BuildContext context) {
 
     var titleText = Padding(
-      padding: EdgeInsets.only(top: 40,left: 40,right: 40, bottom: 10),
-      child: CustomText("What is your XpertFit type?"),
+      padding: EdgeInsets.only(top: 30,left: 40,right: 40, bottom: 10),
+      child: Text('What is your XpertFit type?', style: TextStyle(color: SessionParameters().mainFontColor, fontWeight: FontWeight.bold, fontSize: 18), textAlign: TextAlign.center,),
     );
 
 
@@ -41,8 +41,8 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
       child: Container(
         // height: 156,
         color: _backgroundColor,
-        padding: EdgeInsets.all(12),
-        child:Column(children:[Row(
+        padding: EdgeInsets.only(left: 12, right: 12, bottom: 50),
+        child: SafeArea(child: Column(mainAxisAlignment: MainAxisAlignment.center, children:[Row(
           children: [
             Expanded(
                 child:Container(
@@ -59,14 +59,12 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          SizedBox(height: 20),
-                          SizedBox(
-                              width: 45,
-                              height: 61,
+                          AspectRatio(aspectRatio: 10),
+                        AspectRatio(aspectRatio: 2.5,
                               child:ResourceImage.imageWithName(_selectedCompanyType == CompanyType.uniforms ? CompanyType.uniforms.selectedImageName() : CompanyType.uniforms.unselectedImageName())),
-                          SizedBox(height: 24),
+                      AspectRatio(aspectRatio: 10),
                           Text('Uniforms', style: TextStyle(color: Colors.white),),
-                          SizedBox(height: 20),
+                          AspectRatio(aspectRatio: 10),
                         ],
                       ),
                     ))),
@@ -81,25 +79,24 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
 
                     children: <Widget>[
-                      SizedBox(height: 20),
-                      SizedBox(
-                          width: 45,
-                          height:61,
+                      AspectRatio(aspectRatio: 10),
+                      AspectRatio(aspectRatio: 2.5,
                           child:ResourceImage.imageWithName(_selectedCompanyType == CompanyType.armor ? CompanyType.armor.selectedImageName() : CompanyType.armor.unselectedImageName())),
-                      SizedBox(height: 24),
+                      AspectRatio(aspectRatio: 10),
                       Text('Armor', style: TextStyle(color: Colors.white),),
-                      SizedBox(height: 20),
+                      AspectRatio(aspectRatio: 10),
                     ],
                   ),
                 )),
           ],
         ),
+        AspectRatio(aspectRatio: 30),
         Row(crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Flexible(child: Padding(child: ResourceImage.imageWithName('ic_flyingCross.png'), padding: EdgeInsets.all(30),)),
-        Flexible(child: Padding(child: ResourceImage.imageWithName('ic_sl.png'), padding: EdgeInsets.all(30),))],)]),
+          Flexible(child: AspectRatio(aspectRatio:3, child: ResourceImage.imageWithName('ic_flyingCross.png'))),
+        Flexible(child: AspectRatio(aspectRatio:13, child: ResourceImage.imageWithName('ic_sl.png')))],)]),
       ),
-    );
+    ));
 
     void _moveToNextPage() {
       SessionParameters().selectedCompany = _selectedCompanyType;
