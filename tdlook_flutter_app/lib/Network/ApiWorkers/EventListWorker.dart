@@ -25,12 +25,12 @@ class EventListWorker {
     // var accessToken = prefs.getString('access');
     var link = 'events/';
     if (role != null && role == 'dealer' && userId != null) {
-      link = 'events/?user=$userId';
+      link = 'events/?user=$userId&page_size=400';
       if (eventName != null) {
         link = link + '&search=${eventName}';
       }
     } else if (eventName != null) {
-      link = link + '?search=${eventName}';
+      link = link + '?search=${eventName}&page_size=400';
     }
 
     print('link: ${link}');

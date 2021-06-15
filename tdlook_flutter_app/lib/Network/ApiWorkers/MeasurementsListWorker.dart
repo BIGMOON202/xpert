@@ -20,7 +20,7 @@ class MeasurementsListWorker {
 
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
     // var accessToken = prefs.getString('access');
-    final response = await _provider.get('measurements/?event=$eventId',useAuth: true);
+    final response = await _provider.get('measurements/?event=$eventId&page_size=400',useAuth: true);
     var list = MeasurementsList.fromJson(response);
     debugPrint(list.paging.description);
     return list;
