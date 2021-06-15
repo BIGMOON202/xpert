@@ -40,15 +40,17 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
   Widget build(BuildContext context) {
 
     var titleText = Padding(
-      padding: EdgeInsets.only(top: 40, left: 40, right: 40, bottom: 0),
+      padding: EdgeInsets.only(top: 30, left: 40, right: 40, bottom: 0),
       child: Text('Before start, select your role', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18), textAlign: TextAlign.center,),
     );
 
 
     var buttonsContainer = Align(
       alignment: Alignment.topCenter,
-      child: Container(
-        height: 182,
+      child: SafeArea(child:
+      Padding(
+        padding: EdgeInsets.only(left: 12, right: 12),child: AspectRatio(aspectRatio: 1.9, child: Container(
+        // height: 182,
         color: _backgroundColor,
         padding: EdgeInsets.all(12),
         child:Row(
@@ -65,19 +67,21 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
                       color: _selectedUserType == UserType.endWearer ? _selectedColor : _backgroundColor,
                       highlightColor: Colors.grey,
-                      child: Column(
+                      child: Center(child: Column(
+                        // crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          SizedBox(
-                              width: 45,
-                              height: 61,
-                              child:ResourceImage.imageWithName(_selectedUserType == UserType.endWearer ? UserType.endWearer.selectedImageName() : UserType.endWearer.unselectedImageName())),
-                          SizedBox(height: 24),
-                          Text('I\'m the end-wearer', style: TextStyle(color: Colors.white),),
                           SizedBox(height: 4),
-                          Text('Measure yourself', style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12),),
+                          AspectRatio(aspectRatio: 2.2,
+                              // width: 45,
+                              // height: 61,
+                              child:ResourceImage.imageWithName(_selectedUserType == UserType.endWearer ? UserType.endWearer.selectedImageName() : UserType.endWearer.unselectedImageName())),
+                          SizedBox(height: 10),
+                          Text('I\'m the end-wearer', style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
+                          SizedBox(height: 4),
+                          Text('Measure yourself', style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12), textAlign: TextAlign.center),
                         ],
-                      ),
+                      )),
                     ))),
             Expanded(
                 child:FlatButton(
@@ -90,21 +94,22 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
 
                     children: <Widget>[
-                      SizedBox(
-                          width: 45,
-                          height:61,
-                          child:ResourceImage.imageWithName(_selectedUserType == UserType.salesRep ? UserType.salesRep.selectedImageName() : UserType.salesRep.unselectedImageName())),
-                      SizedBox(height: 24),
-                      Text('I\'m the sales rep', style: TextStyle(color: Colors.white),),
                       SizedBox(height: 4),
-                      Text('Measure end-wearers', style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12),),
+                      AspectRatio(aspectRatio: 2.2,
+                          // width: 45,
+                          // height:61,
+                          child:ResourceImage.imageWithName(_selectedUserType == UserType.salesRep ? UserType.salesRep.selectedImageName() : UserType.salesRep.unselectedImageName())),
+                      SizedBox(height: 10),
+                      Text('I\'m the sales rep', style: TextStyle(color: Colors.white), textAlign: TextAlign.center),
+                      SizedBox(height: 4),
+                      Text('Measure end-wearers', style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12), textAlign: TextAlign.center),
                     ],
                   ),
                 )),
           ],
         ),
       ),
-    );
+    ))));
 
     void _moveToNextPage() {
 
