@@ -112,7 +112,7 @@ class _ArmorTypePageState extends State<ArmorTypePage> {
                   child: ResourceImage.imageWithName(type.imageName))));
     }
 
-    var appealPhrase = SessionParameters().selectedUser == UserType.endWearer ? 'Does end-wearer wear the' : 'Do you wear your';
+    var appealPhrase = SessionParameters().selectedUser == UserType.endWearer ? 'Do you wear your' : 'Does end-wearer wear the';
     var questionText = '$appealPhrase armor concealed or in an outer carrier over the shirt';
     var middleText = Padding(padding: EdgeInsets.only(left: 8, right: 8), child: Text(questionText,
         style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 18, fontWeight: FontWeight.w600), textAlign: TextAlign.center));
