@@ -442,9 +442,9 @@ class EventsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (resultsList.item1.data.isEmpty) {
-      return EmptyStateWidget(messageName: 'There is no events yet');
-    }
+    // if (resultsList.item1.data.isEmpty) {
+    //   return EmptyStateWidget(messageName: 'There is no events yet');
+    // }
 
     void _moveToEventAt(int index) {
       if (userId == null) {
@@ -693,11 +693,18 @@ class EventsListWidget extends StatelessWidget {
       return gesture;
     }
 
-    var listView = ListView.builder(
-      itemCount: resultsList.item1.data.length,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      itemBuilder: (_, index) => itemAt(index),
-    );
+    Widget listView;
+
+    if (resultsList.item1.data.isEmpty) {
+      listView = EmptyStateWidget(messageName: 'There is no events yet');
+    } else {
+      listView = ListView.builder(
+        itemCount: resultsList.item1.data.length,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        itemBuilder: (_, index) => itemAt(index),
+      );
+    }
+
 
     Color _refreshColor = HexColor.fromHex('#898A9D');
     var list = SmartRefresher(
