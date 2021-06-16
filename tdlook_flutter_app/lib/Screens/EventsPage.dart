@@ -740,8 +740,6 @@ class EventsListWidget extends StatelessWidget {
         paginationViewType: PaginationViewType.listView,
         footer: SizedBox(height: 24),
         pageFetch: onFetchList);
-        // onEmpty: onEmpty,
-        // onError: onError)
 
     var list = SmartRefresher(
         header: CustomHeader(

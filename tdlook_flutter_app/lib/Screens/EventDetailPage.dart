@@ -2,6 +2,7 @@
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
+import 'package:pagination_view/pagination_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
@@ -82,6 +83,29 @@ class _EventDetailPageState extends State<EventDetailPage> {
     _bloc.call();
   }
 
+  Future<List<MeasurementResults>> _pageFetch(int offset) async {
+    MeasurementsList result;
+
+    final total = _bloc.worker.paging.count;
+    final left = total - offset;
+    if (left <= 0) {
+      return [];
+    }
+    final page = (offset / kDefaultMeasurementsPerPage).round();
+
+    print(">>>>>> offset: $offset, from: $total, page: $page");
+
+    result = await _bloc.asyncCall(page: page + 1);
+
+    print('measurementsList\n '
+        'count:${_bloc.worker.paging.count}\n'
+        'pageItemLimit:${_bloc.worker.paging.pageItemLimit}\n'
+        'next:${_bloc.worker.paging.next}');
+
+
+    return result.data;
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -111,6 +135,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                     userType: widget.userType,
                     currentUserId: widget.currentUserId,
                     onRefreshList: _refreshList,
+                    onFetchList: _pageFetch,
                     refreshController: _refreshController);
                   break;
                 case Status.ERROR:
@@ -150,9 +175,10 @@ class MeasuremetsListWidget extends StatelessWidget {
   final UserType userType;
   final RefreshController refreshController;
   final AsyncCallback onRefreshList;
+  final void Function(int) onFetchList;
 
 
-  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType, this.currentUserId, this.onRefreshList, this.refreshController}) : super(key: key);
+  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType, this.currentUserId, this.onRefreshList, this.onFetchList, this.refreshController}) : super(key: key);
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   void _pullRefresh() async {
@@ -301,7 +327,7 @@ class MeasuremetsListWidget extends StatelessWidget {
     }
 
 
-    Widget itemAt({int index, bool showEmptyView}) {
+    Widget itemAt({int index, MeasurementResults measurement, bool showEmptyView}) {
 
       Container container;
 
@@ -456,7 +482,7 @@ class MeasuremetsListWidget extends StatelessWidget {
 
 
         var ind = index - 1;
-        var measurement = measurementsList.data[ind];
+        // var measurement = measurementsList.data[ind];
 
         var userName = measurement.endWearer.name ?? '-';
         var userEmail = measurement.endWearer.email ?? '-';
@@ -674,6 +700,12 @@ class MeasuremetsListWidget extends StatelessWidget {
       itemBuilder: (_, index) => itemAt(index:index, showEmptyView: emptyStateViewCount == 1),
     );
 
+    var paginationList = PaginationView<MeasurementResults>(itemBuilder:  (BuildContext context, MeasurementResults measurement, int index) =>
+        itemAt(index:index, measurement: measurement, showEmptyView: emptyStateViewCount == 1),
+        paginationViewType: PaginationViewType.listView,
+        footer: SizedBox(height: 24),
+        pageFetch: onFetchList);
+
     Color _refreshColor = HexColor.fromHex('#898A9D');
     var list = SmartRefresher(
         header: CustomHeader(
@@ -697,7 +729,15 @@ class MeasuremetsListWidget extends StatelessWidget {
         ),
         controller: refreshController,
         onLoading: _pullRefresh,
-        child: listView, onRefresh: onRefreshList);
+        child: paginationList, onRefresh: onRefreshList);
+
     return list;
+
+    // return RefreshView(
+    //   controller: widget.refreshController,
+    //   child: listView,
+    //   onRefresh: widget.onRefreshList,
+    //   onLoading: _pullRefresh,
+    // );
   }
 }

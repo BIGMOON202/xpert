@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
@@ -8,26 +9,30 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
 
 class MeasurementsListWorker {
 
-  Paging _lastPage;
+  Paging paging;
   String eventId;
   MeasurementsListWorker(this.eventId);
 
   NetworkAPI _provider = NetworkAPI();
 
-  Future<MeasurementsList> fetchData() async {
+  Future<MeasurementsList> fetchData({int page = 0,
+    int size = kDefaultMeasurementsPerPage}) async {
 
+    final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
 
-
-    // final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // var accessToken = prefs.getString('access');
-    final response = await _provider.get('measurements/?event=$eventId&page_size=400',useAuth: true);
+    final response = await _provider.get('measurements/?event=$eventId&page_size=$size$pageParam',useAuth: true);
     var list = MeasurementsList.fromJson(response);
     debugPrint(list.paging.description);
+    this.paging = list.paging;
     return list;
   }
 }
 
 class MeasurementsListWorkerBloc {
+
+  MeasurementsListWorker get worker {
+    return _measurementsListWorker;
+  }
 
   String eventId;
 
@@ -61,6 +66,17 @@ class MeasurementsListWorkerBloc {
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
       print(e);
+    }
+  }
+
+  Future<MeasurementsList> asyncCall(
+      {int page = 0, int size = kDefaultMeasurementsPerPage}) async {
+    try {
+      MeasurementsList list = await _measurementsListWorker.fetchData(page: page, size: size);
+      return list;
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 
