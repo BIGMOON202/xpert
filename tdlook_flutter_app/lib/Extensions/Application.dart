@@ -34,6 +34,8 @@ class Application {
   }
 }
 
+const int kDefaultMeasurementsPerPage = 4;
+
 enum API {
   test,
   stage,

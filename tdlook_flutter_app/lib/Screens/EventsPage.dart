@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inner_drawer/inner_drawer.dart';
 import 'package:package_info/package_info.dart';
+import 'package:pagination_view/pagination_view.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Painter.dart';
@@ -97,11 +99,6 @@ class _EventsPageState extends State<EventsPage> {
       });
     } else {
       _bloc.call(eventName: withText);
-      // List<Event> filtered = await events.data.item1.data.where((element) => (element.name.containsIgnoreCase(withText) || element.agency.name.containsIgnoreCase(withText))).toList();
-      //
-      // setState(() {
-      //   // filteredevents.item1.data = filtered;
-      // });
     }
   }
 
@@ -116,6 +113,29 @@ class _EventsPageState extends State<EventsPage> {
   Future<void> _refreshList() {
     originalEvents = null;
     _bloc.call();
+  }
+
+  Future<List<Event>> _pageFetch(int offset) async {
+    Tuple2<EventList, MeasurementsList> result;
+
+    final total = _bloc.worker.paging.count;
+    final left = total - offset;
+    if (left <= 0) {
+      return [];
+    }
+    final page = (offset / kDefaultMeasurementsPerPage).round();
+
+    print(">>>>>> offset: $offset, from: $total, page: $page");
+
+    result = await _bloc.asyncCall(page: page + 1);
+
+    print('measurementsList\n '
+        'count:${_bloc.worker.paging.count}\n'
+        'pageItemLimit:${_bloc.worker.paging.pageItemLimit}\n'
+        'next:${_bloc.worker.paging.next}');
+
+
+    return result.item1.data;
   }
 
   @override
@@ -334,6 +354,7 @@ class _EventsPageState extends State<EventsPage> {
                   userType: _userType,
                   userId: userId,
                   onRefreshList: _refreshList,
+                  onFetchList: _pageFetch,
                   refreshController: _refreshController);
               return listWidget;
               break;
@@ -422,6 +443,7 @@ class EventsListWidget extends StatelessWidget {
   final UserType userType;
   final Tuple2<EventList, MeasurementsList> resultsList;
   final AsyncCallback onRefreshList;
+  final void Function(int) onFetchList;
   final RefreshController refreshController;
 
   const EventsListWidget(
@@ -430,6 +452,7 @@ class EventsListWidget extends StatelessWidget {
       this.userType,
       this.userId,
       this.onRefreshList,
+        this.onFetchList,
       this.refreshController})
       : super(key: key);
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
@@ -446,13 +469,13 @@ class EventsListWidget extends StatelessWidget {
     //   return EmptyStateWidget(messageName: 'There is no events yet');
     // }
 
-    void _moveToEventAt(int index) {
+    void _moveToEventAt(int index, Event event) {
       if (userId == null) {
         print('did not receive user profile info on main page');
         // return;
       }
 
-      var event = resultsList.item1.data[index];
+      // var event = resultsList.item1.data[index];
       var measurements = resultsList.item2;
 
       Navigator.push(
@@ -468,8 +491,10 @@ class EventsListWidget extends StatelessWidget {
                   )));
     }
 
-    Widget itemAt(int index) {
-      var event = resultsList.item1.data[index];
+    Widget itemAt(int index, Event event) {
+      print('index for widget $index, event: ${event.id}');
+
+      // var event = resultsList.item1.data[index];
       print('itemAt: $index $event');
       var eventName = event.name ?? 'Event Name';
       var companyName = event?.agency?.name ?? '-';
@@ -686,7 +711,7 @@ class EventsListWidget extends StatelessWidget {
         child: container,
         onTap: () {
           print('did Select at $index');
-          _moveToEventAt(index);
+          _moveToEventAt(index, event);
         },
       );
 
@@ -701,12 +726,23 @@ class EventsListWidget extends StatelessWidget {
       listView = ListView.builder(
         itemCount: resultsList.item1.data.length,
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemBuilder: (_, index) => itemAt(index),
+        itemBuilder: (_, index) => itemAt(index, null),
       );
     }
 
 
     Color _refreshColor = HexColor.fromHex('#898A9D');
+
+
+    
+    var paginationList = PaginationView<Event>(itemBuilder:  (BuildContext context, Event event, int index) =>
+        itemAt(index, event),
+        paginationViewType: PaginationViewType.listView,
+        footer: SizedBox(height: 24),
+        pageFetch: onFetchList);
+        // onEmpty: onEmpty,
+        // onError: onError)
+
     var list = SmartRefresher(
         header: CustomHeader(
           builder: (BuildContext context, RefreshStatus mode) {
@@ -736,7 +772,7 @@ class EventsListWidget extends StatelessWidget {
         ),
         controller: refreshController,
         onLoading: _pullRefresh,
-        child: listView,
+        child: paginationList,
         onRefresh: onRefreshList);
     return list;
   }

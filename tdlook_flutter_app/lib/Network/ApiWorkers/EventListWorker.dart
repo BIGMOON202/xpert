@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,8 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
 import 'package:tuple/tuple.dart';
 
 class EventListWorker {
+  Paging paging;
+
   String role;
   String userId;
 
@@ -16,7 +19,8 @@ class EventListWorker {
 
   NetworkAPI _provider = NetworkAPI();
 
-  Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName}) async {
+  Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName, int page = 0,
+    int size = kDefaultMeasurementsPerPage}) async {
 
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -24,15 +28,19 @@ class EventListWorker {
 
     // var accessToken = prefs.getString('access');
     var link = 'events/';
+    final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
+
     if (role != null && role == 'dealer' && userId != null) {
-      link = 'events/?user=$userId&page_size=400';
+      link = 'events/?user=$userId';
       if (eventName != null) {
         link = link + '&search=${eventName}';
       }
+      link = link + '&page_size=$size$pageParam';
     } else if (eventName != null) {
-      link = link + '?search=${eventName}&page_size=400';
+      link = link + '?search=${eventName}&page_size=$size$pageParam';
+    } else {
+      link = link + '?page_size=$size$pageParam';
     }
-
     print('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
     print('events: ${response.length}');
@@ -40,19 +48,23 @@ class EventListWorker {
     if (_provider.shouldRefreshTokenFor(json:response)) {
 
     } else {
-      return Tuple2(EventList.fromJson(response), MeasurementsList(data: [], paging: Paging()));
+      var eventList = EventList.fromJson(response);
+      this.paging = eventList.paging;
+      return Tuple2(eventList, MeasurementsList(data: [], paging: Paging()));
     }
   }
 }
 
 class EventListWorkerEndwearer extends EventListWorker {
+  Paging paging;
 
   String provider;
 
   EventListWorkerEndwearer(this.provider);
 
   @override
-  Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName}) async {
+  Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName, int page = 0,
+    int size = kDefaultMeasurementsPerPage}) async {
 
     print('get measurements');
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,6 +74,9 @@ class EventListWorkerEndwearer extends EventListWorker {
         if (eventName != null) {
           link = link + '&search=${eventName}';
         }
+    final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
+    link = link + '$pageParam&page_size=$size';
+
     print('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
 
@@ -74,8 +89,8 @@ class EventListWorkerEndwearer extends EventListWorker {
       events.add(element.event);
     });
     print('events: ${events.length}');
-
-    return Tuple2(EventList(data: events, paging: Paging(count: events.length)), list);
+    this.paging = Paging(count: events.length);
+    return Tuple2(EventList(data: events, paging: paging), list);
   }
 }
 
@@ -83,6 +98,10 @@ class EventListWorkerBloc {
 
   String provider;
   UserType userType;
+
+  EventListWorker get worker {
+    return _eventListWorker;
+  }
 
   EventListWorker _eventListWorker;
   StreamController _listController;
@@ -120,6 +139,17 @@ class EventListWorkerBloc {
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
       print(e);
+    }
+  }
+
+  Future<Tuple2<EventList, MeasurementsList>> asyncCall(
+      {int page = 0, int size = kDefaultMeasurementsPerPage}) async {
+    try {
+      Tuple2<EventList, MeasurementsList> list = await _eventListWorker.fetchData(page: page, size: size);
+      return list;
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 
