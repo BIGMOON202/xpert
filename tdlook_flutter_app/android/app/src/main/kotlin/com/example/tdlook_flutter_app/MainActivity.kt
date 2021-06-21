@@ -1,4 +1,4 @@
-package com.example.tdlook_flutter_app
+package com.tdlook_xpertfit_app
 
 import io.flutter.embedding.android.FlutterActivity
 

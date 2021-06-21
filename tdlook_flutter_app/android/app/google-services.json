@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:768234624213:android:979506445095c368467e5c",
         "android_client_info": {
-          "package_name": "com.example.tdlook_flutter_app"
+          "package_name": "com.tdlook_xpertfit_app"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "768234624213-58rfa1clcd67u60iita6cq2ri4fn21k6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.tdlook_flutter_app",
+            "package_name": "com.tdlook_xpertfit_app",
             "certificate_hash": "50100a27100b34caf3d4e42efc1c3f17132f8c9e"
           }
         },
