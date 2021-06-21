@@ -169,7 +169,19 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
         appBar: AppBar(
           brightness: Brightness.dark,
           centerTitle: true,
-          title: Text('If the app finds $titleForm between sizes…', maxLines: 2),
+          title: Row(
+            //children align to center.
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(child: Text('If the app finds $titleForm between sizes…', maxLines: 3))
+            ],
+          ),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
         ),
