@@ -20,7 +20,7 @@ class MeasurementsListWorker {
 
     final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
 
-    final response = await _provider.get('measurements/?event=$eventId&page_size=$size$pageParam',useAuth: true);
+    final response = await _provider.get('measurements/?event=$eventId&page_size=$size$pageParam&ordering=end_wearer__name',useAuth: true);
     var list = MeasurementsList.fromJson(response);
     debugPrint(list.paging.description);
     this.paging = list.paging;
