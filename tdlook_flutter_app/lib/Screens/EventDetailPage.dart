@@ -192,9 +192,9 @@ class MeasuremetsListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    void _moveToMeasurementAt(int index) {
+    void _moveToMeasurementAt(MeasurementResults measurement) {
 
-      var measurement = measurementsList.data[index];
+      // var measurement = measurementsList.data[index];
       measurement.askForWaistLevel = event.shouldAskForWaistLevel();
       print('open measurement\n '
           'id:${measurement.id}\n'
@@ -275,7 +275,7 @@ class MeasuremetsListWidget extends StatelessWidget {
       );
     }
 
-    Future<void> askForPermissionsAndMove(int index) async {
+    Future<void> askForPermissionsAndMove(MeasurementResults _measurement) async {
       print('askForPermissionsAndMove');
       Map<Permission, PermissionStatus> statuses = await [
         Permission.camera,
@@ -283,21 +283,21 @@ class MeasuremetsListWidget extends StatelessWidget {
 
       print('statuses: $statuses');
       if (statuses[Permission.camera] == PermissionStatus.granted) {
-        _moveToMeasurementAt(index);
+        _moveToMeasurementAt(_measurement);
       } else if (statuses[Permission.camera] == PermissionStatus.permanentlyDenied) {
         openSetting();
       }
     }
 
-    Future<void> checkPermissionsAndMoveTo({int index}) async {
+    Future<void> checkPermissionsAndMoveTo({MeasurementResults measurement}) async {
 
-      var measurement = measurementsList.data[index];
+      // var measurement = measurementsList.data[index];
 
       if (Application.isInDebugMode == false) {
         if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
           // move to camera permissions
         } else if (measurement.isComplete == true) {
-          _moveToMeasurementAt(index);
+          _moveToMeasurementAt(measurement);
           return;
         } else if (event.status != EventStatus.in_progress) {
           return;
@@ -317,164 +317,162 @@ class MeasuremetsListWidget extends StatelessWidget {
       print('isDenied: $isDenied');
 
       if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false && await Permission.camera.isRestricted == false) {
-        askForPermissionsAndMove(index);
+        askForPermissionsAndMove(measurement);
       } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied || await cameraStatus.isPermanentlyDenied) {
         openSetting();
         // The OS restricts access, for example because of parental controls.
       } else {
-        _moveToMeasurementAt(index);
+        _moveToMeasurementAt(measurement);
       }
     }
 
+    Widget headerForList() {
+      var eventName = event?.name ?? 'Event Name';
+      var companyName = event.agency?.name ?? '-';
+      var companyType = event?.agency?.type.replaceAll('_', ' ').capitalizeFirst() ?? '-';
 
-    Widget itemAt({int index, MeasurementResults measurement, bool showEmptyView}) {
+      final startTime = event.startDateTime.toLocal();
+      var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
+      var eventStartTime = DateFormat('K:mm a').format(startTime);
 
-      Container container;
+      final endTime = event.endDateTime.toLocal();
+      var eventEndDate = DateFormat('d MMM yyyy').format(endTime);
+      var eventEndTime = DateFormat('K:mm a').format(endTime);
 
-      if (index == 0) {
-
-        var eventName = event?.name ?? 'Event Name';
-        var companyName = event.agency?.name ?? '-';
-        var companyType = event?.agency?.type.replaceAll('_', ' ').capitalizeFirst() ?? '-';
-
-        final startTime = event.startDateTime.toLocal();
-        var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
-        var eventStartTime = DateFormat('K:mm a').format(startTime);
-
-        final endTime = event.endDateTime.toLocal();
-        var eventEndDate = DateFormat('d MMM yyyy').format(endTime);
-        var eventEndTime = DateFormat('K:mm a').format(endTime);
-
-        var eventStatus = event.status.displayName() ?? "In progress";
-        var eventStatusColor = Colors.white;
-        var eventStatusTextColor = event.status.textColor() ?? Colors.black;
+      var eventStatus = event.status.displayName() ?? "In progress";
+      var eventStatusColor = Colors.white;
+      var eventStatusTextColor = event.status.textColor() ?? Colors.black;
 
 
-        var _textColor = Colors.white;
-        var _descriptionColor = HexColor.fromHex('BEC1D4');
-        var _textStyle = TextStyle(color: _textColor);
-        var _descriptionStyle = TextStyle(color: _descriptionColor);
+      var _textColor = Colors.white;
+      var _descriptionColor = HexColor.fromHex('BEC1D4');
+      var _textStyle = TextStyle(color: _textColor);
+      var _descriptionStyle = TextStyle(color: _descriptionColor);
 
-        Widget _configureGraphWidgetFor(Event _event) {
-          if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
-            return EventCompletionGraphWidget(event: _event);
-          } else {
-            return Container();
-          }
+      Widget _configureGraphWidgetFor(Event _event) {
+        if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
+          return EventCompletionGraphWidget(event: _event);
+        } else {
+          return Container();
         }
-        
+      }
 
-        container = Container(
-          color: _backgroundColor,
-          child: Padding(
-              padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
-              child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      color: HexColor.fromHex('1E7AE4')
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(eventName, style: TextStyle(color: Colors.white),),
-                        SizedBox(height: 18,),
-                        SizedBox(
-                            height: 80,
-                            child: Row(
-                              children: [
-                                Expanded(flex: 4,
-                                    child: Column(
-                                      children:
-                                      [
-                                        Expanded(flex: 2,
+
+      var container = Container(
+        color: _backgroundColor,
+        child: Padding(
+            padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    color: HexColor.fromHex('1E7AE4')
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(eventName, style: TextStyle(color: Colors.white),),
+                      SizedBox(height: 18,),
+                      SizedBox(
+                          height: 80,
+                          child: Row(
+                            children: [
+                              Expanded(flex: 4,
+                                  child: Column(
+                                    children:
+                                    [
+                                      Expanded(flex: 2,
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment
+                                                .start,
+                                            children: [
+                                              SizedBox(height: 16,
+                                                  width: 16,
+                                                  child: ResourceImage.imageWithName('ic_event_place.png')),
+                                              SizedBox(width: 8),
+                                              Flexible(child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment
+                                                    .start,
+                                                children: [
+                                                  Expanded(child: Text(
+                                                    companyName,
+                                                    style: _textStyle,
+                                                    overflow: TextOverflow
+                                                        .ellipsis,)),
+                                                  Expanded(child: Text(
+                                                    companyType,
+                                                    style: _descriptionStyle,
+                                                    overflow: TextOverflow
+                                                        .ellipsis,))
+                                                ],))
+                                            ],)),
+                                      Expanded(flex: 1,
+                                          child: Container(
+                                            color: Colors.transparent,
                                             child: Row(
                                               crossAxisAlignment: CrossAxisAlignment
                                                   .start,
                                               children: [
                                                 SizedBox(height: 16,
                                                   width: 16,
-                                                  child: ResourceImage.imageWithName('ic_event_place.png')),
+                                                  child: ResourceImage
+                                                      .imageWithName(
+                                                      'ic_event_date.png'),),
                                                 SizedBox(width: 8),
-                                                Flexible(child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment
-                                                      .start,
-                                                  children: [
-                                                    Expanded(child: Text(
-                                                      companyName,
-                                                      style: _textStyle,
-                                                      overflow: TextOverflow
-                                                          .ellipsis,)),
-                                                    Expanded(child: Text(
-                                                      companyType,
-                                                      style: _descriptionStyle,
-                                                      overflow: TextOverflow
-                                                          .ellipsis,))
-                                                  ],))
-                                              ],)),
-                                        Expanded(flex: 1,
-                                            child: Container(
-                                              color: Colors.transparent,
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start,
-                                                children: [
-                                                  SizedBox(height: 16,
-                                                    width: 16,
-                                                    child: ResourceImage
-                                                        .imageWithName(
-                                                        'ic_event_date.png'),),
-                                                  SizedBox(width: 8),
-                                                  Expanded(
-                                                      child: Row(
-                                                        children: [
-                                                          Expanded(child: Text(
-                                                              eventStartDate,
-                                                              style: _textStyle)),
-                                                          Expanded(child: Text(
-                                                              eventStartTime,
-                                                              style: _descriptionStyle)),
-                                                        ],))
-                                                ],),)),
-                                        Expanded(flex: 1,
-                                            child: Row(
-                                              children: [
-                                                SizedBox(width: 24),
-                                                Expanded(child: Text(eventEndDate,
-                                                    style: _textStyle)),
-                                                Expanded(child: Text(eventEndTime,
-                                                    style: _descriptionStyle)),
-                                              ],))
-                                      ],
-                                    )),
-                                Expanded(
+                                                Expanded(
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(child: Text(
+                                                            eventStartDate,
+                                                            style: _textStyle)),
+                                                        Expanded(child: Text(
+                                                            eventStartTime,
+                                                            style: _descriptionStyle)),
+                                                      ],))
+                                              ],),)),
+                                      Expanded(flex: 1,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 24),
+                                              Expanded(child: Text(eventEndDate,
+                                                  style: _textStyle)),
+                                              Expanded(child: Text(eventEndTime,
+                                                  style: _descriptionStyle)),
+                                            ],))
+                                    ],
+                                  )),
+                              Expanded(
                                   flex: 2,
-                                    child: Container(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(4)), 
-                                                color: eventStatusColor), 
-                                            child: Padding(
+                                  child: Container(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(4)),
+                                              color: eventStatusColor),
+                                          child: Padding(
                                               padding: EdgeInsets.all(5),
                                               child: Text(eventStatus,
                                                 style: TextStyle(fontWeight: FontWeight.bold,
                                                     color: eventStatusTextColor),)),),
-                                          Flexible(child: _configureGraphWidgetFor(event))
-                                        ],),)),
-                              ],
-                            ))
-                      ],
-                    ),
-                  )
-              )),
-        );
+                                        Flexible(child: _configureGraphWidgetFor(event))
+                                      ],),)),
+                            ],
+                          ))
+                    ],
+                  ),
+                )
+            )),
+      );
+      return container;
+    }
 
-      } else {
+    Widget itemAt({int index, MeasurementResults measurement, bool showEmptyView}) {
+
+      Container container;
 
         if (showEmptyView) {
           return Container(height: MediaQuery.of(context).size.height * 0.5, child:EmptyStateWidget(messageName: 'The event has not been started yet. \nPlease wait until the start date'));
@@ -553,7 +551,7 @@ class MeasuremetsListWidget extends StatelessWidget {
             if (canAddMeasurement) {
               content = MaterialButton(
                 onPressed: (() {
-                  checkPermissionsAndMoveTo(index:index-1);
+                  checkPermissionsAndMoveTo(measurement: measurement);
                 }),
                 textColor: Colors.white,
                 child: Text('FIND MY FIT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
@@ -673,16 +671,12 @@ class MeasuremetsListWidget extends StatelessWidget {
                   )
               )),
         );
-      }
 
       var gesture = GestureDetector(
         child: container,
         onTap: () {
           print('did Select at $index');
-          if (index > 0) {
-            checkPermissionsAndMoveTo(index: index-1);
-            // _moveToMeasurementAt(index-1);
-          }
+          checkPermissionsAndMoveTo(measurement: measurement);
         },
       );
 
@@ -703,6 +697,7 @@ class MeasuremetsListWidget extends StatelessWidget {
     var paginationList = PaginationView<MeasurementResults>(itemBuilder:  (BuildContext context, MeasurementResults measurement, int index) =>
         itemAt(index:index, measurement: measurement, showEmptyView: emptyStateViewCount == 1),
         paginationViewType: PaginationViewType.listView,
+        header: headerForList(),
         footer: SizedBox(height: 24),
         pageFetch: onFetchList);
 
