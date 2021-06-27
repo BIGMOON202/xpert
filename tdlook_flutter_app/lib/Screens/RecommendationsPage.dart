@@ -106,7 +106,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
         case Status.COMPLETED:
           setState(() {
+            var askForWaistLevel = widget.arguments.measurement.askForWaistLevel;
             widget.arguments.measurement = event.data;
+            widget.arguments.measurement.askForWaistLevel = askForWaistLevel;
           });
           break;
         case Status.ERROR:
@@ -437,10 +439,10 @@ class RecommendationsListWidget extends StatelessWidget {
         var size = recomendation.size;
         var _textStyle = TextStyle(color: Colors.white);
 
-        var inseamValue = measurement.person.frontParams.inseam?.inImperial?.toStringAsFixed(0);
-        var sleeveValue = measurement.person.frontParams.sleeve?.inImperial?.toStringAsFixed(0);
-        var riseValue = measurement.person.frontParams.rise?.inImperial?.toStringAsFixed(0);
-        var waistValue = measurement.person.frontParams.waist?.inImperial?.toStringAsFixed(0);
+        var inseamValue = measurement?.person?.frontParams?.inseam?.inImperial?.toStringAsFixed(0);
+        var sleeveValue = measurement?.person?.frontParams?.sleeve?.inImperial?.toStringAsFixed(0);
+        var riseValue = measurement?.person?.frontParams?.rise?.inImperial?.toStringAsFixed(0);
+        var waistValue = measurement?.person?.frontParams?.waist?.inImperial?.toStringAsFixed(0);
 
         List<Widget> _sizeWidgets(RecommendationModel recommendation) {
           var widgets =  List<Widget>();

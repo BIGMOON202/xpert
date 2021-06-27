@@ -66,7 +66,9 @@ class _EventsPageState extends State<EventsPage> {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   TextEditingController _searchController = TextEditingController();
 
+  String _searchText;
   _clearText() {
+    _searchText = '';
     _searchController.clear();
     filter(withText: '');
   }
@@ -77,6 +79,7 @@ class _EventsPageState extends State<EventsPage> {
     if (searchText.length < 1) {
       searchText = '';
     }
+    _searchText = searchText;
     print("searchText: $searchText");
     FutureExtension.enableContinueTimer(delay: 1).then((value) {
       print('should search $searchText - $text');
@@ -89,17 +92,17 @@ class _EventsPageState extends State<EventsPage> {
 
 
   filter({String withText}) async {
-    if (originalEvents == null) return;
-
-    if (withText.isEmpty) {
-      print('or: ${originalEvents.data.item1.data.length}');
-      setState(() {
-        events = originalEvents;
-        filteredevents = originalEvents.data;
-      });
-    } else {
+    // if (originalEvents == null) return;
+    //
+    // if (withText.isEmpty) {
+    //   print('or: ${originalEvents.data.item1.data.length}');
+    //   setState(() {
+    //     events = originalEvents;
+    //     filteredevents = originalEvents.data;
+    //   });
+    // } else {
       _bloc.call(eventName: withText);
-    }
+    // }
   }
 
   void _toggle() {
@@ -127,15 +130,18 @@ class _EventsPageState extends State<EventsPage> {
 
     print(">>>>>> offset: $offset, from: $total, page: $page");
 
-    result = await _bloc.asyncCall(page: page + 1);
+    result = await _bloc.asyncCall(searchFilter: _searchText, page: page + 1);
 
     print('measurementsList\n '
         'count:${_bloc.worker.paging.count}\n'
         'pageItemLimit:${_bloc.worker.paging.pageItemLimit}\n'
         'next:${_bloc.worker.paging.next}');
-
-
-    return result.item1.data;
+    print(result.item1);
+    if (result.item1.data != null) {
+      return result.item1.data;
+    } else {
+      return [];
+    }
   }
 
   @override
@@ -349,6 +355,8 @@ class _EventsPageState extends State<EventsPage> {
               var userId = _userInfo != null ? _userInfo.id.toString() : null;
               prefs.setString('temp_user', userId ?? '');
               print('buided after complete');
+              print('${filteredevents.item1.data.length}');
+              print('--');
               listWidget = EventsListWidget(
                   resultsList: filteredevents,
                   userType: _userType,
@@ -718,28 +726,34 @@ class EventsListWidget extends StatelessWidget {
       return gesture;
     }
 
-    Widget listView;
-
-    if (resultsList.item1.data.isEmpty) {
-      listView = EmptyStateWidget(messageName: 'There is no events yet');
-    } else {
-      listView = ListView.builder(
-        itemCount: resultsList.item1.data.length,
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        itemBuilder: (_, index) => itemAt(index, null),
-      );
-    }
+    // Widget listView;
+    //
+    // if (resultsList.item1.data.isEmpty) {
+    //   listView = EmptyStateWidget(messageName: 'There is no events yet');
+    // } else {
+    //   listView = ListView.builder(
+    //     itemCount: resultsList.item1.data.length,
+    //     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+    //     itemBuilder: (_, index) => itemAt(index, null),
+    //   );
+    // }
 
 
     Color _refreshColor = HexColor.fromHex('#898A9D');
 
 
-    
-    var paginationList = PaginationView<Event>(itemBuilder:  (BuildContext context, Event event, int index) =>
-        itemAt(index, event),
-        paginationViewType: PaginationViewType.listView,
-        footer: SizedBox(height: 24),
-        pageFetch: onFetchList);
+    Widget paginationList;
+    if (resultsList.item1.data.isEmpty) {
+      paginationList = EmptyStateWidget(messageName: 'There is no events yet');
+    } else {
+      paginationList = PaginationView<Event>(itemBuilder:  (BuildContext context, Event event, int index) =>
+          itemAt(index, event),
+          pullToRefresh: true,
+          paginationViewType: PaginationViewType.listView,
+          footer: SizedBox(height: 24),
+          pageFetch: onFetchList);
+    }
+
 
     var list = SmartRefresher(
         header: CustomHeader(

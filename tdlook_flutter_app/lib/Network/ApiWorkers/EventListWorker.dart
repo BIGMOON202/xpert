@@ -143,9 +143,9 @@ class EventListWorkerBloc {
   }
 
   Future<Tuple2<EventList, MeasurementsList>> asyncCall(
-      {int page = 0, int size = kDefaultMeasurementsPerPage}) async {
+      {int page = 0, int size = kDefaultMeasurementsPerPage, String searchFilter}) async {
     try {
-      Tuple2<EventList, MeasurementsList> list = await _eventListWorker.fetchData(page: page, size: size);
+      Tuple2<EventList, MeasurementsList> list = await _eventListWorker.fetchData(eventName: searchFilter, page: page, size: size);
       return list;
     } catch (e) {
       print(e);
