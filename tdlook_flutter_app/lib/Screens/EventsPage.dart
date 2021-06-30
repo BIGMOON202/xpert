@@ -744,7 +744,7 @@ class EventsListWidget extends StatelessWidget {
 
     Widget paginationList;
     if (resultsList.item1.data.isEmpty) {
-      paginationList = EmptyStateWidget(messageName: 'There is no events yet');
+      paginationList = EmptyStateWidget(messageName: 'There are no events yet');
     } else {
       paginationList = PaginationView<Event>(itemBuilder:  (BuildContext context, Event event, int index) =>
           itemAt(index, event),
