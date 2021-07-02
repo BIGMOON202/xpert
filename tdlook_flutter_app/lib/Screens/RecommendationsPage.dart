@@ -107,8 +107,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         case Status.COMPLETED:
           setState(() {
             var askForWaistLevel = widget.arguments.measurement.askForWaistLevel;
+            var askForOverlap = widget.arguments.measurement.askForWaistLevel;
+
             widget.arguments.measurement = event.data;
             widget.arguments.measurement.askForWaistLevel = askForWaistLevel;
+            widget.arguments.measurement.askForOverlap = askForOverlap;
           });
           break;
         case Status.ERROR:

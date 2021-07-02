@@ -321,7 +321,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
     void _moveToNextPage() {
       widget.measurements.clavicle = _rawMetricValue;
 
-      if (SessionParameters().selectedCompany == CompanyType.armor) {
+      if (SessionParameters().selectedCompany == CompanyType.armor && widget.measurements.askForOverlap == true) {
 
         Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
             OverlapPage(gender: widget.gender, measurements: widget.measurements)

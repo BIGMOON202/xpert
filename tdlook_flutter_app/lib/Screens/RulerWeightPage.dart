@@ -152,23 +152,22 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     print('company: ${SessionParameters().selectedCompany.apiKey()}');
     print(">> height: ${widget.measurement.height}");
     print(">> weight: ${widget.measurement.weight}");
-    if (SessionParameters().selectedCompany == CompanyType.armor) {
+    UserType _user = SessionParameters().selectedUser;
 
-      if (SessionParameters().selectedUser == UserType.salesRep) {
-        Navigator.push(
-            context,
-            CupertinoPageRoute(
-              builder: (BuildContext context) => RulerPageClavicle(
-                gender: widget.gender,
-                selectedMeasurementSystem: widget.selectedMeasurementSystem,
-                measurements: widget.measurement,
-              ),
-            ));
-      } else {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            OverlapPage(gender: widget.gender, measurements: widget.measurement)
-        ));
-      }
+    if (SessionParameters().selectedCompany == CompanyType.armor && _user == UserType.salesRep) {
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => RulerPageClavicle(
+              gender: widget.gender,
+              selectedMeasurementSystem: widget.selectedMeasurementSystem,
+              measurements: widget.measurement,
+            ),
+          ));
+    } else if (SessionParameters().selectedCompany == CompanyType.armor && widget.measurement.askForOverlap == true) {
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+        OverlapPage(gender: widget.gender, measurements: widget.measurement)
+      ));
     } else {
 
       if (Application.shouldShowWaistLevel && widget.measurement.askForWaistLevel) {

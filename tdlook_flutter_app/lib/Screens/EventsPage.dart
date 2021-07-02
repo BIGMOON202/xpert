@@ -500,10 +500,8 @@ class EventsListWidget extends StatelessWidget {
     }
 
     Widget itemAt(int index, Event event) {
-      print('index for widget $index, event: ${event.id}');
 
       // var event = resultsList.item1.data[index];
-      print('itemAt: $index $event');
       var eventName = event.name ?? 'Event Name';
       var companyName = event?.agency?.name ?? '-';
       var companyType = event?.agency?.type.replaceAll('_', ' ').capitalizeFirst() ?? '-';
@@ -786,7 +784,7 @@ class EventsListWidget extends StatelessWidget {
         onLoading: _pullRefresh,
         child: paginationList,
         onRefresh: onRefreshList);
-    return list;
+    return paginationList;
   }
 }
 

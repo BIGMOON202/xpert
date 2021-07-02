@@ -45,6 +45,7 @@ class Event {
   int totalMeasuremensCount;
   int completeMeasuremensCount;
   List<dynamic> productTypes;
+  bool manualOverlap;
 
   Event(
       {this.id,
@@ -60,7 +61,8 @@ class Event {
         this.progress,
         this.totalMeasuremensCount,
         this.completeMeasuremensCount,
-        this.productTypes});
+        this.productTypes,
+        this.manualOverlap});
 
   Event.fromJson(Map<String, dynamic> json) {
       id = json['id'];
@@ -87,6 +89,8 @@ class Event {
           ? json['complete_measurements_count']
           : 0;
       productTypes = json['product_types'] != null ? json['product_types'] : [];
+      print('parsed overlap ${json['overlap']}');
+      manualOverlap = ((json['overlap'] == null) || (json['overlap'] == 'selected' || json['overlap'] == 'Selected'));
   }
 
   Map<String, dynamic> toJson() {
@@ -277,6 +281,7 @@ class MeasurementResults {
   String completedAt;
   DateTime completedAtTime;
   bool askForWaistLevel;
+  bool askForOverlap;
 
   EndWearer endWearer;
   Event event;
