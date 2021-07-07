@@ -7,7 +7,7 @@ class Application {
   }
 
   static API get apiType {
-    return API.stage;
+    return API.test;
   }
 
   static String get hostName {

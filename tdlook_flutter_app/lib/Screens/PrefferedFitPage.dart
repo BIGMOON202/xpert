@@ -173,7 +173,7 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
             //children align to center.
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(child: Text('If the app finds $titleForm between sizes…', maxLines: 3))
+              Expanded(child: Padding(padding: EdgeInsets.only(right: 56), child: Container(child: Text('If the app finds $titleForm between sizes…', textAlign: TextAlign.center, maxLines: 3))))
             ],
           ),
             leading: IconButton(

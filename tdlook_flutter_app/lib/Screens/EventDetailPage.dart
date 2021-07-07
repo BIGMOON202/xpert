@@ -26,6 +26,8 @@ import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 import 'package:intl/intl.dart';
+import 'package:tdlook_flutter_app/Extensions/Future+Extension.dart';
+import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
 
 class EventDetailPage extends StatefulWidget {
   final String currentUserId;
@@ -39,13 +41,17 @@ class EventDetailPage extends StatefulWidget {
   _EventDetailPageState createState() => _EventDetailPageState();
 }
 
-class _EventDetailPageState extends State<EventDetailPage> {
+class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProviderStateMixin {
+
 
   Event event;
   EventInfoWorkerBloc _eventInfoWorkerBloc;
   MeasurementsListWorkerBloc _bloc;
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  String _searchText = '';
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -79,8 +85,42 @@ class _EventDetailPageState extends State<EventDetailPage> {
     }
   }
 
+  void filter({String withText}) async {
+    print('filter with ${withText}');
+    _searchText = withText;
+    _bloc.call(name: withText);
+  }
+
+  _clearText() {
+    setState(() {
+      _searchText = '';
+    });
+    _searchController.clear();
+    filter(withText: '');
+  }
+
+  onSearchTextChanged(String text) {
+    // print('update: $text');
+    var searchText = EmojiUtils.removeAllEmoji(text ?? '');
+    if (searchText.length < 1) {
+      searchText = '';
+    }
+    setState(() {
+      _searchText = searchText;
+    });
+    print("searchText: $searchText");
+    FutureExtension.enableContinueTimer(delay: 1).then((value) {
+      print('should search $searchText - $text');
+      if (searchText == text) {
+        print('searching');
+        filter(withText: searchText);
+      }
+    });
+  }
+
+
   Future<void> _refreshList() {
-    _bloc.call();
+    _bloc.call(name: _searchText);
   }
 
   Future<List<MeasurementResults>> _pageFetch(int offset) async {
@@ -89,13 +129,14 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final total = _bloc.worker.paging.count;
     final left = total - offset;
     if (left <= 0) {
+      print('return zero results for page');
       return [];
     }
     final page = (offset / kDefaultMeasurementsPerPage).round();
 
     print(">>>>>> offset: $offset, from: $total, page: $page");
 
-    result = await _bloc.asyncCall(page: page + 1);
+    result = await _bloc.asyncCall(page: page + 1, name: _searchText);
 
     print('measurementsList\n '
         'count:${_bloc.worker.paging.count}\n'
@@ -106,261 +147,41 @@ class _EventDetailPageState extends State<EventDetailPage> {
     return result.data;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
+  Widget headerForList() {
 
-    Widget listBody() {
-      if (widget.measurementsList != null && widget.measurementsList.data.length != 0) {
-        print('config list body');
-        return MeasuremetsListWidget(event: event,
-            measurementsList: widget.measurementsList,
-            userType: widget.userType,
-            onRefreshList: _refreshList,
-            refreshController: _refreshController);
+    var eventName = widget.event?.name ?? 'Event Name';
+    var companyName = widget.event.agency?.name ?? '-';
+    var companyType = widget.event?.agency?.type.replaceAll('_', ' ').capitalizeFirst() ?? '-';
+
+    final startTime = widget.event.startDateTime.toLocal();
+    var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
+    var eventStartTime = DateFormat('K:mm a').format(startTime);
+
+    final endTime = widget.event.endDateTime.toLocal();
+    var eventEndDate = DateFormat('d MMM yyyy').format(endTime);
+    var eventEndTime = DateFormat('K:mm a').format(endTime);
+
+    var eventStatus = widget.event.status.displayName() ?? "In progress";
+    var eventStatusColor = Colors.white;
+    var eventStatusTextColor = widget.event.status.textColor() ?? Colors.black;
+
+
+    var _textColor = Colors.white;
+    var _descriptionColor = HexColor.fromHex('BEC1D4');
+    var _textStyle = TextStyle(color: _textColor);
+    var _descriptionStyle = TextStyle(color: _descriptionColor);
+
+    Widget _configureGraphWidgetFor(Event _event) {
+      if (_event.status.shouldShowCountGraph() == true && widget.userType == UserType.salesRep) {
+        return EventCompletionGraphWidget(event: _event);
       } else {
-        print('config list body async');
-        return StreamBuilder<Response<MeasurementsList>>(
-          stream: _bloc.chuckListStream,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              print('status: ${snapshot.data.status}');
-              switch (snapshot.data.status) {
-                case Status.LOADING:
-                  return Loading(loadingMessage: snapshot.data.message);
-                  break;
-                case Status.COMPLETED:
-                  return MeasuremetsListWidget(event: event,
-                    measurementsList: snapshot.data.data,
-                    userType: widget.userType,
-                    currentUserId: widget.currentUserId,
-                    onRefreshList: _refreshList,
-                    onFetchList: _pageFetch,
-                    refreshController: _refreshController);
-                  break;
-                case Status.ERROR:
-                  return Error(
-                    errorMessage: snapshot.data.message,
-                    onRetryPressed: () => _bloc.call(),
-                  );
-                  break;
-              }
-            }
-            return Container();
-          },
-        );
+        return Container();
       }
     }
 
-    var scaffold = Scaffold(
-      appBar: AppBar(
-        brightness: Brightness.dark,
-        centerTitle: true,
-        title: Text('Event details'),
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-      ),
-      backgroundColor: _backgroundColor,
-      body: listBody()
-    );
-
-    return scaffold;
-  }
-}
-
-class MeasuremetsListWidget extends StatelessWidget {
-  final String currentUserId;
-  final Event event;
-  final MeasurementsList measurementsList;
-  final UserType userType;
-  final RefreshController refreshController;
-  final AsyncCallback onRefreshList;
-  final void Function(int) onFetchList;
-
-
-  const MeasuremetsListWidget({Key key, this.event, this.measurementsList, this.userType, this.currentUserId, this.onRefreshList, this.onFetchList, this.refreshController}) : super(key: key);
-  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
-
-  void _pullRefresh() async {
-    await onRefreshList();
-    refreshController.loadComplete();
-  }
-
-
-
-
-  @override
-  Widget build(BuildContext context) {
-
-    void _moveToMeasurementAt(MeasurementResults measurement) {
-
-      // var measurement = measurementsList.data[index];
-      measurement.askForWaistLevel = event.shouldAskForWaistLevel();
-      print('open measurement\n '
-          'id:${measurement.id}\n'
-          'uuid:${measurement.uuid}');
-      // if (Application.isInDebugMode) {
-      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-      //   ));
-      //   return;
-      // }
-
-      if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
-        // if sales rep - open gender
-        if (SessionParameters().selectedCompany == CompanyType.armor) {
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              BadgePage(arguments:  BadgePageArguments(measurement, userType))
-          ));
-        } else {
-          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-              ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-          ));
-        }
-
-      } else if (measurement.isComplete == true) {
-
-        Navigator.pushNamed(context, RecommendationsPage.route,
-            arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
-
-      } else if (event.status != EventStatus.in_progress) {
-        // _showCupertinoDialog('Event is not in progress now');
-      }
-    }
-
-    _showCupertinoDialog(String text) {
-      showDialog(
-        barrierDismissible: false,
-          context: context,
-          builder: (_) => new CupertinoAlertDialog(
-            // title: new Text("Cupertino Dialog"),
-            content: new Text(text),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          ));
-    }
-
-    void closePopup() {
-      Navigator.of(context, rootNavigator: true).pop("Discard");
-    }
-
-    Future<void> openSetting() async {
-      print('open settings');
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (BuildContext context) => CupertinoAlertDialog(
-            content: new Text('Oops! Widget requires access to the camera to allow you to make photos that are required to calculate your body measurements. Please reopen widget and try again.'),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                child: Text("Open Settings"),
-                onPressed: () => {
-                  openAppSettings(),
-                  closePopup()
-                },
-              ),
-              CupertinoDialogAction(
-                  isDefaultAction: true,
-                  child: Text('Discard'),
-                  onPressed: () => closePopup()
-              ),
-            ],
-          )
-      );
-    }
-
-    Future<void> askForPermissionsAndMove(MeasurementResults _measurement) async {
-      print('askForPermissionsAndMove');
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.camera,
-      ].request();
-
-      print('statuses: $statuses');
-      if (statuses[Permission.camera] == PermissionStatus.granted) {
-        _moveToMeasurementAt(_measurement);
-      } else if (statuses[Permission.camera] == PermissionStatus.permanentlyDenied) {
-        openSetting();
-      }
-    }
-
-    Future<void> checkPermissionsAndMoveTo({MeasurementResults measurement}) async {
-
-      // var measurement = measurementsList.data[index];
-
-      if (Application.isInDebugMode == false) {
-        if (measurement.isComplete == false && event.status == EventStatus.in_progress) {
-          // move to camera permissions
-        } else if (measurement.isComplete == true) {
-          _moveToMeasurementAt(measurement);
-          return;
-        } else if (event.status != EventStatus.in_progress) {
-          return;
-        }
-      }
-
-      var cameraStatus = await Permission.camera.status;
-      var isPermanentlyDenied = await Permission.camera.isPermanentlyDenied;
-      var isDenied = await Permission.camera.isDenied;
-      var isGranted = await Permission.camera.isGranted;
-      var isRestricted = await Permission.camera.isRestricted;
-
-      print('isRestricted: $isRestricted');
-      print('isGranted: $isGranted');
-      print('status: $cameraStatus');
-      print('isPermanentlyDenied: $isPermanentlyDenied');
-      print('isDenied: $isDenied');
-
-      if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false && await Permission.camera.isRestricted == false) {
-        askForPermissionsAndMove(measurement);
-      } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied || await cameraStatus.isPermanentlyDenied) {
-        openSetting();
-        // The OS restricts access, for example because of parental controls.
-      } else {
-        _moveToMeasurementAt(measurement);
-      }
-    }
-
-    Widget headerForList() {
-      var eventName = event?.name ?? 'Event Name';
-      var companyName = event.agency?.name ?? '-';
-      var companyType = event?.agency?.type.replaceAll('_', ' ').capitalizeFirst() ?? '-';
-
-      final startTime = event.startDateTime.toLocal();
-      var eventStartDate = DateFormat('d MMM yyyy').format(startTime);
-      var eventStartTime = DateFormat('K:mm a').format(startTime);
-
-      final endTime = event.endDateTime.toLocal();
-      var eventEndDate = DateFormat('d MMM yyyy').format(endTime);
-      var eventEndTime = DateFormat('K:mm a').format(endTime);
-
-      var eventStatus = event.status.displayName() ?? "In progress";
-      var eventStatusColor = Colors.white;
-      var eventStatusTextColor = event.status.textColor() ?? Colors.black;
-
-
-      var _textColor = Colors.white;
-      var _descriptionColor = HexColor.fromHex('BEC1D4');
-      var _textStyle = TextStyle(color: _textColor);
-      var _descriptionStyle = TextStyle(color: _descriptionColor);
-
-      Widget _configureGraphWidgetFor(Event _event) {
-        if (_event.status.shouldShowCountGraph() == true && userType == UserType.salesRep) {
-          return EventCompletionGraphWidget(event: _event);
-        } else {
-          return Container();
-        }
-      }
-
-
-      var container = Container(
-        color: _backgroundColor,
-        child: Padding(
+    Widget _subchild() {
+      if (_searchText.isEmpty == true) {
+        return Padding(
             padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
             child: Container(
                 decoration: BoxDecoration(
@@ -458,16 +279,308 @@ class MeasuremetsListWidget extends StatelessWidget {
                                               child: Text(eventStatus,
                                                 style: TextStyle(fontWeight: FontWeight.bold,
                                                     color: eventStatusTextColor),)),),
-                                        Flexible(child: _configureGraphWidgetFor(event))
+                                        Flexible(child: _configureGraphWidgetFor(widget.event))
                                       ],),)),
                             ],
                           ))
                     ],
                   ),
                 )
-            )),
+            ));
+      } else {
+        return Container(decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            color: HexColor.fromHex('1E7AE4')
+        ));
+      }
+    }
+
+
+
+    var container = Container(
+      color: _backgroundColor,
+      child: _subchild()
+    );
+
+    var searchField = Container(
+        height: 64,
+        color: SessionParameters().mainBackgroundColor,
+    child: new Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Card(
+    color: SessionParameters().mainFontColor.withOpacity(0.1),
+    child: new Padding(
+        padding: const EdgeInsets.only(left: 8.0), child: TextFormField(
+      autocorrect: false,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+          color: SessionParameters().mainFontColor, fontSize: 13),
+      controller: _searchController,
+      decoration: new InputDecoration(
+          filled: true,
+          suffixIcon: Visibility(
+              visible: _searchController.value.text.isNotEmpty,
+              child: IconButton(
+                onPressed: () => _clearText(),
+                icon: Icon(
+                  Icons.clear,
+                  color: SessionParameters()
+                      .mainFontColor
+                      .withOpacity(0.8),
+                ),
+              )),
+          icon: Icon(
+            Icons.search,
+            color: SessionParameters().mainFontColor.withOpacity(0.8),
+          ),
+          hintText: 'Search by end-wearer\'s name or email',
+          hintStyle: TextStyle(
+              color:
+              SessionParameters().mainFontColor.withOpacity(0.8),
+              fontSize: 12),
+          border: InputBorder.none),
+      onChanged: onSearchTextChanged,
+    )))));
+
+    var column = Column(
+    children: [
+      AnimatedSize(
+            vsync: this,
+            curve: Curves.fastOutSlowIn,
+            duration: const Duration(milliseconds: 500),
+            child: container
+        ),
+        searchField
+      ],
+    );
+    return column;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+
+    Widget listBody() {
+      if (widget.measurementsList != null && widget.measurementsList.data.length != 0) {
+        print('config list body');
+        return MeasuremetsListWidget(event: event,
+            measurementsList: widget.measurementsList,
+            userType: widget.userType,
+            onRefreshList: _refreshList,
+            refreshController: _refreshController);
+      } else {
+        print('config list body async');
+        return StreamBuilder<Response<MeasurementsList>>(
+          stream: _bloc.chuckListStream,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              print('status: ${snapshot.data.status}');
+              switch (snapshot.data.status) {
+                case Status.LOADING:
+                  return Center(child: Loading(loadingMessage: snapshot.data.message));
+                  break;
+                case Status.COMPLETED:
+                  return MeasuremetsListWidget(event: event,
+                    measurementsList: snapshot.data.data,
+                    userType: widget.userType,
+                    currentUserId: widget.currentUserId,
+                    onRefreshList: _refreshList,
+                    onFetchList: _pageFetch,
+                    refreshController: _refreshController);
+                  break;
+                case Status.ERROR:
+                  return Error(
+                    errorMessage: snapshot.data.message,
+                    onRetryPressed: () => _bloc.call(name: _searchText),
+                  );
+                  break;
+              }
+            }
+            return Container(width: 0.0, height: 0.0);
+          },
+        );
+      }
+    }
+
+    var scaffold = Scaffold(
+      appBar: AppBar(
+        brightness: Brightness.dark,
+        centerTitle: true,
+        title: Text('Event details'),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      backgroundColor: _backgroundColor,
+      body:  Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [headerForList(), listBody()])
+    );
+
+    return scaffold;
+  }
+}
+
+class MeasuremetsListWidget extends StatefulWidget {
+  final String currentUserId;
+  final Event event;
+  final MeasurementsList measurementsList;
+  final UserType userType;
+  final RefreshController refreshController;
+  final AsyncCallback onRefreshList;
+  final void Function(int) onFetchList;
+
+  const MeasuremetsListWidget(
+      {Key key, this.event, this.measurementsList, this.userType, this.currentUserId, this.onRefreshList, this.onFetchList, this.refreshController})
+      : super(key: key);
+
+  @override
+  _MeasuremetsListWidgetState createState() => _MeasuremetsListWidgetState();
+}
+
+class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
+  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+
+  void _pullRefresh() async {
+    await widget.onRefreshList();
+    widget.refreshController.loadComplete();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    void _moveToMeasurementAt(MeasurementResults measurement) {
+
+      // var measurement = measurementsList.data[index];
+      measurement.askForWaistLevel = widget.event.shouldAskForWaistLevel();
+      measurement.askForOverlap = widget.event.manualOverlap;
+      print('open measurement\n '
+          'id:${measurement.id}\n'
+          'uuid:${measurement.uuid}');
+      // if (Application.isInDebugMode) {
+      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+      //   ));
+      //   return;
+      // }
+
+      if (measurement.isComplete == false && widget.event.status == EventStatus.in_progress) {
+        // if sales rep - open gender
+        if (SessionParameters().selectedCompany == CompanyType.armor) {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              BadgePage(arguments:  BadgePageArguments(measurement, widget.userType))
+          ));
+        } else {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+          ));
+        }
+
+      } else if (measurement.isComplete == true) {
+
+        Navigator.pushNamed(context, RecommendationsPage.route,
+            arguments: RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
+
+      } else if (widget.event.status != EventStatus.in_progress) {
+        // _showCupertinoDialog('Event is not in progress now');
+      }
+    }
+
+    _showCupertinoDialog(String text) {
+      showDialog(
+        barrierDismissible: false,
+          context: context,
+          builder: (_) => new CupertinoAlertDialog(
+            // title: new Text("Cupertino Dialog"),
+            content: new Text(text),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ));
+    }
+
+    void closePopup() {
+      Navigator.of(context, rootNavigator: true).pop("Discard");
+    }
+
+    Future<void> openSetting() async {
+      print('open settings');
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+            content: new Text('Oops! Widget requires access to the camera to allow you to make photos that are required to calculate your body measurements. Please reopen widget and try again.'),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text("Open Settings"),
+                onPressed: () => {
+                  openAppSettings(),
+                  closePopup()
+                },
+              ),
+              CupertinoDialogAction(
+                  isDefaultAction: true,
+                  child: Text('Discard'),
+                  onPressed: () => closePopup()
+              ),
+            ],
+          )
       );
-      return container;
+    }
+
+    Future<void> askForPermissionsAndMove(MeasurementResults _measurement) async {
+      print('askForPermissionsAndMove');
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.camera,
+      ].request();
+
+      print('statuses: $statuses');
+      if (statuses[Permission.camera] == PermissionStatus.granted) {
+        _moveToMeasurementAt(_measurement);
+      } else if (statuses[Permission.camera] == PermissionStatus.permanentlyDenied) {
+        openSetting();
+      }
+    }
+
+    Future<void> checkPermissionsAndMoveTo({MeasurementResults measurement}) async {
+
+      // var measurement = measurementsList.data[index];
+
+      if (Application.isInDebugMode == false) {
+        if (measurement.isComplete == false && widget.event.status == EventStatus.in_progress) {
+          // move to camera permissions
+        } else if (measurement.isComplete == true) {
+          _moveToMeasurementAt(measurement);
+          return;
+        } else if (widget.event.status != EventStatus.in_progress) {
+          return;
+        }
+      }
+
+      var cameraStatus = await Permission.camera.status;
+      var isPermanentlyDenied = await Permission.camera.isPermanentlyDenied;
+      var isDenied = await Permission.camera.isDenied;
+      var isGranted = await Permission.camera.isGranted;
+      var isRestricted = await Permission.camera.isRestricted;
+
+      print('isRestricted: $isRestricted');
+      print('isGranted: $isGranted');
+      print('status: $cameraStatus');
+      print('isPermanentlyDenied: $isPermanentlyDenied');
+      print('isDenied: $isDenied');
+
+      if (await cameraStatus.isGranted == false && await cameraStatus.isPermanentlyDenied == false && await Permission.camera.isRestricted == false) {
+        askForPermissionsAndMove(measurement);
+      } else if (await Permission.camera.isRestricted || await Permission.camera.isDenied || await cameraStatus.isPermanentlyDenied) {
+        openSetting();
+        // The OS restricts access, for example because of parental controls.
+      } else {
+        _moveToMeasurementAt(measurement);
+      }
     }
 
     Widget itemAt({int index, MeasurementResults measurement, bool showEmptyView}) {
@@ -509,7 +622,7 @@ class MeasuremetsListWidget extends StatelessWidget {
         var _descriptionStyle = TextStyle(color: _descriptionColor);
 
         bool isMyMeasure = false;
-        if (this.userType == UserType.endWearer && measurement.endWearer?.id.toString() == this.currentUserId) {
+        if (widget.userType == UserType.endWearer && measurement.endWearer?.id.toString() == widget.currentUserId) {
           isMyMeasure = true;
         }
 
@@ -519,7 +632,7 @@ class MeasuremetsListWidget extends StatelessWidget {
         }
 
         bool canAddMeasurement = true;
-        if (showDate == false && event.status == EventStatus.completed) {
+        if (showDate == false && widget.event.status == EventStatus.completed) {
           canAddMeasurement = false;
         }
 
@@ -571,11 +684,10 @@ class MeasuremetsListWidget extends StatelessWidget {
             return Expanded(
               flex:4,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  // crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [SizedBox(height: 0.5, child: Container(color: SessionParameters().optionColor)),
               SizedBox(height: 16),
-                Expanded(child:
-                content)],
+                content],
             ));
           }
         }
@@ -685,23 +797,20 @@ class MeasuremetsListWidget extends StatelessWidget {
     }
 
     var eventInfoViewCount = 1;
-    var measurementsCount = measurementsList.data.length;
+    var measurementsCount = widget.measurementsList.data.length;
     var emptyStateViewCount = 0;
-    if (event.status == EventStatus.scheduled) {
+    if (widget.event.status == EventStatus.scheduled) {
       measurementsCount = 0;
       emptyStateViewCount = 1;
     }
-    var listView = ListView.builder(itemCount: measurementsCount + emptyStateViewCount + eventInfoViewCount,
-      itemBuilder: (_, index) => itemAt(index:index, showEmptyView: emptyStateViewCount == 1),
-    );
 
     var paginationList = PaginationView<MeasurementResults>(itemBuilder:  (BuildContext context, MeasurementResults measurement, int index) =>
         itemAt(index:index, measurement: measurement, showEmptyView: emptyStateViewCount == 1),
         paginationViewType: PaginationViewType.listView,
         pullToRefresh: true,
-        header: headerForList(),
         footer: SizedBox(height: 24),
-        pageFetch: onFetchList);
+        onEmpty: Container(),
+        pageFetch: widget.onFetchList);
 
     Color _refreshColor = HexColor.fromHex('#898A9D');
     var list = SmartRefresher(
@@ -724,11 +833,11 @@ class MeasuremetsListWidget extends StatelessWidget {
             );
           },
         ),
-        controller: refreshController,
+        controller: widget.refreshController,
         onLoading: _pullRefresh,
-        child: paginationList, onRefresh: onRefreshList);
+        child: paginationList, onRefresh: widget.onRefreshList);
 
-    return paginationList;
+    return Flexible(child: paginationList);
 
     // return RefreshView(
     //   controller: widget.refreshController,

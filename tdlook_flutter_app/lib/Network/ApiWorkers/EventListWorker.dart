@@ -43,7 +43,7 @@ class EventListWorker {
     }
     print('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
-    print('events: ${response.length}');
+    print('events: ${response}');
 
     if (_provider.shouldRefreshTokenFor(json:response)) {
 

@@ -15,12 +15,12 @@ class MeasurementsListWorker {
 
   NetworkAPI _provider = NetworkAPI();
 
-  Future<MeasurementsList> fetchData({int page = 0,
+  Future<MeasurementsList> fetchData({String name, int page = 0,
     int size = kDefaultMeasurementsPerPage}) async {
 
     final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
-
-    final response = await _provider.get('measurements/?event=$eventId&page_size=$size$pageParam&ordering=end_wearer__name',useAuth: true);
+    final searchParam = (name != null && name.length > 0) ? '&search=$name' : '';
+    final response = await _provider.get('measurements/?event=$eventId&page_size=$size$pageParam&ordering=end_wearer__name$searchParam',useAuth: true);
     var list = MeasurementsList.fromJson(response);
     debugPrint(list.paging.description);
     this.paging = list.paging;
@@ -54,13 +54,13 @@ class MeasurementsListWorkerBloc {
     _measurementsListWorker = MeasurementsListWorker(eventId);
   }
 
-  call() async {
+  call({String name}) async {
     print('call auth');
 
     chuckListSink.add(Response.loading('Getting measurements'));
     try {
       print('try block');
-      MeasurementsList measurementsList = await _measurementsListWorker.fetchData();
+      MeasurementsList measurementsList = await _measurementsListWorker.fetchData(name: name);
       print('$measurementsList');
       chuckListSink.add(Response.completed(measurementsList));
     } catch (e) {
@@ -70,9 +70,9 @@ class MeasurementsListWorkerBloc {
   }
 
   Future<MeasurementsList> asyncCall(
-      {int page = 0, int size = kDefaultMeasurementsPerPage}) async {
+      {int page = 0, int size = kDefaultMeasurementsPerPage, String name}) async {
     try {
-      MeasurementsList list = await _measurementsListWorker.fetchData(page: page, size: size);
+      MeasurementsList list = await _measurementsListWorker.fetchData(name: name, page: page, size: size);
       return list;
     } catch (e) {
       print(e);
