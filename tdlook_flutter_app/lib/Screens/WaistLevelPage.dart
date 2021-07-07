@@ -65,16 +65,31 @@ class _WaistLevelPageState extends State<WaistLevelPage> {
   void _moveToNextPage() {
 
     widget.measurements.waistLevel = selectedLevel.apiFlag;
+    if (SessionParameters().selectedCompany == CompanyType.uniforms) {
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => PrefferedFitPage(
+              gender: widget.gender,
+              selectedMeasurementSystem: widget.selectedMeasurementSystem,
+              measurements: widget.measurements,
+            ),
+          ));
+    } else {
+      if (SessionParameters().selectedUser == UserType.endWearer) {
 
-    Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (BuildContext context) => PrefferedFitPage(
-            gender: widget.gender,
-            selectedMeasurementSystem: widget.selectedMeasurementSystem,
-            measurements: widget.measurements,
-          ),
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
         ));
+
+      } else {
+        SessionParameters().captureMode = CaptureMode.withFriend;
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
+        ));
+      }
+    }
+
   }
 
 
