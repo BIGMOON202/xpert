@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerView.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerViewController.dart';
+import 'package:tdlook_flutter_app/Screens/ArmorTypePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/Screens/OverlapPage.dart';
@@ -164,10 +165,16 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
               measurements: widget.measurement,
             ),
           ));
-    } else if (SessionParameters().selectedCompany == CompanyType.armor && widget.measurement.askForOverlap == true) {
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-        OverlapPage(gender: widget.gender, measurements: widget.measurement)
-      ));
+    } else if (SessionParameters().selectedCompany == CompanyType.armor) {
+      if (widget.measurement.askForOverlap == true) {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            OverlapPage(gender: widget.gender, measurements: widget.measurement)
+        ));
+      } else {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            ArmorTypePage(gender: widget.gender, measurements: widget.measurement)
+        ));
+      }
     } else {
 
       if (Application.shouldShowWaistLevel && widget.measurement.askForWaistLevel) {

@@ -22,11 +22,6 @@ class EventListWorker {
   Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName, int page = 0,
     int size = kDefaultMeasurementsPerPage}) async {
 
-    // final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-
-
-    // var accessToken = prefs.getString('access');
     var link = 'events/';
     final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
 
@@ -41,6 +36,7 @@ class EventListWorker {
     } else {
       link = link + '?page_size=$size$pageParam';
     }
+    link = link + '&ordering=-status,name';
     print('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
     print('events: ${response}');
@@ -66,16 +62,12 @@ class EventListWorkerEndwearer extends EventListWorker {
   Future<Tuple2<EventList, MeasurementsList>> fetchData({String eventName, int page = 0,
     int size = kDefaultMeasurementsPerPage}) async {
 
-    print('get measurements');
-    // final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // var accessToken = prefs.getString('access');
-    // /measurements/?event__name=<event_name>
     var link = 'measurements?provider=$provider';
         if (eventName != null) {
           link = link + '&search=${eventName}';
         }
     final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
-    link = link + '$pageParam&page_size=$size';
+    link = link + '$pageParam&page_size=$size&ordering=-event__status,event__name';
 
     print('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
