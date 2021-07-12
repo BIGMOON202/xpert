@@ -350,7 +350,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
             duration: const Duration(milliseconds: 500),
             child: container
         ),
-        searchField
+      widget.userType != UserType.endWearer ? searchField : Container()
       ],
     );
     return column;
