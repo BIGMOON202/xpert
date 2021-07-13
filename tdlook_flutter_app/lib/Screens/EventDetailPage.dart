@@ -51,6 +51,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   String _searchText = '';
+  bool _isKeyboardAppeare = false;
   TextEditingController _searchController = TextEditingController();
 
   @override
@@ -126,23 +127,18 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   Future<List<MeasurementResults>> _pageFetch(int offset) async {
     MeasurementsList result;
 
+    if (event.status == EventStatus.scheduled) {
+      return offset == 0 ? [MeasurementResults()] : [];
+    }
+
     final total = _bloc.worker.paging.count;
     final left = total - offset;
     if (left <= 0) {
-      print('return zero results for page');
       return [];
     }
     final page = (offset / kDefaultMeasurementsPerPage).round();
 
-    print(">>>>>> offset: $offset, from: $total, page: $page");
-
     result = await _bloc.asyncCall(page: page + 1, name: _searchText);
-
-    print('measurementsList\n '
-        'count:${_bloc.worker.paging.count}\n'
-        'pageItemLimit:${_bloc.worker.paging.pageItemLimit}\n'
-        'next:${_bloc.worker.paging.next}');
-
 
     return result.data;
   }
@@ -180,7 +176,8 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     }
 
     Widget _subchild() {
-      if (_searchText.isEmpty == true) {
+      print('subchild ${_isKeyboardAppeare}');
+      if (_isKeyboardAppeare == false) {
         return Padding(
             padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
             child: Container(
@@ -311,6 +308,19 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     color: SessionParameters().mainFontColor.withOpacity(0.1),
     child: new Padding(
         padding: const EdgeInsets.only(left: 8.0), child: TextFormField(
+      onEditingComplete: () {
+        print('on complete');
+        FocusScope.of(context).unfocus();
+        setState(() {
+          _isKeyboardAppeare = false;
+        });
+      },
+      onTap: () {
+        print('on start');
+        setState(() {
+          _isKeyboardAppeare = true;
+        });
+      },
       autocorrect: false,
       textAlign: TextAlign.center,
       style: TextStyle(
