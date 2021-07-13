@@ -818,7 +818,6 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
         itemAt(index:index, measurement: measurement, showEmptyView: emptyStateViewCount == 1),
         paginationViewType: PaginationViewType.listView,
         pullToRefresh: true,
-        physics: RefreshPhysics(),
         footer: SliverToBoxAdapter(child: SizedBox(height: 24)),
         onEmpty: Container(),
         pageFetch: widget.onFetchList);
