@@ -526,32 +526,6 @@ class EventsListWidget extends StatelessWidget {
         if (_event.status.shouldShowCountGraph() == true &&
             userType == UserType.salesRep) {
           return EventCompletionGraphWidget(event: _event);
-          // var _doublePercent = (_event.completeMeasuremensCount /_event.totalMeasuremensCount);
-          // var percent = _doublePercent.isNaN ? 0 : (_doublePercent * 100).toInt();
-          // var angle = _doublePercent.isNaN ? 0.0 : _doublePercent * 360;
-          // var w = new Row(
-          //   crossAxisAlignment: CrossAxisAlignment.end,
-          //   mainAxisAlignment: MainAxisAlignment.end,
-          //   children: [
-          //     Stack(
-          //       alignment: Alignment.center,
-          //       children: [CustomPaint(
-          //         painter: CurvePainter(color: eventStatusColor,
-          //             angle: angle),
-          //         child: SizedBox(width: 45, height: 45,),
-          //       ),
-          //         Text('$percent%', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),)],
-          //     ),
-          //     SizedBox(width: 8,),
-          //     Column(
-          //       mainAxisAlignment: MainAxisAlignment.center,
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [Text('${_event.completeMeasuremensCount}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-          //         Text('/${_event.totalMeasuremensCount}', style: TextStyle(color: _descriptionColor, fontSize: 11, fontWeight: FontWeight.w400))],
-          //     )
-          //   ],
-          // );
-          // return w;
         } else {
           return Container();
         }
@@ -744,46 +718,55 @@ class EventsListWidget extends StatelessWidget {
     if (resultsList.item1.data.isEmpty) {
       paginationList = EmptyStateWidget(messageName: 'There are no events yet');
     } else {
-      paginationList = PaginationView<Event>(itemBuilder:  (BuildContext context, Event event, int index) =>
-          itemAt(index, event),
-          pullToRefresh: true,
-          paginationViewType: PaginationViewType.listView,
-          footer: SizedBox(height: 24),
-          pageFetch: onFetchList);
+      paginationList = LayoutBuilder(builder: (context, constraints) {
+        var itemsCount = resultsList.item1.data.length;
+        var footerHeight = constraints.maxHeight - 138 * itemsCount;
+        return PaginationView<Event>(itemBuilder:  (BuildContext context, Event event, int index) =>
+            itemAt(index, event),
+            pullToRefresh: true,
+            paginationViewType: PaginationViewType.listView,
+            footer: SliverToBoxAdapter(child: SizedBox(height:  footerHeight < 0 ? 0 : footerHeight)),
+            scrollDirection: Axis.vertical,
+            pageFetch: onFetchList);
+      }
+        );
     }
 
 
-    var list = SmartRefresher(
-        header: CustomHeader(
-          builder: (BuildContext context, RefreshStatus mode) {
-            Widget body;
-            if (mode == RefreshStatus.idle ||
-                mode == RefreshStatus.canRefresh) {
-              body =
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(
-                  Icons.arrow_downward,
-                  color: _refreshColor,
-                ),
-                SizedBox(width: 6),
-                Text(
-                  mode.title(),
-                  style: TextStyle(color: _refreshColor, fontSize: 12),
-                )
-              ]);
-            } else {
-              body = Container();
-            }
-            return Container(
-              height: 55.0,
-              child: Center(child: body),
-            );
-          },
-        ),
-        controller: refreshController,
-        onLoading: _pullRefresh,
-        child: paginationList,
-        onRefresh: onRefreshList);
+    // if (resultsList.item1.data) {
+    //   return SmartRefresher(
+    //       header: CustomHeader(
+    //         builder: (BuildContext context, RefreshStatus mode) {
+    //           Widget body;
+    //           if (mode == RefreshStatus.idle ||
+    //               mode == RefreshStatus.canRefresh) {
+    //             body =
+    //                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+    //                   Icon(
+    //                     Icons.arrow_downward,
+    //                     color: _refreshColor,
+    //                   ),
+    //                   SizedBox(width: 6),
+    //                   Text(
+    //                     mode.title(),
+    //                     style: TextStyle(color: _refreshColor, fontSize: 12),
+    //                   )
+    //                 ]);
+    //           } else {
+    //             body = Container();
+    //           }
+    //           return Container(
+    //             height: 55.0,
+    //             child: Center(child: body),
+    //           );
+    //         },
+    //       ),
+    //       controller: refreshController,
+    //       onLoading: _pullRefresh,
+    //       child: paginationList,
+    //       onRefresh: onRefreshList);
+    // }
+
     return paginationList;
   }
 }
