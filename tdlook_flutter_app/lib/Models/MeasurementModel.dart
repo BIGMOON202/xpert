@@ -102,7 +102,7 @@ extension UserTypeExtension on UserType {
 }
 
 enum CompanyType {
-  uniforms, //Flying cross/Vertx
+  uniforms, //Flying cross/Vertx/FH
   armor //SL
 }
 

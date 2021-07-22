@@ -282,6 +282,8 @@ class MeasurementResults {
   DateTime completedAtTime;
   bool askForWaistLevel;
   bool askForOverlap;
+  String selectedTopSize;
+  String selectedBottomSize;
 
   EndWearer endWearer;
   Event event;
@@ -355,6 +357,12 @@ class MeasurementResults {
     }
     if (this.overlap != null) {
       data['overlap'] = this.overlap;
+    }
+    if (this.selectedTopSize != null) {
+      data['selected_top_size'] = this.selectedTopSize;
+    }
+    if (this.selectedBottomSize != null) {
+      data['selected_bottom_size'] = this.selectedBottomSize;
     }
     if (this.outerCarrier != null) {
       data['outer_carrier'] = this.outerCarrier.toString();

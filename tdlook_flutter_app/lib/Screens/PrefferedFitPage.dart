@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
+import 'package:tdlook_flutter_app/Screens/QuestionaryPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 enum FitType {
@@ -60,17 +61,27 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
 
     widget.measurements.fitType = selectedType.apiFlag;
 
-    if (SessionParameters().selectedUser == UserType.endWearer) {
+    switch (SessionParameters().selectedCompany) {
+      case CompanyType.uniforms:
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+            QuestionaryPage(gender: widget.gender, measurement: widget.measurements, selectedMeasurementSystem: widget.selectedMeasurementSystem)
+        ));
+        break;
 
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
-      ));
+      case CompanyType.armor:
 
-    } else {
-      SessionParameters().captureMode = CaptureMode.withFriend;
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-          HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
-      ));
+        if (SessionParameters().selectedUser == UserType.endWearer) {
+
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurements))
+          ));
+
+        } else {
+          SessionParameters().captureMode = CaptureMode.withFriend;
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
+          ));
+        }
     }
   }
 

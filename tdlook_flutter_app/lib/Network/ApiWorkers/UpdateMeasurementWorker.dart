@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
@@ -103,6 +104,8 @@ class WaitingForResultsWorker {
       return;
     }
 
+
+
     var socketLink =
         'wss://${Application.hostName}/ws/measurement/${model.uuid}/';
     print('socket link: ${socketLink}');
@@ -121,15 +124,22 @@ class WaitingForResultsWorker {
     //   print('message: $message');
     //   channel.sink.close(status.goingAway);
     // });
+    final HttpMetric metric = FirebasePerformance.instance
+        .newHttpMetric(socketLink, HttpMethod.Get);
+
     _initialConnect(void onDoneClosure()) async {
       print('trying to connect');
       attemptCounter += 1;
       print('_channel: $_channel');
 
       _channel = IOWebSocketChannel.connect(socketLink);
-      _channel.stream.listen((message) {
+
+      await metric.start();
+
+      _channel.stream.listen((message) async {
         parse(message);
         print('message: $message');
+        await metric.stop();
         _channel.sink.close(status.goingAway);
       });
       // _channel = channel;
@@ -147,9 +157,10 @@ class WaitingForResultsWorker {
       // _channel.sink.add("hello");
     }
 
-    void _onConnectionLost() {
+    void _onConnectionLost() async {
       print('Disconnected');
       _onClose();
+      await metric.stop();
       parse('');
     }
 

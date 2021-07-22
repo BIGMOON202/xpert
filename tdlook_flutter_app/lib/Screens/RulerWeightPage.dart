@@ -189,30 +189,15 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
             ));
       } else {
 
-        if (SessionParameters().selectedCompany == CompanyType.uniforms) {
-          Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) => PrefferedFitPage(
-                  gender: widget.gender,
-                  selectedMeasurementSystem: widget.selectedMeasurementSystem,
-                  measurements: widget.measurement,
-                ),
-              ));
-        } else {
-          if (SessionParameters().selectedUser == UserType.endWearer) {
-
-            Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-                ChooseCaptureModePage(argument: ChooseCaptureModePageArguments(gender: widget.gender, measurement: widget.measurement))
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (BuildContext context) => PrefferedFitPage(
+                gender: widget.gender,
+                selectedMeasurementSystem: widget.selectedMeasurementSystem,
+                measurements: widget.measurement,
+              ),
             ));
-
-          } else {
-            SessionParameters().captureMode = CaptureMode.withFriend;
-            Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-                HowTakePhotoPage(gender: widget.gender, measurements: widget.measurement)
-            ));
-          }
-        }
 
       }
     }

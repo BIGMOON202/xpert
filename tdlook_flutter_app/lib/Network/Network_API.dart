@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
@@ -76,6 +77,17 @@ enum ParserResponseStatus { COMPLETED, ERROR, REPEAT }
 enum Status { LOADING, COMPLETED, ERROR }
 enum Request { GET, POST, PUT, PATCH }
 
+extension RequestExtension on Request {
+  HttpMethod perfomanceMethod() {
+    switch (this) {
+      case Request.GET: return HttpMethod.Get;
+      case Request.POST: return HttpMethod.Post;
+      case Request.PUT: return HttpMethod.Put;
+      case Request.PATCH: return HttpMethod.Patch;
+    }
+  }
+}
+
 extension UserTypeNetworkExtension on UserType {
   String authPreffix() {
     switch (this) {
@@ -146,6 +158,7 @@ class NetworkAPI {
     var responseJson;
 
     void makeCall() async {
+
       dynamic bodyToSend = body;
       try {
         if (useAuth == true) {
@@ -174,6 +187,10 @@ class NetworkAPI {
         print('$finalUrl, $headers, $body');
         http.Response response;
 
+        final HttpMetric metric = FirebasePerformance.instance
+            .newHttpMetric(url, request.perfomanceMethod());
+        await metric.start();
+
         switch (request) {
           case Request.POST:
             response = await http
@@ -199,6 +216,11 @@ class NetworkAPI {
             break;
         }
 
+        metric
+          ..responsePayloadSize = response.contentLength
+          ..responseContentType = response.headers['Content-Type']
+          ..httpResponseCode = response.statusCode;
+
         var parserResponse =
             await _response(response, tryToRefreshAuth: tryToRefreshAuth);
         switch (parserResponse.status) {
@@ -213,6 +235,8 @@ class NetworkAPI {
             await makeCall();
             break;
         }
+
+        await metric.stop();
 
         print('call results: $responseJson');
       } on SocketException {
