@@ -80,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
             //continue flow
             _moveToNext();
           } else {
+            _authRequestStatus = Status.ERROR;
             // show error
             setState(() {
               _errorMessage =
