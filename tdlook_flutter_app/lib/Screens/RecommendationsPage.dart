@@ -470,7 +470,13 @@ class RecommendationsListWidget extends StatelessWidget {
                 widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Sleeve', size: recommendation.sizeSecond)));
               }
             } else if (recommendation.product.sizechartType == 'short_sleeve_shirt') {
+              widgets.add(_recommendationRow(
+                  title: 'Recommended Size', size: recommendation.size));
+            } else if (recommendation.product.sizechartType == 'dress_coat' || recommendation.product.sizechartType == 'outerwear') {
               widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
+              if (recommendation.sizeSecond != null) {
+                widgets.add(Padding(padding: EdgeInsets.only(left: 12), child:_recommendationRow(title: 'Length', size: recommendation.sizeSecond)));
+              }
             } else {
               widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
             }
