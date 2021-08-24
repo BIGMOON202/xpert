@@ -1,6 +1,8 @@
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -8,6 +10,7 @@ import 'package:tdlook_flutter_app/Network/ApiWorkers/UserInfoWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
+import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/AuthWorker.dart';
 
@@ -32,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   String _email = '';
   String _password = '';
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  SharedPreferences prefs;
 
   @override
   void initState() {
@@ -43,20 +47,49 @@ class _LoginPageState extends State<LoginPage> {
       _password = 'Qa123456789Qa.'; //'Qa123456789Qia.'
 
       if (widget.userType == UserType.endWearer) {
-        _email = 'annakarp13+test3@gmail.com'; //'garry@gmail.com';
+        _email = 'animaltut+m4@gmail.com'; //'garry@gmail.com';
         _password = '749192'; //'723692';
       }
     }
+    initPreferences();
+  }
+
+  void initPreferences() async {
+    prefs = await SharedPreferences.getInstance();
   }
 
   void _moveToNextScreen() {
     print('move tor');
-    _moveToNext() {
-      Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (BuildContext context) => PrivacyPolicyPage(
-                  credentials: _credentials, userType: widget.userType)));
+      Future<void> _moveToNext() async {
+      var agreementSigned = prefs.getBool('agreement') ?? false;
+      var isUserTypeForcedToShow = widget.userType == UserType.endWearer;
+      if (agreementSigned == false || isUserTypeForcedToShow == true) {
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (BuildContext context) => PrivacyPolicyPage(
+                    credentials: _credentials, userType: widget.userType)));
+      } else {
+
+        prefs.setString('refresh', _credentials.refresh); // for string value
+        prefs.setString('access', _credentials.access); // for string value
+        prefs.setString('userType', EnumToString.convertToString(widget.userType));
+
+        if (widget.userType == UserType.salesRep) {
+          Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
+        } else {
+          Navigator.pushNamedAndRemoveUntil(context, '/choose_company', (route) => false);
+        }
+
+        if (prefs.getBool('intro_seen') != true) {
+          Navigator.push(context, MaterialPageRoute<Null>(
+            builder: (BuildContext context) {
+              return TutorialPage();
+            },
+            fullscreenDialog: true,
+          ));
+        }
+      }
     }
 
     //check if user is valid to login
@@ -69,8 +102,6 @@ class _LoginPageState extends State<LoginPage> {
           print('loading header');
           break;
         case Status.COMPLETED:
-          print('completed header');
-
           print('ROLE: ${user.data.role}');
           if ((user.data.role == null) ||
               ((user.data.role != null) &&

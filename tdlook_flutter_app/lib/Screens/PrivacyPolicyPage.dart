@@ -34,7 +34,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
-
+  WebView webView;
   WebViewController _controller;
   double contentHeight = 0;
 
@@ -42,6 +42,8 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     var color = Colors.black;
     return '#${color.red.toRadixString(16).padLeft(2, '0')}${color.green.toRadixString(16).padLeft(2, '0')}${color.blue.toRadixString(16).padLeft(2, '0')}';
   }
+
+  bool _isLoading = true;
 
   bool _isApplied = false;
   bool _navigationRequestAllowed = true;
@@ -59,6 +61,8 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     ).toString();
     _controller.loadUrl(privacyURL).then((value) => {
         setState(() {
+          _isLoading = false;
+          print('loaded file');
         // _navigationRequestAllowed = false;
         })
     });
@@ -79,12 +83,46 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   @override void initState() {
     // TODO: implement initState
     super.initState();
+    _isLoading = true;
 
     _scrollController = ScrollController();
 
     // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
 
     if (io.Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+
+    webView = WebView(
+      initialUrl: Uri.dataFromString(
+          '<html><body style="background-color: $colorStr"></body></html>',
+          mimeType: 'text/html',
+          encoding: Encoding.getByName('utf-8'))
+          .toString(),
+      javascriptMode: JavascriptMode.unrestricted,
+      onWebViewCreated: (WebViewController webViewController) {
+        _controller = webViewController;
+        _loadHtmlFromAssets();
+      },
+      onPageFinished: (some) async {
+        double height = double.parse(
+            await _controller.evaluateJavascript(
+                "document.documentElement.scrollHeight;"));
+        setState(() {
+          _isLoading = false;
+          contentHeight = height;
+          print('height = $contentHeight');
+        });
+      },
+      navigationDelegate: (NavigationRequest request) {
+
+        if (request.url == privacyURL) {
+          return NavigationDecision.navigate;
+        }
+        if (Application.shouldOpenLinks) {
+          _launchInBrowser(request.url);
+        }
+        return NavigationDecision.prevent;
+      },
+    );
   }
 
   void _moveToNextPage() {
@@ -98,6 +136,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         prefs.setString('refresh', widget.credentials.refresh); // for string value
         prefs.setString('access', widget.credentials.access); // for string value
         prefs.setString('userType', EnumToString.convertToString(widget.userType));
+        prefs.setBool('agreement', true);
 
         print('USER= ${EnumToString.convertToString(widget.userType)}');
 
@@ -116,7 +155,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
             fullscreenDialog: true,
           ));
         }
-
       }
 
       writeToken();
@@ -126,40 +164,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   @override
   Widget build(BuildContext context) {
 
-    var webView = WebView(
-      initialUrl: Uri.dataFromString(
-          '<html><body style="background-color: $colorStr"></body></html>',
-          mimeType: 'text/html',
-          encoding: Encoding.getByName('utf-8'))
-          .toString(),
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (WebViewController webViewController) {
-        _controller = webViewController;
-        _loadHtmlFromAssets();
-      },
-      onPageFinished: (some) async {
-        double height = double.parse(
-            await _controller.evaluateJavascript(
-                "document.documentElement.scrollHeight;"));
-        setState(() {
-          contentHeight = height;
-          print('height = $contentHeight');
-        });
-      },
-      navigationDelegate: (NavigationRequest request) {
-        print('request ${request.url}');
-        
-        if (request.url == privacyURL) {
-          print('navigate');
-          return NavigationDecision.navigate;
-        }
-        print('prevent');
-        if (Application.shouldOpenLinks) {
-          _launchInBrowser(request.url);
-        }
-        return NavigationDecision.prevent;
-      },
-    );
+
 
 
 
@@ -226,7 +231,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                                         hoverColor: Colors.orange,
                                         value: _isApplied,
                                       )),
-                                  Flexible(child: Text('I accept Terms and Conditions and Privacy Policy',
+                                  Flexible(child: Text('I accept Privacy Policy and Terms of Use',
                                     style: TextStyle(color: Colors.white), maxLines: 3))],)),
                           nextButton])))));
       } else {
@@ -260,7 +265,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         ),
       ),
         onPressed: _scrollToBottom);
-
     var container = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -268,13 +272,14 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           // flex: 8,
           child: Container(
             color: Colors.black,
-          child: Stack( 
+          child: Stack(
               children: [
                 SingleChildScrollView(
                   controller: _scrollController,
                     child: Column(children: [Container( height: max(MediaQuery.of(context).size.height, contentHeight),
                     child: webView),
-                  bottomPart()]))
+                  bottomPart()])),
+        Visibility(visible: _isLoading, child: Container(color: _backgroundColor, child: Center(child: CircularProgressIndicator())))
               ]))),
         Visibility(
         visible: !_scrollButtonIsHidden,
@@ -290,7 +295,19 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         appBar: AppBar(
           brightness: Brightness.dark,
           centerTitle: true,
-          title: Text('Privacy policy and T&C'),
+          title: Row(
+            //children align to center.
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(child: Padding(padding: EdgeInsets.only(right: 56), child: Container(child: Text('Privacy Policy and Terms of Use', textAlign: TextAlign.center, maxLines: 3))))
+            ],
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),

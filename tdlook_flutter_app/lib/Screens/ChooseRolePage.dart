@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info/package_info.dart';
 
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
@@ -23,10 +24,20 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
   static Color  _selectedColor = Colors.white.withOpacity(0.1);
 
   UserType _selectedUserType;
+  String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
+
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+      setState(() {
+        _appVersion = 'App version: ' +
+            packageInfo.version +
+            ' (' +
+            packageInfo.buildNumber + ')';
+      });
+    });
   }
 
 
@@ -133,7 +144,11 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
               padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
                 child: Container(
                 width: double.infinity,
-                child: MaterialButton(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [ Text(_appVersion, style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12), textAlign: TextAlign.center),
+                      SizedBox(height: 16), MaterialButton(
                   textTheme: ButtonTextTheme.accent,
                   onPressed: _selectedUserType != null ? () {
                     _moveToNextPage();
@@ -149,8 +164,8 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                     borderRadius: BorderRadius.circular(6),
 
                   ),
-                ))),
-            )));
+                )])),
+            ))));
 
 
     var bottomPart = new FractionallySizedBox (

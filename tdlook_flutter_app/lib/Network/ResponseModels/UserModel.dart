@@ -28,6 +28,8 @@ class User {
   String zip;
   String passwordChangedAt;
   List<String> permissions;
+  bool is_terms_accepted;
+  String terms_accepted_at;
 
   User(
       {this.id,
@@ -48,7 +50,9 @@ class User {
         this.street,
         this.zip,
         this.passwordChangedAt,
-        this.permissions});
+        this.permissions,
+        this.is_terms_accepted,
+        this.terms_accepted_at});
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -82,6 +86,8 @@ class User {
     zip = json['zip'];
     passwordChangedAt = json['password_changed_at'];
     json['permissions'] != null ? permissions = json['permissions'].cast<String>() : permissions = [];
+    is_terms_accepted = json['is_terms_accepted'];
+    terms_accepted_at = json['terms_accepted_at'];
   }
 
   Map<String, dynamic> toJson() {

@@ -205,8 +205,8 @@ class _EventsPageState extends State<EventsPage> {
       setState(() {
         _appVersion = 'App version: ' +
             packageInfo.version +
-            ' ' +
-            packageInfo.buildNumber;
+            ' (' +
+            packageInfo.buildNumber + ')';
       });
     });
 
@@ -420,7 +420,7 @@ class _EventsPageState extends State<EventsPage> {
                           MdiIcons.shieldCheckOutline,
                           color: HexColor.fromHex('898A9D'),
                         ),
-                        text: 'Privacy Policy and \nTerms & Conditions',
+                        text: 'Privacy Policy and \nTerms of Use',
                         onTap: () {
                           Navigator.push(
                               context,
