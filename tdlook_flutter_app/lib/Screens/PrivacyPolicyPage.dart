@@ -86,7 +86,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     _isLoading = true;
 
     _scrollController = ScrollController();
-
     // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
 
     if (io.Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
@@ -275,6 +274,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           child: Stack(
               children: [
                 SingleChildScrollView(
+                  physics: ClampingScrollPhysics(),
                   controller: _scrollController,
                     child: Column(children: [Container( height: max(MediaQuery.of(context).size.height, contentHeight),
                     child: webView),
