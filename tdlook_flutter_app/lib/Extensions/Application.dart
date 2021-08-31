@@ -7,7 +7,7 @@ class Application {
   }
 
   static API get apiType {
-    return API.test;
+    return API.stage;
   }
 
   static bool get hostIsCustom {
