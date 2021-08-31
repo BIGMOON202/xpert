@@ -10,7 +10,31 @@ class Application {
     return API.test;
   }
 
+  static bool get hostIsCustom {
+    return _hostIsOverriden;
+  }
+
+  static String get customHost {
+    return _testHost;
+  }
+
+  static bool _hostIsOverriden = false;
+  static String _testHost;
+
+  static Future<void> updateHost({String testHost}) {
+    if (testHost == null) {
+      _hostIsOverriden = false;
+    } else {
+      _hostIsOverriden = true;
+      _testHost = testHost;
+    }
+  }
+
   static String get hostName {
+    if (_hostIsOverriden == true && _testHost != null) {
+      return _testHost;
+    }
+
     switch (Application.apiType) {
       case API.test:
         return 'wlb-expertfit-test.3dlook.me';

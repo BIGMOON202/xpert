@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
@@ -22,6 +23,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
 
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   static Color  _selectedColor = Colors.white.withOpacity(0.1);
+  TextEditingController _textFieldController = TextEditingController();
 
   UserType _selectedUserType;
   String _appVersion = '';
@@ -135,6 +137,55 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
         ));
     }
 
+    String _envEntered = '';
+    Future<void> _displayTextInputDialog(BuildContext context) async {
+      _textFieldController.value = Application.hostIsCustom ? TextEditingValue(text: Application.customHost) : TextEditingValue.empty;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Switch to enviroment'),
+              content: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _envEntered = value;
+                  });
+                },
+                controller: _textFieldController,
+                decoration: InputDecoration(hintText: "Enter the host name"),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  color: Colors.red,
+                  textColor: Colors.white,
+                  child: Text('RESET'),
+                  onPressed: () {
+                    Application.updateHost(testHost:null);
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+                FlatButton(
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  child: Text('APPLY'),
+                  onPressed: () {
+                    // api set env
+                    setState(() {
+                      Application.updateHost(testHost:_envEntered);
+                      Navigator.pop(context);
+                    });
+                  },
+                ),
+              ],
+            );
+          });
+    }
+    var appVersionWidget = Text(_appVersion, style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12), textAlign: TextAlign.center);
+
+
+
     var nextButton = Visibility(
         visible: true,
         child:Align(
@@ -147,7 +198,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [ Text(_appVersion, style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12), textAlign: TextAlign.center),
+                    children: [ appVersionWidget,
                       SizedBox(height: 16), MaterialButton(
                   textTheme: ButtonTextTheme.accent,
                   onPressed: _selectedUserType != null ? () {
@@ -188,6 +239,43 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
     );
 
 
+    int tapCounter = 0;
+    DateTime lastTap;
+
+    void _increaseTapsOrReset() {
+
+      void reset() {
+        tapCounter = 0;
+        debugPrint('reset');
+      }
+
+      if (lastTap != null) {
+        var dif = DateTime.now().difference(lastTap).inMilliseconds;
+        debugPrint('dif: ${dif}');
+        if (dif > 500 && dif < 2000) {
+          tapCounter += 1;
+        } else {
+          reset();
+        }
+      } else {
+        reset();
+      }
+
+      lastTap = DateTime.now();
+
+      if (tapCounter >= 3) {
+        tapCounter = 0;
+        _displayTextInputDialog(context);
+      }
+    }
+
+    var versionView = GestureDetector(
+      child: SizedBox(child: ResourceImage.imageWithName("expertfit_logo.png"), width: 171, height: 40,),
+      onDoubleTap: () {
+        _increaseTapsOrReset();
+      },
+    );
+
     var topPart = new Container(
       child: SafeArea(child: FractionallySizedBox(
         alignment: Alignment.topCenter,
@@ -195,7 +283,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
         child: Column(
 
           children: [
-            SizedBox(child: ResourceImage.imageWithName("expertfit_logo.png"), width: 171, height: 40,),
+            versionView,
             Padding(padding: EdgeInsets.all(50), child: Text('Take the guesswork out of fitting and do it all in the convenience of your home. ExpertFit virtual sizing '
                 'technology is accurate and fast.', style: TextStyle(color: HexColor.fromHex('898A9D')),  textAlign: TextAlign.center,))],
         ),
