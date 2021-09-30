@@ -1,7 +1,6 @@
 
 import 'dart:async';
 
-import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
@@ -36,7 +35,7 @@ class HandsFreePlayer {
     debugPrint('playing: $audioFile');
     player.fixedPlayer.onPlayerStateChanged.listen((event) {
       print('new player status: ${event}');
-      if (event == AudioPlayerState.COMPLETED) {
+      if (event == PlayerState.COMPLETED) {
         _handleTheEndOf(step: step);
       }
     });

@@ -466,12 +466,19 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       print('open measurement\n '
           'id:${measurement.id}\n'
           'uuid:${measurement.uuid}');
-      // if (Application.isInDebugMode) {
-      //   Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      //       ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
-      //   ));
-      //   return;
-      // }
+
+      if (Application.isInDebugMode) {
+        if (SessionParameters().selectedCompany == CompanyType.armor) {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              BadgePage(arguments:  BadgePageArguments(measurement, widget.userType))
+          ));
+        } else {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              ChooseGenderPage(argument:  ChooseGenderPageArguments(measurement))
+          ));
+        }
+        return;
+      }
 
       if (measurement.isComplete == false && widget.event.status == EventStatus.in_progress) {
         // if sales rep - open gender
@@ -569,6 +576,9 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
         } else if (widget.event.status != EventStatus.in_progress) {
           return;
         }
+      } else {
+        _moveToMeasurementAt(measurement);
+        return;
       }
 
       var cameraStatus = await Permission.camera.status;

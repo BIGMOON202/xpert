@@ -56,6 +56,11 @@ class Application {
   static bool get shouldShowOverlap {
     return true;
   }
+
+
+  static int get gyroUpdatesFrequency {
+    return 300; //in milliseconds
+  }
 }
 
 const int kDefaultMeasurementsPerPage = 20;

@@ -1,7 +1,6 @@
 
 import 'dart:async';
-
-import 'package:audioplayers/audio_cache.dart';
+import 'dart:io' show Platform;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Extensions/Future+Extension.dart';
@@ -157,18 +156,20 @@ class HandsFreeWorker {
       var audioFile = 'HandsFreeAudio\/${newStep.audioTrackName()}.mp3';
 
       player.fixedPlayer = AudioPlayer(playerId: _playerID);
-      player.fixedPlayer?.startHeadlessService();
+      if (Platform.isIOS) {
+        player.fixedPlayer?.notificationService.startHeadlessService();
+      }
       debugPrint('should play: $audioFile');
       _isPlaying = true;
       await player.play(audioFile);
       debugPrint('playing: $audioFile');
       player.fixedPlayer.onPlayerStateChanged.listen((event) {
         print('new player status: ${event}');
-        if (event != AudioPlayerState.PLAYING) {
+        if (event != PlayerState.PLAYING) {
           _isPlaying = false;
         }
 
-        if (event == AudioPlayerState.COMPLETED) {
+        if (event == PlayerState.COMPLETED) {
           if (_step == null) {
             return;
           }

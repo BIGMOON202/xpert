@@ -54,7 +54,7 @@ dependencies:
   flutter_native_splash: ^1.1.4+1
   visibility_detector: ^0.1.5
   package_info: ^0.4.0+16
-  audioplayers: ^0.18.0
+  audioplayers: ^0.20.1
   flutter_native_image: ^0.0.5+3
   screen: ^0.0.5
   pull_to_refresh: ^1.6.4
@@ -62,6 +62,7 @@ dependencies:
   intl: ^0.17.0
   pagination_view: ^2.0.0
   firebase_performance : ^0.7.0+7
+  flutter_picker_view: ^1.1.0
 #dependency_overrides:
 #    permission_handler_platform_interface: 2.0.1
 

@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen/screen.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeAnalizer.dart';
@@ -17,6 +18,7 @@ import 'package:sensors/sensors.dart';
 import 'dart:math' as math;
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
+import 'package:flutter_picker_view/flutter_picker_view.dart';
 
 class CameraCapturePageArguments {
   final MeasurementResults measurement;
@@ -80,6 +82,11 @@ class _CameraCapturePageState extends State<CameraCapturePage>
   bool isMovingToResultAfterHF = false;
   bool isDisposed = false;
 
+  int minAngle = 80;
+  int maxAngle = 105;
+  var lastGyroData = DateTime.now().millisecondsSinceEpoch;
+
+
   @override
   void initState() {
     super.initState();
@@ -111,15 +118,22 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     // });
 
     bool updatedFirstStep = false;
-
     _streamSubscriptions
         .add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        // print('z:${event.z}\nx:${event.x}\ny:${event.y}');
+
+        var newTime = DateTime.now().millisecondsSinceEpoch;
+
+        if ((newTime - lastGyroData) < Application.gyroUpdatesFrequency) {
+          return;
+        }
+        lastGyroData = newTime;
+
+        // print('z:${event.z}');
         _zAngle = event.z;
         var oldGyroPosition = _gyroIsValid;
 
-        _gyroIsValid = !(event.z.abs() > 3 || event.x.abs() > 3);
+        _gyroIsValid = !(gyroValueIsValid(value: event.z) || event.x.abs() > 3);
 
         if (oldGyroPosition == true &&
             _gyroIsValid == false &&
@@ -142,15 +156,28 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     }));
   }
 
+  bool gyroValueIsValid({double value}) {
+    var convertedValue = 90 + value * 90/10;
+    // print('converted: ${convertedValue}');
+    return !(convertedValue >= this.minAngle && convertedValue <= this.maxAngle);
+  }
+
   void subscribeOnGyroUpdates() {
     _streamSubscriptions
         .add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        // print(event.z.abs());
+
+        var newTime = DateTime.now().millisecondsSinceEpoch;
+        if ((newTime - lastGyroData) < Application.gyroUpdatesFrequency) {
+          return;
+        }
+        lastGyroData = newTime;
+
+        // print('zz:${event.z}');
         _zAngle = event.z;
         var oldGyroPosition = _gyroIsValid;
 
-        _gyroIsValid = !(event.z.abs() > 3);
+        _gyroIsValid = !(gyroValueIsValid(value: event.z) || event.x.abs() > 3);
 
         _handsFreeWorker?.gyroIsValid = _gyroIsValid;
       });
@@ -203,6 +230,8 @@ class _CameraCapturePageState extends State<CameraCapturePage>
       // _handsFreeWorker.start(andReset: true);
     }
   }
+
+
 
   var greatSoundPlayedAfterFront = false;
 
@@ -327,6 +356,48 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     } else {
       _moveToNextPage();
     }
+  }
+
+  void _showPicker() {
+    PickerController pickerController = PickerController(count: 2, selectedItems: [minAngle,maxAngle]);
+
+    PickerViewPopup.showMode(
+        PickerShowMode.AlertDialog, // AlertDialog or BottomSheet
+        controller: pickerController,
+        context: context,
+        title: Text('AlertDialogPicker',style: TextStyle(fontSize: 14),),
+        cancel: Text('cancel', style: TextStyle(color: Colors.grey),),
+        onCancel: () {
+          Scaffold.of(context).showSnackBar(
+              SnackBar(content: Text('AlertDialogPicker.cancel'))
+          );
+        },
+        confirm: Text('confirm', style: TextStyle(color: Colors.blue),),
+        onConfirm: (controller) {
+          // List<int> selectedItems = [];
+          minAngle = controller.selectedRowAt(section: 0);
+          maxAngle = controller.selectedRowAt(section: 1);
+          // selectedItems.add(controller.selectedRowAt(section: 0));
+          // selectedItems.add(controller.selectedRowAt(section: 1));
+
+          Scaffold.of(context).showSnackBar(
+              SnackBar(content: Text('MIN angle is:$minAngle, MAX angle is: $maxAngle'))
+          );
+        },
+        builder: (context, popup) {
+          return Container(
+            height: 150,
+            child: popup,
+          );
+        },
+        itemExtent: 40,
+        numberofRowsAtSection: (section) {
+          return 180;
+        },
+        itemBuilder: (section, row) {
+          return Text('$row',style: TextStyle(fontSize: 12),);
+        }
+    );
   }
 
   void _moveToNextPage() {
@@ -584,6 +655,8 @@ class _CameraCapturePageState extends State<CameraCapturePage>
                     }
                   }),
             ),
+
+
             frameWidget(),
             captureButton(),
             rulerContainer(),
@@ -614,15 +687,17 @@ class _GyroWidgetState extends State<GyroWidget> {
   double _rulerHeight = 360;
   double _arrowHeight = 40;
 
+  bool isDebug = false;
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
 
     double arrowTopOffset() {
       var arrowOffset = _arrowHeight * 0.5;
-      var angle = widget.angle._roundToPrecision(0);
+      var angle = widget.angle;//._roundToPrecision(0);
       var center = _rulerHeight * 0.5;
-      var errorGapValue = (center - 100) / 10;
+      var errorGapValue = (center - 300) / 10;
 
       var position = (angle * errorGapValue + center);
 
@@ -641,22 +716,31 @@ class _GyroWidgetState extends State<GyroWidget> {
 
     Widget image() {
       if (widget.captureMode == CaptureMode.withFriend) {
-        return ResourceImage.imageWithName('ic_gyro_ruler.png');
+        var padding = Padding(
+            padding: EdgeInsets.only(top: 15),
+          child: ResourceImage.imageWithName('ic_gyro_ruler.png'),
+        );
+        return padding;
       } else {
         return ResourceImage.imageWithName('big_gyro.png');
       }
     }
 
-    return Stack(children: [
-      Row(children: [
-        Expanded(flex: 3, child: Container()),
-        Expanded(flex: 2, child: Stack(children: [arrow]))
-      ]),
-      Row(children: [
-        Expanded(flex: 2, child: image()),
-        Expanded(child: Container())
-      ])
-    ]);
+    Widget content() {
+
+        return Stack(children: [
+          Row(children: [
+            Expanded(flex: 3, child: Container()),
+            Expanded(flex: 2, child: Stack(children: [arrow]))
+          ]),
+          Row(children: [
+            Expanded(flex: 2, child: image()),
+            Expanded(child: Container())
+          ])
+        ]);
+    }
+
+    return content();
   }
 }
 
