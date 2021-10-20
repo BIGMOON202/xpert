@@ -27,6 +27,89 @@ class EventList implements Paginated<Event> {
   };
 }
 
+class AnalizeResult {
+  String event;
+  String status;
+  String errorCode;
+  List<Detail> detail;
+  Data data;
+
+  AnalizeResult(
+      {this.event, this.status, this.errorCode, this.detail, this.data});
+
+  AnalizeResult.fromJson(Map<String, dynamic> json) {
+    event = json['event'];
+    status = json['status'];
+    errorCode = json['error_code'];
+    print('result: ${json}, type: ${json.runtimeType}');
+    print('errorCode: ${errorCode}, detail: ${json['detail']}, type: ${json['detail'].runtimeType}');
+    if (errorCode != null &&
+        errorCode == 'validation_error' &&
+        json['detail'] != null) {
+      detail = new List<Detail>();
+      json['detail'].forEach((v) {
+        detail.add(new Detail.fromJson(v));
+      });
+    }
+    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['event'] = this.event;
+    data['status'] = this.status;
+    data['error_code'] = this.errorCode;
+    if (this.detail != null) {
+      data['detail'] = this.detail.map((v) => v.toJson()).toList();
+    }
+    if (this.data != null) {
+      data['data'] = this.data.toJson();
+    }
+    return data;
+  }
+}
+
+class Detail {
+  ErrorProcessingType type;
+  String status;
+  String taskId;
+  String message;
+
+  Detail({this.type, this.status, this.taskId, this.message});
+
+  Detail.fromJson(Map<String, dynamic> json) {
+    type = EnumToString.fromString(ErrorProcessingType.values, json['name']);
+    status = json['status'];
+    taskId = json['task_id'];
+    message = json['message'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    data['task_id'] = this.taskId;
+    data['message'] = this.message;
+    return data;
+  }
+}
+
+enum ErrorProcessingType { front_skeleton_processing, side_skeleton_processing }
+
+class Data {
+  int measurementId;
+
+  Data({this.measurementId});
+
+  Data.fromJson(Map<String, dynamic> json) {
+    measurementId = json['measurement_id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['measurement_id'] = this.measurementId;
+    return data;
+  }
+}
 
 class Event {
   int id;
@@ -278,12 +361,14 @@ class MeasurementResults {
   String uuid;
   bool isActive;
   bool isComplete;
+  bool isCalculating;
   String completedAt;
   DateTime completedAtTime;
   bool askForWaistLevel;
   bool askForOverlap;
   String selectedTopSize;
   String selectedBottomSize;
+  AnalizeResult error;
 
   EndWearer endWearer;
   Event event;
@@ -302,13 +387,14 @@ class MeasurementResults {
   List<Messages> messages;
 
 
-  MeasurementResults({this.id, this.uuid, this.isActive, this.isComplete, this.completedAt, this.endWearer, this.event, this.gender, this.height, this.weight, this.clavicle, this.person, this.createdAt, this.updatedAt, this.messages});
+  MeasurementResults({this.id, this.uuid, this.isActive, this.isComplete, this.completedAt, this.endWearer, this.event, this.gender, this.height, this.weight, this.clavicle, this.person, this.createdAt, this.updatedAt, this.messages, this.isCalculating, this.error});
 
   MeasurementResults.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     uuid = json['uuid'];
     isActive = json['is_active'];
     isComplete = json['is_complete'];
+    isCalculating = json['is_in_progress'];
     completedAt = json['completed_at'];
     if (completedAt != null) {
       completedAtTime = DateTime.parse(completedAt);
@@ -334,6 +420,12 @@ class MeasurementResults {
       messages = new List<Messages>();
       json['messages'].forEach((v) { messages.add(new Messages.fromJson(v)); });
     }
+
+    print('error: ${json['error']} // ${json['error'].runtimeType}');
+    if ((json['error'] != null) && (json['error'] is Map<String, dynamic>)) {
+      error = new AnalizeResult.fromJson(json['error']);
+    }
+
   }
 
   Map<String, dynamic> toJson() {

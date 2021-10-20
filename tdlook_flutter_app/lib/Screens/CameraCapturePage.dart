@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,7 @@ import 'dart:math' as math;
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 import 'package:flutter_picker_view/flutter_picker_view.dart';
+import 'package:tdlook_flutter_app/Extensions/XFile+Extension.dart';
 
 class CameraCapturePageArguments {
   final MeasurementResults measurement;
@@ -86,6 +90,24 @@ class _CameraCapturePageState extends State<CameraCapturePage>
   int maxAngle = 105;
   var lastGyroData = DateTime.now().millisecondsSinceEpoch;
 
+  
+  _moveTodebugSession() async {
+    var isSimulator = await Application.isSimulator();
+    print('isSimulator: $isSimulator');
+    if (isSimulator == true) {
+      String _mockFrontImage = 'lib/Resources/frontTest.jpg';
+      String _mockSideImage = 'lib/Resources/frontTest.jpg';
+
+      var frontBytes = await rootBundle.load(_mockFrontImage);
+      _frontPhoto = await frontBytes.convertToXFile();
+
+      var sideBytes = await rootBundle.load(_mockSideImage);
+      _sidePhoto = await sideBytes.convertToXFile();
+
+      _moveToNextPage();
+    }
+  }
+
 
   @override
   void initState() {
@@ -107,7 +129,13 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     _frontPhoto = widget.frontPhoto;
     _sidePhoto = widget.sidePhoto;
 
+
+
+    _moveTodebugSession();
     initCamera();
+
+
+
 
     // accelerometerEvents.listen((AccelerometerEvent event) {
     //   setState(() {
@@ -190,25 +218,28 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     WidgetsFlutterBinding.ensureInitialized();
     cameras = await availableCameras();
 
-    var camera =
-        _captureMode == CaptureMode.withFriend ? cameras[0] : cameras[1];
-    controller = CameraController(camera, ResolutionPreset.high, enableAudio: false);
-    _initializeCameraFuture = controller.initialize();
-    _initializeCameraFuture.then((_) {
-      if (!mounted) {
-        return;
-      }
+    if (cameras != null && cameras.length != 0) {
+      var camera =
+      _captureMode == CaptureMode.withFriend ? cameras[0] : cameras[1];
+      controller = CameraController(camera, ResolutionPreset.high, enableAudio: false);
+      _initializeCameraFuture = controller.initialize();
+      _initializeCameraFuture.then((_) {
+        if (!mounted) {
+          return;
+        }
 
-      cameraRatio = controller.value.previewSize.height /
-          controller.value.previewSize.width;
+        cameraRatio = controller.value.previewSize.height /
+            controller.value.previewSize.width;
 
-      // FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
-      controller.setFlashMode(FlashMode.off);
-      controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-      setState(() {
-        isDisposed = false;
+        // FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
+        controller.setFlashMode(FlashMode.off);
+        controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+        setState(() {
+          isDisposed = false;
+        });
       });
-    });
+    }
+
 
     if (_captureMode == CaptureMode.handsFree) {
       Screen.keepOn(true);

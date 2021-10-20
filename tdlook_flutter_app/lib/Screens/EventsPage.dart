@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +12,7 @@ import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Painter.dart';
+import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UserInfoWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
@@ -72,6 +74,10 @@ class _EventsPageState extends State<EventsPage> {
     _searchController.clear();
     filter(withText: '');
   }
+
+  Map _source = {ConnectivityResult.mobile: true};
+  MyConnectivity _connectivity = MyConnectivity.instance;
+  bool _isConnected = true;
 
   onSearchTextChanged(String text) {
     // print('update: $text');
@@ -144,6 +150,7 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
+
   @override
   void initState() {
     _bloc = EventListWorkerBloc(widget.provider);
@@ -181,6 +188,14 @@ class _EventsPageState extends State<EventsPage> {
         }
       });
       _userInfoBloc.call();
+
+      _connectivity.initialise();
+      _connectivity.myStream.listen((source) {
+        _source = source;
+        var isConnected = _source.keys.toList()[0] != ConnectivityResult.none;
+        print('connection: ${_source.keys.toList()[0] }');
+        print('connection to network: $source, isConnected: $isConnected');
+      });
     }
 
     _bloc.chuckListStream.listen((event) {

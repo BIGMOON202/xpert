@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -15,6 +16,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class UpdateMeasurementWorker {
   MeasurementResults model;
@@ -96,6 +98,13 @@ class WaitingForResultsWorker {
 
   close() {
     _onClose();
+  }
+
+  startObserve_v2() async {
+    if (resultData != null) {
+      parse(resultData);
+      return;
+    }
   }
 
   startObserve() async {
@@ -224,6 +233,10 @@ class UpdateMeasurementBloc {
   bool shouldUploadMeasurements;
   bool isUploadingSuccess = false;
   bool isMeasurementsReceived = false;
+  bool isMeasurementsUpdated = false; // true if result received
+
+  Map _source = {ConnectivityResult.mobile: true};
+  MyConnectivity _connectivity = MyConnectivity.instance;
 
   UploadPhotosWorker _uploadPhotosWorker;
   UpdateMeasurementWorker _userInfoWorker;
@@ -259,6 +272,7 @@ class UpdateMeasurementBloc {
     }
   }
 
+  bool _isConnected = true;
   UpdateMeasurementBloc(this.model, this.frontPhoto, this.sidePhoto,
       this.shouldUploadMeasurements) {
     _listController = StreamController<Response<AnalizeResult>>();
@@ -271,6 +285,22 @@ class UpdateMeasurementBloc {
     _uploadPhotosWorker = UploadPhotosWorker(model, frontPhoto, sidePhoto);
     _waitingForResultsWorker = WaitingForResultsWorker(model, handle);
     _checkMeasurementWorker = MeasurementsWorker(model.id.toString());
+
+    _connectivity.initialise();
+    _connectivity.myStream.listen((source) {
+      print('connection to network: $source');
+      _source = source;
+      var isConnected = _source.keys.toList()[0] != ConnectivityResult.none;
+      print('is connected: $isConnected, previous: $_isConnected');
+      if (_isConnected != isConnected && isConnected == true) {
+        //reconnection
+        print('reconection');
+        checkState();
+      } else {
+        print('without reconection');
+      }
+      _isConnected = isConnected;
+    });
   }
 
   Future<bool> _enableContinueTimer({int delay}) async {
@@ -278,12 +308,31 @@ class UpdateMeasurementBloc {
   }
 
   void setLoading({String name, int delay}) {
-    print('DELAYED: ${name} ${DateTime.now().toString()}');
     _enableContinueTimer(delay: delay).then((value) {
       chuckListSink.add(Response.loading(name));
-      print('FIRED: ${name} ${DateTime.now().toString()}');
     });
   }
+
+  checkState() {
+    if (isMeasurementsReceived == true) {
+      //close observing
+      _connectivity = null;
+      print('isMeasurementsReceived');
+    } else if (isUploadingSuccess) {
+      // check results
+      print('observeResults_v2');
+      observeResults_v2();
+    } else if (isMeasurementsUpdated) {
+      print('uploadPhotos');
+      //re-upload photos
+      uploadPhotos();
+    } else {
+      print('upload measurement update');
+      call();
+    }
+  }
+
+
 
   call() async {
     if (shouldUploadMeasurements == true && _userInfoWorker != null) {
@@ -291,11 +340,19 @@ class UpdateMeasurementBloc {
       try {
         var result = await _userInfoWorker.uploadData();
         chuckListSink.add(Response.loading('Profile Creation Completed!'));
+        isMeasurementsUpdated = true;
         uploadPhotos();
         // chuckListSink.add(Response.completed(info));
       } catch (e) {
+
         chuckListSink.add(Response.error(e.toString()));
+        var er = e is FetchDataException;
+
+        print('--');
+        print(e.hashCode);
         print(e);
+        print('--');
+
       }
     } else {
       uploadPhotos();
@@ -307,14 +364,7 @@ class UpdateMeasurementBloc {
     switch (state) {
       case AppLifecycleState.resumed:
         print("Did active");
-        if (isUploadingSuccess) {
-          print("Start observeResults");
-          checkMeasurementCompletion();
-          observeResults();
-        } else {
-          print("Start uploadPhotos");
-          uploadPhotos();
-        }
+        checkState();
         break;
       default:
         print("Did inactive");
@@ -323,15 +373,7 @@ class UpdateMeasurementBloc {
     }
   }
 
-  checkMeasurementCompletion() async {
-    MeasurementResults measurement = await _checkMeasurementWorker.fetchData();
-    if (measurement.isComplete != null && measurement.isComplete == true) {
-      if (!isMeasurementsReceived) {
-        isMeasurementsReceived = true;
-        chuckListSink.add(Response.completed(AnalizeResult()));
-      }
-    }
-  }
+
 
   uploadPhotos() async {
     setLoading(name: 'Uploading photos', delay: 2);
@@ -340,13 +382,86 @@ class UpdateMeasurementBloc {
       if (info.detail == 'OK') {
         chuckListSink.add(Response.loading('Photo Upload Completed!'));
         isUploadingSuccess = true;
-        observeResults();
+
+        _enableContinueTimer(delay: checkFrequency).then((value) {
+          observeResults_v2();
+        });
       } else {
         chuckListSink.add(Response.error(info.detail));
       }
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
+      print('--');
+      print(e.hashCode);
       print(e);
+      print('--');
+    }
+  }
+
+  bool isWaitingForMeasurementInfo = false;
+  int checkFrequency = 10;
+  int timeoutDelay = 180;
+
+  observeResults_v2() async {
+    setLoading(name: 'Calculating your Measurements', delay: 2);
+
+    // print('isWaitingForMeasurementInfo: $isWaitingForMeasurementInfo');
+    // if (isWaitingForMeasurementInfo == false) {
+    //   isWaitingForMeasurementInfo = true;
+      checkMeasurement();
+    // }
+  }
+
+  Timer _checkMeasurementTimer;
+  reScheduleCheckMeasuremet() {
+    print('_checkMeasurementTimer1:${_checkMeasurementTimer}');
+    _checkMeasurementTimer?.cancel();
+    _checkMeasurementTimer = null;
+    print('_checkMeasurementTimer2:${_checkMeasurementTimer}');
+
+    var duration = Duration(seconds: checkFrequency);
+    _checkMeasurementTimer = Timer.periodic(duration, (Timer t) => checkMeasurement());
+  }
+
+  checkMeasurement() async {
+    print('fire checkMeasurement');
+
+    reScheduleCheckMeasuremet();
+    MeasurementResults measurement = await _checkMeasurementWorker.fetchData();
+    print('Measurement is complete: ${measurement.isComplete}');
+
+    if (measurement.isComplete != null && measurement.isComplete == true) {
+
+      if (!isMeasurementsReceived) {
+        isMeasurementsReceived = true;
+        chuckListSink.add(Response.completed(AnalizeResult()));
+      }
+    } else if (measurement.isCalculating == true) {
+      // schedule next check
+      print('measurement.isCalculating: ${measurement.isCalculating}');
+      print('schedule checkMeasurement');
+
+      reScheduleCheckMeasuremet();
+
+    } else if (measurement.error != null) {
+      print('Measurement error: ${measurement.error}');
+
+      // show error
+      if (!isMeasurementsReceived) {
+        isMeasurementsReceived = true;
+        chuckListSink.add(Response.completed(measurement.error));
+      }
+    }
+  }
+
+  /*
+  checkMeasurementCompletion() async {
+    MeasurementResults measurement = await _checkMeasurementWorker.fetchData();
+    if (measurement.isComplete != null && measurement.isComplete == true) {
+      if (!isMeasurementsReceived) {
+        isMeasurementsReceived = true;
+        chuckListSink.add(Response.completed(AnalizeResult()));
+      }
     }
   }
 
@@ -358,9 +473,12 @@ class UpdateMeasurementBloc {
       chuckListSink.add(Response.error(e.toString()));
       print(e);
     }
-  }
+  }*/
 
   dispose() {
+    print('dispose updating worker');
+    _checkMeasurementTimer?.cancel();
+    _checkMeasurementTimer = null;
     _listController?.close();
   }
 }
@@ -381,71 +499,6 @@ class PhotoUploaderModel {
   }
 }
 
-class AnalizeResult {
-  String event;
-  String status;
-  String errorCode;
-  List<Detail> detail;
-  Data data;
-
-  AnalizeResult(
-      {this.event, this.status, this.errorCode, this.detail, this.data});
-
-  AnalizeResult.fromJson(Map<String, dynamic> json) {
-    event = json['event'];
-    status = json['status'];
-    errorCode = json['error_code'];
-    if (errorCode != null &&
-        errorCode == 'validation_error' &&
-        json['detail'] != null) {
-      detail = new List<Detail>();
-      json['detail'].forEach((v) {
-        detail.add(new Detail.fromJson(v));
-      });
-    }
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['event'] = this.event;
-    data['status'] = this.status;
-    data['error_code'] = this.errorCode;
-    if (this.detail != null) {
-      data['detail'] = this.detail.map((v) => v.toJson()).toList();
-    }
-    if (this.data != null) {
-      data['data'] = this.data.toJson();
-    }
-    return data;
-  }
-}
-
-class Detail {
-  ErrorProcessingType type;
-  String status;
-  String taskId;
-  String message;
-
-  Detail({this.type, this.status, this.taskId, this.message});
-
-  Detail.fromJson(Map<String, dynamic> json) {
-    type = EnumToString.fromString(ErrorProcessingType.values, json['name']);
-    status = json['status'];
-    taskId = json['task_id'];
-    message = json['message'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['task_id'] = this.taskId;
-    data['message'] = this.message;
-    return data;
-  }
-}
-
-enum ErrorProcessingType { front_skeleton_processing, side_skeleton_processing }
 
 extension ErrorProcessingTypeExtension on ErrorProcessingType {
   String iconName() {
@@ -513,18 +566,35 @@ extension DetailExtension on Detail {
   }
 }
 
-class Data {
-  int measurementId;
 
-  Data({this.measurementId});
+class MyConnectivity {
+  MyConnectivity._();
 
-  Data.fromJson(Map<String, dynamic> json) {
-    measurementId = json['measurement_id'];
+  static final _instance = MyConnectivity._();
+  static MyConnectivity get instance => _instance;
+  final _connectivity = Connectivity();
+  final _controller = StreamController.broadcast();
+  Stream get myStream => _controller.stream;
+
+  void initialise() async {
+    ConnectivityResult result = await _connectivity.checkConnectivity();
+    _checkStatus(result);
+    _connectivity.onConnectivityChanged.listen((result) {
+      _checkStatus(result);
+    });
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['measurement_id'] = this.measurementId;
-    return data;
+  void _checkStatus(ConnectivityResult result) async {
+    bool isOnline = false;
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      print('connection status is: $result');
+      isOnline = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      isOnline = false;
+    }
+    _controller.sink.add({result: isOnline});
   }
+
+  void disposeStream() => _controller.close();
 }

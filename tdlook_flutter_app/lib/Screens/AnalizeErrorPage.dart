@@ -10,6 +10,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
+import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 
 
@@ -17,10 +18,10 @@ class AnalizeErrorPageArguments {
   MeasurementResults measurement;
   XFile frontPhoto;
   XFile sidePhoto;
-
+  bool canRestartLastMeasurement = false;
   AnalizeResult result;
   String errorText;
-  AnalizeErrorPageArguments({Key key, this.measurement, this.frontPhoto, this.sidePhoto, this.result, this.errorText});
+  AnalizeErrorPageArguments({Key key, this.measurement, this.frontPhoto, this.sidePhoto, this.result, this.errorText, this.canRestartLastMeasurement});
 
 }
 
@@ -82,6 +83,17 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
               frontPhoto: _frontPhoto,
               sidePhoto: _sidePhoto, photoType: _passedPhotoType, previousPhotosError: _photoError));
     } else {
+
+      if (widget.arguments.canRestartLastMeasurement == true) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, WaitingPage.route, (route) => false,
+            arguments: WaitingPageArguments(
+                measurement: widget.arguments.measurement,
+                frontPhoto: widget.arguments.frontPhoto,
+                sidePhoto: widget.arguments.sidePhoto,
+                shouldUploadMeasurements: true));
+        return;
+      }
 
       if (SessionParameters().selectedUser == UserType.salesRep) {
         Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,

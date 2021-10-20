@@ -115,7 +115,7 @@ VideoPlayerController _controller;
 
     var progress = 0.0;
 
-    if  (_controller.value.position != null) {
+    if  (_controller.value.position != null && _controller.value.duration != null) {
       progress = _controller.value.position.inMilliseconds / _controller.value.duration.inMilliseconds;
     }
 

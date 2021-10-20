@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,6 @@ class _WaitingPageState extends State<WaitingPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   AnimationController animationController;
-
   UpdateMeasurementBloc _updateMeasurementBloc;
 
   String _stateName = '';
@@ -49,7 +50,7 @@ class _WaitingPageState extends State<WaitingPage>
     print('move to recomendations');
     animationController.dispose();
     _updateMeasurementBloc.dispose();
-    if (result.status != 'error') {
+    if (result.errorCode != 'validation_error') {
       widget.arguments.measurement.isComplete = true;
 
       Navigator.pushNamedAndRemoveUntil(
@@ -64,7 +65,8 @@ class _WaitingPageState extends State<WaitingPage>
               measurement: widget.arguments.measurement,
               frontPhoto: widget.arguments.frontPhoto,
               sidePhoto: widget.arguments.sidePhoto,
-              result: result));
+              result: result,
+              canRestartLastMeasurement: false));
     }
   }
 
@@ -75,7 +77,8 @@ class _WaitingPageState extends State<WaitingPage>
             measurement: widget.arguments.measurement,
             frontPhoto: widget.arguments.frontPhoto,
             sidePhoto: widget.arguments.sidePhoto,
-            errorText: error));
+            errorText: error,
+            canRestartLastMeasurement: true));
   }
 
   @override

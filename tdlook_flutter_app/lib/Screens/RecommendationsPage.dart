@@ -65,6 +65,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   TextEditingController _controller = new TextEditingController();
 
+  String _loadingError;
   String filterText = '';
 
   _clearText() {
@@ -119,7 +120,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       }
     });
 
-    _updateMeasurementBloc.call();
 
     _bloc = RecommendationsListBLOC(widget.arguments.measurement.id.toString());
     _bloc.chuckListStream.listen((event) {
@@ -129,6 +129,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         case Status.COMPLETED:
           setState(() {
             recommendations = event.data;
+            _loadingError = null;
             if (filterText.isEmpty == true) {
               _filteredRecommendations = recommendations;
             } else {
@@ -137,9 +138,22 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
           });
           break;
         case Status.ERROR:
+          setState(() {
+            _loadingError = event.message;
+          });
           break;
       }
     });
+
+    _callRequests();
+  }
+
+  _callRequests() {
+    setState(() {
+      _loadingError = null;
+    });
+
+    _updateMeasurementBloc.call();
     _bloc.call();
   }
 
@@ -147,8 +161,13 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   Widget build(BuildContext context) {
 
     Widget listBody() {
-      if (recommendations == null) {
+      if (recommendations == null && _loadingError == null) {
         return Loading();
+      } else if (_loadingError != null) {
+          return Error(
+            errorMessage: _loadingError,
+            onRetryPressed: () => _callRequests(),
+          );
       } else {
         return RecommendationsListWidget(
             measurement: widget.arguments.measurement,

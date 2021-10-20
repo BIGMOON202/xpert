@@ -21,8 +21,8 @@ class MeasurementsListWorker {
     final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
     final searchParam = (name != null && name.length > 0) ? '&search=$name' : '';
     final response = await _provider.get('measurements/?event=$eventId&page_size=$size$pageParam&ordering=end_wearer__name$searchParam',useAuth: true);
+    print('Response: $response');
     var list = MeasurementsList.fromJson(response);
-    debugPrint(list.paging.description);
     this.paging = list.paging;
     return list;
   }
