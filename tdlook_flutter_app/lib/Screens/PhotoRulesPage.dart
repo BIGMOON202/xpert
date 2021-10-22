@@ -123,15 +123,18 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
     print('selectedGender: ${widget.gender.toString()}');
 
-    var container = Stack(
+    var container = Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Padding(
-            padding: EdgeInsets.only(top: 70, left: 20, right: 20),
+    //     Expanded(child: Container(child: Padding(
+    //   padding: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 40),
+    // child: Center(child: Container(width: 20, height: 20, color: Colors.orange,),)),)),
+        Expanded(child: Container(child: Padding(
+            padding: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 20),
             child: ResourceImage.imageWithName(widget.photoType
                 .rulesImageNameFor(
-                    gender: widget.gender,
-                    captureMode: SessionParameters().captureMode))),
-        SizedBox(height: 50),
+                gender: widget.gender,
+                captureMode: SessionParameters().captureMode))))),
         nextButton,
       ],
     );

@@ -71,8 +71,8 @@ class UploadPhotosWorker {
   }
 }
 
+/*
 class WaitingForResultsWorker {
-  RecommendationsListBLOC _bloc;
   IOWebSocketChannel _channel;
 
   MeasurementResults model;
@@ -224,7 +224,7 @@ class WaitingForResultsWorker {
     }
     _channel = null;
   }
-}
+} */
 
 class UpdateMeasurementBloc {
   MeasurementResults model;
@@ -242,7 +242,7 @@ class UpdateMeasurementBloc {
   UpdateMeasurementWorker _userInfoWorker;
   MeasurementsWorker _checkMeasurementWorker;
 
-  WaitingForResultsWorker _waitingForResultsWorker;
+  // WaitingForResultsWorker _waitingForResultsWorker;
   StreamController _listController;
 
   StreamSink<Response<AnalizeResult>> chuckListSink;
@@ -255,7 +255,7 @@ class UpdateMeasurementBloc {
     AnalizeResult analizeResult = AnalizeResult.fromJson(result);
     print('result:$analizeResult');
 
-    chuckListSink.add(Response.completed(analizeResult));
+    // chuckListSink.add(Response.completed(analizeResult));
   }
 
   handle(dynamic result) async {
@@ -264,10 +264,10 @@ class UpdateMeasurementBloc {
       AnalizeResult info = await getResults(valueMap);
       if (!isMeasurementsReceived) {
         isMeasurementsReceived = true;
-        chuckListSink.add(Response.completed(info));
+        // chuckListSink.add(Response.completed(info));
       }
     } catch (e) {
-      chuckListSink.add(Response.error(e.toString()));
+      // chuckListSink.add(Response.error(e.toString()));
       print(e);
     }
   }
@@ -283,7 +283,7 @@ class UpdateMeasurementBloc {
       _userInfoWorker = UpdateMeasurementWorker(model);
     }
     _uploadPhotosWorker = UploadPhotosWorker(model, frontPhoto, sidePhoto);
-    _waitingForResultsWorker = WaitingForResultsWorker(model, handle);
+    // _waitingForResultsWorker = WaitingForResultsWorker(model, handle);
     _checkMeasurementWorker = MeasurementsWorker(model.id.toString());
 
     _connectivity.initialise();
@@ -345,14 +345,13 @@ class UpdateMeasurementBloc {
         // chuckListSink.add(Response.completed(info));
       } catch (e) {
 
-        chuckListSink.add(Response.error(e.toString()));
-        var er = e is FetchDataException;
+        var description = e.toString();
+        if (description.contains('in progress')) {
+          return;
+        }
 
-        print('--');
-        print(e.hashCode);
+        chuckListSink.add(Response.error(description));
         print(e);
-        print('--');
-
       }
     } else {
       uploadPhotos();
@@ -368,7 +367,7 @@ class UpdateMeasurementBloc {
         break;
       default:
         print("Did inactive");
-        _waitingForResultsWorker.close();
+        // _waitingForResultsWorker.close();
         break;
     }
   }
@@ -380,21 +379,23 @@ class UpdateMeasurementBloc {
     try {
       PhotoUploaderModel info = await _uploadPhotosWorker.uploadData();
       if (info.detail == 'OK') {
-        chuckListSink.add(Response.loading('Photo Upload Completed!'));
         isUploadingSuccess = true;
-
+        chuckListSink.add(Response.loading('Photo Upload Completed!'));
         _enableContinueTimer(delay: checkFrequency).then((value) {
           observeResults_v2();
         });
-      } else {
-        chuckListSink.add(Response.error(info.detail));
       }
+      // else {
+      //   chuckListSink.add(Response.error(info.detail));
+      // }
     } catch (e) {
-      chuckListSink.add(Response.error(e.toString()));
-      print('--');
-      print(e.hashCode);
+      var description = e.toString();
+      if (description.contains('in progress')) {
+        return;
+      }
+
+      chuckListSink.add(Response.error(description));
       print(e);
-      print('--');
     }
   }
 
@@ -453,27 +454,6 @@ class UpdateMeasurementBloc {
       }
     }
   }
-
-  /*
-  checkMeasurementCompletion() async {
-    MeasurementResults measurement = await _checkMeasurementWorker.fetchData();
-    if (measurement.isComplete != null && measurement.isComplete == true) {
-      if (!isMeasurementsReceived) {
-        isMeasurementsReceived = true;
-        chuckListSink.add(Response.completed(AnalizeResult()));
-      }
-    }
-  }
-
-  observeResults() async {
-    setLoading(name: 'Calculating your Measurements', delay: 2);
-    try {
-      _waitingForResultsWorker.startObserve();
-    } catch (e) {
-      chuckListSink.add(Response.error(e.toString()));
-      print(e);
-    }
-  }*/
 
   dispose() {
     print('dispose updating worker');

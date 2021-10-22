@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:screen/screen.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
@@ -15,6 +14,7 @@ import 'dart:async';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/constants/keys.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:wakelock/wakelock.dart';
 import 'WaitingPage.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:sensors/sensors.dart';
@@ -242,7 +242,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
 
 
     if (_captureMode == CaptureMode.handsFree) {
-      Screen.keepOn(true);
+      Wakelock.enable();
       print('_handsFreeWorker init');
       _handsFreeWorker = HandsFreeAnalizer();
       _setupHandsFreeInitialStepIfNeeded();
@@ -432,7 +432,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
   }
 
   void _moveToNextPage() {
-    Screen.keepOn(false);
+    Wakelock.disable();
 
     // _handsFreeWorker?.pause();
     // _handsFreeWorker = null;
