@@ -276,7 +276,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
                                               child: Text(eventStatus,
                                                 style: TextStyle(fontWeight: FontWeight.bold,
                                                     color: eventStatusTextColor),)),),
-                                        Flexible(child: _configureGraphWidgetFor(widget.event))
+                                        Flexible(child: _configureGraphWidgetFor(event))
                                       ],),)),
                             ],
                           ))
