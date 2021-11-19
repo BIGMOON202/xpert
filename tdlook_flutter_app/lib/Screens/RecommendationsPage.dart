@@ -98,7 +98,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   void initState() {
     // TODO: implement initState
     initShared();
-
     _updateMeasurementBloc = MeasurementsWorkerBloc(widget.arguments.measurement.id.toString());
     _updateMeasurementBloc.chuckListStream.listen((event) {
       switch (event.status) {
@@ -612,15 +611,38 @@ class RecommendationsListWidget extends StatelessWidget {
     }
 
     _restartAnalize() {
-      debugPrint('_restartAnalize');
 
-      if (SessionParameters().selectedUser == UserType.salesRep || SessionParameters().selectedCompany == CompanyType.uniforms) {
-        Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
-            arguments: ChooseGenderPageArguments(measurement));
-      } else {
-        Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
-            arguments: BadgePageArguments(measurement, SessionParameters().selectedUser));
+      void _restartAction() {
+        debugPrint('_restartAnalize');
+        if (SessionParameters().selectedUser == UserType.salesRep || SessionParameters().selectedCompany == CompanyType.uniforms) {
+          Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
+              arguments: ChooseGenderPageArguments(measurement));
+        } else {
+          Navigator.pushNamedAndRemoveUntil(context, BadgePage.route, (route) => false,
+              arguments: BadgePageArguments(measurement, SessionParameters().selectedUser));
+        }
       }
+
+      void closePopup() {
+        Navigator.of(context, rootNavigator: true).pop("Discard");
+      }
+
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+            content: Text('Are you sure that you want to retake the flow?  All your progress will be lost'),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text("Yes"),
+                onPressed: () => _restartAction(),
+              ),
+              CupertinoDialogAction(
+                  isDefaultAction: true,
+                  child: Text('No'),
+                  onPressed: () => closePopup()),
+            ],
+          ));
     }
 
 
@@ -662,7 +684,7 @@ class RecommendationsListWidget extends StatelessWidget {
                     },
                     textColor: Colors.white,
                     child: Text('rescan'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                    color: Colors.white.withAlpha(12),
+                    color: Colors.white.withAlpha(25),
                     height: 50,
                     padding: EdgeInsets.only(left: 12, right: 12),
                     shape: RoundedRectangleBorder(
