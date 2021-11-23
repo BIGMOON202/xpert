@@ -648,9 +648,9 @@ class RecommendationsListWidget extends StatelessWidget {
 
     var container = Column(
       children: [Flexible(
-        flex: 8,
+        flex: 10,
           child: list),
-      Visibility(visible: showRestartButton, child:Flexible(flex:2,
+      Visibility(visible: showRestartButton, child:Flexible(flex:3,
         child: Container(
           child: SafeArea(
             child: Padding(
@@ -684,7 +684,7 @@ class RecommendationsListWidget extends StatelessWidget {
                     },
                     textColor: Colors.white,
                     child: Text('rescan'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                    color: Colors.white.withAlpha(25),
+                    color: Colors.white.withOpacity(0.25),
                     height: 50,
                     padding: EdgeInsets.only(left: 12, right: 12),
                     shape: RoundedRectangleBorder(
