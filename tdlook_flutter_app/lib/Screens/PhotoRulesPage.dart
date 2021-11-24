@@ -106,11 +106,10 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                       width: double.infinity,
                       child: MaterialButton(
                         disabledColor:
-                            SessionParameters().selectionColor.withOpacity(0.5),
+                            SessionParameters().disableColor,
                         onPressed:
                             _continueButtonEnable ? _moveToNextPage : null,
-                        textColor: Colors.white,
-                        child: CustomText(_nextButtonTitle.toUpperCase()),
+                        child: CustomText.withColor(_nextButtonTitle.toUpperCase(), _continueButtonEnable ? Colors.white : SessionParameters().disableTextColor),
                         color: SessionParameters().selectionColor,
                         height: 50,
                         // padding: EdgeInsets.only(left: 12, right: 12),

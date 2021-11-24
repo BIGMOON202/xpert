@@ -134,10 +134,9 @@ class _QuestionaryPageState extends State<QuestionaryPage> {
                       width: double.infinity,
                       child: MaterialButton(
                         disabledColor:
-                        SessionParameters().selectionColor.withOpacity(0.5),
+                        SessionParameters().disableColor,
                         onPressed: (selectedSizes != null && selectedSizes.length > 1) ? _moveToNextPage : null,
-                        textColor: Colors.white,
-                        child: CustomText('NEXT'),
+                        child: CustomText.withColor('NEXT', (selectedSizes != null && selectedSizes.length > 1) ? Colors.white : SessionParameters().disableTextColor),
                         color: SessionParameters().selectionColor,
                         height: 50,
                         // padding: EdgeInsets.only(left: 12, right: 12),

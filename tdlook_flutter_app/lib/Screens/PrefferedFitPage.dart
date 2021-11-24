@@ -159,10 +159,9 @@ class _PrefferedFitPagePageState extends State<PrefferedFitPage> {
                   width: double.infinity,
                   child: MaterialButton(
                     disabledColor:
-                    SessionParameters().selectionColor.withOpacity(0.5),
+                    SessionParameters().disableColor,
                     onPressed: selectedType != null ? _moveToNextPage : null,
-                    textColor: Colors.white,
-                    child: CustomText('NEXT'),
+                    child: CustomText.withColor('NEXT', selectedType != null ? Colors.white : SessionParameters().disableTextColor),
                     color: SessionParameters().selectionColor,
                     height: 50,
                     // padding: EdgeInsets.only(left: 12, right: 12),

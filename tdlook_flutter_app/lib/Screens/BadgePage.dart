@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
+import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
@@ -61,12 +62,10 @@ class _BadgePageState extends State<BadgePage> {
                 child: Container(
                 width: double.infinity,
                 child: MaterialButton(
-
                   onPressed: _continueIsEnabled() ? _moveToNextScreen : null,
-                  disabledColor: Colors.white.withOpacity(0.5),
-                  textColor: Colors.white,
-                  child: Text('CONTINUE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),),
-                  color: HexColor.fromHex('1E7AE4'),
+                  disabledColor:  SessionParameters().disableColor,
+                  child: CustomText.withColor('CONTINUE', _continueIsEnabled() ? Colors.white : SessionParameters().disableTextColor),
+                  color: SessionParameters().selectionColor,
                   height: 50,
                   // padding: EdgeInsets.only(left: 12, right: 12),
                   shape: RoundedRectangleBorder(

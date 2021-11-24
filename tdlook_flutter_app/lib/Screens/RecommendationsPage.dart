@@ -664,8 +664,8 @@ class RecommendationsListWidget extends StatelessWidget {
                     _moveToHomePage();
                   },
                   textColor: Colors.white,
-                  child: Text('Complete${SessionParameters().selectedUser == UserType.endWearer ? ' my': ''} Profile'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                  color: HexColor.fromHex('1E7AE4'),
+                  child:  Text('Complete${SessionParameters().selectedUser == UserType.endWearer ? ' my': ''} Profile'.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+                  color: SessionParameters().selectionColor,
                   height: 50,
                   padding: EdgeInsets.only(left: 12, right: 12),
                   shape: RoundedRectangleBorder(

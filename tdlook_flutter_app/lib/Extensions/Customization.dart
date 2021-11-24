@@ -34,5 +34,7 @@ class SessionParameters {
   Color mainBackgroundColor = HexColor.fromHex('16181B');
   Color mainFontColor = Colors.white;
   Color selectionColor = HexColor.fromHex('1E7AE4');
+  Color disableColor = HexColor.fromHex('353739');
+  Color disableTextColor = HexColor.fromHex('676767');
   Color optionColor = HexColor.fromHex('D8D8D8');
 }

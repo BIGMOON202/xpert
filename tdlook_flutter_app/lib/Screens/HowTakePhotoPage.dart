@@ -280,10 +280,9 @@ VideoPlayerController _controller;
                 child: SafeArea(child: Container(
                 width: double.infinity,
                 child: MaterialButton(
-                  disabledColor: SessionParameters().selectionColor.withOpacity(0.5),
+                  disabledColor: SessionParameters().disableColor,
                   onPressed: _continueButtonEnable ? _moveToNextPage : null,
-                  textColor: Colors.white,
-                  child: CustomText('CONTINUE'),
+                  child: CustomText.withColor('CONTINUE', _continueButtonEnable ? Colors.white : SessionParameters().disableTextColor),
                   color: SessionParameters().selectionColor,
                   height: 50,
                   // padding: EdgeInsets.only(left: 12, right: 12),

@@ -136,7 +136,7 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
             },
             textColor: Colors.white,
             child: CustomText('NEXT'),
-            color: HexColor.fromHex('1E7AE4'),
+            color: SessionParameters().selectionColor,
             height: 50,
             padding: EdgeInsets.only(left: 12, right: 12),
             shape: RoundedRectangleBorder(

@@ -219,7 +219,7 @@ class _TutorialPageState extends State<TutorialPage> {
                   width: double.infinity,
                   child: MaterialButton(
                     disabledColor:
-                    SessionParameters().selectionColor.withOpacity(0.5),
+                    SessionParameters().disableColor,
                     onPressed: _moveToNextPage,
                     textColor: Colors.white,
                     child: CustomText( selectedStep == _TutorialStep.recommendations ? 'GOT IT' : 'NEXT'),
