@@ -6,6 +6,7 @@ import 'Colors+Extension.dart';
 
 class SessionParameters {
 
+  static final String keyProMode = 'pro_mode';
   static final SessionParameters _instance = SessionParameters._internal();
 
   // using a factory is important

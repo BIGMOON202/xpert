@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
@@ -33,9 +34,11 @@ class HowTakePhotoPage extends StatefulWidget {
 
 class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
 
-
-VideoPlayerController _controller;
+  SharedPreferences _prefs;
+  VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
+
+  bool _proModeIsOn = false;
 
   bool _continueButtonEnable = false;
   double _videoProgress = 0.0;
@@ -47,6 +50,11 @@ VideoPlayerController _controller;
 
   Future<bool> _enableContinueTimer() async {
     await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
+  }
+
+  void initSettings() async {
+    this._prefs = await SharedPreferences.getInstance();
+    _proModeIsOn = _prefs.getBool(SessionParameters.keyProMode) ?? false;
   }
 
   @override
@@ -137,6 +145,7 @@ VideoPlayerController _controller;
 
   @override
   void initState() {
+    initSettings();
 
     if (SessionParameters().captureMode == CaptureMode.withFriend) {
       _steps = [TutorialStep('Ask someone to help take 2 photos of you. Keep the device at 90° angle at the waistline.', 0),
@@ -201,10 +210,16 @@ VideoPlayerController _controller;
       _controller.pause();
       _stopTutorialMessages();
       _isPlaying = false;
-      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      // RulerPageWeight(),
-      PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)
-      ));
+
+      if (_proModeIsOn) {
+
+      } else {
+        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+        // RulerPageWeight(),
+        PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)
+        ));
+      }
+
     }
 
 

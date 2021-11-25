@@ -20,6 +20,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart
 import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/EventCompletionGraphWidget.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
+import 'package:tdlook_flutter_app/Screens/SettingsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/EventListWorker.dart';
@@ -75,9 +76,9 @@ class _EventsPageState extends State<EventsPage> {
     filter(withText: '');
   }
 
-  Map _source = {ConnectivityResult.mobile: true};
-  MyConnectivity _connectivity = MyConnectivity.instance;
-  bool _isConnected = true;
+  // Map _source = {ConnectivityResult.mobile: true};
+  // MyConnectivity _connectivity = MyConnectivity.instance;
+  // bool _isConnected = true;
 
   onSearchTextChanged(String text) {
     // print('update: $text');
@@ -189,13 +190,13 @@ class _EventsPageState extends State<EventsPage> {
       });
       _userInfoBloc.call();
 
-      _connectivity.initialise();
-      _connectivity.myStream.listen((source) {
-        _source = source;
-        var isConnected = _source.keys.toList()[0] != ConnectivityResult.none;
-        print('connection: ${_source.keys.toList()[0] }');
-        print('connection to network: $source, isConnected: $isConnected');
-      });
+      // _connectivity.initialise();
+      // _connectivity.myStream.listen((source) {
+      //   _source = source;
+      //   var isConnected = _source.keys.toList()[0] != ConnectivityResult.none;
+      //   print('connection: ${_source.keys.toList()[0] }');
+      //   print('connection to network: $source, isConnected: $isConnected');
+      // });
     }
 
     _bloc.chuckListStream.listen((event) {
@@ -431,10 +432,8 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     SizedBox(height: 18),
                     _createDrawerItem(
-                        icon: new Icon(
-                          MdiIcons.shieldCheckOutline,
-                          color: HexColor.fromHex('898A9D'),
-                        ),
+                        image: ResourceImage.imageWithName(
+                            'privacy_icon.png'),
                         text: 'Privacy Policy and \nTerms of Use',
                         onTap: () {
                           Navigator.push(
@@ -442,7 +441,18 @@ class _EventsPageState extends State<EventsPage> {
                               CupertinoPageRoute(
                                   builder: (BuildContext context) =>
                                       PrivacyPolicyPage(showApply: false)));
-                        }),
+                        }), SizedBox(height: 18),
+                    _createDrawerItem(
+                        image: ResourceImage.imageWithName(
+                            'settings_icon.png'),
+                        text: 'Settings',
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (BuildContext context) =>
+                                      SettingsPage()));
+                        })
                   ],
                 )),
             Expanded(child: _createDrawerItem(text: _appVersion)),
