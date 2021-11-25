@@ -30,13 +30,16 @@ class CameraCapturePageArguments {
   final XFile frontPhoto;
   final XFile sidePhoto;
   final PhotoError previousPhotosError;
+  final Gender gender;
+
 
   CameraCapturePageArguments(
       {this.measurement,
       this.photoType,
       this.frontPhoto,
       this.sidePhoto,
-      this.previousPhotosError});
+      this.previousPhotosError,
+      this.gender});
 }
 
 class CameraCapturePage extends StatefulWidget {
@@ -304,8 +307,8 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     }
 
     print('previousError $initialStep');
-    _handsFreeWorker.firstStepInFlow = initialStep;
-    _handsFreeWorker.moveToNextFlowIfGyroIsValid();
+    _handsFreeWorker?.firstStepInFlow = initialStep;
+    _handsFreeWorker?.moveToNextFlowIfGyroIsValid();
   }
 
   void _cancelGyroUpdates() {
@@ -446,15 +449,24 @@ class _CameraCapturePageState extends State<CameraCapturePage>
     print('widget.arguments: ${widget.arguments}');
     if (widget.arguments == null) {
       if (_photoType == PhotoType.front) {
-        Navigator.push(
-            context,
-            CupertinoPageRoute(
-              builder: (BuildContext context) => PhotoRulesPage(
-                  photoType: PhotoType.side,
-                  measurement: widget.measurement,
+        if (Application.isProMode == false) {
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) => PhotoRulesPage(
+                    photoType: PhotoType.side,
+                    measurement: widget.measurement,
+                    frontPhoto: _frontPhoto,
+                    gender: widget.gender),
+              ));
+        } else {
+          Navigator.pushNamed(context, CameraCapturePage.route,
+              arguments: CameraCapturePageArguments(
+                  measurement: widget.arguments.measurement,
                   frontPhoto: _frontPhoto,
-                  gender: widget.gender),
-            ));
+                  sidePhoto: widget.arguments.sidePhoto));
+        }
+
       } else {
         Navigator.pushNamedAndRemoveUntil(
             context, WaitingPage.route, (route) => false,

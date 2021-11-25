@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
@@ -36,6 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void saveSettings() async {
     _prefs.setBool(SessionParameters.keyProMode, _proMode);
+    Application.isProMode = _proMode;
   }
 
   Future<bool> _onWillPop() async {

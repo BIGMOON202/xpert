@@ -7,6 +7,7 @@ import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
+import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/AuthWorker.dart';
 import 'package:tdlook_flutter_app/main.dart';
@@ -346,6 +347,7 @@ class NetworkAPI {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove('refresh');
       prefs.remove('access');
+      prefs.remove(SessionParameters.keyProMode);
       _isRefreshingToken.isSuccessRefresh = false;
       _isRefreshingToken.setIsRefreshing(false);
       NavigationService.instance.pushNamedAndRemoveUntil("/");

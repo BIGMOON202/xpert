@@ -2,10 +2,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/Screens/QuestionaryPage.dart';
@@ -73,9 +75,20 @@ class _ArmorTypePageState extends State<ArmorTypePage> {
 
       } else {
         SessionParameters().captureMode = CaptureMode.withFriend;
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-            HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
-        ));
+
+        if (Application.isProMode) {
+          Navigator.pushNamed(context, CameraCapturePage.route,
+              arguments: CameraCapturePageArguments(
+                  photoType: PhotoType.front,
+                  measurement: widget.measurements,
+                  frontPhoto: null,
+                  sidePhoto: null));
+        } else {
+          Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+              HowTakePhotoPage(gender: widget.gender, measurements: widget.measurements)
+          ));
+        }
+
       }
     }
 

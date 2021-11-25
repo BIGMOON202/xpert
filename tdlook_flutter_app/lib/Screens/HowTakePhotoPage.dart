@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
@@ -34,11 +35,9 @@ class HowTakePhotoPage extends StatefulWidget {
 
 class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
 
-  SharedPreferences _prefs;
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
 
-  bool _proModeIsOn = false;
 
   bool _continueButtonEnable = false;
   double _videoProgress = 0.0;
@@ -50,11 +49,6 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
 
   Future<bool> _enableContinueTimer() async {
     await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
-  }
-
-  void initSettings() async {
-    this._prefs = await SharedPreferences.getInstance();
-    _proModeIsOn = _prefs.getBool(SessionParameters.keyProMode) ?? false;
   }
 
   @override
@@ -145,7 +139,6 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
 
   @override
   void initState() {
-    initSettings();
 
     if (SessionParameters().captureMode == CaptureMode.withFriend) {
       _steps = [TutorialStep('Ask someone to help take 2 photos of you. Keep the device at 90° angle at the waistline.', 0),
@@ -211,15 +204,10 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
       _stopTutorialMessages();
       _isPlaying = false;
 
-      if (_proModeIsOn) {
-
-      } else {
-        Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-        // RulerPageWeight(),
-        PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)
-        ));
-      }
-
+      Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
+      // RulerPageWeight(),
+      PhotoRulesPage(photoType: PhotoType.front, gender: widget.gender, measurement: widget.measurements)
+      ));
     }
 
 

@@ -20,6 +20,8 @@ class Application {
     return false;
   }
 
+  static bool isProMode = false;
+
   static API get apiType {
     return API.release;
   }

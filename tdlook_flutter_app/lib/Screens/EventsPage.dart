@@ -161,6 +161,7 @@ class _EventsPageState extends State<EventsPage> {
 
     Future<Void> fetchUserType() async {
       prefs = await SharedPreferences.getInstance();
+      Application.isProMode = prefs.getBool(SessionParameters.keyProMode) ?? false;
 
       _userType =
           EnumToString.fromString(UserType.values, prefs.getString("userType"));
@@ -287,6 +288,7 @@ class _EventsPageState extends State<EventsPage> {
 
         prefs.remove('access');
         prefs.remove('refresh');
+        prefs.remove(SessionParameters.keyProMode);
         NavigationService.instance.pushNamedAndRemoveUntil("/");
       }
 
@@ -411,6 +413,24 @@ class _EventsPageState extends State<EventsPage> {
           children: [searchBar(), list()],
         ));
 
+    Widget settingsWidget() {
+      if (_userType == UserType.salesRep) {
+        return _createDrawerItem(
+            image: ResourceImage.imageWithName(
+                'settings_icon.png'),
+            text: 'Settings',
+            onTap: () {
+              Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (BuildContext context) =>
+                          SettingsPage()));
+            });
+      } else {
+        return Container();
+      }
+    }
+
     var innerDrawer = InnerDrawer(
         key: _innerDrawerKey,
         onTapClose: true,
@@ -441,18 +461,9 @@ class _EventsPageState extends State<EventsPage> {
                               CupertinoPageRoute(
                                   builder: (BuildContext context) =>
                                       PrivacyPolicyPage(showApply: false)));
-                        }), SizedBox(height: 18),
-                    _createDrawerItem(
-                        image: ResourceImage.imageWithName(
-                            'settings_icon.png'),
-                        text: 'Settings',
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                  builder: (BuildContext context) =>
-                                      SettingsPage()));
-                        })
+                        }),
+                    SizedBox(height: 18),
+                    settingsWidget()
                   ],
                 )),
             Expanded(child: _createDrawerItem(text: _appVersion)),
