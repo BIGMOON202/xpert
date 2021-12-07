@@ -505,7 +505,7 @@ class _CameraCapturePageState extends State<CameraCapturePage>
                   measurement: widget.arguments.measurement,
                   frontPhoto: widget.arguments.frontPhoto,
                   sidePhoto: _sidePhoto,
-                  shouldUploadMeasurements: false));
+                  shouldUploadMeasurements: true));
         }
       } else {
         XFile _frontToUpload = _frontPhoto;
