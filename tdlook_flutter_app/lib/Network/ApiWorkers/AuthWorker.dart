@@ -9,15 +9,21 @@ class AuthWorker {
   String email;
   String password;
   UserType userType;
-
-  AuthWorker(this.email, this.password, this.userType);
+  CompanyType provider;
+  AuthWorker(this.email, this.password, this.userType, this.provider);
 
   NetworkAPI _provider = NetworkAPI();
 
   Future<AuthCredentials> fetchData() async {
+    var body = {'email': email,
+      'password':password};
+    if (userType == UserType.salesRep && provider != null) {
+      body = {'email': email,
+        'password':password,
+        'provider': provider.apiKey()};
+    }
     final response = await _provider.post(userType._authEndPoint(),
-        body: {'email': email,
-          'password':password}, useAuth: false);
+        body: body, useAuth: false);
     return AuthCredentials.fromJson(response);
   }
 }
@@ -26,7 +32,7 @@ class AuthRefreshWorker extends AuthWorker {
   String token;
   UserType userType;
 
-  AuthRefreshWorker(this.token, this.userType) : super(null, null, null);
+  AuthRefreshWorker(this.token, this.userType) : super(null, null, null, null);
   NetworkAPI _provider = NetworkAPI();
 
   @override
@@ -61,8 +67,9 @@ class AuthWorkerBlocArguments {
 
   String refreshToken;
   UserType userType;
+  CompanyType provider;
 
-  AuthWorkerBlocArguments({this.email, this.password, this.refreshToken, this.userType});
+  AuthWorkerBlocArguments({this.email, this.password, this.refreshToken, this.userType, this.provider});
 }
 
 class AuthWorkerBloc {
@@ -86,7 +93,7 @@ class AuthWorkerBloc {
     print('${_listController.hasListener}');
     if (arguments.refreshToken == null) {
       print('AuthWorker with email: ${arguments.email}');
-      _authWorker = AuthWorker(arguments.email, arguments.password, arguments.userType);
+      _authWorker = AuthWorker(arguments.email, arguments.password, arguments.userType, arguments.provider);
     } else {
       print('AuthWorker with refresh: ${arguments.refreshToken} ${arguments.userType.toString()}');
       _authWorker = AuthRefreshWorker(arguments.refreshToken, arguments.userType);

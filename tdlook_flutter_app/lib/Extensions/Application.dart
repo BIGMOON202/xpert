@@ -23,7 +23,7 @@ class Application {
   static bool isProMode = false;
 
   static API get apiType {
-    return API.release;
+    return API.hotfix;
   }
 
   static bool get hostIsCustom {
@@ -58,6 +58,8 @@ class Application {
         return 'wlb-xpertfit-stage.3dlook.me';
       case API.release:
         return 'wlb-xpertfit.3dlook.me';
+      case API.hotfix:
+        return 'wlb-xpertfit-hotfix.3dlook.me';
     }
   }
 
@@ -84,5 +86,6 @@ const int kDefaultMeasurementsPerPage = 20;
 enum API {
   test,
   stage,
-  release
+  release,
+  hotfix
 }

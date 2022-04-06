@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   String _errorMessage = '';
 
   AuthCredentials _credentials;
-
+  CompanyType _provider;
   String _email = '';
   String _password = '';
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
@@ -41,14 +41,13 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     // TODO: implement initState
     if (Application.isInDebugMode) {
-      // _email = 'xfitdemo+sr2@gmail.com';
-      // _email = 'andrewsl@3dlook.me';
-      _email = 'andrew+fhsr@3dlook.me'; //'annakarp13+99@gmail.com'
-      _password = 'Qa123456789Qa.'; //'Qa123456789Qia.'
+
+      _email = 'anton+fh@3dlook.me';
+      _password = 'Gfhjkm111';
 
       if (widget.userType == UserType.endWearer) {
-        _email = 'animaltut+m4@gmail.com'; //'garry@gmail.com';
-        _password = '749192'; //'723692';
+        _email = 'animaltut+m4@gmail.com';
+        _password = '749192';
       }
     }
     initPreferences();
@@ -134,7 +133,8 @@ class _LoginPageState extends State<LoginPage> {
     _authBloc = AuthWorkerBloc(AuthWorkerBlocArguments(
         email: _email.toLowerCase(),
         password: _password,
-        userType: widget.userType));
+        userType: widget.userType,
+        provider: _provider));
     _authBloc.chuckListStream.listen((event) {
       setState(() {
         _authRequestStatus = event.status;
@@ -170,11 +170,16 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     bool _continueIsEnabled() {
+      var providerSelected = true;
+      if (widget.userType == UserType.salesRep && _provider == null) {
+        providerSelected = false;
+      }
+
       return _email != null &&
           _email.isNotEmpty &&
           _password != null &&
           _password.isNotEmpty &&
-          _authRequestStatus != Status.LOADING;
+          _authRequestStatus != Status.LOADING && providerSelected;
     }
 
     var nextButton = Visibility(
@@ -206,6 +211,53 @@ class _LoginPageState extends State<LoginPage> {
     final fillColor = Colors.white.withOpacity(0.1);
     final borderColor =
         _authRequestStatus == Status.ERROR ? Colors.red : Colors.transparent;
+    Widget _providerField() {
+      if (widget.userType == UserType.salesRep) {
+
+        Widget _subRow({CompanyType provider}) {
+          return Theme(
+              data: ThemeData.dark(), //set the dark theme or write your own theme
+              child: Row(
+                  children: [
+                    Radio(activeColor: Colors.white, value: provider.selectionIndex(), groupValue: _provider.selectionIndex(), onChanged: (value) {
+                      setState(() {
+                        _provider = provider;
+                      });
+                    }),
+                    SizedBox(width:1),
+                    Text(
+                      provider.stringName(),
+                      textAlign: TextAlign.start,
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ]
+              ));
+        }
+        var box = SizedBox(
+            height: 44,
+            child: Row(mainAxisSize:MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _subRow(provider: CompanyType.armor),
+                SizedBox(width: 16),
+                _subRow(provider: CompanyType.uniforms)
+              ],
+            )
+        );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            Text(
+              'Provider',
+              style: TextStyle(color: Colors.white),
+            ),
+            box],
+        );
+      } else {
+        return Container();
+      }
+    }
 
     Widget _passwordFieldForUser() {
       if (widget.userType == UserType.salesRep) {
@@ -392,6 +444,8 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         SizedBox(height: 8),
                         _passwordFieldForUser(),
+                        SizedBox(height: 20),
+                        _providerField(),
                         Visibility(
                             visible: _authRequestStatus == Status.ERROR,
                             child: Container(

@@ -115,10 +115,24 @@ extension CompanyTypeExtension on CompanyType {
     }
   }
 
+  String stringName() {
+    switch (this) {
+      case CompanyType.uniforms: return 'Fechheimer';
+      case CompanyType.armor: return 'Safariland';
+    }
+  }
+
   String unselectedImageName() {
     switch (this) {
       case CompanyType.uniforms: return 'ic_uniforms.png';
       case CompanyType.armor: return 'ic_armor.png';
+    }
+  }
+
+  int selectionIndex() {
+    switch (this) {
+      case CompanyType.uniforms: return 1;
+      case CompanyType.armor: return 0;
     }
   }
 
