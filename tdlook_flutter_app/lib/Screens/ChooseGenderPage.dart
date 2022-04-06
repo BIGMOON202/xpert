@@ -42,7 +42,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
 
     super.initState();
 
-    print('gender selectedCompany:${SessionParameters().selectedCompany}');
+   debugPrint('gender selectedCompany:${SessionParameters().selectedCompany}');
   }
 
   void _selectGender(int atIndex) {
@@ -58,7 +58,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
 
     widget.argument.measurement.gender = gender.apiFlag();
     // var ads = SharedParameters().currentMeasurement;
-    // print('CHECK $meas');
+    //debugPrint('CHECK $meas');
     Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
         // RulerPageWeight(),
       RulerPage(gender: gender, measuremet: widget.argument.measurement)
@@ -139,7 +139,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
             child: MaterialButton(
                 onPressed: () {
                   _moveToNextPage();
-                  print('next button pressed');
+                 debugPrint('next button pressed');
               },
               textColor: Colors.white,
               child: CustomText('NEXT'),

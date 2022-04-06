@@ -35,7 +35,7 @@ class RecommendationsListBLOC {
 
   RecommendationsListBLOC(this.measurementId) {
 
-    print('Init block RecommendationsListBLOC');
+   debugPrint('Init block RecommendationsListBLOC');
     _listController = StreamController<Response<List<RecommendationModel>>>();
 
     chuckListSink = _listController.sink;

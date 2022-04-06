@@ -202,7 +202,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                   textTheme: ButtonTextTheme.accent,
                   onPressed: _selectedUserType != null ? () {
                     _moveToNextPage();
-                    print('next button pressed');
+                   debugPrint('next button pressed');
                   } : null,
                   textColor: Colors.black,
                   disabledColor: Colors.white.withOpacity(0.5),

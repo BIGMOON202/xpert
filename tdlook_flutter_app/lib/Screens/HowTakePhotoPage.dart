@@ -56,7 +56,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
     // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
 
-    print('DID UPDATE');
+   debugPrint('DID UPDATE');
   }
 
   void _runContinueButtonTimer() {
@@ -92,7 +92,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
     // Wait for all futures to complete
     await Future.wait(_runningSteps);
     // We're done with all futures execution
-    print('All the futures has completed');
+   debugPrint('All the futures has completed');
   }
 
   void _replayAction() {
@@ -127,7 +127,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
     });
 
     if(_controller.value.position == Duration(seconds: 0, minutes: 0, hours: 0)) {
-      // print('video Started');
+      //debugPrint('video Started');
     }
 
     if(_controller.value.position == _controller.value.duration) {
@@ -169,7 +169,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage>  {
 
 
     _initializeVideoPlayerFuture.then((value) {
-      print('READY FOR PLAY');
+     debugPrint('READY FOR PLAY');
 
       setState(() {
         _isPlaying = true;

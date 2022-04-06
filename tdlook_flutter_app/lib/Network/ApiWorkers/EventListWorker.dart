@@ -37,9 +37,9 @@ class EventListWorker {
       link = link + '?page_size=$size$pageParam';
     }
     link = link + '&ordering=-status,name';
-    print('link: ${link}');
+   debugPrint('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
-    print('events: ${response}');
+   debugPrint('events: ${response}');
 
     if (_provider.shouldRefreshTokenFor(json:response)) {
 
@@ -69,18 +69,18 @@ class EventListWorkerEndwearer extends EventListWorker {
     final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
     link = link + '$pageParam&page_size=$size&ordering=-event__status,event__name';
 
-    print('link: ${link}');
+   debugPrint('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
 
     var list = MeasurementsList.fromJson(response);
 
-    print('list $list');
+   debugPrint('list $list');
     List<Event> events = new List<Event>();
 
     list.data.forEach((element) {
       events.add(element.event);
     });
-    print('events: ${events.length}');
+   debugPrint('events: ${events.length}');
     this.paging = Paging(count: events.length);
     return Tuple2(EventList(data: events, paging: paging), list);
   }
@@ -104,7 +104,7 @@ class EventListWorkerBloc {
 
   EventListWorkerBloc(this.provider) {
 
-    print('Init block AuthWorkerBloc');
+   debugPrint('Init block AuthWorkerBloc');
     _listController = StreamController<Response<Tuple2<EventList, MeasurementsList>>>();
 
     chuckListSink = _listController.sink;
@@ -124,13 +124,13 @@ class EventListWorkerBloc {
 
     chuckListSink.add(Response.loading('Getting events list'));
     try {
-      print('try block');
+     debugPrint('try block');
       Tuple2<EventList, MeasurementsList> list = await _eventListWorker.fetchData(eventName: eventName);
-      print('${list.item1.data.length}');
+     debugPrint('${list.item1.data.length}');
       chuckListSink.add(Response.completed(list));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      print(e);
+     debugPrint(e);
     }
   }
 
@@ -140,7 +140,7 @@ class EventListWorkerBloc {
       Tuple2<EventList, MeasurementsList> list = await _eventListWorker.fetchData(eventName: searchFilter, page: page, size: size);
       return list;
     } catch (e) {
-      print(e);
+     debugPrint(e);
       return null;
     }
   }

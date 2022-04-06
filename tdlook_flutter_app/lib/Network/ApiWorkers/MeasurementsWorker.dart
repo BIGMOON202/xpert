@@ -1,6 +1,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 
@@ -31,7 +32,7 @@ class MeasurementsWorkerBloc {
 
   MeasurementsWorkerBloc(this.measurementID) {
 
-    print('Init block EventListWorkerBloc');
+   debugPrint('Init block EventListWorkerBloc');
     _listController = StreamController<Response<MeasurementResults>>();
 
     chuckListSink = _listController.sink;
@@ -41,17 +42,17 @@ class MeasurementsWorkerBloc {
   }
 
   call() async {
-    print('call auth');
+   debugPrint('call auth');
 
     chuckListSink.add(Response.loading('Getting measurements'));
     try {
-      print('try block');
+     debugPrint('try block');
       MeasurementResults measurement = await _measurementsListWorker.fetchData();
-      print('$measurement');
+     debugPrint('$measurement');
       chuckListSink.add(Response.completed(measurement));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      print(e);
+     debugPrint(e);
     }
   }
 

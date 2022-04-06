@@ -12,7 +12,7 @@ class HandsFreeWorker {
   static final HandsFreeWorker _instance = HandsFreeWorker._internal();
   HandsFreeWorker._internal() {
 
-    print('init HandsFreeWorker');
+   debugPrint('init HandsFreeWorker');
     player.fixedPlayer = AudioPlayer();
     // player.fixedPlayer?.startHeadlessService();
     // initialization logic
@@ -39,7 +39,7 @@ class HandsFreeWorker {
   TFStep _forceFirstStep = TFStep.frontGreat;
 
   set forceFistStep(TFStep value) => {
-  print('set forceFistStep ${value}'),
+ debugPrint('set forceFistStep ${value}'),
   _forceFirstStep = value,
     if (value == null) {
       _initialStep = value
@@ -104,7 +104,7 @@ class HandsFreeWorker {
   }
 
   void pause() {
-    print('called pause');
+   debugPrint('called pause');
     _captureTimer?.cancel();
     _captureTimer = null;
     player.fixedPlayer?.stop();
@@ -115,7 +115,7 @@ class HandsFreeWorker {
   }
 
   void reset() {
-    print('reset()');
+   debugPrint('reset()');
 
     forceFistStep = _initialStep;
     _captureTimer?.cancel();
@@ -127,7 +127,7 @@ class HandsFreeWorker {
   }
 
   void stop() {
-    print('stop()');
+   debugPrint('stop()');
     _captureTimer?.cancel();
     _captureTimer = null;
     pauseTimer?.cancel();
@@ -164,7 +164,7 @@ class HandsFreeWorker {
       await player.play(audioFile);
       debugPrint('playing: $audioFile');
       player.fixedPlayer.onPlayerStateChanged.listen((event) {
-        print('new player status: ${event}');
+       debugPrint('new player status: ${event}');
         if (event != PlayerState.PLAYING) {
           _isPlaying = false;
         }
@@ -179,7 +179,7 @@ class HandsFreeWorker {
   }
 
   void shouldStartWith({TFStep step}) {
-    print('shouldStartWith: ${step.toString()}');
+   debugPrint('shouldStartWith: ${step.toString()}');
     _initialStep = step;
     forceFistStep = step;
     if (_gyroIsValid == true) {
@@ -196,33 +196,33 @@ class HandsFreeWorker {
   }
 
   Timer _checkGyroAfter2Sec;
-  print('hanldle new gyro: ${isValidGyroChange}');
+ debugPrint('hanldle new gyro: ${isValidGyroChange}');
     // dev.debugger();
 
     if (_step == null) {
-    print('_step == null');
+   debugPrint('_step == null');
     // First launch
     start();
   } else if (_step != null && isValidGyroChange == false) {
-    print('_step != null && isValidGyroChange == false');
+   debugPrint('_step != null && isValidGyroChange == false');
     // Gyro became invalid
     pause();
   } else if (_step != null && isValidGyroChange == true && oldValue == false) {
-    print('_step != null && isValidGyroChange == true && oldValue == false');
+   debugPrint('_step != null && isValidGyroChange == true && oldValue == false');
 
     // Gyro became valid, but launch "great" sound only if there is no other help command in the queue.
-    print('pauseTimer: ${pauseTimer}');
+   debugPrint('pauseTimer: ${pauseTimer}');
     if (pauseTimer != null) {
-      print('pauseTimer != null');
+     debugPrint('pauseTimer != null');
       return;
     }
 
-      print('enableContinueTimer for 2 seconds before continue after gyro is ok');
+     debugPrint('enableContinueTimer for 2 seconds before continue after gyro is ok');
     if (_checkGyroAfter2Sec != null) {
-      print('_checkGyroAfter2Sec != null');
+     debugPrint('_checkGyroAfter2Sec != null');
       return;
     }
-    print('will checkGyroAfter2Sec');
+   debugPrint('will checkGyroAfter2Sec');
     const duration = const Duration(seconds: 1);
     _checkGyroAfter2Sec = Timer(duration, () {
       debugPrint('checking gyro after 2 sec');
@@ -288,35 +288,35 @@ class HandsFreeWorker {
   }
 
   void moveToNextStep() {
-    print('moveToNextStep');
+   debugPrint('moveToNextStep');
     if (_gyroIsValid == false) {
       checkGyroIn5sec();
       return;
     } else {
       checkGyroTimer = null;
     }
-    print('moveToNextStep 1');
+   debugPrint('moveToNextStep 1');
 
     if (_isPlaying == true && _step?.couldBeInterrapted() == false) {
       return;
     }
-    print('moveToNextStep 2');
+   debugPrint('moveToNextStep 2');
 
-    print('_step = ${_step}');
+   debugPrint('_step = ${_step}');
 
     if (_step.restartAfter() == true) {
       start(andReset: true);
       return;
     }
 
-    print('moveToNextStep 3');
+   debugPrint('moveToNextStep 3');
 
     pauseTimer = null;
 
     if (_step != null && _step.shouldShowTimer() == true) {
       var interval = _step.afterDelayValue();
       var timerInterval = 1.0;
-      print('shouldShowTimer');
+     debugPrint('shouldShowTimer');
 
       const oneSec = const Duration(seconds: 1);
       _captureTimer = new Timer.periodic(
@@ -333,7 +333,7 @@ class HandsFreeWorker {
           } else {
             _playSound(TFOptionalSound.tick);
             interval--;
-            print("timer interval $interval");
+           debugPrint("timer interval $interval");
             onTimerUpdateBlock( interval > 0 ? '${interval.toStringAsFixed(0)}': '');
           }
         },
@@ -341,12 +341,12 @@ class HandsFreeWorker {
     }
 
     var duration = Duration(seconds: _step.afterDelayValue().toInt());
-    print('duration');
+   debugPrint('duration');
     pauseTimer = Timer(duration, () {
-      print('timer fired after ${duration}');
+     debugPrint('timer fired after ${duration}');
 
       if (_gyroIsValid == false) {
-        print('_gyroIsValid == false');
+       debugPrint('_gyroIsValid == false');
         return;
       }
 
@@ -362,14 +362,14 @@ class HandsFreeWorker {
   }
 
   void increaseStep() {
-    print('increaseStep');
+   debugPrint('increaseStep');
 
     if (_isPlaying == true && _step?.couldBeInterrapted() == false) {
       return;
     }
 
     var newStepIndex = _step.index + 1;
-    print('newStepIndex: $newStepIndex');
+   debugPrint('newStepIndex: $newStepIndex');
 
     if (TFStep.values.length > newStepIndex) {
 

@@ -65,7 +65,7 @@ class HandsFreeAnalizer {
   }
 
   void _checkGyroAfter2SecondsOfGreen() {
-    print('_checkGyroAfter2SecondsOfGreen');
+    debugPrint('_checkGyroAfter2SecondsOfGreen');
     _player.stop();
     // cancel checking gyro - because it became valid
     _timerCheckGyroEvery5Sec?.cancel();
@@ -83,7 +83,7 @@ class HandsFreeAnalizer {
   void dispose({bool andPlayFinalStep = false}) {
 
 
-    print('dispose handsFree');
+    debugPrint('dispose handsFree');
     _gyroIsValid = null;
     if (andPlayFinalStep == true) {
       _player.playSound(sound: TFOptionalSound.waitForResults);
@@ -95,7 +95,7 @@ class HandsFreeAnalizer {
   }
 
   void startFlow() {
-    print('start');
+    debugPrint('start');
     _currentStep = firstStepInFlow;
     _player.playStep(step: _currentStep);
   }
@@ -115,7 +115,7 @@ class HandsFreeAnalizer {
   }
 
   void isGyroStillInvalid() {
-    print('isGyroStillInvalid');
+    debugPrint('isGyroStillInvalid');
     onTimerUpdateBlock('');
 
     _player.stop();
@@ -141,7 +141,7 @@ class HandsFreeAnalizer {
 
   void handleAppState(AppLifecycleState state) {
     bool shouldStop = (state != AppLifecycleState.resumed);
-    print('should Stop HF: $shouldStop');
+    debugPrint('should Stop HF: $shouldStop');
     if (shouldStop == true) {
       stopFlow();
       dispose();

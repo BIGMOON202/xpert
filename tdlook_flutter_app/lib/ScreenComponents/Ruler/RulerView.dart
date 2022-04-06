@@ -113,8 +113,8 @@ class _RulerViewState extends State<RulerView> {
     } else {
       index = position ~/ _rowHeight;
     }
-    print('position: $position');
-    print('index: $index');
+   debugPrint('position: $position');
+   debugPrint('index: $index');
     final val = _rulerValues.getValueAtIndex(index);
 
     setState(() {
@@ -129,13 +129,13 @@ class _RulerViewState extends State<RulerView> {
         switch (_system) {
           case MeasurementSystem.imperial:
             _selectedImperialValue = value;
-            print('imp: $value');
+           debugPrint('imp: $value');
             _selectedMetricValue = _rulerValues.getConvertedHeight(value);
-            print('selectedMetric: $_selectedMetricValue');
+           debugPrint('selectedMetric: $_selectedMetricValue');
 
             break;
           case MeasurementSystem.metric:
-            print('met: $value');
+           debugPrint('met: $value');
             _selectedImperialValue = _rulerValues.getConvertedHeight(value);
             _selectedMetricValue = value;
             break;

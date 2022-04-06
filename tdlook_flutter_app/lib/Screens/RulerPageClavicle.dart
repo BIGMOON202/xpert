@@ -88,7 +88,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       if (rulerGap == 0) {
         rulerGap = max - min;
       }
-      // print('min:$min max $max');
+      //debugPrint('min:$min max $max');
       _updateValuesFor(min, max);
       // _updateValuesFor(min);
     });
@@ -150,8 +150,8 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         } else {
           multiplyPart = 3;
         }
-        // print('part: $part');
-        // print('multiplyPart: $multiplyPart');
+        //debugPrint('part: $part');
+        //debugPrint('multiplyPart: $multiplyPart');
         //
         if (multiplyPart == 0) {
           _value = '${inchInt}\'\'';
@@ -161,8 +161,8 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
           _valueMeasure = '${multiplyPart}/4';
         }
 
-        // print('inch: $inch');
-        // print('inchInt: $inchInt');
+        //debugPrint('inch: $inch');
+        //debugPrint('inchInt: $inchInt');
       }
 
     });
@@ -351,7 +351,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         width: double.infinity,
         child: MaterialButton(
           onPressed: () {
-            print('next button pressed');
+           debugPrint('next button pressed');
             _moveToNextPage();
           },
           textColor: Colors.white,

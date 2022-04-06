@@ -454,7 +454,7 @@ class RecommendationsListWidget extends StatelessWidget {
         // return Container(color: Colors.orange);
 
         var recomendation = recommendations[index - 1];
-        print('type: ${recomendation.product.sizechartType}');
+       debugPrint('type: ${recomendation.product.sizechartType}');
         var title = recomendation.product.name;
         var code = recomendation.product.style.toString();
         var size = recomendation.size;
@@ -472,7 +472,7 @@ class RecommendationsListWidget extends StatelessWidget {
 
           if (SessionParameters().selectedCompany == CompanyType.uniforms && measurement.person != null && measurement.person.frontParams != null) {
 
-            print('config for ${recommendation.product} - ${measurement.gender}');
+           debugPrint('config for ${recommendation.product} - ${measurement.gender}');
             if (recommendation.product.sizechartType == 'pants' && recommendation.product.gender == 'male') {
               widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
               if (recommendation.sizeSecond != null) {
@@ -552,7 +552,7 @@ class RecommendationsListWidget extends StatelessWidget {
       var gesture = GestureDetector(
         child: container,
         onTap: () {
-          // print('did Select at $index');
+          //debugPrint('did Select at $index');
           // if (index > 0) {
           //   _moveToMeasurementAt(index-1);
           // }
@@ -593,7 +593,7 @@ class RecommendationsListWidget extends StatelessWidget {
 
 
     _moveToHomePage() {
-      print('move to home page');
+     debugPrint('move to home page');
 
 
       var type = EnumToString.fromString(UserType.values, prefs.getString("userType"));
@@ -660,7 +660,7 @@ class RecommendationsListWidget extends StatelessWidget {
                     width: double.infinity,
                     child: MaterialButton(
                   onPressed: () {
-                    print('next button pressed');
+                   debugPrint('next button pressed');
                     _moveToHomePage();
                   },
                   textColor: Colors.white,

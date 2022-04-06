@@ -101,7 +101,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
     void _moveToNextPage() {
       SessionParameters().selectedCompany = _selectedCompanyType;
 
-      print('selectedCompany:${SessionParameters().selectedCompany}');
+     debugPrint('selectedCompany:${SessionParameters().selectedCompany}');
       Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
           EventsPage(provider: _selectedCompanyType.apiKey(),)
         // EventsPage()
@@ -120,7 +120,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
                   textTheme: ButtonTextTheme.accent,
                   onPressed: _selectedCompanyType != null ? () {
                     _moveToNextPage();
-                    print('next button pressed');
+                   debugPrint('next button pressed');
                   } : null,
                   textColor: Colors.black,
                   disabledColor: Colors.white.withOpacity(0.5),

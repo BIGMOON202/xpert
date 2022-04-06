@@ -56,7 +56,7 @@ class _CustomButtonState extends State<VerticalButton> {
       onTap: () {
           _isSelected = !_isSelected;
           _changeColor(_isSelected);
-          print('MyButton was tapped!');
+         debugPrint('MyButton was tapped!');
       },
     );
 

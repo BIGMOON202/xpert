@@ -63,7 +63,7 @@ class _QuestionaryPageState extends State<QuestionaryPage> {
 
     } else {
       SessionParameters().captureMode = CaptureMode.withFriend;
-      print('${Application.isProMode}');
+     debugPrint('${Application.isProMode}');
       if (Application.isProMode) {
         Navigator.pushNamed(context, CameraCapturePage.route,
             arguments: CameraCapturePageArguments(

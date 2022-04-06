@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _moveToNextScreen() {
-    print('move tor');
+   debugPrint('move tor');
       Future<void> _moveToNext() async {
       var agreementSigned = prefs.getBool('agreement') ?? false;
       var isUserTypeForcedToShow = widget.userType == UserType.endWearer;
@@ -98,10 +98,10 @@ class _LoginPageState extends State<LoginPage> {
     _userInfoBloc.chuckListStream.listen((user) {
       switch (user.status) {
         case Status.LOADING:
-          print('loading header');
+         debugPrint('loading header');
           break;
         case Status.COMPLETED:
-          print('ROLE: ${user.data.role}');
+         debugPrint('ROLE: ${user.data.role}');
           if ((user.data.role == null) ||
               ((user.data.role != null) &&
                   (user.data.role == 'dealer' ||
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                   'This type of user is not enable to Login in mobile application';
             });
           }
-          // print('company = ${user.data.provider.apiKey()}');
+          //debugPrint('company = ${user.data.provider.apiKey()}');
 
           break;
         case Status.ERROR:
@@ -150,8 +150,8 @@ class _LoginPageState extends State<LoginPage> {
         case Status.ERROR:
           _errorMessage = event.message;
       }
-      print('OLOLO');
-      print('${event.status} status ${event.data.access}');
+     debugPrint('OLOLO');
+     debugPrint('${event.status} status ${event.data.access}');
     });
 
     _authBloc.call();

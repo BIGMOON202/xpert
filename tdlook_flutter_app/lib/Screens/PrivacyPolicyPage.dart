@@ -62,7 +62,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     _controller.loadUrl(privacyURL).then((value) => {
         setState(() {
           _isLoading = false;
-          print('loaded file');
+         debugPrint('loaded file');
         // _navigationRequestAllowed = false;
         })
     });
@@ -108,7 +108,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         setState(() {
           _isLoading = false;
           contentHeight = height;
-          print('height = $contentHeight');
+         debugPrint('height = $contentHeight');
         });
       },
       navigationDelegate: (NavigationRequest request) {
@@ -127,17 +127,16 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   void _moveToNextPage() {
     if (_isApplied == true) {
 
-      print('need to write');
+     debugPrint('need to write');
       Future<void> writeToken() async {
-        print('start write');
-        print(widget.credentials);
+       debugPrint('start write');
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('refresh', widget.credentials.refresh); // for string value
         prefs.setString('access', widget.credentials.access); // for string value
         prefs.setString('userType', EnumToString.convertToString(widget.userType));
         prefs.setBool('agreement', true);
 
-        print('USER= ${EnumToString.convertToString(widget.userType)}');
+       debugPrint('USER= ${EnumToString.convertToString(widget.userType)}');
 
         if (widget.userType == UserType.salesRep) {
           Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
@@ -195,10 +194,10 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
             key: Key('ApplyPrivacy'),
       onVisibilityChanged: (visibilityInfo) {
       var visiblePercentage = visibilityInfo.visibleFraction;
-      print('onVisibilityChanged $visiblePercentage');
+     debugPrint('onVisibilityChanged $visiblePercentage');
       setState(() {
         _scrollButtonIsHidden = visiblePercentage > 0;
-        print('_scrollButtonIsHidden: $_scrollButtonIsHidden');
+       debugPrint('_scrollButtonIsHidden: $_scrollButtonIsHidden');
       });
 
       },

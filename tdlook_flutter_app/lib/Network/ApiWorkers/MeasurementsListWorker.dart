@@ -21,7 +21,7 @@ class MeasurementsListWorker {
     final pageParam = (page ?? 0) > 0 ? '&page=$page' : '';
     final searchParam = (name != null && name.length > 0) ? '&search=$name' : '';
     final response = await _provider.get('measurements/?event=$eventId&page_size=$size$pageParam&ordering=end_wearer__name$searchParam',useAuth: true);
-    print('Response: $response');
+   debugPrint('Response: $response');
     var list = MeasurementsList.fromJson(response);
     this.paging = list.paging;
     return list;
@@ -45,7 +45,7 @@ class MeasurementsListWorkerBloc {
 
   MeasurementsListWorkerBloc(this.eventId) {
     
-    print('Init block EventListWorkerBloc');
+   debugPrint('Init block EventListWorkerBloc');
     _listController = StreamController<Response<MeasurementsList>>();
 
     chuckListSink = _listController.sink;
@@ -55,17 +55,17 @@ class MeasurementsListWorkerBloc {
   }
 
   call({String name}) async {
-    print('call auth');
+   debugPrint('call auth');
 
     chuckListSink.add(Response.loading('Getting measurements'));
     try {
-      print('try block');
+     debugPrint('try block');
       MeasurementsList measurementsList = await _measurementsListWorker.fetchData(name: name);
-      print('$measurementsList');
+     debugPrint('$measurementsList');
       chuckListSink.add(Response.completed(measurementsList));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      print(e);
+     debugPrint(e);
     }
   }
 
@@ -75,7 +75,7 @@ class MeasurementsListWorkerBloc {
       MeasurementsList list = await _measurementsListWorker.fetchData(name: name, page: page, size: size);
       return list;
     } catch (e) {
-      print(e);
+     debugPrint(e);
       return null;
     }
   }

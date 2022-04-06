@@ -26,7 +26,7 @@ class UpdateMeasurementWorker {
   Future<MeasurementResults> uploadData() async {
     final response = await _provider.patch('measurements/${model.id}/',
         useAuth: true, body: model.toJson());
-    print('userinfo ${response}');
+   debugPrint('userinfo ${response}');
     return MeasurementResults.fromJson(response);
   }
 }
@@ -46,7 +46,7 @@ class UploadPhotosWorker {
     // var compressedFront = await FlutterNativeImage.compressImage(frontPhoto.path, quality: 70);
     // var frontBytes = await compressedFront.readAsBytes();
     var origFront = await frontPhoto.readAsBytes();
-    // print('size of front:${origFront.lengthInBytes} - ${frontBytes.lengthInBytes}');
+    //debugPrint('size of front:${origFront.lengthInBytes} - ${frontBytes.lengthInBytes}');
     var base64Front = base64Encode(origFront);
 
     // var compressedSide = await FlutterNativeImage.compressImage(sidePhoto.path, quality: 70);
@@ -56,7 +56,7 @@ class UploadPhotosWorker {
     data['front_image'] = base64Front;
     data['side_image'] = base64Side;
 
-    print('uploadPhoto request');
+   debugPrint('uploadPhoto request');
     final Map<String, dynamic> headers = new Map<String, String>();
     headers['accept'] = 'application/json';
     headers['Content-Type'] = 'application/json';
@@ -66,7 +66,7 @@ class UploadPhotosWorker {
         headers: headers,
         useAuth: true,
         body: data);
-    print('uploadPhoto: ${response}');
+   debugPrint('uploadPhoto: ${response}');
     return PhotoUploaderModel.fromJson(response);
   }
 }
@@ -82,10 +82,10 @@ class WaitingForResultsWorker {
   WaitingForResultsWorker(this.model, this.onResultReady);
 
   parse(dynamic data) async {
-    print('parse result: $data');
+   debugPrint('parse result: $data');
     resultData = data;
     Future<void> parse() async {
-      print(onResultReady);
+     debugPrint(onResultReady);
       resultData = data;
       if (!isResultReceived) {
         isResultReceived = true;
@@ -117,7 +117,7 @@ class WaitingForResultsWorker {
 
     var socketLink =
         'wss://${Application.hostName}/ws/measurement/${model.uuid}/';
-    print('socket link: ${socketLink}');
+   debugPrint('socket link: ${socketLink}');
 
     int attemptCounter = 0;
     var results;
@@ -130,16 +130,16 @@ class WaitingForResultsWorker {
     //
     // channel.stream.listen((message) {
     //   parse(message);
-    //   print('message: $message');
+    //  debugPrint('message: $message');
     //   channel.sink.close(status.goingAway);
     // });
     final HttpMetric metric = FirebasePerformance.instance
         .newHttpMetric(socketLink, HttpMethod.Get);
 
     _initialConnect(void onDoneClosure()) async {
-      print('trying to connect');
+     debugPrint('trying to connect');
       attemptCounter += 1;
-      print('_channel: $_channel');
+     debugPrint('_channel: $_channel');
 
       _channel = IOWebSocketChannel.connect(socketLink);
 
@@ -147,7 +147,7 @@ class WaitingForResultsWorker {
 
       _channel.stream.listen((message) async {
         parse(message);
-        print('message: $message');
+       debugPrint('message: $message');
         await metric.stop();
         _channel.sink.close(status.goingAway);
       });
@@ -155,26 +155,26 @@ class WaitingForResultsWorker {
       // _channel = await IOWebSocketChannel.connect(socketLink);
       // _channel.stream.listen((message) {
       //   if (message == "hello") {
-      //     print('message: $message');
+      //    debugPrint('message: $message');
       //     return;
       //   }
       //   results = message;
       //   parse(message);
-      //   print('message: $message');
+      //  debugPrint('message: $message');
       //   _channel.sink.close(status.goingAway);
       // });
       // _channel.sink.add("hello");
     }
 
     void _onConnectionLost() async {
-      print('Disconnected');
+     debugPrint('Disconnected');
       _onClose();
       await metric.stop();
       parse('');
     }
 
     void _onInitialDisconnected() {
-      print('Disconnected');
+     debugPrint('Disconnected');
       _onClose();
       _initialConnect(
           attemptCounter > 3 ? _onConnectionLost : _onInitialDisconnected);
@@ -218,7 +218,7 @@ class WaitingForResultsWorker {
   }
 
   void _onClose() {
-    print('OnClose');
+   debugPrint('OnClose');
     if (_channel != null) {
       _channel.sink.close();
     }
@@ -250,10 +250,10 @@ class UpdateMeasurementBloc {
   Stream<Response<AnalizeResult>> chuckListStream;
 
   Future<AnalizeResult> getResults(dynamic result) async {
-    print('catch results');
+   debugPrint('catch results');
 
     AnalizeResult analizeResult = AnalizeResult.fromJson(result);
-    print('result:$analizeResult');
+   debugPrint('result:$analizeResult');
 
     // chuckListSink.add(Response.completed(analizeResult));
   }
@@ -268,7 +268,7 @@ class UpdateMeasurementBloc {
       }
     } catch (e) {
       // chuckListSink.add(Response.error(e.toString()));
-      print(e);
+     debugPrint(e);
     }
   }
 
@@ -288,16 +288,16 @@ class UpdateMeasurementBloc {
 
     _connectivity.initialise();
     _connectivity.myStream.listen((source) {
-      print('connection to network: $source');
+     debugPrint('connection to network: $source');
       _source = source;
       var isConnected = _source.keys.toList()[0] != ConnectivityResult.none;
-      print('is connected: $isConnected, previous: $_isConnected');
+     debugPrint('is connected: $isConnected, previous: $_isConnected');
       if (_isConnected != isConnected && isConnected == true) {
         //reconnection
-        print('reconection');
+       debugPrint('reconection');
         checkState();
       } else {
-        print('without reconection');
+       debugPrint('without reconection');
       }
       _isConnected = isConnected;
     });
@@ -317,17 +317,17 @@ class UpdateMeasurementBloc {
     if (isMeasurementsReceived == true) {
       //close observing
       _connectivity = null;
-      print('isMeasurementsReceived');
+     debugPrint('isMeasurementsReceived');
     } else if (isUploadingSuccess) {
       // check results
-      print('observeResults_v2');
+     debugPrint('observeResults_v2');
       observeResults_v2();
     } else if (isMeasurementsUpdated) {
-      print('uploadPhotos');
+     debugPrint('uploadPhotos');
       //re-upload photos
       uploadPhotos();
     } else {
-      print('upload measurement update');
+     debugPrint('upload measurement update');
       call();
     }
   }
@@ -351,7 +351,7 @@ class UpdateMeasurementBloc {
         }
 
         chuckListSink.add(Response.error(description));
-        print(e);
+       debugPrint(e);
       }
     } else {
       uploadPhotos();
@@ -362,11 +362,11 @@ class UpdateMeasurementBloc {
   updateAppState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        print("Did active");
+       debugPrint("Did active");
         checkState();
         break;
       default:
-        print("Did inactive");
+       debugPrint("Did inactive");
         // _waitingForResultsWorker.close();
         break;
     }
@@ -395,7 +395,7 @@ class UpdateMeasurementBloc {
       }
 
       chuckListSink.add(Response.error(description));
-      print(e);
+     debugPrint(e);
     }
   }
 
@@ -406,7 +406,7 @@ class UpdateMeasurementBloc {
   observeResults_v2() async {
     setLoading(name: 'Calculating your Measurements', delay: 2);
 
-    // print('isWaitingForMeasurementInfo: $isWaitingForMeasurementInfo');
+    //debugPrint('isWaitingForMeasurementInfo: $isWaitingForMeasurementInfo');
     // if (isWaitingForMeasurementInfo == false) {
     //   isWaitingForMeasurementInfo = true;
       checkMeasurement();
@@ -415,21 +415,21 @@ class UpdateMeasurementBloc {
 
   Timer _checkMeasurementTimer;
   reScheduleCheckMeasuremet() {
-    print('_checkMeasurementTimer1:${_checkMeasurementTimer}');
+   debugPrint('_checkMeasurementTimer1:${_checkMeasurementTimer}');
     _checkMeasurementTimer?.cancel();
     _checkMeasurementTimer = null;
-    print('_checkMeasurementTimer2:${_checkMeasurementTimer}');
+   debugPrint('_checkMeasurementTimer2:${_checkMeasurementTimer}');
 
     var duration = Duration(seconds: checkFrequency);
     _checkMeasurementTimer = Timer.periodic(duration, (Timer t) => checkMeasurement());
   }
 
   checkMeasurement() async {
-    print('fire checkMeasurement');
+   debugPrint('fire checkMeasurement');
 
     reScheduleCheckMeasuremet();
     MeasurementResults measurement = await _checkMeasurementWorker.fetchData();
-    print('Measurement is complete: ${measurement.isComplete}');
+   debugPrint('Measurement is complete: ${measurement.isComplete}');
 
     if (measurement.isComplete != null && measurement.isComplete == true) {
 
@@ -439,13 +439,13 @@ class UpdateMeasurementBloc {
       }
     } else if (measurement.isCalculating == true) {
       // schedule next check
-      print('measurement.isCalculating: ${measurement.isCalculating}');
-      print('schedule checkMeasurement');
+     debugPrint('measurement.isCalculating: ${measurement.isCalculating}');
+     debugPrint('schedule checkMeasurement');
 
       reScheduleCheckMeasuremet();
 
     } else if (measurement.error != null) {
-      print('Measurement error: ${measurement.error}');
+     debugPrint('Measurement error: ${measurement.error}');
 
       // show error
       if (!isMeasurementsReceived) {
@@ -456,7 +456,7 @@ class UpdateMeasurementBloc {
   }
 
   dispose() {
-    print('dispose updating worker');
+   debugPrint('dispose updating worker');
     _checkMeasurementTimer?.cancel();
     _checkMeasurementTimer = null;
     _listController?.close();
@@ -568,7 +568,7 @@ class MyConnectivity {
     bool isOnline = false;
     try {
       final result = await InternetAddress.lookup('google.com');
-      print('connection status is: $result');
+     debugPrint('connection status is: $result');
       isOnline = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } on SocketException catch (_) {
       isOnline = false;

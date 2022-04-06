@@ -150,9 +150,9 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
   void _moveToNextPage() {
     widget.measurement.weight = _currentRawValue;
-    print('company: ${SessionParameters().selectedCompany.apiKey()}');
-    print(">> height: ${widget.measurement.height}");
-    print(">> weight: ${widget.measurement.weight}");
+   debugPrint('company: ${SessionParameters().selectedCompany.apiKey()}');
+   debugPrint(">> height: ${widget.measurement.height}");
+   debugPrint(">> weight: ${widget.measurement.weight}");
     UserType _user = SessionParameters().selectedUser;
 
     if (SessionParameters().selectedCompany == CompanyType.armor && _user == UserType.salesRep) {

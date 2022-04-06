@@ -41,8 +41,8 @@ class AnalizeResult {
     event = json['event'];
     status = json['status'];
     errorCode = json['error_code'];
-    print('result: ${json}, type: ${json.runtimeType}');
-    print('errorCode: ${errorCode}, detail: ${json['detail']}, type: ${json['detail'].runtimeType}');
+   debugPrint('result: ${json}, type: ${json.runtimeType}');
+   debugPrint('errorCode: ${errorCode}, detail: ${json['detail']}, type: ${json['detail'].runtimeType}');
     if (errorCode != null &&
         errorCode == 'validation_error' &&
         json['detail'] != null) {
@@ -172,7 +172,7 @@ class Event {
           ? json['complete_measurements_count']
           : 0;
       productTypes = json['product_types'] != null ? json['product_types'] : [];
-      print('parsed overlap ${json['overlap']}');
+     debugPrint('parsed overlap ${json['overlap']}');
       manualOverlap = ((json['overlap'] == null) || (json['overlap'] == 'selected' || json['overlap'] == 'Selected'));
   }
 
@@ -421,7 +421,7 @@ class MeasurementResults {
       json['messages'].forEach((v) { messages.add(new Messages.fromJson(v)); });
     }
 
-    print('error: ${json['error']} // ${json['error'].runtimeType}');
+   debugPrint('error: ${json['error']} // ${json['error'].runtimeType}');
     if ((json['error'] != null) && (json['error'] is Map<String, dynamic>)) {
       error = new AnalizeResult.fromJson(json['error']);
     }

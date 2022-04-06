@@ -185,7 +185,7 @@ class NetworkAPI {
 
         var finalUrl = Uri.parse(_baseUrl + url);
 
-        print('$finalUrl, $headers, $body');
+       debugPrint('$finalUrl, $headers, $body');
         http.Response response;
 
         final HttpMetric metric = FirebasePerformance.instance
@@ -239,7 +239,7 @@ class NetworkAPI {
 
         await metric.stop();
 
-        print('call results: $responseJson');
+       debugPrint('call results: $responseJson');
       } on SocketException {
         throw FetchDataException('No Internet connection');
       }
@@ -253,13 +253,13 @@ class NetworkAPI {
 
   Future<ParserResponse<dynamic>> _response(http.Response response,
       {bool tryToRefreshAuth = true}) async {
-    print(
+   debugPrint(
         '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
     switch (response.statusCode) {
       case 200:
       case 201:
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
-        print(responseJson);
+       debugPrint(responseJson);
         return ParserResponse.completed(responseJson);
       case 400:
         throw BadRequestException(response.body);
@@ -281,9 +281,9 @@ class NetworkAPI {
           }
         }
 
-        print(responseJson);
+       debugPrint(responseJson);
         var details = responseJson['detail'];
-        print(details);
+       debugPrint(details);
         // return ParserResponse.error(responseJson);
         throw UnauthorisedException(details != null ? details : response.body);
       case 500:
@@ -314,7 +314,7 @@ class NetworkAPI {
         Completer<bool> c = new Completer<bool>();
 
         _isRefreshingToken.addListener(() {
-          print(
+         debugPrint(
               "_isRefreshingToken updated ${_isRefreshingToken.isRefreshing}");
           c.complete(_isRefreshingToken.isSuccessRefresh);
         });
@@ -366,7 +366,7 @@ class NetworkAPI {
           return true;
 
         case Status.ERROR:
-          print('REFRESH TOKEN ERROR: ${event.message}');
+         debugPrint('REFRESH TOKEN ERROR: ${event.message}');
 
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.remove('refresh');

@@ -47,7 +47,7 @@ class _WaitingPageState extends State<WaitingPage>
 
   _handleResult(AnalizeResult result) {
     Wakelock.disable();
-    print('move to recomendations');
+   debugPrint('move to recomendations');
     animationController.dispose();
     _updateMeasurementBloc.dispose();
     if (result.errorCode != 'validation_error') {
@@ -93,7 +93,7 @@ class _WaitingPageState extends State<WaitingPage>
 
     animationController.repeat();
 
-    print('MEASUREMENTS:'
+   debugPrint('MEASUREMENTS:'
         '\nid:${widget.arguments.measurement.id}'
         '\ngende: ${widget.arguments.measurement.gender},'
         '\nheight:${widget.arguments.measurement.height}'

@@ -81,17 +81,17 @@ class _EventsPageState extends State<EventsPage> {
   // bool _isConnected = true;
 
   onSearchTextChanged(String text) {
-    // print('update: $text');
+    //debugPrint('update: $text');
     var searchText = EmojiUtils.removeAllEmoji(text ?? '');
     if (searchText.length < 1) {
       searchText = '';
     }
     _searchText = searchText;
-    print("searchText: $searchText");
+    debugPrint("searchText: $searchText");
     FutureExtension.enableContinueTimer(delay: 1).then((value) {
-      print('should search $searchText - $text');
+      debugPrint('should search $searchText - $text');
       if (searchText == text) {
-        print('searching');
+        debugPrint('searching');
         filter(withText: searchText);
       }
     });
@@ -102,7 +102,7 @@ class _EventsPageState extends State<EventsPage> {
     // if (originalEvents == null) return;
     //
     // if (withText.isEmpty) {
-    //   print('or: ${originalEvents.data.item1.data.length}');
+    //  debugPrint('or: ${originalEvents.data.item1.data.length}');
     //   setState(() {
     //     events = originalEvents;
     //     filteredevents = originalEvents.data;
@@ -135,15 +135,14 @@ class _EventsPageState extends State<EventsPage> {
     }
     final page = (offset / kDefaultMeasurementsPerPage).round();
 
-    print(">>>>>> offset: $offset, from: $total, page: $page");
+    debugPrint(">>>>>> offset: $offset, from: $total, page: $page");
 
     result = await _bloc.asyncCall(searchFilter: _searchText, page: page + 1);
 
-    print('measurementsList\n '
+    debugPrint('measurementsList\n '
         'count:${_bloc.worker.paging.count}\n'
         'pageItemLimit:${_bloc.worker.paging.pageItemLimit}\n'
         'next:${_bloc.worker.paging.next}');
-    print(result.item1);
     if (result.item1.data != null) {
       return result.item1.data;
     } else {
@@ -156,8 +155,8 @@ class _EventsPageState extends State<EventsPage> {
   void initState() {
     _bloc = EventListWorkerBloc(widget.provider);
     _userInfoBloc = UserInfoBloc();
-    print('get userInfo ${_userInfoBloc}');
-    print('list selectedCompany:${SessionParameters().selectedCompany}');
+    debugPrint('get userInfo ${_userInfoBloc}');
+    debugPrint('list selectedCompany:${SessionParameters().selectedCompany}');
 
     Future<Void> fetchUserType() async {
       prefs = await SharedPreferences.getInstance();
@@ -170,13 +169,12 @@ class _EventsPageState extends State<EventsPage> {
       _userInfoBloc.chuckListStream.listen((user) {
         switch (user.status) {
           case Status.LOADING:
-            print('loading header');
             break;
           case Status.COMPLETED:
             if (_userType == UserType.salesRep) {
               SessionParameters().selectedCompany = user.data.provider;
             }
-            print('company = ${user.data.provider.apiKey()}');
+            debugPrint('company = ${user.data.provider.apiKey()}');
             setState(() {
               _userInfo = user.data;
             });
@@ -195,8 +193,8 @@ class _EventsPageState extends State<EventsPage> {
       // _connectivity.myStream.listen((source) {
       //   _source = source;
       //   var isConnected = _source.keys.toList()[0] != ConnectivityResult.none;
-      //   print('connection: ${_source.keys.toList()[0] }');
-      //   print('connection to network: $source, isConnected: $isConnected');
+      //  debugPrint('connection: ${_source.keys.toList()[0] }');
+      //  debugPrint('connection to network: $source, isConnected: $isConnected');
       // });
     }
 
@@ -238,10 +236,10 @@ class _EventsPageState extends State<EventsPage> {
 
     Widget _userInfoView() {
       if (_userInfo == null) {
-        print('user info null');
+        debugPrint('user info null');
         return CircularProgressIndicator();
       } else {
-        print('user info not null');
+        debugPrint('user info not null');
         return UserInfoHeader(userInfo: _userInfo, userType: _userType);
       }
     }
@@ -372,9 +370,7 @@ class _EventsPageState extends State<EventsPage> {
             case Status.COMPLETED:
               var userId = _userInfo != null ? _userInfo.id.toString() : null;
               prefs.setString('temp_user', userId ?? '');
-              print('buided after complete');
-              print('${filteredevents.item1.data.length}');
-              print('--');
+
               listWidget = EventsListWidget(
                   resultsList: filteredevents,
                   userType: _userType,
@@ -515,7 +511,7 @@ class EventsListWidget extends StatelessWidget {
 
     void _moveToEventAt(int index, Event event) {
       if (userId == null) {
-        print('did not receive user profile info on main page');
+        debugPrint('did not receive user profile info on main page');
         // return;
       }
 
@@ -726,7 +722,7 @@ class EventsListWidget extends StatelessWidget {
       var gesture = GestureDetector(
         child: container,
         onTap: () {
-          print('did Select at $index');
+          debugPrint('did Select at $index');
           _moveToEventAt(index, event);
         },
       );

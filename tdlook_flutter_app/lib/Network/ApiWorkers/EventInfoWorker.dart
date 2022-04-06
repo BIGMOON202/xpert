@@ -1,6 +1,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 
@@ -17,10 +18,9 @@ class EventInfoWorker {
     if (eventId != null) {
       link = 'events/$eventId/';
     }
-
-    print('link: ${link}');
+   debugPrint('link: ${link}');
     final response = await _provider.get(link,useAuth: true);
-    print('event: ${response.length}');
+   debugPrint('event: ${response.length}');
     if (_provider.shouldRefreshTokenFor(json:response)) {
 
     } else {
@@ -58,7 +58,7 @@ class EventInfoWorkerBloc {
       chuckListSink.add(Response.completed(event));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      print(e);
+     debugPrint(e);
     }
   }
 

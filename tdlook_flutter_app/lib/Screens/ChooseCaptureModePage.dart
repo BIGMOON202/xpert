@@ -81,7 +81,7 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
                 child: MaterialButton(
                   onPressed: () {
                     _moveToNextPage();
-                    print('next button pressed');
+                   debugPrint('next button pressed');
                   },
                   textColor: Colors.white,
                   child: CustomText('NEXT'),

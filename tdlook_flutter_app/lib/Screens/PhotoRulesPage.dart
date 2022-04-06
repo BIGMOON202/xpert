@@ -83,7 +83,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
     _runContinueButtonTimer();
 
-    print('selectedGender: ${widget.gender.apiFlag()}');
+   debugPrint('selectedGender: ${widget.gender.apiFlag()}');
   }
 
   @override
@@ -121,7 +121,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                       )),
                 ))));
 
-    print('selectedGender: ${widget.gender.toString()}');
+   debugPrint('selectedGender: ${widget.gender.toString()}');
 
     var container = Column(
       mainAxisAlignment: MainAxisAlignment.start,

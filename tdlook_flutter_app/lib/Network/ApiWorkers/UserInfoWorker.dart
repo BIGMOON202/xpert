@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
@@ -22,7 +23,7 @@ class UserInfoWorker {
       useAuth = true;
     }
     final response = await _provider.get('${userType.apiUserInfoEnpoint()}/me/', useAuth: useAuth, headers: headers);
-    print('userinfo ${response}');
+   debugPrint('userinfo ${response}');
     return User.fromJson(response);
   }
 }
@@ -58,7 +59,7 @@ class UserInfoBloc {
       chuckListSink.add(Response.completed(info));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      print(e);
+     debugPrint(e);
     }
   }
 

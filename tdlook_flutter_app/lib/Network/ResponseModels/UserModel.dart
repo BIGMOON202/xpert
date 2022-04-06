@@ -1,5 +1,6 @@
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 
 enum UserRole {
@@ -116,7 +117,7 @@ class User {
   }
 
   String userFullName() {
-    print('$firstName $lastName');
+   debugPrint('$firstName $lastName');
     if (this.name != null) {
       return this.name;
     } else {

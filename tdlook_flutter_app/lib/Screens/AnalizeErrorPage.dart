@@ -51,7 +51,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
   String _buttonTitle = '';
 
   _continueAction() {
-    print('continue');
+   debugPrint('continue');
 
     if (widget.arguments?.result != null) {
       XFile _frontPhoto = widget.arguments.frontPhoto;
@@ -71,11 +71,11 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
         _passedPhotoType = PhotoType.side;
       }
 
-      print('front: ${_frontPhoto != null}');
-      print('side: ${_sidePhoto != null}');
-      print('photoType: ${_passedPhotoType.index}');
-      print('_photoError: ${_photoError.index}');
-      print('push camera');
+     debugPrint('front: ${_frontPhoto != null}');
+     debugPrint('side: ${_sidePhoto != null}');
+     debugPrint('photoType: ${_passedPhotoType.index}');
+     debugPrint('_photoError: ${_photoError.index}');
+     debugPrint('push camera');
 
       Navigator.pushNamedAndRemoveUntil(context, CameraCapturePage.route, (route) => false,
           arguments: CameraCapturePageArguments(
@@ -127,13 +127,13 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
       detail = widget.arguments?.result.detail.where((i) => i.status != 'SUCCESS').toList();
     }
 
-    print('number of errors: ${detail.length}');
+   debugPrint('number of errors: ${detail.length}');
     if (detail.isEmpty == false) {
 
       if (detail.length > 1) {
         title = 'Retake both photos';
         _photoError = PhotoError.both;
-        print('photoType${_photoError.index}');
+       debugPrint('photoType${_photoError.index}');
       } else {
         var photoType = detail.first.type;
         if (photoType == ErrorProcessingType.side_skeleton_processing) {
@@ -141,7 +141,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
         } else  {
           _photoError = PhotoError.front;
         }
-        print('photoType${_photoError.index}');
+       debugPrint('photoType${_photoError.index}');
         title = 'Retake ${photoType.name()} photo';
       }
     } else {
@@ -220,8 +220,8 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage>  {
         var details = widget.arguments?.result.detail.where((i) => i.status != 'SUCCESS').toList();
 
         for (var _error in details) {
-          print(_error.type.name());
-          print(_error.message);
+         debugPrint(_error.type.name());
+         debugPrint(_error.message);
           vertical.add(_configErrorView(_error));
           vertical.add(SizedBox(height: 20));
         }

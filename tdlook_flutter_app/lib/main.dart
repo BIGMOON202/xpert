@@ -103,7 +103,7 @@ void main() async {
             '/choose_company': (context) => ChooseCompanyPage()
           },
           onGenerateRoute: (settings) {
-            print('Need to find ${settings.name}');
+           debugPrint('Need to find ${settings.name}');
             if (settings.name == '/events_list') {
               return MaterialPageRoute(
                   settings: settings, builder: (context) => EventsPage());
@@ -200,7 +200,7 @@ class _LookAppState extends State<LookApp> {
       var accessToken = prefs.getString('access');
       _activeUserType =
           EnumToString.fromString(UserType.values, prefs.getString('userType'));
-      print('accessToken = $accessToken');
+     debugPrint('accessToken = $accessToken');
       setState(() {
         _isAuthorized = (accessToken != null);
       });

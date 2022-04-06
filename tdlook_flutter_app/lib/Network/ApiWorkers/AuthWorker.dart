@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
@@ -37,7 +38,6 @@ class AuthRefreshWorker extends AuthWorker {
 
   @override
   Future<AuthCredentials> fetchData() async {
-    print('trying to refresh token request');
     final response = await _provider.post(userType._authRefreshEndPoint(),
         body: {'refresh': token}, useAuth: false, tryToRefreshAuth: false);
     return AuthCredentials.fromJson(response);
@@ -84,36 +84,32 @@ class AuthWorkerBloc {
   Stream<Response<AuthCredentials>>  chuckListStream;
 
   AuthWorkerBloc(this.arguments) {
-    print('Inited block with $arguments.email, $arguments.password, $arguments.refreshToken');
     _listController = StreamController<Response<AuthCredentials>>();
 
     chuckListSink = _listController.sink;
     chuckListStream = _listController.stream;
 
-    print('${_listController.hasListener}');
     if (arguments.refreshToken == null) {
-      print('AuthWorker with email: ${arguments.email}');
       _authWorker = AuthWorker(arguments.email, arguments.password, arguments.userType, arguments.provider);
     } else {
-      print('AuthWorker with refresh: ${arguments.refreshToken} ${arguments.userType.toString()}');
       _authWorker = AuthRefreshWorker(arguments.refreshToken, arguments.userType);
     }
   }
 
   call() async {
-    print('call auth');
+   debugPrint('call auth');
 
     chuckListSink.add(Response.loading('Getting Chuck AUTH.'));
     try {
-      print('try block');
+     debugPrint('try block');
       AuthCredentials credentials = await _authWorker.fetchData();
-      print('$credentials');
+     debugPrint('$credentials');
       chuckListSink.add(Response.completed(credentials));
     } catch (e) {
 
       String returnValue = handle(error: e);
       chuckListSink.add(Response.error(returnValue));
-      print(e);
+     debugPrint(e);
     }
   }
 
@@ -130,7 +126,7 @@ class AuthWorkerBloc {
 
 
   String handle({dynamic error}) {
-    print('e: ${error} ${error.runtimeType}');
+   debugPrint('e: ${error} ${error.runtimeType}');
     var returnValue = error.toString();
 
     var decodeSucceeded = false;
@@ -143,7 +139,7 @@ class AuthWorkerBloc {
 
     if (decodeSucceeded == true) {
       var json = jsonDecode(error.toString());
-      print('j: ${json} ${json.runtimeType}');
+     debugPrint('j: ${json} ${json.runtimeType}');
       var parsedError = LoginValidationError.fromJson(json);
       if (parsedError != null) {
         returnValue = parsedError.toString();
@@ -173,12 +169,12 @@ class LoginValidationError {
 
   LoginValidationError.fromJson(Map<String, dynamic> json) {
 
-    print('parse JSON: ${json}');
+   debugPrint('parse JSON: ${json}');
     details = json['details'] != null ? json['details'] : null;
-    print('${details}');
+   debugPrint('${details}');
 
     var emailErrors = json['email'];
-    print('${emailErrors}');
+   debugPrint('${emailErrors}');
     email = emailErrors != null ? List.from(emailErrors) : null;
 
     var passwordErrors = json['password'];
