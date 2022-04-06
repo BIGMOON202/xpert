@@ -155,7 +155,7 @@ class NetworkAPI {
       Map<String, String> headers,
       bool useAuth = true,
       bool tryToRefreshAuth = true}) async {
-    debugPrint('call ${request} on ${url}');
+    // debugPrint('call ${request} on ${url}');
     var responseJson;
 
     void makeCall() async {
@@ -185,7 +185,7 @@ class NetworkAPI {
 
         var finalUrl = Uri.parse(_baseUrl + url);
 
-       debugPrint('$finalUrl, $headers, $body');
+       // debugPrint('$finalUrl, $headers, $body');
         http.Response response;
 
         final HttpMetric metric = FirebasePerformance.instance
@@ -239,7 +239,7 @@ class NetworkAPI {
 
         await metric.stop();
 
-       debugPrint('call results: $responseJson');
+       // debugPrint('call results: $responseJson');
       } on SocketException {
         throw FetchDataException('No Internet connection');
       }
@@ -253,13 +253,13 @@ class NetworkAPI {
 
   Future<ParserResponse<dynamic>> _response(http.Response response,
       {bool tryToRefreshAuth = true}) async {
-   debugPrint(
-        '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
+   // debugPrint(
+   //      '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
     switch (response.statusCode) {
       case 200:
       case 201:
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
-       debugPrint(responseJson);
+       // debugPrint(responseJson);
         return ParserResponse.completed(responseJson);
       case 400:
         throw BadRequestException(response.body);
@@ -268,7 +268,7 @@ class NetworkAPI {
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
         if (tryToRefreshAuth == true) {
           if (shouldRefreshTokenFor(json: responseJson)) {
-            debugPrint('Load new access token');
+            // debugPrint('Load new access token');
             var successRefresh = await refreshTokenOrLogout();
             if (successRefresh == true) {
               debugPrint('successRefresh == true');
@@ -281,9 +281,9 @@ class NetworkAPI {
           }
         }
 
-       debugPrint(responseJson);
+       // debugPrint(responseJson);
         var details = responseJson['detail'];
-       debugPrint(details);
+       // debugPrint(details);
         // return ParserResponse.error(responseJson);
         throw UnauthorisedException(details != null ? details : response.body);
       case 500:

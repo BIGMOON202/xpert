@@ -103,13 +103,13 @@ class AuthWorkerBloc {
     try {
      debugPrint('try block');
       AuthCredentials credentials = await _authWorker.fetchData();
-     debugPrint('$credentials');
+     // debugPrint('$credentials');
       chuckListSink.add(Response.completed(credentials));
     } catch (e) {
 
       String returnValue = handle(error: e);
       chuckListSink.add(Response.error(returnValue));
-     debugPrint(e);
+     // debugPrint(e);
     }
   }
 
@@ -126,7 +126,7 @@ class AuthWorkerBloc {
 
 
   String handle({dynamic error}) {
-   debugPrint('e: ${error} ${error.runtimeType}');
+   // debugPrint('e: ${error} ${error.runtimeType}');
     var returnValue = error.toString();
 
     var decodeSucceeded = false;
@@ -139,7 +139,7 @@ class AuthWorkerBloc {
 
     if (decodeSucceeded == true) {
       var json = jsonDecode(error.toString());
-     debugPrint('j: ${json} ${json.runtimeType}');
+     // debugPrint('j: ${json} ${json.runtimeType}');
       var parsedError = LoginValidationError.fromJson(json);
       if (parsedError != null) {
         returnValue = parsedError.toString();
@@ -169,12 +169,12 @@ class LoginValidationError {
 
   LoginValidationError.fromJson(Map<String, dynamic> json) {
 
-   debugPrint('parse JSON: ${json}');
+   // debugPrint('parse JSON: ${json}');
     details = json['details'] != null ? json['details'] : null;
-   debugPrint('${details}');
+   // debugPrint('${details}');
 
     var emailErrors = json['email'];
-   debugPrint('${emailErrors}');
+   // debugPrint('${emailErrors}');
     email = emailErrors != null ? List.from(emailErrors) : null;
 
     var passwordErrors = json['password'];

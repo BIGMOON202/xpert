@@ -151,7 +151,6 @@ class _LoginPageState extends State<LoginPage> {
           _errorMessage = event.message;
       }
      debugPrint('OLOLO');
-     debugPrint('${event.status} status ${event.data.access}');
     });
 
     _authBloc.call();
