@@ -1,0 +1,41 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "editor.formatOnType": true,
+    "editor.rulers": [
+        100
+    ],
+    "files.autoSave": "afterDelay",
+    "dart.flutterSdkPaths": [
+        "~/fvm/versions"
+    ],
+    "dart.flutterSdkPath": "~/fvm/versions/2.10.5",
+    "dart.debugSdkLibraries": true,
+    "dart.lineLength": 100,
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            100
+        ],
+    },
+    // Remove .fvm files from search
+    "search.exclude": {
+        "**/.fvm": true
+    },
+    // Remove from file watching
+    "files.watcherExclude": {
+        "**/.fvm": true
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/*.g.dart": true,
+    }
+}
