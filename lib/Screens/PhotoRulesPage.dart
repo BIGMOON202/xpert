@@ -63,13 +63,12 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
     }
   }
 
-  Future<bool> _enableContinueTimer() async {
-    final result = await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
-    return result;
+  Future<void> _enableContinueTimer() async {
+    await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
   }
 
   void _runContinueButtonTimer() {
-    _enableContinueTimer().then((value) {
+    _enableContinueTimer().then((_) {
       setState(() {
         _continueButtonEnable = true;
       });

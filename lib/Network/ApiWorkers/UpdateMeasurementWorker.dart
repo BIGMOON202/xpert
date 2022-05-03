@@ -292,9 +292,8 @@ class UpdateMeasurementBloc {
     });
   }
 
-  Future<bool> _enableContinueTimer({int? delay}) async {
-    final result = await Future.delayed(Duration(seconds: delay ?? 0));
-    return result as bool;
+  Future<void> _enableContinueTimer({int? delay}) async {
+    await Future.delayed(Duration(seconds: delay ?? 0));
   }
 
   void setLoading({String? name, int? delay}) {

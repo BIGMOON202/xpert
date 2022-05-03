@@ -480,22 +480,22 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
           'uuid:${measurement?.uuid}');
 
       // TODO: Uncommin for test
-      // if (Application.isInDebugMode) {
-      //   if (SessionParameters().selectedCompany == CompanyType.armor) {
-      //     Navigator.push(
-      //         context,
-      //         CupertinoPageRoute(
-      //             builder: (BuildContext context) =>
-      //                 BadgePage(arguments: BadgePageArguments(measurement, widget.userType))));
-      //   } else {
-      //     Navigator.push(
-      //         context,
-      //         CupertinoPageRoute(
-      //             builder: (BuildContext context) =>
-      //                 ChooseGenderPage(argument: ChooseGenderPageArguments(measurement))));
-      //   }
-      //   return;
-      // }
+      if (Application.isInDebugMode) {
+        if (SessionParameters().selectedCompany == CompanyType.armor) {
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (BuildContext context) =>
+                      BadgePage(arguments: BadgePageArguments(measurement, widget.userType))));
+        } else {
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (BuildContext context) =>
+                      ChooseGenderPage(argument: ChooseGenderPageArguments(measurement))));
+        }
+        return;
+      }
 
       if (measurement?.isComplete == false && widget.event?.status == EventStatus.in_progress) {
         // if sales rep - open gender
