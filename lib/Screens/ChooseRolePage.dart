@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/LoginPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class ChooseRolePage extends StatefulWidget {
   @override
@@ -225,7 +226,7 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                           onPressed: _selectedUserType != null
                               ? () {
                                   _moveToNextPage();
-                                  debugPrint('next button pressed');
+                                  logger.i('next button pressed');
                                 }
                               : null,
                           textColor: Colors.black,
@@ -268,12 +269,12 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
     void _increaseTapsOrReset() {
       void reset() {
         tapCounter = 0;
-        debugPrint('reset');
+        logger.i('reset');
       }
 
       if (lastTap != null) {
         var dif = DateTime.now().difference(lastTap!).inMilliseconds;
-        debugPrint('dif: ${dif}');
+        logger.d('dif: ${dif}');
         if (dif > 500 && dif < 2000) {
           tapCounter += 1;
         } else {

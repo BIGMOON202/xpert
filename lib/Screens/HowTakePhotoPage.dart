@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 import 'package:video_player/video_player.dart';
 
 class TutorialStep {
@@ -52,7 +53,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
   @override
   void didUpdateWidget(covariant HowTakePhotoPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    debugPrint('DID UPDATE');
+    logger.i('DID UPDATE');
   }
 
   void _runContinueButtonTimer() {
@@ -85,7 +86,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
     // Wait for all futures to complete
     await Future.wait(_runningSteps!);
     // We're done with all futures execution
-    debugPrint('All the futures has completed');
+    logger.i('All the futures has completed');
   }
 
   void _replayAction() {
@@ -117,7 +118,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
     });
 
     if (_controller.value.position == Duration(seconds: 0, minutes: 0, hours: 0)) {
-      //debugPrint('video Started');
+      //logger.i('video Started');
     }
 
     if (_controller.value.position == _controller.value.duration) {
@@ -161,7 +162,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
     _controller.addListener(_checkVideoProgress);
 
     _initializeVideoPlayerFuture?.then((value) {
-      debugPrint('READY FOR PLAY');
+      logger.i('READY FOR PLAY');
 
       setState(() {
         _isPlaying = true;

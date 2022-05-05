@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class AuthWorker {
   String? email;
@@ -101,18 +101,13 @@ class AuthWorkerBloc {
   }
 
   call() async {
-    debugPrint('call auth');
-
     chuckListSink.add(Response.loading('Getting Chuck AUTH.'));
     try {
-      debugPrint('try block');
       AuthCredentials credentials = await _authWorker.fetchData();
-      // debugPrint('$credentials');
       chuckListSink.add(Response.completed(credentials));
     } catch (e) {
       String returnValue = handle(error: e);
       chuckListSink.add(Response.error(returnValue));
-      // debugPrint(e);
     }
   }
 
@@ -120,24 +115,25 @@ class AuthWorkerBloc {
     try {
       return await _authWorker.fetchData();
     } catch (e) {
+      logger.e(e);
       return null;
     }
   }
 
   String handle({dynamic error}) {
-    // debugPrint('e: ${error} ${error.runtimeType}');
     var returnValue = error.toString();
 
     var decodeSucceeded = false;
     try {
       var x = json.decode(error.toString()) as Map<String, dynamic>;
       decodeSucceeded = true;
-    } on FormatException catch (e) {}
+    } on FormatException catch (e) {
+      logger.e(e);
+    }
 
     if (decodeSucceeded == true) {
       var json = jsonDecode(error.toString());
-      // debugPrint('j: ${json} ${json.runtimeType}');
-      var parsedError = LoginValidationError.fromJson(json);
+      final parsedError = LoginValidationError.fromJson(json);
       if (parsedError != null) {
         returnValue = parsedError.toString();
       } else {}
@@ -161,12 +157,12 @@ class LoginValidationError {
   LoginValidationError({this.email, this.password, this.details});
 
   LoginValidationError.fromJson(Map<String, dynamic> json) {
-    // debugPrint('parse JSON: ${json}');
+    // logger.d('parse JSON: ${json}');
     details = json['details'] != null ? json['details'] : null;
-    // debugPrint('${details}');
+    //logger.d('${details}');
 
     var emailErrors = json['email'];
-    // debugPrint('${emailErrors}');
+    // logger.d('${emailErrors}');
     email = emailErrors != null ? List.from(emailErrors) : null;
 
     var passwordErrors = json['password'];

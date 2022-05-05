@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class ChooseCompanyPage extends StatefulWidget {
   @override
@@ -126,7 +127,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
     void _moveToNextPage() {
       SessionParameters().selectedCompany = _selectedCompanyType;
 
-      debugPrint('selectedCompany:${SessionParameters().selectedCompany}');
+      logger.d('selectedCompany:${SessionParameters().selectedCompany}');
       Navigator.push(
           context,
           CupertinoPageRoute(
@@ -151,7 +152,7 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
                         onPressed: _selectedCompanyType != null
                             ? () {
                                 _moveToNextPage();
-                                debugPrint('next button pressed');
+                                logger.i('next button pressed');
                               }
                             : null,
                         textColor: Colors.black,

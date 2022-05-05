@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class EventList implements Paginated<Event> {
   List<Event>? data;
@@ -41,9 +42,9 @@ class AnalizeResult {
     event = json['event'];
     status = json['status'];
     errorCode = json['error_code'];
-    debugPrint('result: ${json}, type: ${json.runtimeType}');
-    debugPrint(
-        'errorCode: ${errorCode}, detail: ${json['detail']}, type: ${json['detail'].runtimeType}');
+    logger.d('result: $json, type: ${json.runtimeType}');
+    logger.e(
+        'errorCode: $errorCode, detail: ${json['detail']}, type: ${json['detail'].runtimeType}');
     if (errorCode != null && errorCode == 'validation_error' && json['detail'] != null) {
       detail = <Detail>[];
       json['detail'].forEach((v) {
@@ -171,7 +172,7 @@ class Event {
     completeMeasuremensCount =
         json['complete_measurements_count'] != null ? json['complete_measurements_count'] : 0;
     productTypes = json['product_types'] != null ? json['product_types'] : [];
-    debugPrint('parsed overlap ${json['overlap']}');
+    logger.d('parsed overlap ${json['overlap']}');
     manualOverlap = ((json['overlap'] == null) ||
         (json['overlap'] == 'selected' || json['overlap'] == 'Selected'));
   }
@@ -451,7 +452,7 @@ class MeasurementResults {
       });
     }
 
-    debugPrint('error: ${json['error']} // ${json['error'].runtimeType}');
+    logger.e('error: ${json['error']} // ${json['error'].runtimeType}');
     if ((json['error'] != null) && (json['error'] is Map<String, dynamic>)) {
       error = new AnalizeResult.fromJson(json['error']);
     }

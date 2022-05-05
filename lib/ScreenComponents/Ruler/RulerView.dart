@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerValues.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerViewController.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 import '../../UIComponents/ResourceImage.dart';
 
@@ -112,8 +113,8 @@ class _RulerViewState extends State<RulerView> {
     } else {
       index = position ~/ _rowHeight;
     }
-    debugPrint('position: $position');
-    debugPrint('index: $index');
+    logger.d('position: $position');
+    logger.d('index: $index');
     final val = _rulerValues.getValueAtIndex(index);
 
     setState(() {
@@ -128,13 +129,13 @@ class _RulerViewState extends State<RulerView> {
         switch (_system) {
           case MeasurementSystem.imperial:
             _selectedImperialValue = value;
-            debugPrint('imp: $value');
+            logger.d('imp: $value');
             _selectedMetricValue = _rulerValues.getConvertedHeight(value);
-            debugPrint('selectedMetric: $_selectedMetricValue');
+            logger.d('selectedMetric: $_selectedMetricValue');
 
             break;
           case MeasurementSystem.metric:
-            debugPrint('met: $value');
+            logger.d('met: $value');
             _selectedImperialValue = _rulerValues.getConvertedHeight(value);
             _selectedMetricValue = value;
             break;

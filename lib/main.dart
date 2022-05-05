@@ -19,6 +19,7 @@ import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 import 'constants/language.dart';
 import 'generated/l10n.dart';
@@ -96,7 +97,7 @@ void main() async {
             '/choose_company': (context) => ChooseCompanyPage()
           },
           onGenerateRoute: (settings) {
-            debugPrint('Need to find ${settings.name}');
+            logger.d('Need to find ${settings.name}');
             if (settings.name == '/events_list') {
               return MaterialPageRoute(settings: settings, builder: (context) => EventsPage());
             } else if (settings.name == WaitingPage.route) {
@@ -184,8 +185,7 @@ class _LookAppState extends State<LookApp> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    //
+    super.initState();
     Future<void> checkToken() async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       var accessToken = prefs.getString('access');
@@ -193,7 +193,7 @@ class _LookAppState extends State<LookApp> {
       if (value != null) {
         _activeUserType = EnumToString.fromString(UserType.values, value);
       }
-      debugPrint('accessToken = $accessToken');
+      logger.d('accessToken = $accessToken');
       setState(() {
         _isAuthorized = (accessToken != null);
       });

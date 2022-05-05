@@ -5,6 +5,7 @@ import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class MeasurementsListWorker {
   Paging? paging;
@@ -20,7 +21,7 @@ class MeasurementsListWorker {
     final response = await _provider.get(
         'measurements/?event=$eventId&page_size=$size$pageParam&ordering=end_wearer__name$searchParam',
         useAuth: true);
-    debugPrint('Response: $response');
+    logger.d('Response: $response');
     var list = MeasurementsList.fromJson(response);
     this.paging = list.paging;
     return list;
@@ -42,7 +43,7 @@ class MeasurementsListWorkerBloc {
   late Stream<Response<MeasurementsList>> chuckListStream;
 
   MeasurementsListWorkerBloc(this.eventId) {
-    debugPrint('Init block EventListWorkerBloc');
+    logger.i('Init block EventListWorkerBloc');
     final ctrl = StreamController<Response<MeasurementsList>>();
     _listController = ctrl;
 
@@ -53,17 +54,17 @@ class MeasurementsListWorkerBloc {
   }
 
   call({String? name}) async {
-    debugPrint('call auth');
+    logger.i('call auth');
 
     chuckListSink.add(Response.loading('Getting measurements'));
     try {
-      debugPrint('try block');
+      logger.i('try block');
       MeasurementsList measurementsList = await _measurementsListWorker.fetchData(name: name);
-      debugPrint('$measurementsList');
+      logger.d('$measurementsList');
       chuckListSink.add(Response.completed(measurementsList));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      debugPrint(e.toString());
+      logger.e(e);
     }
   }
 
@@ -77,7 +78,7 @@ class MeasurementsListWorkerBloc {
           await _measurementsListWorker.fetchData(name: name, page: page, size: size);
       return list;
     } catch (e) {
-      debugPrint(e.toString());
+      logger.e(e);
       return null;
     }
   }

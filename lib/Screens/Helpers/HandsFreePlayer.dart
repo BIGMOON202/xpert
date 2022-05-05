@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class HandsFreePlayer {
   AudioCache player = AudioCache();
@@ -21,15 +22,15 @@ class HandsFreePlayer {
     var audioFile = 'HandsFreeAudio\/${step?.audioTrackName() ?? ''}.mp3';
     player.fixedPlayer = AudioPlayer(playerId: _playerID);
     player.respectSilence = false;
-    debugPrint('should play: $audioFile');
+    logger.d('should play: $audioFile');
     // _isPlaying = true;
     player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
-    debugPrint('volumeIsOn: $volumeIsOn');
+    logger.d('volumeIsOn: $volumeIsOn');
 
     await player.play(audioFile);
-    debugPrint('playing: $audioFile');
+    logger.d('playing: $audioFile');
     player.fixedPlayer?.onPlayerStateChanged.listen((event) {
-      debugPrint('new player status: ${event}');
+      logger.d('new player status: ${event}');
       if (event == PlayerState.COMPLETED) {
         _handleTheEndOf(step: step);
       }
@@ -37,7 +38,7 @@ class HandsFreePlayer {
   }
 
   void stop() {
-    debugPrint('player was stopped');
+    logger.i('player was stopped');
     _timerTickingBeforePhoto?.cancel();
     _timerPauseBetweenSteps?.cancel();
     _captureTimer?.cancel();
@@ -48,7 +49,7 @@ class HandsFreePlayer {
     // play timer if needed
     if (step != null && step.shouldShowTimer() == true) {
       var interval = step.afterDelayValue();
-      debugPrint('shouldShowTimer');
+      logger.i('shouldShowTimer');
 
       const oneSec = const Duration(seconds: 1);
       _timerTickingBeforePhoto = new Timer.periodic(
@@ -63,7 +64,7 @@ class HandsFreePlayer {
             if (interval > 0) {
               playSound(sound: TFOptionalSound.tick);
             }
-            debugPrint("timer interval $interval");
+            logger.d("timer interval $interval");
             onTimerUpdateBlock?.call(interval > 0 ? '${interval.toStringAsFixed(0)}' : '');
           }
         },
@@ -73,7 +74,7 @@ class HandsFreePlayer {
     // handle the pause after step
     final seconds = step?.afterDelayValue().toInt() ?? 0;
     var duration = Duration(seconds: seconds);
-    debugPrint('duration $duration');
+    logger.d('duration $duration');
     var durationToCapture = Duration(seconds: seconds);
     if (step?.shouldCaptureAfter() == true) {
       _captureTimer = Timer(durationToCapture, () {
@@ -83,7 +84,7 @@ class HandsFreePlayer {
       });
     }
     _timerPauseBetweenSteps = Timer(duration, () {
-      debugPrint('timer fired after ${duration}');
+      logger.d('timer fired after ${duration}');
 
       if (step?.shouldCaptureAfter() == true) {
         Timer(Duration(milliseconds: 100), onCaptureBlock!);
@@ -98,18 +99,18 @@ class HandsFreePlayer {
     player.fixedPlayer = AudioPlayer(playerId: _playerID);
     player.respectSilence = sound.respectsSilentMode;
     player.fixedPlayer?.setReleaseMode(ReleaseMode.STOP);
-    debugPrint('should play sound: $audioFile');
+    logger.d('should play sound: $audioFile');
 
     player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
-    debugPrint('volumeIsOn: $volumeIsOn');
+    logger.d('volumeIsOn: $volumeIsOn');
     player.play(audioFile);
   }
 
   void _moveToNext({TFStep? step}) {
-    debugPrint('increaseStep');
+    logger.i('increaseStep');
 
     var newStepIndex = (step?.index ?? 0) + 1;
-    debugPrint('newStepIndex: $newStepIndex');
+    logger.d('newStepIndex: $newStepIndex');
 
     if (TFStep.values.length > newStepIndex) {
       playStep(step: TFStep.values[newStepIndex]);

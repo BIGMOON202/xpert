@@ -24,6 +24,7 @@ import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 import 'ChooseGenderPage.dart';
 
@@ -68,7 +69,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
         case Status.COMPLETED:
           setState(() {
-            debugPrint('updated: ${updatedEvent.data}');
+            logger.d('updated: ${updatedEvent.data}');
             this.event = updatedEvent.data;
           });
           break;
@@ -86,7 +87,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   }
 
   void filter({String? withText}) async {
-    debugPrint('filter with ${withText}');
+    logger.d('filter with $withText');
     _searchText = withText ?? '';
     _bloc?.call(name: withText);
   }
@@ -100,7 +101,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   }
 
   onSearchTextChanged(String text) {
-    //debugPrint('update: $text');
+    //logger.d('update: $text');
     var searchText = EmojiUtils.removeAllEmoji(text);
     if (searchText.length < 1) {
       searchText = '';
@@ -108,11 +109,11 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     setState(() {
       _searchText = searchText;
     });
-    debugPrint("searchText: $searchText");
+    logger.d("searchText: $searchText");
     FutureExtension.enableContinueTimer(delay: 1).then((value) {
-      debugPrint('should search $searchText - $text');
+      logger.d('should search $searchText - $text');
       if (searchText == text) {
-        debugPrint('searching');
+        logger.i('searching');
         filter(withText: searchText);
       }
     });
@@ -172,7 +173,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     }
 
     Widget _subchild() {
-      debugPrint('subchild ${_isKeyboardAppeare}');
+      logger.d('subchild $_isKeyboardAppeare');
       if (_isKeyboardAppeare == false) {
         return Padding(
             padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
@@ -322,14 +323,14 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
                     padding: const EdgeInsets.only(left: 8.0),
                     child: TextFormField(
                       onEditingComplete: () {
-                        debugPrint('on complete');
+                        logger.i('on complete');
                         FocusScope.of(context).unfocus();
                         setState(() {
                           _isKeyboardAppeare = false;
                         });
                       },
                       onTap: () {
-                        debugPrint('on start');
+                        logger.i('on start');
                         setState(() {
                           _isKeyboardAppeare = true;
                         });
@@ -380,7 +381,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
     Widget listBody() {
       if (widget.measurementsList != null && widget.measurementsList?.data?.length != 0) {
-        debugPrint('config list body');
+        logger.i('config list body');
         return MeasuremetsListWidget(
             event: event,
             measurementsList: widget.measurementsList,
@@ -388,12 +389,12 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
             onRefreshList: _refreshList,
             refreshController: _refreshController);
       } else {
-        debugPrint('config list body async');
+        logger.i('config list body async');
         return StreamBuilder<Response<MeasurementsList>>(
           stream: _bloc?.chuckListStream,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              debugPrint('status: ${snapshot.data?.status}');
+              logger.d('status: ${snapshot.data?.status}');
               if (snapshot.data?.status == null) return const SizedBox();
               switch (snapshot.data!.status!) {
                 case Status.LOADING:
@@ -475,7 +476,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       // var measurement = measurementsList.data[index];
       measurement?.askForWaistLevel = widget.event?.shouldAskForWaistLevel();
       measurement?.askForOverlap = widget.event?.manualOverlap;
-      debugPrint('open measurement\n '
+      logger.d('open measurement\n '
           'id:${measurement?.id}\n'
           'uuid:${measurement?.uuid}');
 
@@ -544,7 +545,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
     }
 
     Future<void> openSetting() async {
-      debugPrint('open settings');
+      logger.i('open settings');
       showDialog(
           barrierDismissible: false,
           context: context,
@@ -563,12 +564,12 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
     }
 
     Future<void> askForPermissionsAndMove(MeasurementResults? _measurement) async {
-      debugPrint('askForPermissionsAndMove');
+      logger.i('askForPermissionsAndMove');
       Map<Permission, PermissionStatus> statuses = await [
         Permission.camera,
       ].request();
 
-      debugPrint('statuses: $statuses');
+      logger.d('statuses: $statuses');
       if (statuses[Permission.camera] == PermissionStatus.granted) {
         _moveToMeasurementAt(_measurement);
       } else if (statuses[Permission.camera] == PermissionStatus.permanentlyDenied) {
@@ -599,11 +600,11 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       var isGranted = await Permission.camera.isGranted;
       var isRestricted = await Permission.camera.isRestricted;
 
-      debugPrint('isRestricted: $isRestricted');
-      debugPrint('isGranted: $isGranted');
-      debugPrint('status: $cameraStatus');
-      debugPrint('isPermanentlyDenied: $isPermanentlyDenied');
-      debugPrint('isDenied: $isDenied');
+      logger.d('isRestricted: $isRestricted');
+      logger.d('isGranted: $isGranted');
+      logger.d('status: $cameraStatus');
+      logger.d('isPermanentlyDenied: $isPermanentlyDenied');
+      logger.d('isDenied: $isDenied');
 
       if (await cameraStatus.isGranted == false &&
           await cameraStatus.isPermanentlyDenied == false &&
@@ -693,7 +694,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
                 ),
               ));
         } else {
-          debugPrint('canAddMeasurement: ${canAddMeasurement}');
+          logger.d('canAddMeasurement: $canAddMeasurement');
           Widget content;
           if (canAddMeasurement) {
             content = MaterialButton(
@@ -854,7 +855,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       var gesture = GestureDetector(
         child: container,
         onTap: () {
-          debugPrint('did Select at $index');
+          logger.d('did Select at $index');
           checkPermissionsAndMoveTo(measurement: measurement);
           // _moveToMeasurementAt(index-1);
         },

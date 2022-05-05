@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class MeasurementsWorker {
   String? measurementID;
@@ -27,7 +28,7 @@ class MeasurementsWorkerBloc {
   late Stream<Response<MeasurementResults>> chuckListStream;
 
   MeasurementsWorkerBloc(this.measurementID) {
-    debugPrint('Init block EventListWorkerBloc');
+    logger.i('Init block EventListWorkerBloc');
     final ctrl = StreamController<Response<MeasurementResults>>();
     _listController = ctrl;
 
@@ -38,17 +39,17 @@ class MeasurementsWorkerBloc {
   }
 
   call() async {
-    debugPrint('call auth');
+    logger.i('call auth');
 
     chuckListSink.add(Response.loading('Getting measurements'));
     try {
-      debugPrint('try block');
+      logger.i('try block');
       MeasurementResults measurement = await _measurementsListWorker.fetchData();
-      debugPrint('$measurement');
+      logger.d('$measurement');
       chuckListSink.add(Response.completed(measurement));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      debugPrint(e.toString());
+      logger.e(e);
     }
   }
 

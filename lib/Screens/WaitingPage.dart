@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 import 'package:wakelock/wakelock.dart';
 
 class WaitingPageArguments {
@@ -43,7 +44,7 @@ class _WaitingPageState extends State<WaitingPage>
 
   _handleResult(AnalizeResult? result) {
     Wakelock.disable();
-    debugPrint('move to recomendations');
+    logger.i('move to recomendations');
     animationController.dispose();
     _updateMeasurementBloc?.dispose();
     if (result?.errorCode != 'validation_error') {
@@ -85,7 +86,7 @@ class _WaitingPageState extends State<WaitingPage>
 
     animationController.repeat();
 
-    debugPrint('MEASUREMENTS:'
+    logger.d('MEASUREMENTS:'
         '\nid:${widget.arguments?.measurement?.id}'
         '\ngende: ${widget.arguments?.measurement?.gender},'
         '\nheight:${widget.arguments?.measurement?.height}'

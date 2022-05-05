@@ -15,6 +15,7 @@ import 'package:tdlook_flutter_app/Screens/PrefferedFitPage.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPageClavicle.dart';
 import 'package:tdlook_flutter_app/Screens/WaistLevelPage.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class RulerPageWeight extends StatefulWidget {
   final Gender? gender;
@@ -145,9 +146,9 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
   void _moveToNextPage() {
     widget.measurement?.weight = _currentRawValue;
-    debugPrint('company: ${SessionParameters().selectedCompany?.apiKey()}');
-    debugPrint(">> height: ${widget.measurement?.height}");
-    debugPrint(">> weight: ${widget.measurement?.weight}");
+    logger.d('company: ${SessionParameters().selectedCompany?.apiKey()}');
+    logger.d(">> height: ${widget.measurement?.height}");
+    logger.d(">> weight: ${widget.measurement?.weight}");
     UserType? _user = SessionParameters().selectedUser;
 
     if (SessionParameters().selectedCompany == CompanyType.armor && _user == UserType.salesRep) {

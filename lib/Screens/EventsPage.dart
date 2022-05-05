@@ -29,6 +29,7 @@ import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/main.dart';
 import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 import 'package:tuple/tuple.dart';
 
 class EventsPage extends StatefulWidget {
@@ -72,17 +73,17 @@ class _EventsPageState extends State<EventsPage> {
   // bool _isConnected = true;
 
   onSearchTextChanged(String text) {
-    //debugPrint('update: $text');
+    //logger.d('update: $text');
     var searchText = EmojiUtils.removeAllEmoji(text);
     if (searchText.length < 1) {
       searchText = '';
     }
     _searchText = searchText;
-    debugPrint("searchText: $searchText");
+    logger.d("searchText: $searchText");
     FutureExtension.enableContinueTimer(delay: 1).then((value) {
-      debugPrint('should search $searchText - $text');
+      logger.d('should search $searchText - $text');
       if (searchText == text) {
-        debugPrint('searching');
+        logger.i('searching');
         filter(withText: searchText);
       }
     });
@@ -92,7 +93,7 @@ class _EventsPageState extends State<EventsPage> {
     // if (originalEvents == null) return;
     //
     // if (withText.isEmpty) {
-    //  debugPrint('or: ${originalEvents.data.item1.data.length}');
+    //  logger.d('or: ${originalEvents.data.item1.data.length}');
     //   setState(() {
     //     events = originalEvents;
     //     filteredevents = originalEvents.data;
@@ -125,11 +126,11 @@ class _EventsPageState extends State<EventsPage> {
     }
     final page = (offset / kDefaultMeasurementsPerPage).round();
 
-    debugPrint(">>>>>> offset: $offset, from: $total, page: $page");
+    logger.d(">>>>>> offset: $offset, from: $total, page: $page");
 
     result = await _bloc?.asyncCall(searchFilter: _searchText, page: page + 1);
 
-    debugPrint('measurementsList\n '
+    logger.d('measurementsList\n '
         'count:${_bloc?.worker.paging?.count}\n'
         'pageItemLimit:${_bloc?.worker.paging?.pageItemLimit}\n'
         'next:${_bloc?.worker.paging?.next}');
@@ -145,8 +146,8 @@ class _EventsPageState extends State<EventsPage> {
     super.initState();
     _bloc = EventListWorkerBloc(widget.provider);
     _userInfoBloc = UserInfoBloc();
-    debugPrint('get userInfo ${_userInfoBloc}');
-    debugPrint('list selectedCompany:${SessionParameters().selectedCompany}');
+    logger.d('get userInfo $_userInfoBloc');
+    logger.d('list selectedCompany:${SessionParameters().selectedCompany}');
 
     Future<void> fetchUserType() async {
       prefs = await SharedPreferences.getInstance();
@@ -166,7 +167,7 @@ class _EventsPageState extends State<EventsPage> {
             if (_userType == UserType.salesRep) {
               SessionParameters().selectedCompany = user.data?.provider;
             }
-            debugPrint('company = ${user.data?.provider?.apiKey()}');
+            logger.d('company = ${user.data?.provider?.apiKey()}');
             setState(() {
               _userInfo = user.data;
             });
@@ -185,8 +186,8 @@ class _EventsPageState extends State<EventsPage> {
       // _connectivity.myStream.listen((source) {
       //   _source = source;
       //   var isConnected = _source.keys.toList()[0] != ConnectivityResult.none;
-      //  debugPrint('connection: ${_source.keys.toList()[0] }');
-      //  debugPrint('connection to network: $source, isConnected: $isConnected');
+      //  logger.d('connection: ${_source.keys.toList()[0] }');
+      //  logger.d('connection to network: $source, isConnected: $isConnected');
       // });
     }
 
@@ -204,9 +205,11 @@ class _EventsPageState extends State<EventsPage> {
         case Status.ERROR:
           break;
       }
-      setState(() {
-        events = event;
-      });
+      if (mounted) {
+        setState(() {
+          events = event;
+        });
+      }
     });
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
@@ -222,18 +225,10 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-
-    // return Center(
-    //   child: Text('TEST TEST TEST'),
-    // );
-
     Widget _userInfoView() {
       if (_userInfo == null) {
-        debugPrint('user info null');
         return CircularProgressIndicator();
       } else {
-        debugPrint('user info not null');
         return UserInfoHeader(userInfo: _userInfo, userType: _userType);
       }
     }
@@ -494,7 +489,7 @@ class EventsListWidget extends StatelessWidget {
 
     void _moveToEventAt(int index, Event event) {
       if (userId == null) {
-        debugPrint('did not receive user profile info on main page');
+        logger.i('did not receive user profile info on main page');
         // return;
       }
 
@@ -684,7 +679,7 @@ class EventsListWidget extends StatelessWidget {
       var gesture = GestureDetector(
         child: container,
         onTap: () {
-          debugPrint('did Select at $index');
+          logger.d('did Select at $index');
           _moveToEventAt(index, event);
         },
       );

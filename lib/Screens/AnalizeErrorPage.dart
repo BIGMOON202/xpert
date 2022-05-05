@@ -11,6 +11,7 @@ import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class AnalizeErrorPageArguments {
   MeasurementResults? measurement;
@@ -51,7 +52,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
   String _buttonTitle = '';
 
   _continueAction() {
-    debugPrint('continue');
+    logger.i('continue');
 
     if (widget.arguments?.result != null) {
       XFile? _frontPhoto = widget.arguments?.frontPhoto;
@@ -70,11 +71,11 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
         _passedPhotoType = PhotoType.side;
       }
 
-      debugPrint('front: ${_frontPhoto != null}');
-      debugPrint('side: ${_sidePhoto != null}');
-      debugPrint('photoType: ${_passedPhotoType?.index}');
-      debugPrint('_photoError: ${_photoError?.index}');
-      debugPrint('push camera');
+      logger.d('front: ${_frontPhoto != null}');
+      logger.d('side: ${_sidePhoto != null}');
+      logger.d('photoType: ${_passedPhotoType?.index}');
+      logger.d('_photoError: ${_photoError?.index}');
+      logger.i('push camera');
 
       Navigator.pushNamedAndRemoveUntil(context, CameraCapturePage.route, (route) => false,
           arguments: CameraCapturePageArguments(
@@ -108,7 +109,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
         }
       }
     }
-    debugPrint('_restartAnalize');
+    logger.i('_restartAnalize');
   }
 
   @override
@@ -126,12 +127,12 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
       detail = widget.arguments?.result?.detail?.where((i) => i.status != 'SUCCESS').toList() ?? [];
     }
 
-    debugPrint('number of errors: ${detail.length}');
+    logger.d('number of errors: ${detail.length}');
     if (detail.isEmpty == false) {
       if (detail.length > 1) {
         title = 'Retake both photos';
         _photoError = PhotoError.both;
-        debugPrint('photoType${_photoError?.index}');
+        logger.d('photoType${_photoError?.index}');
       } else {
         var photoType = detail.first.type;
         if (photoType == ErrorProcessingType.side_skeleton_processing) {
@@ -139,7 +140,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
         } else {
           _photoError = PhotoError.front;
         }
-        debugPrint('photoType${_photoError?.index}');
+        logger.d('photoType${_photoError?.index}');
         title = 'Retake ${photoType?.name()} photo';
       }
     } else {
@@ -234,8 +235,8 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
             widget.arguments?.result?.detail?.where((i) => i.status != 'SUCCESS').toList() ?? [];
 
         for (var _error in details) {
-          debugPrint(_error.type?.name());
-          debugPrint(_error.message);
+          logger.d(_error.type?.name());
+          logger.e(_error.message);
           vertical.add(_configErrorView(_error));
           vertical.add(SizedBox(height: 20));
         }

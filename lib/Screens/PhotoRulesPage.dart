@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/SoundCheckPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class PhotoRulesPage extends StatefulWidget {
   final XFile? frontPhoto;
@@ -81,13 +82,11 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
 
     _runContinueButtonTimer();
 
-    debugPrint('selectedGender: ${widget.gender?.apiFlag()}');
+    logger.d('selectedGender: ${widget.gender?.apiFlag()}');
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-
     String _nextButtonTitle = 'Let\'s start';
     if (SessionParameters().captureMode == CaptureMode.handsFree &&
         widget.photoType == PhotoType.front) {
@@ -121,7 +120,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                       )),
                 ))));
 
-    debugPrint('selectedGender: ${widget.gender.toString()}');
+    logger.d('selectedGender: ${widget.gender.toString()}');
 
     var container = Column(
       mainAxisAlignment: MainAxisAlignment.start,

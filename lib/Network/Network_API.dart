@@ -12,6 +12,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/AuthWorker.dart';
 import 'package:tdlook_flutter_app/main.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class CustomException implements Exception {
   final _message;
@@ -175,7 +176,7 @@ class NetworkAPI {
     bool useAuth = true,
     bool tryToRefreshAuth = true,
   }) async {
-    // debugPrint('call ${request} on ${url}');
+    logger.d('call $request on $url');
     var responseJson;
 
     Future<void> makeCall() async {
@@ -208,7 +209,7 @@ class NetworkAPI {
 
         var finalUrl = Uri.parse(_baseUrl + url);
 
-        // debugPrint('$finalUrl, $headers, $body');
+        logger.d('$finalUrl, $headers, $body');
         http.Response response;
 
         final HttpMetric metric =
@@ -250,14 +251,14 @@ class NetworkAPI {
             responseJson = parserResponse.data;
             break;
           case ParserResponseStatus.REPEAT:
-            debugPrint('should repeat call');
+            logger.i('should repeat call');
             await makeCall();
             break;
         }
 
         await metric.stop();
 
-        // debugPrint('call results: $responseJson');
+        // logger.d('call results: $responseJson');
       } on SocketException {
         throw FetchDataException('No Internet connection');
       }
@@ -265,19 +266,19 @@ class NetworkAPI {
 
     await makeCall();
 
-    debugPrint('should return response JSON');
+    logger.i('should return response JSON');
     return responseJson;
   }
 
   Future<ParserResponse<dynamic>> _response(http.Response response,
       {bool tryToRefreshAuth = true}) async {
-    // debugPrint(
-    //      '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
+    logger.d(
+         '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
     switch (response.statusCode) {
       case 200:
       case 201:
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
-        // debugPrint(responseJson);
+        logger.d(responseJson);
         return ParserResponse.completed(responseJson);
       case 400:
         throw BadRequestException(response.body);
@@ -286,22 +287,21 @@ class NetworkAPI {
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
         if (tryToRefreshAuth == true) {
           if (shouldRefreshTokenFor(json: responseJson)) {
-            // debugPrint('Load new access token');
+            logger.i('Load new access token');
             var successRefresh = await refreshTokenOrLogout();
             if (successRefresh == true) {
-              debugPrint('successRefresh == true');
-
+              logger.d('successRefresh == true');
               return ParserResponse.repeat(responseJson);
             } else {
-              debugPrint('successRefresh == false');
+              logger.d('successRefresh == false');
               return ParserResponse.error(responseJson);
             }
           }
         }
 
-        // debugPrint(responseJson);
+        logger.d(responseJson);
         var details = responseJson['detail'];
-        // debugPrint(details);
+        logger.d(details);
         // return ParserResponse.error(responseJson);
         throw UnauthorisedException(details != null ? details : response.body);
       case 500:
@@ -322,17 +322,17 @@ class NetworkAPI {
   static AuthRefresh _isRefreshingToken = AuthRefresh();
   static Future<bool> refreshTokenOrLogout() async {
     if (_isRefreshingToken.isRefreshing == false) {
-      debugPrint('_isRefreshingToken.isRefreshing == false');
+      logger.i('_isRefreshingToken.isRefreshing == false');
       _isRefreshingToken.setIsRefreshing(true);
     } else {
-      debugPrint('_isRefreshingToken.isRefreshing == true');
+      logger.i('_isRefreshingToken.isRefreshing == true');
       // wait until isRefreshingToken == false
 
       Future<bool> waitForEndOfRefresh() async {
         Completer<bool> c = new Completer<bool>();
 
         _isRefreshingToken.addListener(() {
-          debugPrint("_isRefreshingToken updated ${_isRefreshingToken.isRefreshing}");
+          logger.d("_isRefreshingToken updated ${_isRefreshingToken.isRefreshing}");
           c.complete(_isRefreshingToken.isSuccessRefresh);
         });
         return c.future;
@@ -349,14 +349,14 @@ class NetworkAPI {
       userType = EnumToString.fromString(UserType.values, value);
     }
 
-    debugPrint('refreshTokenOrLogout: $refreshToken');
+    logger.d('refreshTokenOrLogout: $refreshToken');
     AuthWorkerBloc refreshAuthBloc =
         AuthWorkerBloc(AuthWorkerBlocArguments(refreshToken: refreshToken, userType: userType));
 
     var credentials = await refreshAuthBloc.callWithFuture();
-    debugPrint('credentials: ${credentials}');
+    logger.d('credentials: $credentials');
     if (credentials != null) {
-      debugPrint('REFRESH TOKEN RESPONSE: ${credentials}');
+      logger.d('REFRESH TOKEN RESPONSE: $credentials');
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('refresh', credentials.refresh ?? ''); // for string value
       prefs.setString('access', credentials.access ?? ''); // for string value
@@ -378,7 +378,7 @@ class NetworkAPI {
     //   switch (event.status) {
     //     case Status.COMPLETED:
     //       // SAVE CREDENTIANLS AND CONTINUE LAST REQUEST
-    //       debugPrint('REFRESH TOKEN RESPONSE: ${event.data}');
+    //       logger.d('REFRESH TOKEN RESPONSE: ${event.data}');
     //       final SharedPreferences prefs = await SharedPreferences.getInstance();
     //       prefs.setString('refresh', event.data.refresh); // for string value
     //       prefs.setString('access', event.data.access); // for string value
@@ -386,7 +386,7 @@ class NetworkAPI {
     //       return true;
 
     //     case Status.ERROR:
-    //       debugPrint('REFRESH TOKEN ERROR: ${event.message}');
+    //       logger.d('REFRESH TOKEN ERROR: ${event.message}');
 
     //       final SharedPreferences prefs = await SharedPreferences.getInstance();
     //       prefs.remove('refresh');

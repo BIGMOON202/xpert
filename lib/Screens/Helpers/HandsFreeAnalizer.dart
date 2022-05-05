@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreePlayer.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class HandsFreeAnalizer {
   static final HandsFreeAnalizer _instance = HandsFreeAnalizer._internal();
@@ -52,7 +53,7 @@ class HandsFreeAnalizer {
   }
 
   void _checkGyroAfter2SecondsOfGreen() {
-    debugPrint('_checkGyroAfter2SecondsOfGreen');
+    logger.i('_checkGyroAfter2SecondsOfGreen');
     _player.stop();
     // cancel checking gyro - because it became valid
     _timerCheckGyroEvery5Sec?.cancel();
@@ -68,7 +69,7 @@ class HandsFreeAnalizer {
   }
 
   void dispose({bool andPlayFinalStep = false}) {
-    debugPrint('dispose handsFree');
+    logger.i('dispose handsFree');
     _gyroIsValid = null;
     if (andPlayFinalStep == true) {
       _player.playSound(sound: TFOptionalSound.waitForResults);
@@ -80,7 +81,7 @@ class HandsFreeAnalizer {
   }
 
   void startFlow() {
-    debugPrint('start');
+    logger.i('start');
     _currentStep = firstStepInFlow;
     _player.playStep(step: _currentStep!);
   }
@@ -100,7 +101,7 @@ class HandsFreeAnalizer {
   }
 
   void isGyroStillInvalid() {
-    debugPrint('isGyroStillInvalid');
+    logger.i('isGyroStillInvalid');
     onTimerUpdateBlock?.call('');
 
     _player.stop();
@@ -126,7 +127,7 @@ class HandsFreeAnalizer {
 
   void handleAppState(AppLifecycleState state) {
     bool shouldStop = (state != AppLifecycleState.resumed);
-    debugPrint('should Stop HF: $shouldStop');
+    logger.d('should Stop HF: $shouldStop');
     if (shouldStop == true) {
       stopFlow();
       dispose();

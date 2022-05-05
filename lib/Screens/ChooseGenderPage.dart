@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class ChooseGenderPageArguments {
   MeasurementResults? measurement;
@@ -35,7 +36,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
 
     super.initState();
 
-    debugPrint('gender selectedCompany:${SessionParameters().selectedCompany}');
+    logger.d('gender selectedCompany:${SessionParameters().selectedCompany}');
   }
 
   void _selectGender(int atIndex) {
@@ -50,7 +51,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
 
     widget.argument?.measurement?.gender = gender.apiFlag();
     // var ads = SharedParameters().currentMeasurement;
-    //debugPrint('CHECK $meas');
+    //logger.d('CHECK $meas');
     Navigator.push(
         context,
         CupertinoPageRoute(
@@ -137,7 +138,7 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
                   child: MaterialButton(
                     onPressed: () {
                       _moveToNextPage();
-                      debugPrint('next button pressed');
+                      logger.i('next button pressed');
                     },
                     textColor: Colors.white,
                     child: CustomText('NEXT'),

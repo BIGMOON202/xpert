@@ -14,6 +14,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -63,7 +64,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     _controller?.loadUrl(privacyURL!).then((value) => {
           setState(() {
             _isLoading = false;
-            debugPrint('loaded file');
+            logger.i('loaded file');
             // _navigationRequestAllowed = false;
           })
         });
@@ -110,7 +111,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         setState(() {
           _isLoading = false;
           contentHeight = height;
-          debugPrint('height = $contentHeight');
+          logger.d('height = $contentHeight');
         });
       },
       navigationDelegate: (NavigationRequest request) {
@@ -127,16 +128,16 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   void _moveToNextPage() {
     if (_isApplied == true) {
-      debugPrint('need to write');
+      logger.i('need to write');
       Future<void> writeToken() async {
-        debugPrint('start write');
+        logger.i('start write');
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('refresh', widget.credentials?.refresh ?? ''); // for string value
         prefs.setString('access', widget.credentials?.access ?? ''); // for string value
         prefs.setString('userType', EnumToString.convertToString(widget.userType));
         prefs.setBool('agreement', true);
 
-        debugPrint('USER= ${EnumToString.convertToString(widget.userType)}');
+        logger.d('USER= ${EnumToString.convertToString(widget.userType)}');
 
         if (widget.userType == UserType.salesRep) {
           Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
@@ -192,10 +193,10 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
             key: Key('ApplyPrivacy'),
             onVisibilityChanged: (visibilityInfo) {
               var visiblePercentage = visibilityInfo.visibleFraction;
-              debugPrint('onVisibilityChanged $visiblePercentage');
+              logger.d('onVisibilityChanged $visiblePercentage');
               setState(() {
                 _scrollButtonIsHidden = visiblePercentage > 0;
-                debugPrint('_scrollButtonIsHidden: $_scrollButtonIsHidden');
+                logger.d('_scrollButtonIsHidden: $_scrollButtonIsHidden');
               });
             },
             child: Container(

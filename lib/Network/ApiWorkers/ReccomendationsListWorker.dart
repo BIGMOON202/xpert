@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class RecommendationsListWorker {
   String? measurementId;
@@ -30,7 +31,7 @@ class RecommendationsListBLOC {
   late Stream<Response<List<RecommendationModel>>> chuckListStream;
 
   RecommendationsListBLOC(this.measurementId) {
-    debugPrint('Init block RecommendationsListBLOC');
+    logger.i('Init block RecommendationsListBLOC');
     final ctrl = StreamController<Response<List<RecommendationModel>>>();
     _listController = ctrl;
 
@@ -71,7 +72,7 @@ class RecommendationModel {
   });
 
   RecommendationModel.fromJson(Map<String, dynamic> json) {
-    debugPrint(json.toString());
+    logger.d(json.toString());
     measurement = json['measurement'];
     size = json['size'];
     sizeSecond = json['size_second'];

@@ -20,6 +20,7 @@ import 'package:tdlook_flutter_app/Screens/EventDetailPage.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class RecommendationsPageArguments {
   MeasurementResults? measurement;
@@ -484,7 +485,7 @@ class RecommendationsListWidget extends StatelessWidget {
         // return Container(color: Colors.orange);
 
         var recomendation = recommendations![index - 1];
-        debugPrint('type: ${recomendation.product?.sizechartType}');
+        logger.d('type: ${recomendation.product?.sizechartType}');
         var title = recomendation.product?.name;
         var code = recomendation.product?.style.toString();
         var size = recomendation.size;
@@ -503,7 +504,7 @@ class RecommendationsListWidget extends StatelessWidget {
           if (SessionParameters().selectedCompany == CompanyType.uniforms &&
               measurement?.person != null &&
               measurement?.person?.frontParams != null) {
-            debugPrint('config for ${recommendation.product} - ${measurement?.gender}');
+            logger.d('config for ${recommendation.product} - ${measurement?.gender}');
             if (recommendation.product?.sizechartType == 'pants' &&
                 recommendation.product?.gender == 'male') {
               widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
@@ -596,7 +597,7 @@ class RecommendationsListWidget extends StatelessWidget {
       var gesture = GestureDetector(
         child: container,
         onTap: () {
-          //debugPrint('did Select at $index');
+          //logger.d('did Select at $index');
           // if (index > 0) {
           //   _moveToMeasurementAt(index-1);
           // }
@@ -641,7 +642,7 @@ class RecommendationsListWidget extends StatelessWidget {
         onRefresh: onRefreshList);
 
     _moveToHomePage() {
-      debugPrint('move to home page');
+      logger.i('move to home page');
       final value = prefs?.getString("userType");
       if (value == null) return;
       var type = EnumToString.fromString(UserType.values, value);
@@ -665,7 +666,7 @@ class RecommendationsListWidget extends StatelessWidget {
 
     _restartAnalize() {
       void _restartAction() {
-        debugPrint('_restartAnalize');
+        logger.i('_restartAnalize');
         if (SessionParameters().selectedUser == UserType.salesRep ||
             SessionParameters().selectedCompany == CompanyType.uniforms) {
           Navigator.pushNamedAndRemoveUntil(context, ChooseGenderPage.route, (route) => false,
@@ -715,7 +716,7 @@ class RecommendationsListWidget extends StatelessWidget {
                                 width: double.infinity,
                                 child: MaterialButton(
                                   onPressed: () {
-                                    debugPrint('next button pressed');
+                                    logger.i('next button pressed');
                                     _moveToHomePage();
                                   },
                                   textColor: Colors.white,

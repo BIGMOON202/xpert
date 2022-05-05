@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 enum UserRole { dealer, end_wearer, sales_rep }
 
@@ -117,7 +118,7 @@ class User {
   }
 
   String userFullName() {
-    debugPrint('$firstName $lastName');
+    logger.d('$firstName $lastName');
     if (this.name != null) {
       return this.name!;
     } else {

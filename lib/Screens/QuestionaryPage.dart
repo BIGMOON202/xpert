@@ -9,6 +9,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 enum _SizeType { top, bottom }
 
@@ -143,7 +144,7 @@ class _QuestionaryPageState extends State<QuestionaryPage> {
                       gender: widget.gender, measurement: widget.measurement))));
     } else {
       SessionParameters().captureMode = CaptureMode.withFriend;
-      debugPrint('${Application.isProMode}');
+      logger.i('${Application.isProMode}');
       if (Application.isProMode) {
         Navigator.pushNamed(context, CameraCapturePage.route,
             arguments: CameraCapturePageArguments(

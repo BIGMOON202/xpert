@@ -21,11 +21,11 @@
 //     //   date = date + offset.inHours.toString().padLeft(2, '0') + ":" + (offset.inMinutes%(hours*60)).toString().padLeft(2, '0');
 //     // }
 //
-//     debugPrint("converted $apiDate to $date, offset: $offset");
+//     logger.d("converted $apiDate to $date, offset: $offset");
 //     var uiDateStr = uiDateFormat.format(date);
 //     var uiTimeStr = uiTimeFormat.format(date);
 //     Tuple2<String,String> result = Tuple2(uiDateStr, uiTimeStr);
-//     debugPrint("ui converted $date to ${result.item1} ${result.item2}");
+//     logger.d("ui converted $date to ${result.item1} ${result.item2}");
 //     return result;
 //   }
 // }

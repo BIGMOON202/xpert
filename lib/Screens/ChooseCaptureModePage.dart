@@ -11,6 +11,7 @@ import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/main.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class ChooseCaptureModePageArguments {
   Gender? gender;
@@ -81,7 +82,7 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
                 child: MaterialButton(
                   onPressed: () {
                     _moveToNextPage();
-                   debugPrint('next button pressed');
+                   logger.i('next button pressed');
                   },
                   textColor: Colors.white,
                   child: CustomText('NEXT'),

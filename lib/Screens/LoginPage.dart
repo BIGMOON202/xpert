@@ -13,6 +13,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class LoginPage extends StatefulWidget {
   final UserType? userType;
@@ -57,7 +58,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _moveToNextScreen() {
-    debugPrint('move tor');
     Future<void> _moveToNext() async {
       var agreementSigned = prefs?.getBool('agreement') ?? false;
       var isUserTypeForcedToShow = widget.userType == UserType.endWearer;
@@ -100,10 +100,10 @@ class _LoginPageState extends State<LoginPage> {
       if (user.status == null) return;
       switch (user.status!) {
         case Status.LOADING:
-          debugPrint('loading header');
+          logger.i('loading header...');
           break;
         case Status.COMPLETED:
-          debugPrint('ROLE: ${user.data?.role}');
+          logger.d('ROLE: ${user.data?.role}');
           if ((user.data?.role == null) ||
               ((user.data?.role != null) &&
                   (user.data?.role == 'dealer' ||
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
               _errorMessage = 'This type of user is not enable to Login in mobile application';
             });
           }
-          //debugPrint('company = ${user.data.provider.apiKey()}');
+          //logger.d('company = ${user.data.provider.apiKey()}');
 
           break;
         case Status.ERROR:
@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
           // TODO: Handle this case.
           break;
       }
-      debugPrint('OLOLO');
+      logger.d('OLOLO');
     });
 
     _authBloc?.call();
@@ -161,8 +161,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-
     String? _validateEmail(String? value) {
       return null;
     }
@@ -177,9 +175,7 @@ class _LoginPageState extends State<LoginPage> {
         providerSelected = false;
       }
 
-      return _email != null &&
-          _email.isNotEmpty &&
-          _password != null &&
+      return _email.isNotEmpty &&
           _password.isNotEmpty &&
           _authRequestStatus != Status.LOADING &&
           providerSelected;
@@ -453,7 +449,7 @@ class _LoginPageState extends State<LoginPage> {
                                   height: 10,
                                 ),
                                 Text(
-                                  _errorMessage != null ? _errorMessage : '',
+                                  _errorMessage,
                                   style: TextStyle(color: Colors.red),
                                   textAlign: TextAlign.center,
                                 )

@@ -13,6 +13,7 @@ import 'package:tdlook_flutter_app/Screens/OverlapPage.dart';
 import 'package:tdlook_flutter_app/Screens/QuestionaryPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class RulerPageClavicle extends StatefulWidget {
   final Gender? gender;
@@ -76,7 +77,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       if (rulerGap == 0) {
         rulerGap = max - min;
       }
-      //debugPrint('min:$min max $max');
+      //logger.d('min:$min max $max');
       _updateValuesFor(min, max);
       // _updateValuesFor(min);
     });
@@ -134,8 +135,8 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
         } else {
           multiplyPart = 3;
         }
-        //debugPrint('part: $part');
-        //debugPrint('multiplyPart: $multiplyPart');
+        //logger.d('part: $part');
+        //logger.d('multiplyPart: $multiplyPart');
         //
         if (multiplyPart == 0) {
           _value = '${inchInt}\'\'';
@@ -145,8 +146,8 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
           _valueMeasure = '${multiplyPart}/4';
         }
 
-        //debugPrint('inch: $inch');
-        //debugPrint('inchInt: $inchInt');
+        //logger.d('inch: $inch');
+        //logger.d('inchInt: $inchInt');
       }
     });
   }
@@ -351,10 +352,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       child: SizedBox(
           width: double.infinity,
           child: MaterialButton(
-            onPressed: () {
-              debugPrint('next button pressed');
-              _moveToNextPage();
-            },
+            onPressed: () => _moveToNextPage(),
             textColor: Colors.white,
             child: CustomText('NEXT'),
             color: SessionParameters().selectionColor,

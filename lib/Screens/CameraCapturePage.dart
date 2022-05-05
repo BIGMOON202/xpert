@@ -19,6 +19,7 @@ import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/constants/keys.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -93,7 +94,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
   _moveTodebugSession() async {
     var isSimulator = await Application.isSimulator();
-    debugPrint('isSimulator: $isSimulator');
+    logger.d('isSimulator: $isSimulator');
     if (isSimulator == true) {
       String _mockFrontImage = 'lib/Resources/frontTest.jpg';
       String _mockSideImage = 'lib/Resources/frontTest.jpg';
@@ -113,7 +114,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
 
-    debugPrint('passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
+    logger.d('passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
 
     if (widget.arguments != null) {
       _photoType = widget.arguments?.photoType;
@@ -121,7 +122,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       _photoType = widget.photoType;
     }
 
-    debugPrint('selectedGender on camera: ${widget.gender?.apiFlag()}');
+    logger.d('selectedGender on camera: ${widget.gender?.apiFlag()}');
 
     _captureMode = SessionParameters().captureMode;
     _frontPhoto = widget.frontPhoto;
@@ -132,7 +133,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
     // accelerometerEvents.listen((AccelerometerEvent event) {
     //   setState(() {
-    //    debugPrint(event.z.abs());
+    //    logger.d(event.z.abs());
     //     _zAngle = event.z;
     //     _gyroIsValid = !(event.z.abs() > 3);
     //   });
@@ -148,14 +149,14 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         }
         lastGyroData = newTime;
 
-        //debugPrint('z:${event.z}');
+        //logger.d('z:${event.z}');
         _zAngle = event.z;
         var oldGyroPosition = _gyroIsValid;
 
         _gyroIsValid = !(gyroValueIsValid(value: event.z) || event.x.abs() > 3);
 
         if (oldGyroPosition == true && _gyroIsValid == false && updatedFirstStep == false) {
-          debugPrint('update initial step');
+          logger.i('update initial step');
           updatedFirstStep = true;
           _setupHandsFreeInitialStepIfNeeded();
         }
@@ -163,7 +164,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         if (oldGyroPosition == true &&
             _gyroIsValid == false &&
             greatSoundPlayedAfterFront == false) {
-          debugPrint('update initial step');
+          logger.i('update initial step');
           greatSoundPlayedAfterFront = true;
           _setupHandsFreeInitialStepIfNeeded();
         }
@@ -175,7 +176,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
   bool gyroValueIsValid({required double value}) {
     var convertedValue = 90 + value * 90 / 10;
-    //debugPrint('converted: ${convertedValue}');
+    //logger.d('converted: ${convertedValue}');
     return !(convertedValue >= this.minAngle && convertedValue <= this.maxAngle);
   }
 
@@ -188,7 +189,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         }
         lastGyroData = newTime;
 
-        //debugPrint('zz:${event.z}');
+        //logger.d('zz:${event.z}');
         _zAngle = event.z;
         var oldGyroPosition = _gyroIsValid;
 
@@ -228,17 +229,17 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
     if (_captureMode == CaptureMode.handsFree) {
       Wakelock.enable();
-      debugPrint('_handsFreeWorker init');
+      logger.i('_handsFreeWorker init');
       _handsFreeWorker = HandsFreeAnalizer();
       _setupHandsFreeInitialStepIfNeeded();
 
       // _handsFreeWorker.reset();
       _handsFreeWorker?.onCaptureBlock = () {
-        debugPrint('Should take photo');
+        logger.i('Should take photo');
         _handleTap();
       };
       _handsFreeWorker?.onTimerUpdateBlock = (String val) {
-        debugPrint('timer text: $val');
+        logger.d('timer text: $val');
         setState(() {
           _timerText = val;
         });
@@ -252,7 +253,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   void _setupHandsFreeInitialStepIfNeeded() {
     TFStep? initialStep;
     PhotoError? previousError = widget.arguments?.previousPhotosError;
-    debugPrint('previousError $previousError');
+    logger.d('previousError $previousError');
     switch (previousError) {
       case PhotoError.both:
         if (_photoType == PhotoType.front) {
@@ -279,7 +280,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         }
     }
 
-    debugPrint('previousError $initialStep');
+    logger.d('previousError $initialStep');
     _handsFreeWorker?.firstStepInFlow = initialStep;
     _handsFreeWorker?.moveToNextFlowIfGyroIsValid();
   }
@@ -307,19 +308,19 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   @override
   void dispose() {
     WidgetsBinding.instance?.removeObserver(this);
-    debugPrint('dipose camera page');
+    logger.i('dipose camera page');
     _cancelGyroUpdates();
     _stopPage();
     controller?.dispose();
     // controller = null;
-    debugPrint('did dipose camera page');
+    logger.i('did dipose camera page');
     super.dispose();
-    debugPrint('did super dipose camera page');
+    logger.i('did super dipose camera page');
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    debugPrint('appState: $state');
+    logger.d('appState: $state');
     bool shouldStop = (state != AppLifecycleState.resumed);
     if (shouldStop == true) {
       _cancelGyroUpdates();
@@ -427,7 +428,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     if (_captureMode == CaptureMode.handsFree) {
       _stopPage();
     }
-    debugPrint('widget.arguments: ${widget.arguments}');
+    logger.d('widget.arguments: ${widget.arguments}');
     if (widget.arguments == null) {
       if (_photoType == PhotoType.front) {
         if (Application.isProMode == false) {

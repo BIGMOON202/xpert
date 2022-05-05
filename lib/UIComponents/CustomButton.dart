@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class VerticalButton extends StatefulWidget {
-  String imageName;
-  String? title;
-  String? subtitle;
-  bool isSelected = false;
+  final String imageName;
+  final String? title;
+  final String? subtitle;
+  final bool isSelected = false;
 
   VerticalButton(this.imageName, {this.title, this.subtitle});
 
@@ -53,7 +54,7 @@ class _CustomButtonState extends State<VerticalButton> {
       onTap: () {
         _isSelected = !_isSelected;
         _changeColor(_isSelected);
-        debugPrint('MyButton was tapped!');
+        logger.i('MyButton was tapped!');
       },
     );
 

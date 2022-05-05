@@ -7,6 +7,7 @@ import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 import 'package:tuple/tuple.dart';
 
 class EventListWorker {
@@ -39,9 +40,9 @@ class EventListWorker {
       link = link + '?page_size=$size$pageParam';
     }
     link = link + '&ordering=-status,name';
-    debugPrint('link: ${link}');
+    logger.d('link: ${link}');
     final response = await _provider.get(link, useAuth: true);
-    debugPrint('events: ${response}');
+    logger.d('events: ${response}');
 
     if (_provider.shouldRefreshTokenFor(json: response)) {
       return null;
@@ -73,12 +74,12 @@ class EventListWorkerEndwearer extends EventListWorker {
     final pageParam = page > 0 ? '&page=$page' : '';
     link = link + '$pageParam&page_size=$size&ordering=-event__status,event__name';
 
-    debugPrint('link: ${link}');
+    logger.d('link: ${link}');
     final response = await _provider.get(link, useAuth: true);
 
     var list = MeasurementsList.fromJson(response);
 
-    debugPrint('list $list');
+    logger.d('list $list');
     List<Event> events = <Event>[];
 
     list.data?.forEach((element) {
@@ -86,7 +87,7 @@ class EventListWorkerEndwearer extends EventListWorker {
         events.add(element.event!);
       }
     });
-    debugPrint('events: ${events.length}');
+    logger.d('events: ${events.length}');
     this.paging = Paging(count: events.length);
     return Tuple2(EventList(data: events, paging: paging), list);
   }
@@ -108,7 +109,7 @@ class EventListWorkerBloc {
   late Stream<Response<Tuple2<EventList, MeasurementsList>>> chuckListStream;
 
   EventListWorkerBloc(this.provider) {
-    debugPrint('Init block AuthWorkerBloc');
+    logger.i('Init block AuthWorkerBloc');
     final ctrl = StreamController<Response<Tuple2<EventList, MeasurementsList>>>();
     _listController = ctrl;
 
@@ -128,14 +129,14 @@ class EventListWorkerBloc {
   call({String? eventName}) async {
     chuckListSink.add(Response.loading('Getting events list'));
     try {
-      debugPrint('try block');
+      logger.i('try block');
       Tuple2<EventList, MeasurementsList>? list =
           await _eventListWorker?.fetchData(eventName: eventName);
-      debugPrint('${list?.item1.data?.length}');
+      logger.d('${list?.item1.data?.length}');
       chuckListSink.add(Response.completed(list));
     } catch (e) {
       chuckListSink.add(Response.error(e.toString()));
-      debugPrint(e.toString());
+      logger.e(e);
     }
   }
 
@@ -149,7 +150,7 @@ class EventListWorkerBloc {
           await _eventListWorker?.fetchData(eventName: searchFilter, page: page, size: size);
       return list;
     } catch (e) {
-      debugPrint(e.toString());
+      logger.e(e);
       return null;
     }
   }
