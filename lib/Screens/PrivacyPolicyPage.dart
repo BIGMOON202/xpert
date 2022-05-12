@@ -3,7 +3,6 @@ import 'dart:io' as io;
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -194,10 +193,12 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
             onVisibilityChanged: (visibilityInfo) {
               var visiblePercentage = visibilityInfo.visibleFraction;
               logger.d('onVisibilityChanged $visiblePercentage');
-              setState(() {
-                _scrollButtonIsHidden = visiblePercentage > 0;
-                logger.d('_scrollButtonIsHidden: $_scrollButtonIsHidden');
-              });
+              if (mounted) {
+                setState(() {
+                  _scrollButtonIsHidden = visiblePercentage > 0;
+                  logger.d('_scrollButtonIsHidden: $_scrollButtonIsHidden');
+                });
+              }
             },
             child: Container(
                 decoration: BoxDecoration(
@@ -288,7 +289,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                       padding: EdgeInsets.only(bottom: 16, top: 16), child: scrollToBottomButton))))
     ]);
 
-    // TODO: implement build
     var scaffold = Scaffold(
         appBar: AppBar(
           brightness: Brightness.dark,
