@@ -19,6 +19,7 @@ import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
+import 'package:tdlook_flutter_app/application/config/app_env.dart';
 import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 import 'constants/language.dart';
@@ -66,6 +67,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+  await AppEnv.load();
 
   // Hundle Flutter errors and send to Crashlytics
   /// Handle Flutter errors and send to Crashlytics
@@ -198,6 +201,10 @@ class _LookAppState extends State<LookApp> {
         _isAuthorized = (accessToken != null);
       });
     }
+
+    logger.d('AppEnv [NAME]: ${AppEnv.name}');
+    logger.d('AppEnv [HOST]: ${AppEnv.host}');
+    logger.d('AppEnv [ICON]: ${AppEnv.icon}');
 
     checkToken();
   }

@@ -1,25 +1,82 @@
 {
-    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
-    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
-    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "xpertfit-mobile",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "xpertfit-mobile (profile mode)",
+            "name": "Release",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "program": "lib/main.dart",
+            //"flutterMode": "profile"
+            //"flutterMode": "release"
+            "toolArgs": [
+                "--dart-define",
+                "ENV=release"
+            ],
+            "args": [
+                "--flavor",
+                "xpertfit"
+            ]
         },
         {
-            "name": "xpertfit-mobile (release mode)",
+            "name": "Test",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
-        }
+            "program": "lib/main.dart",
+            "flutterMode": "profile",
+            "toolArgs": [
+                "--dart-define",
+                "ENV=test"
+            ],
+            "args": [
+                "--flavor",
+                "xpertfit"
+            ]
+        },
+        {
+            "name": "Stage",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "profile",
+            "toolArgs": [
+                "--dart-define",
+                "ENV=stage"
+            ],
+            "args": [
+                "--flavor",
+                "xpertfit"
+            ]
+        },
+        {
+            "name": "HotFix",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "profile",
+            "toolArgs": [
+                "--dart-define",
+                "ENV=hotfix"
+            ],
+            "args": [
+                "--flavor",
+                "xpertfit"
+            ]
+        },
+        {
+            "name": "Backstage",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            //"flutterMode": "profile"
+            //"flutterMode": "release"
+            "toolArgs": [
+                "--dart-define",
+                "ENV=backstage"
+            ],
+            "args": [
+                "--flavor",
+                "backstage"
+            ],
+        },
     ]
 }

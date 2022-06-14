@@ -41,6 +41,7 @@ android {
 
     lintOptions {
         disable 'InvalidPackage'
+        checkReleaseBuilds false
     }
 
     defaultConfig {
@@ -61,18 +62,60 @@ android {
                 storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
             }
         } else {
-            release {
+            xpertfit {
+                println '* Prepare xpertfit release'
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
                 storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
                 storePassword keystoreProperties['storePassword']
             }
+            backstage {
+                println '* Prepare backstage release'
+                keyAlias keystoreProperties['keyAliasBackstage']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+                storePassword keystoreProperties['storePassword']
+            }
+
+            // release {
+            //     println '>> LOG: signingConfigs release'
+            //     xpertfit {
+            //         println '>> LOG: signingConfigs release xpertfit'
+            //     }
+            //     backstage {
+            //         println '>> LOG: signingConfigs release backstage'
+            //         //keyAlias keystoreProperties['keyAliasBackstage']  
+            //     }
+            //     println '>> LOG: signingConfigs release success'
+            //     keyAlias keystoreProperties['keyAlias']
+            //     keyPassword keystoreProperties['keyPassword']
+            //     storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            //     storePassword keystoreProperties['storePassword']
+            // }
+        }
+    }
+    
+    flavorDimensions "default"
+    productFlavors {
+        xpertfit {
+            dimension "default"
+            //applicationIdSuffix ""
+            resValue "string", "app_name", "XpertFit"
+            applicationId "com.tdlook_xpertfit_app"
+            signingConfig signingConfigs.xpertfit
+        }
+        backstage {
+            dimension "default"
+            //applicationIdSuffix "_backstage"
+            resValue "string", "app_name", "XpertFit Backstage"
+            applicationId "com.tdlook_xpertfit_app_backstage"
+            signingConfig signingConfigs.backstage
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            //signingConfig signingConfigs.release
             minifyEnabled true
             useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt')

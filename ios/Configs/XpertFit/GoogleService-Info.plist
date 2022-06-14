@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>768234624213-24t8fmo30sufnjqblqcl70sgii2jr8ml.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.768234624213-24t8fmo30sufnjqblqcl70sgii2jr8ml</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAC6chdxprUhOrnuohx-_OTn03NHL7BuYo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>768234624213</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.project.xpertfit</string>
+	<key>PROJECT_ID</key>
+	<string>dlook-xpertfit</string>
+	<key>STORAGE_BUCKET</key>
+	<string>dlook-xpertfit.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:768234624213:ios:cf3d82dee06dbbd9467e5c</string>
+</dict>
+</plist>

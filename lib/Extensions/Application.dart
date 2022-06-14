@@ -1,8 +1,14 @@
 import 'dart:io' show Platform;
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:tdlook_flutter_app/application/config/app_config.dart';
+import 'package:tdlook_flutter_app/application/config/app_env.dart';
 
 class Application {
+  static AppConfig get config {
+    return BackstageAppConfig();
+  }
+
   static bool get isInDebugMode {
     bool inDebugMode = false;
     assert(inDebugMode = true);
@@ -23,10 +29,6 @@ class Application {
   }
 
   static bool isProMode = false;
-
-  static API get apiType {
-    return API.hotfix;
-  }
 
   static bool get hostIsCustom {
     return _hostIsOverriden;
@@ -52,17 +54,7 @@ class Application {
     if (_hostIsOverriden == true && _testHost != null) {
       return _testHost!;
     }
-
-    switch (Application.apiType) {
-      case API.test:
-        return 'wlb-expertfit-test.3dlook.me';
-      case API.stage:
-        return 'wlb-xpertfit-stage.3dlook.me';
-      case API.release:
-        return 'wlb-xpertfit.3dlook.me';
-      case API.hotfix:
-        return 'wlb-xpertfit-hotfix.3dlook.me';
-    }
+    return AppEnv.host;
   }
 
   static bool get shouldOpenLinks {
@@ -84,4 +76,9 @@ class Application {
 
 const int kDefaultMeasurementsPerPage = 20;
 
-enum API { test, stage, release, hotfix }
+enum API {
+  test,
+  stage,
+  release,
+  hotfix,
+}
