@@ -46,3 +46,4 @@ app.*.map.json
 # Android related
 **/android/app/key.jks
 .fvm/flutter_sdk
+.DS_Store

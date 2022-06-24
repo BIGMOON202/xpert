@@ -59,7 +59,7 @@ apk_run_backstage:
 # Make iOS ipa file 
 
 ipa:
-	fvm flutter build ipa --flavor xpertfit -t lib/main.dart --release && \
+	fvm flutter build ipa --flavor xpertfit --dart-define ENV=release -t lib/main.dart --release && \
 	open build/ios/archive/Runner.xcarchive
 
 ipa_run:

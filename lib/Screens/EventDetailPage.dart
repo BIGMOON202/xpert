@@ -522,24 +522,6 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       }
     }
 
-    _showCupertinoDialog(String text) {
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (_) => new CupertinoAlertDialog(
-                // title: new Text("Cupertino Dialog"),
-                content: new Text(text),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              ));
-    }
-
     void closePopup() {
       Navigator.of(context, rootNavigator: true).pop("Discard");
     }
@@ -606,13 +588,11 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       logger.d('isPermanentlyDenied: $isPermanentlyDenied');
       logger.d('isDenied: $isDenied');
 
-      if (await cameraStatus.isGranted == false &&
-          await cameraStatus.isPermanentlyDenied == false &&
-          await Permission.camera.isRestricted == false) {
+      if (cameraStatus.isGranted == false &&
+          cameraStatus.isPermanentlyDenied == false &&
+          isRestricted == false) {
         askForPermissionsAndMove(measurement);
-      } else if (await Permission.camera.isRestricted ||
-          await Permission.camera.isDenied ||
-          await cameraStatus.isPermanentlyDenied) {
+      } else if (isRestricted || isDenied || cameraStatus.isPermanentlyDenied) {
         openSetting();
         // The OS restricts access, for example because of parental controls.
       } else {
