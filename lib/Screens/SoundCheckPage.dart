@@ -27,13 +27,12 @@ class SoundCheckPage extends StatefulWidget {
 class _SoundCheckPageState extends State<SoundCheckPage> {
   bool _continueButtonEnable = false;
 
-  Future<bool> _enableContinueTimer() async {
-    final result = await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
-    return result;
+  Future<void> _enableContinueTimer() async {
+    await Future.delayed(Duration(seconds: SessionParameters().delayForPageAction));
   }
 
   void _runContinueButtonTimer() {
-    _enableContinueTimer().then((value) {
+    _enableContinueTimer().then((_) {
       setState(() {
         _continueButtonEnable = true;
       });
@@ -89,32 +88,30 @@ class _SoundCheckPageState extends State<SoundCheckPage> {
 
     var nextButton = Visibility(
         visible: true,
-        child: Padding(
-            padding: EdgeInsets.only(left: 12, right: 12),
-            child: Align(
-                alignment: Alignment.bottomCenter,
-                child: SafeArea(
-                  child: Padding(
-                      padding: EdgeInsets.only(left: 12, right: 12),
-                      child: Container(
-                          width: double.infinity,
-                          child: MaterialButton(
-                            disabledColor: SessionParameters().disableColor,
-                            onPressed: _continueButtonEnable ? _moveToNextPage : null,
-                            child: CustomText.withColor(
-                                'DONE',
-                                _continueButtonEnable
-                                    ? Colors.white
-                                    : SessionParameters().disableTextColor),
-                            color: SessionParameters().selectionColor,
-                            height: 50,
-                            // padding: EdgeInsets.only(left: 12, right: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            // padding: EdgeInsets.all(4),
-                          ))),
-                ))));
+        child: Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Padding(
+                  padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                  child: Container(
+                      width: double.infinity,
+                      child: MaterialButton(
+                        disabledColor: SessionParameters().disableColor,
+                        onPressed: _continueButtonEnable ? _moveToNextPage : null,
+                        child: CustomText.withColor(
+                            'DONE',
+                            _continueButtonEnable
+                                ? Colors.white
+                                : SessionParameters().disableTextColor),
+                        color: SessionParameters().selectionColor,
+                        height: 50,
+                        // padding: EdgeInsets.only(left: 12, right: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        // padding: EdgeInsets.all(4),
+                      ))),
+            )));
 
     var container = Stack(
       children: [centerWidget, nextButton],
