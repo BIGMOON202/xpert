@@ -42,13 +42,29 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "button_back_to_event_detail":
+            MessageLookupByLibrary.simpleMessage("Back to event details"),
+        "common_add": MessageLookupByLibrary.simpleMessage("Add"),
         "common_no": MessageLookupByLibrary.simpleMessage("No"),
         "common_ok": MessageLookupByLibrary.simpleMessage("Ok"),
         "common_yes": MessageLookupByLibrary.simpleMessage("Yes"),
+        "error_smt_wrong":
+            MessageLookupByLibrary.simpleMessage("Something went wrong"),
         "page_title_choose_clavicle_as_ew": m0,
         "page_title_choose_gender_as_ew": m1,
         "page_title_choose_height_as_ew": m2,
         "page_title_choose_weight_as_ew": m3,
+        "page_title_new_ew":
+            MessageLookupByLibrary.simpleMessage("New end-wearer"),
+        "text_customer_email":
+            MessageLookupByLibrary.simpleMessage("Customer email"),
+        "text_ew_invite_sent":
+            MessageLookupByLibrary.simpleMessage("Invite sent successfully"),
+        "text_ew_invite_sent_desc": MessageLookupByLibrary.simpleMessage(
+            "An invitation with credentials was\nsuccessfully sent to the user"),
+        "text_ew_name": MessageLookupByLibrary.simpleMessage("End-wearer name"),
+        "text_phone_number":
+            MessageLookupByLibrary.simpleMessage("Phone number"),
         "title": MessageLookupByLibrary.simpleMessage("XpertFit")
       };
 }

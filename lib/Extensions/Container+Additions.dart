@@ -18,7 +18,7 @@ class SizeProviderWidget extends StatefulWidget {
 class _SizeProviderWidgetState extends State<SizeProviderWidget> {
   @override
   void initState() {
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (widget.onChildSize != null && context.size != null) {
         widget.onChildSize!(context.size!);
       }

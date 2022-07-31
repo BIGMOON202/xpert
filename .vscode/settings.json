@@ -11,7 +11,7 @@
     "dart.flutterSdkPaths": [
         "~/fvm/versions"
     ],
-    "dart.flutterSdkPath": "~/fvm/versions/2.10.5",
+    "dart.flutterSdkPath": "~/fvm/versions/3.0.5",
     "dart.debugSdkLibraries": true,
     "dart.lineLength": 100,
     "[dart]": {

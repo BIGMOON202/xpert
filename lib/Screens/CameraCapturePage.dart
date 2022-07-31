@@ -112,7 +112,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     logger.d('passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
 
@@ -307,7 +307,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     logger.i('dipose camera page');
     _cancelGyroUpdates();
     _stopPage();

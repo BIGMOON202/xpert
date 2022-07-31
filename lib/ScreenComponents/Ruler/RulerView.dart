@@ -60,7 +60,7 @@ class _RulerViewState extends State<RulerView> {
       _calculateIndexByPosition(_controller.offset);
     });
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _changeValue();
       if (_controller.hasClients) {
         _scrollToSelectedValue();

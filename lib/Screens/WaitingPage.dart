@@ -77,7 +77,7 @@ class _WaitingPageState extends State<WaitingPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     Wakelock.enable();
     animationController = AnimationController(
       vsync: this,
@@ -120,7 +120,7 @@ class _WaitingPageState extends State<WaitingPage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

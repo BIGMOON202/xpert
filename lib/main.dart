@@ -20,6 +20,7 @@ import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
 import 'package:tdlook_flutter_app/application/config/app_env.dart';
+import 'package:tdlook_flutter_app/application/themes/app_themes.dart';
 import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 import 'constants/language.dart';
@@ -86,10 +87,7 @@ void main() async {
     runZonedGuarded(() {
       runApp(
         MaterialApp(
-          theme: ThemeData(
-              appBarTheme: AppBarTheme(brightness: Brightness.light),
-              inputDecorationTheme: InputDecorationTheme(
-                  border: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)))),
+          theme: AppTheme.current,
           navigatorKey: NavigationService.instance.navigationKey,
           debugShowCheckedModeBanner: false,
           // home: LookApp(),

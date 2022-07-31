@@ -4,8 +4,17 @@
     "common_yes": "Yes",
     "common_no": "No",
     "common_ok": "Ok",
+    "common_add": "Add",
     "page_title_choose_height_as_ew": "{choose, select, true {What’s your height?} other {End-Wearer’s height?}}",
     "page_title_choose_weight_as_ew": "{choose, select, true {What’s your weight?} other {End-Wearer’s weight?}}",
     "page_title_choose_clavicle_as_ew": "{choose, select, true {What’s your clavicle?} other {End-Wearer’s\nmanual clavicle?}}",
-    "page_title_choose_gender_as_ew": "{choose, select, true {Select your gender} other {Measure an end-wearer}}"
+    "page_title_choose_gender_as_ew": "{choose, select, true {Select your gender} other {Measure an end-wearer}}",
+    "page_title_new_ew": "New end-wearer",
+    "text_phone_number": "Phone number",
+    "text_customer_email": "Customer email",
+    "text_ew_name": "End-wearer name",
+    "text_ew_invite_sent_desc": "An invitation with credentials was\nsuccessfully sent to the user",
+    "text_ew_invite_sent": "Invite sent successfully",
+    "button_back_to_event_detail": "Back to event details",
+    "error_smt_wrong": "Something went wrong"
 }

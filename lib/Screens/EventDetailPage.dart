@@ -23,6 +23,9 @@ import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
+import 'package:tdlook_flutter_app/application/assets/assets.dart';
+import 'package:tdlook_flutter_app/application/presentation/pages/create_ew/new_ew_page.dart';
+import 'package:tdlook_flutter_app/application/themes/app_colors.dart';
 import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
 import 'package:tdlook_flutter_app/utilt/logger.dart';
 
@@ -34,9 +37,13 @@ class EventDetailPage extends StatefulWidget {
   final Event? event;
   final MeasurementsList? measurementsList;
 
-  const EventDetailPage(
-      {Key? key, this.currentUserId, this.userType, this.event, this.measurementsList})
-      : super(key: key);
+  const EventDetailPage({
+    Key? key,
+    this.currentUserId,
+    this.userType,
+    this.event,
+    this.measurementsList,
+  }) : super(key: key);
 
   @override
   _EventDetailPageState createState() => _EventDetailPageState();
@@ -84,6 +91,11 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     if (widget.measurementsList != null && (widget.measurementsList?.data?.length ?? 0) > 0) {
       // widget.measurementsList.data =  widget.measurementsList.data.where((i) => i.endWearer.id == widget.currentUserId).toList();
     }
+  }
+
+  void _fetchData() {
+    _bloc?.call();
+    _eventInfoWorkerBloc?.call();
   }
 
   void filter({String? withText}) async {
@@ -422,6 +434,26 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     }
 
     var scaffold = Scaffold(
+        floatingActionButton: _canAddEW
+            ? Padding(
+                padding: const EdgeInsets.only(right: 0, bottom: 12),
+                child: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: RawMaterialButton(
+                    onPressed: () => _addEW(),
+                    elevation: 2.0,
+                    fillColor: AppColors.accent,
+                    child: Image.asset(
+                      Assets.images.addPerson,
+                      fit: BoxFit.none,
+                    ),
+                    shape: CircleBorder(),
+                  ),
+                ),
+              )
+            : const SizedBox(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
         appBar: AppBar(
           brightness: Brightness.dark,
           centerTitle: true,
@@ -435,6 +467,50 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
             children: [headerForList(), listBody()]));
 
     return scaffold;
+  }
+
+  void _addEW() {
+    final userType = widget.userType;
+    final event = widget.event;
+    if (userType != null && event != null) {
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (BuildContext context) => NewEWPage(
+            userType: userType,
+            event: event,
+            onUpdate: () {
+              _refreshList();
+            },
+          ),
+        ),
+      );
+    } else {
+      // TODO: Show error if needed
+    }
+  }
+
+  bool get _canAddEW {
+    /* EF-2270
+    Add single EW must be available only to the event, for which everyone has scanned already, 
+    but the end date has not been reached yet, or that is currently in progress
+    */
+    final total = widget.event?.totalMeasuremensCount ?? 0;
+    final measured = widget.event?.completeMeasuremensCount ?? 0;
+    final inProgress = widget.event?.status == EventStatus.in_progress;
+    final progress = widget.event?.progress == true;
+    // final inCompletted = widget.event?.status == EventStatus.completed;
+    bool isNotExpired = false;
+
+    final endDate = widget.event?.endDateTime;
+    if (endDate != null) {
+      isNotExpired = DateTime.now().isBefore(endDate);
+    }
+
+    final isCan = inProgress || (total == measured && isNotExpired);
+    logger.d(
+        'total: $total\nmeasured: $measured\ninProgress: $inProgress\nisNotExpired: $isNotExpired\nprogress: $progress\nisCan: $isCan');
+    return isCan;
   }
 }
 

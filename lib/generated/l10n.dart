@@ -90,6 +90,16 @@ class S {
     );
   }
 
+  /// `Add`
+  String get common_add {
+    return Intl.message(
+      'Add',
+      name: 'common_add',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{choose, select, true {What’s your height?} other {End-Wearer’s height?}}`
   String page_title_choose_height_as_ew(Object choose) {
     return Intl.select(
@@ -143,6 +153,86 @@ class S {
       name: 'page_title_choose_gender_as_ew',
       desc: '',
       args: [choose],
+    );
+  }
+
+  /// `New end-wearer`
+  String get page_title_new_ew {
+    return Intl.message(
+      'New end-wearer',
+      name: 'page_title_new_ew',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone number`
+  String get text_phone_number {
+    return Intl.message(
+      'Phone number',
+      name: 'text_phone_number',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customer email`
+  String get text_customer_email {
+    return Intl.message(
+      'Customer email',
+      name: 'text_customer_email',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `End-wearer name`
+  String get text_ew_name {
+    return Intl.message(
+      'End-wearer name',
+      name: 'text_ew_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An invitation with credentials was\nsuccessfully sent to the user`
+  String get text_ew_invite_sent_desc {
+    return Intl.message(
+      'An invitation with credentials was\nsuccessfully sent to the user',
+      name: 'text_ew_invite_sent_desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invite sent successfully`
+  String get text_ew_invite_sent {
+    return Intl.message(
+      'Invite sent successfully',
+      name: 'text_ew_invite_sent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back to event details`
+  String get button_back_to_event_detail {
+    return Intl.message(
+      'Back to event details',
+      name: 'button_back_to_event_detail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Something went wrong`
+  String get error_smt_wrong {
+    return Intl.message(
+      'Something went wrong',
+      name: 'error_smt_wrong',
+      desc: '',
+      args: [],
     );
   }
 }
