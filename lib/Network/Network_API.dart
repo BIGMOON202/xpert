@@ -74,6 +74,7 @@ class ParserResponse<T> {
 enum ParserResponseStatus { COMPLETED, ERROR, REPEAT }
 
 enum Status { LOADING, COMPLETED, ERROR }
+
 enum Request { GET, POST, PUT, PATCH }
 
 extension RequestExtension on Request {
@@ -112,6 +113,7 @@ class NetworkAPI {
     String url, {
     Map<String, String>? headers,
     bool useAuth = true,
+    bool isJsonBody = false,
     bool tryToRefreshAuth = true,
   }) async {
     return call(
@@ -119,6 +121,7 @@ class NetworkAPI {
       url,
       headers: headers ?? {},
       useAuth: useAuth,
+      isJsonBody: isJsonBody,
       tryToRefreshAuth: tryToRefreshAuth,
     );
   }
@@ -127,6 +130,7 @@ class NetworkAPI {
       {Map<String, dynamic>? body,
       Map<String, String>? headers,
       bool useAuth = true,
+      bool isJsonBody = false,
       bool tryToRefreshAuth = true}) async {
     return call(
       Request.POST,
@@ -134,6 +138,7 @@ class NetworkAPI {
       body: body ?? {},
       headers: headers ?? {},
       useAuth: useAuth,
+      isJsonBody: isJsonBody,
       tryToRefreshAuth: tryToRefreshAuth,
     );
   }
@@ -142,6 +147,7 @@ class NetworkAPI {
       {Map<String, dynamic>? body,
       Map<String, String>? headers,
       bool useAuth = true,
+      bool isJsonBody = false,
       bool tryToRefreshAuth = true}) async {
     return call(
       Request.PATCH,
@@ -149,6 +155,7 @@ class NetworkAPI {
       body: body ?? {},
       headers: headers ?? {},
       useAuth: useAuth,
+      isJsonBody: isJsonBody,
       tryToRefreshAuth: tryToRefreshAuth,
     );
   }
@@ -157,6 +164,7 @@ class NetworkAPI {
       {Map<String, dynamic>? body,
       Map<String, String>? headers,
       bool useAuth = true,
+      bool isJsonBody = false,
       bool tryToRefreshAuth = true}) async {
     return call(
       Request.PUT,
@@ -164,6 +172,7 @@ class NetworkAPI {
       body: body ?? {},
       headers: headers ?? {},
       useAuth: useAuth,
+      isJsonBody: isJsonBody,
       tryToRefreshAuth: tryToRefreshAuth,
     );
   }
@@ -174,6 +183,7 @@ class NetworkAPI {
     Map<String, dynamic>? body,
     Map<String, String>? headers,
     bool useAuth = true,
+    required bool isJsonBody,
     bool tryToRefreshAuth = true,
   }) async {
     logger.d('call $request on $url');
@@ -242,7 +252,11 @@ class NetworkAPI {
           ..responseContentType = response.headers['Content-Type']
           ..httpResponseCode = response.statusCode;
 
-        var parserResponse = await _response(response, tryToRefreshAuth: tryToRefreshAuth);
+        var parserResponse = await _response(
+          response,
+          tryToRefreshAuth: tryToRefreshAuth,
+          isJsonBody: isJsonBody,
+        );
         switch (parserResponse.status) {
           case ParserResponseStatus.COMPLETED:
             responseJson = parserResponse.data;
@@ -271,20 +285,27 @@ class NetworkAPI {
   }
 
   Future<ParserResponse<dynamic>> _response(http.Response response,
-      {bool tryToRefreshAuth = true}) async {
+      {bool tryToRefreshAuth = true, required bool isJsonBody}) async {
     logger.d(
-         '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
+        '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
     switch (response.statusCode) {
       case 200:
       case 201:
+        if (isJsonBody) {
+          logger.d('RESPONSE_200_201_J: ${response.body}');
+          return ParserResponse.completed(response.body);
+        }
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
-        logger.d(responseJson);
+        logger.i(responseJson);
+        logger.d('RESPONSE_200_201: $responseJson');
         return ParserResponse.completed(responseJson);
       case 400:
+        logger.d('RESPONSE_403: ${response.body}');
         throw BadRequestException(response.body);
       case 401:
       case 403:
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
+        logger.d('RESPONSE_403: $responseJson');
         if (tryToRefreshAuth == true) {
           if (shouldRefreshTokenFor(json: responseJson)) {
             logger.i('Load new access token');

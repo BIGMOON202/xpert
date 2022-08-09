@@ -13,7 +13,7 @@ class _SuccessBox extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            S.current.text_ew_invite_sent,
+            S.current.common_success,
             style: Theme.of(context).appTheme.textStyle?.caption.copyWith(
                   color: AppColors.darkCaptionText,
                 ),

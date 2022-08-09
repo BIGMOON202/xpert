@@ -338,8 +338,12 @@ class HandsFreeWorker {
       }
 
       if (_step?.shouldCaptureAfter() == true) {
+      
         _playSound(TFOptionalSound.capture);
-        onCaptureBlock?.call();
+        if (onCaptureBlock != null) {
+          Timer(Duration(milliseconds: 400), onCaptureBlock!);
+        }
+        //onCaptureBlock?.call();
       } else {
         increaseStep();
       }

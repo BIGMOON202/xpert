@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
+import 'package:tdlook_flutter_app/Network/Network_API.dart';
+import 'package:tdlook_flutter_app/application/presentation/pages/create_ew/new_ew_page.dart';
 import 'package:tdlook_flutter_app/application/presentation/states/end_wearer_state.dart';
 import 'package:tdlook_flutter_app/data/models/errors/fields_errors.dart';
 import 'package:tdlook_flutter_app/data/repositories/end_wearer/end_wearer_repository.dart';
@@ -47,6 +49,16 @@ class EWCubit extends Cubit<EWState> {
     ));
   }
 
+  Future<void> setInviteTypes(List<InviteType>? types) async {
+    logger.d('TYPES: $types');
+    emit(state.copyWith(
+      addToEventState: state.addToEventState.copyWith(
+        errors: null,
+        inviteTypes: types ?? [],
+      ),
+    ));
+  }
+
   Future<void> addToEvent(
     int id, {
     required String name,
@@ -56,39 +68,57 @@ class EWCubit extends Cubit<EWState> {
     emit(state.copyWith(
       addToEventState: state.addToEventState.copyWith(
         isLoading: true,
+        errors: null,
+        errorMessage: null,
       ),
     ));
-    logger.d('START...');
     try {
-      final success = await repository.addToEvent(
+      final response = await repository.addToEvent(
         id,
         name: name,
         email: email,
         phone: phone,
         isActive: true,
       );
+      final ewId = response?.id;
 
-      logger.d('SUCCESS: $success');
+      if (state.addToEventState.canSendSmsInvite && ewId != null) {
+        await repository.invite(InviteType.sms, ewId: ewId, eventId: id);
+      }
+
+      if (state.addToEventState.canSendEmailInvite && ewId != null) {
+        await repository.invite(InviteType.email, ewId: ewId, eventId: id);
+      }
+
+      logger.d('SUCCESS: $response');
 
       emit(state.copyWith(
         addToEventState: state.addToEventState.copyWith(
           isLoading: false,
-          isSuccess: success == true,
-          errorMessage: success == true ? null : S.current.error_smt_wrong,
+          isSuccess: ewId != null,
+          errorMessage: ewId != null ? null : S.current.error_smt_wrong,
           errors: null,
         ),
       ));
+    } on BadRequestException catch (e) {
+      logger.d('ERROR (BadRequestException): $e}');
+      final errors = FieldsErrors.fromJson(jsonDecode(e.toString()));
+      emit(state.copyWith(
+        addToEventState: state.addToEventState.copyWith(
+          isLoading: false,
+          isSuccess: false,
+          errorMessage: null,
+          errors: errors,
+        ),
+      ));
     } catch (e) {
-      logger.d('ERROR_1: $e');
-      final errors = FieldsErrors.fromJson(json.decode(e.toString()));
-      logger.d('ERROR_2: $errors');
-      json.decode(e.toString());
+      logger.d('ERROR: $e}');
       emit(state.copyWith(
         addToEventState: state.addToEventState.copyWith(
           isLoading: false,
           isSuccess: false,
           errorMessage: e.toString(),
-          errors: errors,
+          errors: null,
         ),
       ));
     }

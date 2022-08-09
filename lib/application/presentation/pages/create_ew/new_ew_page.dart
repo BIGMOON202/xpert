@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
+import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/application/assets/assets.dart';
 import 'package:tdlook_flutter_app/application/presentation/cubits/end_wearer_cubit.dart';
 import 'package:tdlook_flutter_app/application/presentation/states/end_wearer_state.dart';
-import 'package:tdlook_flutter_app/application/presentation/widgets/buttons/action_button.dart';
+import 'package:tdlook_flutter_app/application/presentation/widgets/buttons/action_text_button.dart';
+import 'package:tdlook_flutter_app/application/presentation/widgets/buttons/body_text_button.dart';
 import 'package:tdlook_flutter_app/application/presentation/widgets/loader/loader_box.dart';
 import 'package:tdlook_flutter_app/application/presentation/widgets/scaffold/regular_scaffold.dart';
 import 'package:tdlook_flutter_app/application/themes/app_colors.dart';
@@ -17,7 +19,10 @@ import 'package:tdlook_flutter_app/constants/global.dart';
 import 'package:tdlook_flutter_app/constants/keys.dart';
 import 'package:tdlook_flutter_app/data/models/errors/fields_errors.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
+import 'package:tdlook_flutter_app/utilt/logger.dart';
 
+part 'widgets/error_box.dart';
+part 'widgets/new_ew_invite_box.dart';
 part 'widgets/success_box.dart';
 part 'widgets/text_field_box.dart';
 
@@ -74,9 +79,7 @@ class _NewEWPageState extends State<NewEWPage> {
     return BlocProvider<EWCubit>(
       create: (_) => _cubit,
       child: BlocConsumer<EWCubit, EWState>(
-        listener: (_, state) {
-          _showErrorMessage(state.addToEventState.errors);
-        },
+        listener: (_, __) {},
         builder: (_, state) {
           return RegularScaffold(
               title: S.current.page_title_new_ew,
@@ -94,85 +97,109 @@ class _NewEWPageState extends State<NewEWPage> {
   }
 
   Widget _buildContent(EWState state) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _buildForm(state),
-          Spacer(),
-          ActionTextButton(
-            title: S.current.common_add,
-            isEnabled: state.addToEventState.isValidData,
-            onPressed: () {
-              _add();
-            },
-          ),
-        ],
+    return GestureDetector(
+      onTap: () {
+        logger.d('UNFOCUS');
+        FocusScope.of(context).unfocus();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(child: _buildForm(state)),
+            ActionTextButton(
+              title: S.current.common_add,
+              isEnabled: state.addToEventState.isValidData && !state.isLoading,
+              onPressed: () {
+                _add();
+              },
+            ),
+            SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildForm(EWState state) {
-    final availableCharactersFormatter =
-        FilteringTextInputFormatter.allow(kLatinAvailableCharactersRegExp);
+    final availableCharactersFormatter = FilteringTextInputFormatter.allow(
+        kNameAvailableCharactersRegExp); //kLatinAvailableCharactersWithWhitespaceRegExp
     final availableEmailCharactersFormatter =
         FilteringTextInputFormatter.allow(kEmailAvailableCharactersRegExp);
+    final hasError = state.addToEventState.availableErrorMessage?.isNotEmpty == true;
     return Form(
       key: _formKey,
       child: LayoutBuilder(
         builder: (context, constraint) {
           return SingleChildScrollView(
+            scrollDirection: Axis.vertical,
             physics: const BouncingScrollPhysics(),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: constraint.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    const SizedBox(height: 20),
-                    _TextFieldBox(
-                      key: Keys.newEwNameFieldKey,
-                      keyboardType: TextInputType.name,
-                      title: S.current.text_ew_name,
-                      controller: _nameCtrl,
-                      inputFormatters: [
-                        availableCharactersFormatter,
-                      ],
-                      onChanged: (value) {
-                        _cubit.setName(value);
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    _TextFieldBox(
-                      key: Keys.newEwEmailFieldKey,
-                      keyboardType: TextInputType.emailAddress,
-                      title: S.current.text_customer_email,
-                      controller: _emailCtrl,
-                      inputFormatters: [
-                        availableEmailCharactersFormatter,
-                      ],
-                      onChanged: (value) {
-                        _cubit.setEmail(value);
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    _TextFieldBox(
-                      key: Keys.newEwPhoneFieldKey,
-                      keyboardType: TextInputType.phone,
-                      title: S.current.text_phone_number,
-                      controller: _phoneCtrl,
-                      inputFormatters: [
-                        PhoneInputFormatter(),
-                      ],
-                      onChanged: (value) {
-                        _cubit.setPhone(value);
-                      },
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                const SizedBox(height: 20),
+                _TextFieldBox(
+                  key: Keys.newEwNameFieldKey,
+                  isEnabled: !state.isLoading,
+                  keyboardType: TextInputType.text,
+                  title: S.current.text_ew_name,
+                  controller: _nameCtrl,
+                  errorMessage: state.addToEventState.errors?.nameErrorMessage,
+                  inputFormatters: [
+                    //availableCharactersFormatter,
                   ],
+                  onChanged: (value) {
+                    _cubit.setName(value);
+                  },
                 ),
-              ),
+                const SizedBox(height: 20),
+                _TextFieldBox(
+                  key: Keys.newEwEmailFieldKey,
+                  isEnabled: !state.isLoading,
+                  keyboardType: TextInputType.emailAddress,
+                  title: S.current.text_customer_email,
+                  controller: _emailCtrl,
+                  errorMessage: state.addToEventState.errors?.emailErrorMessage,
+                  inputFormatters: [
+                    availableEmailCharactersFormatter,
+                  ],
+                  onChanged: (value) {
+                    _cubit.setEmail(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                _TextFieldBox(
+                  key: Keys.newEwPhoneFieldKey,
+                  isEnabled: !state.isLoading,
+                  keyboardType: TextInputType.phone,
+                  title: S.current.text_phone_number,
+                  controller: _phoneCtrl,
+                  errorMessage: state.addToEventState.errors?.phoneErrorMessage,
+                  inputFormatters: [
+                    PhoneInputFormatter(),
+                  ],
+                  onChanged: (value) {
+                    _cubit.setPhone(value);
+                  },
+                ),
+                const SizedBox(height: 20),
+                InviteBox(
+                  enabledTypes: state.addToEventState.enabledInviteTypes,
+                  onSelectedTypes: (types) {
+                    _cubit.setInviteTypes(types);
+                  },
+                  selectedTypes: state.addToEventState.inviteTypes,
+                ),
+                if (hasError)
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: ErrorBox(
+                      error: state.addToEventState.availableErrorMessage,
+                    ),
+                  ),
+              ],
             ),
           );
         },
@@ -181,6 +208,7 @@ class _NewEWPageState extends State<NewEWPage> {
   }
 
   Widget _buildSuccessContent(EWState state) {
+    FocusScope.of(context).unfocus();
     return _SuccessBox(
       onFinishPressed: () {
         if (state.addToEventState.isSuccess) {
@@ -194,21 +222,12 @@ class _NewEWPageState extends State<NewEWPage> {
   void _add() {
     // widget.onUpdate();
     // Navigator.pop(context);
+    FocusScope.of(context).unfocus();
     _cubit.addToEvent(
       eventId,
       name: _nameCtrl.text,
       email: _emailCtrl.text,
       phone: _phoneCtrl.text,
     );
-  }
-
-  void _showErrorMessage(FieldsErrors? errors) {
-    final eventError = errors?.eventErrorMessage;
-    if (eventError?.isNotEmpty == true) {
-      final snackBar = SnackBar(
-        content: Text(eventError ?? ''),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
   }
 }

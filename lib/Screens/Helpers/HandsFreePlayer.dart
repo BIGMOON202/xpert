@@ -87,7 +87,7 @@ class HandsFreePlayer {
       logger.d('timer fired after ${duration}');
 
       if (step?.shouldCaptureAfter() == true) {
-        Timer(Duration(milliseconds: 100), onCaptureBlock!);
+        Timer(Duration(milliseconds: 400), onCaptureBlock!);
       } else {
         _moveToNext(step: step);
       }

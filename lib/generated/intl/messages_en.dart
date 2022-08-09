@@ -45,8 +45,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_back_to_event_detail":
             MessageLookupByLibrary.simpleMessage("Back to event details"),
         "common_add": MessageLookupByLibrary.simpleMessage("Add"),
+        "common_email": MessageLookupByLibrary.simpleMessage("Email"),
         "common_no": MessageLookupByLibrary.simpleMessage("No"),
         "common_ok": MessageLookupByLibrary.simpleMessage("Ok"),
+        "common_sms": MessageLookupByLibrary.simpleMessage("SMS"),
+        "common_success": MessageLookupByLibrary.simpleMessage("Success"),
         "common_yes": MessageLookupByLibrary.simpleMessage("Yes"),
         "error_smt_wrong":
             MessageLookupByLibrary.simpleMessage("Something went wrong"),
@@ -58,11 +61,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("New end-wearer"),
         "text_customer_email":
             MessageLookupByLibrary.simpleMessage("Customer email"),
-        "text_ew_invite_sent":
-            MessageLookupByLibrary.simpleMessage("Invite sent successfully"),
         "text_ew_invite_sent_desc": MessageLookupByLibrary.simpleMessage(
-            "An invitation with credentials was\nsuccessfully sent to the user"),
+            "End-wearer has been added successfully"),
         "text_ew_name": MessageLookupByLibrary.simpleMessage("End-wearer name"),
+        "text_ew_send_invite_via":
+            MessageLookupByLibrary.simpleMessage("Send invite via"),
         "text_phone_number":
             MessageLookupByLibrary.simpleMessage("Phone number"),
         "title": MessageLookupByLibrary.simpleMessage("XpertFit")

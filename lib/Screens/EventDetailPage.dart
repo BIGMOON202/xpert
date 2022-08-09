@@ -132,6 +132,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   }
 
   Future<void> _refreshList() async {
+    await _eventInfoWorkerBloc?.call();
     await _bloc?.call(name: _searchText);
   }
 

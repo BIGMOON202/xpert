@@ -100,6 +100,36 @@ class S {
     );
   }
 
+  /// `Success`
+  String get common_success {
+    return Intl.message(
+      'Success',
+      name: 'common_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get common_email {
+    return Intl.message(
+      'Email',
+      name: 'common_email',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SMS`
+  String get common_sms {
+    return Intl.message(
+      'SMS',
+      name: 'common_sms',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{choose, select, true {What’s your height?} other {End-Wearer’s height?}}`
   String page_title_choose_height_as_ew(Object choose) {
     return Intl.select(
@@ -196,21 +226,21 @@ class S {
     );
   }
 
-  /// `An invitation with credentials was\nsuccessfully sent to the user`
+  /// `End-wearer has been added successfully`
   String get text_ew_invite_sent_desc {
     return Intl.message(
-      'An invitation with credentials was\nsuccessfully sent to the user',
+      'End-wearer has been added successfully',
       name: 'text_ew_invite_sent_desc',
       desc: '',
       args: [],
     );
   }
 
-  /// `Invite sent successfully`
-  String get text_ew_invite_sent {
+  /// `Send invite via`
+  String get text_ew_send_invite_via {
     return Intl.message(
-      'Invite sent successfully',
-      name: 'text_ew_invite_sent',
+      'Send invite via',
+      name: 'text_ew_send_invite_via',
       desc: '',
       args: [],
     );

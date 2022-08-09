@@ -5,6 +5,9 @@
     "common_no": "No",
     "common_ok": "Ok",
     "common_add": "Add",
+    "common_success": "Success",
+    "common_email": "Email",
+    "common_sms": "SMS",
     "page_title_choose_height_as_ew": "{choose, select, true {What’s your height?} other {End-Wearer’s height?}}",
     "page_title_choose_weight_as_ew": "{choose, select, true {What’s your weight?} other {End-Wearer’s weight?}}",
     "page_title_choose_clavicle_as_ew": "{choose, select, true {What’s your clavicle?} other {End-Wearer’s\nmanual clavicle?}}",
@@ -13,8 +16,8 @@
     "text_phone_number": "Phone number",
     "text_customer_email": "Customer email",
     "text_ew_name": "End-wearer name",
-    "text_ew_invite_sent_desc": "An invitation with credentials was\nsuccessfully sent to the user",
-    "text_ew_invite_sent": "Invite sent successfully",
+    "text_ew_invite_sent_desc": "End-wearer has been added successfully",
+    "text_ew_send_invite_via": "Send invite via",
     "button_back_to_event_detail": "Back to event details",
     "error_smt_wrong": "Something went wrong"
 }

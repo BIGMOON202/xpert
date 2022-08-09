@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tdlook_flutter_app/application/themes/app_colors.dart';
 import 'package:tdlook_flutter_app/application/themes/app_themes.dart';
 
 class AppTextStyle {
@@ -9,7 +10,9 @@ class AppTextStyle {
   final TextStyle textBoxTitle;
   final TextStyle regular;
   final TextStyle button;
+  final TextStyle bodyButtonTitle;
   final TextStyle textFieldText;
+  final TextStyle error;
 
   const AppTextStyle({
     required this.title,
@@ -18,7 +21,9 @@ class AppTextStyle {
     required this.textBoxTitle,
     required this.regular,
     required this.button,
+    required this.bodyButtonTitle,
     required this.textFieldText,
+    required this.error,
   });
 
   factory AppTextStyle.of(BuildContext context) {
@@ -29,7 +34,7 @@ class AppTextStyle {
   factory AppTextStyle.regular() {
     //final font = GoogleFonts.kellySlab();
     //final font = GoogleFonts.kellySlab();
-    final font = GoogleFonts.jura();
+    final font = GoogleFonts.roboto();
     return AppTextStyle(
       title: font.copyWith(
         fontFamily: 'Roboto',
@@ -70,6 +75,21 @@ class AppTextStyle {
         ),
       ),
       textFieldText: GoogleFonts.roboto(
+        textStyle: TextStyle(
+          color: Colors.white,
+          letterSpacing: .64,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      error: GoogleFonts.roboto(
+        textStyle: TextStyle(
+          color: AppColors.error,
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+        ),
+      ),
+      bodyButtonTitle: GoogleFonts.roboto(
         textStyle: TextStyle(
           color: Colors.white,
           letterSpacing: .64,
