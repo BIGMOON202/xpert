@@ -24,8 +24,8 @@ import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/application/assets/assets.dart';
-import 'package:tdlook_flutter_app/application/presentation/pages/create_ew/new_ew_page.dart';
 import 'package:tdlook_flutter_app/application/themes/app_colors.dart';
+import 'package:tdlook_flutter_app/presentation/pages/create_ew/new_ew_page.dart';
 import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
 import 'package:tdlook_flutter_app/utilt/logger.dart';
 
@@ -36,6 +36,7 @@ class EventDetailPage extends StatefulWidget {
   final UserType? userType;
   final Event? event;
   final MeasurementsList? measurementsList;
+  final VoidCallback? onUpdate;
 
   const EventDetailPage({
     Key? key,
@@ -43,6 +44,7 @@ class EventDetailPage extends StatefulWidget {
     this.userType,
     this.event,
     this.measurementsList,
+    this.onUpdate,
   }) : super(key: key);
 
   @override
@@ -58,6 +60,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
   String _searchText = '';
   bool _isKeyboardAppeare = false;
+  VoidCallback? get _onUpdate => widget.onUpdate;
   TextEditingController _searchController = TextEditingController();
 
   @override
@@ -76,7 +79,6 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
         case Status.COMPLETED:
           setState(() {
-            logger.d('updated: ${updatedEvent.data}');
             this.event = updatedEvent.data;
           });
           break;
@@ -113,7 +115,6 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   }
 
   onSearchTextChanged(String text) {
-    //logger.d('update: $text');
     var searchText = EmojiUtils.removeAllEmoji(text);
     if (searchText.length < 1) {
       searchText = '';
@@ -186,7 +187,6 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     }
 
     Widget _subchild() {
-      logger.d('subchild $_isKeyboardAppeare');
       if (_isKeyboardAppeare == false) {
         return Padding(
             padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
@@ -336,14 +336,12 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
                     padding: const EdgeInsets.only(left: 8.0),
                     child: TextFormField(
                       onEditingComplete: () {
-                        logger.i('on complete');
                         FocusScope.of(context).unfocus();
                         setState(() {
                           _isKeyboardAppeare = false;
                         });
                       },
                       onTap: () {
-                        logger.i('on start');
                         setState(() {
                           _isKeyboardAppeare = true;
                         });
@@ -390,11 +388,8 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-
     Widget listBody() {
       if (widget.measurementsList != null && widget.measurementsList?.data?.length != 0) {
-        logger.i('config list body');
         return MeasuremetsListWidget(
             event: event,
             measurementsList: widget.measurementsList,
@@ -402,12 +397,10 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
             onRefreshList: _refreshList,
             refreshController: _refreshController);
       } else {
-        logger.i('config list body async');
         return StreamBuilder<Response<MeasurementsList>>(
           stream: _bloc?.chuckListStream,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              logger.d('status: ${snapshot.data?.status}');
               if (snapshot.data?.status == null) return const SizedBox();
               switch (snapshot.data!.status!) {
                 case Status.LOADING:
@@ -482,6 +475,9 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
             event: event,
             onUpdate: () {
               _refreshList();
+              if (_onUpdate != null) {
+                _onUpdate!();
+              }
             },
           ),
         ),
@@ -492,6 +488,14 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   }
 
   bool get _canAddEW {
+    if (widget.userType == UserType.endWearer) {
+      /* EF-2314 
+      EW doesn’t have permission to add another EW,
+      the button is visible and user experience is not the best.
+      */
+      return false;
+    }
+
     /* EF-2270
     Add single EW must be available only to the event, for which everyone has scanned already, 
     but the end date has not been reached yet, or that is currently in progress
@@ -511,6 +515,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     final isCan = inProgress || (total == measured && isNotExpired);
     logger.d(
         'total: $total\nmeasured: $measured\ninProgress: $inProgress\nisNotExpired: $isNotExpired\nprogress: $progress\nisCan: $isCan');
+
     return isCan;
   }
 }
@@ -553,11 +558,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       // var measurement = measurementsList.data[index];
       measurement?.askForWaistLevel = widget.event?.shouldAskForWaistLevel();
       measurement?.askForOverlap = widget.event?.manualOverlap;
-      logger.d('open measurement\n '
-          'id:${measurement?.id}\n'
-          'uuid:${measurement?.uuid}');
 
-      // TODO: Uncommin for test
       if (Application.isInDebugMode) {
         if (SessionParameters().selectedCompany == CompanyType.armor) {
           Navigator.push(
@@ -604,7 +605,6 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
     }
 
     Future<void> openSetting() async {
-      logger.i('open settings');
       showDialog(
           barrierDismissible: false,
           context: context,
@@ -623,12 +623,9 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
     }
 
     Future<void> askForPermissionsAndMove(MeasurementResults? _measurement) async {
-      logger.i('askForPermissionsAndMove');
       Map<Permission, PermissionStatus> statuses = await [
         Permission.camera,
       ].request();
-
-      logger.d('statuses: $statuses');
       if (statuses[Permission.camera] == PermissionStatus.granted) {
         _moveToMeasurementAt(_measurement);
       } else if (statuses[Permission.camera] == PermissionStatus.permanentlyDenied) {

@@ -246,6 +246,26 @@ class S {
     );
   }
 
+  /// `An invitation with credentials was sent to the user via provided SMS`
+  String get text_ew_invite_sent_via_sms_desc {
+    return Intl.message(
+      'An invitation with credentials was sent to the user via provided SMS',
+      name: 'text_ew_invite_sent_via_sms_desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An invitation with credentials was sent to the user via provided email`
+  String get text_ew_invite_sent_via_email_desc {
+    return Intl.message(
+      'An invitation with credentials was sent to the user via provided email',
+      name: 'text_ew_invite_sent_via_email_desc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Back to event details`
   String get button_back_to_event_detail {
     return Intl.message(

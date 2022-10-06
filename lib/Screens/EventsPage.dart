@@ -506,6 +506,9 @@ class EventsListWidget extends StatelessWidget {
                     measurementsList: null,
                     userType: userType,
                     currentUserId: userId,
+                    onUpdate: () {
+                      _pullRefresh();
+                    },
                   )));
     }
 

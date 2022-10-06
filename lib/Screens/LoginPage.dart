@@ -57,6 +57,12 @@ class _LoginPageState extends State<LoginPage> {
 
         _email = 'animaltut+1@gmail.com';
         _password = '300031';
+
+        _email = 'qaz@a.aa';
+        _password = '778507';
+
+        _email = 'qw@qw.qw';
+        _password = '847259';
       }
     }
     initPreferences();

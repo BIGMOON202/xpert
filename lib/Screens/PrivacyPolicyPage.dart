@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io' as io;
+import 'dart:io';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
@@ -14,9 +15,9 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/utilt/logger.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class PrivacyPolicyPage extends StatefulWidget {
   final UserType? userType;
@@ -36,10 +37,11 @@ class PrivacyPolicyPage extends StatefulWidget {
 
 class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  //final Completer<WebViewController> _controller = Completer<WebViewController>();
 
-  WebView? webView;
-  WebViewController? _controller;
-  double contentHeight = 0;
+  //WebView? webView;
+  WebViewPlusController? _controller;
+  //double contentHeight = 0;
 
   String get colorStr {
     var color = Colors.black;
@@ -49,10 +51,11 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   bool _isLoading = true;
 
   bool _isApplied = false;
-  bool _navigationRequestAllowed = true;
   late ScrollController _scrollController;
   String? privacyURL;
   bool _scrollButtonIsHidden = false;
+  //double _contentHeight = 0;
+  late Completer<double> _completer;
 
   _loadHtmlFromAssets() async {
     var fileText = await rootBundle.loadString('assets/PRIVACY.html');
@@ -64,65 +67,25 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           setState(() {
             _isLoading = false;
             logger.i('loaded file');
-            // _navigationRequestAllowed = false;
           })
         });
   }
 
   Future<void> _launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(
-        url,
-        forceSafariVC: false,
-        forceWebView: false,
-      );
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url);
     } else {
-      throw 'Could not launch $url';
+      logger.e('Could not launch $url');
     }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    if (Platform.isAndroid) WebViewPlus.platform = AndroidWebView();
     _isLoading = true;
-
+    _completer = Completer<double>();
     _scrollController = ScrollController();
-    // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
-
-    if (io.Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-
-    webView = WebView(
-      initialUrl: Uri.dataFromString(
-              '<html><body style="background-color: $colorStr"></body></html>',
-              mimeType: 'text/html',
-              encoding: Encoding.getByName('utf-8'))
-          .toString(),
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (WebViewController webViewController) {
-        _controller = webViewController;
-        _loadHtmlFromAssets();
-      },
-      onPageFinished: (some) async {
-        final result =
-            await _controller?.evaluateJavascript("document.documentElement.scrollHeight;");
-        double height = double.parse(result ?? '0');
-        setState(() {
-          _isLoading = false;
-          contentHeight = height;
-          logger.d('height = $contentHeight');
-        });
-      },
-      navigationDelegate: (NavigationRequest request) {
-        if (request.url == privacyURL) {
-          return NavigationDecision.navigate;
-        }
-        if (Application.shouldOpenLinks) {
-          _launchInBrowser(request.url);
-        }
-        return NavigationDecision.prevent;
-      },
-    );
   }
 
   void _moveToNextPage() {
@@ -162,7 +125,213 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   @override
   Widget build(BuildContext context) {
-    var nextButton = Align(
+    _completer = Completer<double>();
+    return FutureBuilder(
+      future: _completer.future,
+      builder: ((context, snapshot) {
+        final data = snapshot.data;
+        double contentHeight = 0;
+        if (data is double) {
+          contentHeight = data;
+        }
+        return _buildScaffold(contentHeight);
+      }),
+    );
+  }
+
+  Widget _buildScaffold(double contentHeight) {
+    return Scaffold(
+      appBar: AppBar(
+        brightness: Brightness.dark,
+        centerTitle: true,
+        title: Row(
+          //children align to center.
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: 56),
+                child: Container(
+                  child: Text(
+                    'Privacy Policy and Terms of Use',
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      backgroundColor: Colors.black,
+      body: Platform.isAndroid ? _buildAndroidContent() : _buildIOSContent(contentHeight),
+    );
+  }
+
+  Widget _buildIOSContent(double contentHeight) {
+    final optimalHeight = max(MediaQuery.of(context).size.height, contentHeight);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Container(
+            color: Colors.black,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  physics: ClampingScrollPhysics(),
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: optimalHeight,
+                        child: _buildWebView(),
+                      ),
+                      _buildBottomPart(widget.showApply == true),
+                    ],
+                  ),
+                ),
+                Visibility(
+                  visible: _isLoading,
+                  child: Container(
+                    color: _backgroundColor,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        Visibility(
+          visible: !_scrollButtonIsHidden,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 16, top: 16),
+                child: _buildScrollToBottomButton(),
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildAndroidContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              _buildWebView(),
+              Visibility(
+                visible: _isLoading,
+                child: Container(
+                  color: _backgroundColor,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            ],
+          ),
+        ),
+        _buildBottomPart(widget.showApply == true),
+      ],
+    );
+  }
+
+  Widget _buildScrollToBottomButton() {
+    return FlatButton(
+        child: Container(
+          child: SizedBox(
+            width: 96,
+            height: 34,
+            child: Icon(MdiIcons.chevronDown, color: Colors.white),
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(17)),
+            border: Border.all(
+              color: Colors.white,
+              width: 1.0,
+            ),
+          ),
+        ),
+        onPressed: _scrollToBottom);
+  }
+
+  Widget _buildBottomPart(bool visible) {
+    if (visible) {
+      return VisibilityDetector(
+        key: Key('ApplyPrivacy'),
+        onVisibilityChanged: (visibilityInfo) {
+          var visiblePercentage = visibilityInfo.visibleFraction;
+          logger.d('onVisibilityChanged $visiblePercentage');
+          if (mounted) {
+            setState(() {
+              _scrollButtonIsHidden = visiblePercentage > 0;
+              logger.d('_scrollButtonIsHidden: $_scrollButtonIsHidden');
+            });
+          }
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15.0),
+              topRight: Radius.circular(15.0),
+            ),
+            color: _backgroundColor,
+          ),
+          child: SafeArea(
+            child: Container(
+              child: Column(children: [
+                Container(
+                  child: Row(
+                    children: [
+                      Theme(
+                          data: ThemeData(unselectedWidgetColor: Colors.white),
+                          child: Checkbox(
+                            onChanged: (newValue) {
+                              setState(() {
+                                _isApplied = newValue ?? false;
+                              });
+                            },
+                            activeColor: HexColor.fromHex('1E7AE4'),
+                            checkColor: Colors.white,
+                            hoverColor: Colors.orange,
+                            value: _isApplied,
+                          )),
+                      Flexible(
+                        child: Text(
+                          'I accept Privacy Policy and Terms of Use',
+                          style: TextStyle(color: Colors.white),
+                          maxLines: 3,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                _buildNextButton()
+              ]),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return SizedBox();
+    }
+  }
+
+  Widget _buildNextButton() {
+    return Align(
         alignment: Alignment.bottomCenter,
         child: Padding(
           padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
@@ -185,140 +354,52 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                 // padding: EdgeInsets.all(4),
               )),
         ));
+  }
 
-    Widget bottomPart() {
-      if (widget.showApply == true) {
-        return VisibilityDetector(
-            key: Key('ApplyPrivacy'),
-            onVisibilityChanged: (visibilityInfo) {
-              var visiblePercentage = visibilityInfo.visibleFraction;
-              logger.d('onVisibilityChanged $visiblePercentage');
-              if (mounted) {
-                setState(() {
-                  _scrollButtonIsHidden = visiblePercentage > 0;
-                  logger.d('_scrollButtonIsHidden: $_scrollButtonIsHidden');
-                });
-              }
-            },
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15.0), topRight: Radius.circular(15.0)),
-                    color: _backgroundColor),
-                child: SafeArea(
-                    child: Container(
-                        child: Column(children: [
-                  Container(
-                      child: Row(
-                    children: [
-                      Theme(
-                          data: ThemeData(unselectedWidgetColor: Colors.white),
-                          child: Checkbox(
-                            onChanged: (newValue) {
-                              setState(() {
-                                _isApplied = newValue ?? false;
-                              });
-                            },
-                            activeColor: HexColor.fromHex('1E7AE4'),
-                            checkColor: Colors.white,
-                            hoverColor: Colors.orange,
-                            value: _isApplied,
-                          )),
-                      Flexible(
-                          child: Text('I accept Privacy Policy and Terms of Use',
-                              style: TextStyle(color: Colors.white), maxLines: 3))
-                    ],
-                  )),
-                  nextButton
-                ])))));
-      } else {
-        return Container();
-      }
-    }
+  Widget _buildWebView() {
+    final initialUrl = Uri.dataFromString(
+            '<html><body style="background-color: $colorStr"></body></html>',
+            mimeType: 'text/html',
+            encoding: Encoding.getByName('utf-8'))
+        .toString();
 
-    void _scrollToBottom() {
-      setState(() {
-        _scrollButtonIsHidden = true;
-      });
-      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 500), curve: Curves.ease);
-    }
+    return WebViewPlus(
+      initialUrl: initialUrl,
+      javascriptMode: JavascriptMode.unrestricted,
+      onWebViewCreated: (WebViewPlusController webViewController) async {
+        _controller = webViewController;
+        _loadHtmlFromAssets();
+      },
+      onPageFinished: (some) async {
+        final result = await _controller?.getHeight();
+        if (!_completer.isCompleted) _completer.complete(result ?? 0);
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      navigationDelegate: (NavigationRequest request) {
+        if (request.url == privacyURL) {
+          return NavigationDecision.navigate;
+        }
+        if (Application.shouldOpenLinks) {
+          _launchInBrowser(request.url);
+        }
+        return NavigationDecision.prevent;
+      },
+    );
+  }
 
-    var scrollToBottomButton = FlatButton(
-        child: Container(
-          child: SizedBox(
-            width: 96,
-            height: 34,
-            child: Icon(MdiIcons.chevronDown, color: Colors.white),
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(17)),
-            border: Border.all(
-              color: Colors.white,
-              width: 1.0,
-            ),
-          ),
-        ),
-        onPressed: _scrollToBottom);
-    var container = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Expanded(
-          // flex: 8,
-          child: Container(
-              color: Colors.black,
-              child: Stack(children: [
-                SingleChildScrollView(
-                    physics: ClampingScrollPhysics(),
-                    controller: _scrollController,
-                    child: Column(children: [
-                      Container(
-                          height: max(MediaQuery.of(context).size.height, contentHeight),
-                          child: webView),
-                      bottomPart()
-                    ])),
-                Visibility(
-                    visible: _isLoading,
-                    child: Container(
-                        color: _backgroundColor, child: Center(child: CircularProgressIndicator())))
-              ]))),
-      Visibility(
-          visible: !_scrollButtonIsHidden,
-          child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SafeArea(
-                  child: Padding(
-                      padding: EdgeInsets.only(bottom: 16, top: 16), child: scrollToBottomButton))))
-    ]);
-
-    var scaffold = Scaffold(
-        appBar: AppBar(
-          brightness: Brightness.dark,
-          centerTitle: true,
-          title: Row(
-            //children align to center.
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                  child: Padding(
-                      padding: EdgeInsets.only(right: 56),
-                      child: Container(
-                          child: Text('Privacy Policy and Terms of Use',
-                              textAlign: TextAlign.center, maxLines: 3))))
-            ],
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-        ),
-        backgroundColor: Colors.black,
-        body: Stack(children: [
-          container,
-        ]));
-
-    return scaffold;
+  void _scrollToBottom() async {
+    setState(() {
+      _scrollButtonIsHidden = true;
+    });
+    final result = await _controller?.getHeight();
+    final height = (result ?? 0).toInt();
+    _controller?.webViewController.scrollTo(0, height);
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.ease,
+    );
   }
 }

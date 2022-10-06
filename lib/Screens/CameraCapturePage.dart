@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:sensors/sensors.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
@@ -341,6 +343,10 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     XFile? file = await controller?.takePicture();
     // Uint8List imageBytes = await file.readAsBytes();
     // String va = base64Encode(imageBytes);
+    if (Platform.isAndroid && _captureMode == CaptureMode.handsFree && file != null) {
+      final File rotatedImage = await FlutterExifRotation.rotateImage(path: file.path);
+      file = XFile.fromData(rotatedImage.readAsBytesSync());
+    }
 
     setState(() {
       _isTakingPicture = false;

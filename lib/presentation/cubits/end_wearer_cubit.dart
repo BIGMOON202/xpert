@@ -4,12 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
-import 'package:tdlook_flutter_app/application/presentation/pages/create_ew/new_ew_page.dart';
-import 'package:tdlook_flutter_app/application/presentation/states/end_wearer_state.dart';
+import 'package:tdlook_flutter_app/data/enums/invite_type.dart';
 import 'package:tdlook_flutter_app/data/models/errors/fields_errors.dart';
 import 'package:tdlook_flutter_app/data/repositories/end_wearer/end_wearer_repository.dart';
 import 'package:tdlook_flutter_app/data/repositories/end_wearer/end_wearer_repository_impl.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
+import 'package:tdlook_flutter_app/presentation/states/end_wearer_state.dart';
 import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class EWCubit extends Cubit<EWState> {
@@ -50,7 +50,6 @@ class EWCubit extends Cubit<EWState> {
   }
 
   Future<void> setInviteTypes(List<InviteType>? types) async {
-    logger.d('TYPES: $types');
     emit(state.copyWith(
       addToEventState: state.addToEventState.copyWith(
         errors: null,

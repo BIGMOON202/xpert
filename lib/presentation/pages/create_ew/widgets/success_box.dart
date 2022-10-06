@@ -1,9 +1,11 @@
 part of '../new_ew_page.dart';
 
 class _SuccessBox extends StatelessWidget {
+  final InviteType? inviteType;
   final VoidCallback onFinishPressed;
   const _SuccessBox({
     Key? key,
+    this.inviteType,
     required this.onFinishPressed,
   }) : super(key: key);
 
@@ -24,10 +26,22 @@ class _SuccessBox extends StatelessWidget {
             fit: BoxFit.none,
           ),
           const SizedBox(height: 52),
-          Text(
-            S.current.text_ew_invite_sent_desc,
-            style: Theme.of(context).appTheme.textStyle?.boldBody,
-            textAlign: TextAlign.center,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Text(
+              S.current.text_ew_invite_sent_desc,
+              style: Theme.of(context).appTheme.textStyle?.boldBody,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 44),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Text(
+              _successInviteMessage(),
+              style: Theme.of(context).appTheme.textStyle?.boldBody,
+              textAlign: TextAlign.center,
+            ),
           ),
           Spacer(),
           Padding(
@@ -40,5 +54,16 @@ class _SuccessBox extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _successInviteMessage() {
+    switch (inviteType) {
+      case InviteType.sms:
+        return S.current.text_ew_invite_sent_via_sms_desc;
+      case InviteType.email:
+        return S.current.text_ew_invite_sent_via_email_desc;
+      default:
+        return '';
+    }
   }
 }

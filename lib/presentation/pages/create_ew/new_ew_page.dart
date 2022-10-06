@@ -7,19 +7,19 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/application/assets/assets.dart';
-import 'package:tdlook_flutter_app/application/presentation/cubits/end_wearer_cubit.dart';
-import 'package:tdlook_flutter_app/application/presentation/states/end_wearer_state.dart';
-import 'package:tdlook_flutter_app/application/presentation/widgets/buttons/action_text_button.dart';
-import 'package:tdlook_flutter_app/application/presentation/widgets/buttons/body_text_button.dart';
-import 'package:tdlook_flutter_app/application/presentation/widgets/loader/loader_box.dart';
-import 'package:tdlook_flutter_app/application/presentation/widgets/scaffold/regular_scaffold.dart';
 import 'package:tdlook_flutter_app/application/themes/app_colors.dart';
 import 'package:tdlook_flutter_app/application/themes/app_themes.dart';
 import 'package:tdlook_flutter_app/constants/global.dart';
 import 'package:tdlook_flutter_app/constants/keys.dart';
+import 'package:tdlook_flutter_app/data/enums/invite_type.dart';
 import 'package:tdlook_flutter_app/data/models/errors/fields_errors.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/presentation/cubits/end_wearer_cubit.dart';
+import 'package:tdlook_flutter_app/presentation/states/end_wearer_state.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/buttons/action_text_button.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/buttons/body_text_button.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/loader/loader_box.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/scaffold/regular_scaffold.dart';
 
 part 'widgets/error_box.dart';
 part 'widgets/new_ew_invite_box.dart';
@@ -99,7 +99,6 @@ class _NewEWPageState extends State<NewEWPage> {
   Widget _buildContent(EWState state) {
     return GestureDetector(
       onTap: () {
-        logger.d('UNFOCUS');
         FocusScope.of(context).unfocus();
       },
       child: Padding(
@@ -210,6 +209,9 @@ class _NewEWPageState extends State<NewEWPage> {
   Widget _buildSuccessContent(EWState state) {
     FocusScope.of(context).unfocus();
     return _SuccessBox(
+      inviteType: state.addToEventState.inviteTypes.isEmpty
+          ? null
+          : state.addToEventState.inviteTypes.first,
       onFinishPressed: () {
         if (state.addToEventState.isSuccess) {
           widget.onUpdate();

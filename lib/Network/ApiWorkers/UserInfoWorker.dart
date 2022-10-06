@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/UserModel.dart';
@@ -18,7 +17,7 @@ class UserInfoWorker {
     bool useAuth;
 
     if (accessKey != null) {
-      headers = {'Authorization': '${userType?.authPreffix()} ${accessKey}'};
+      headers = {'Authorization': '${userType?.authPreffix()} $accessKey'};
       useAuth = false;
     } else {
       useAuth = true;

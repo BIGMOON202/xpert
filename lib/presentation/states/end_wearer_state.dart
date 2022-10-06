@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
-import 'package:tdlook_flutter_app/application/presentation/pages/create_ew/new_ew_page.dart';
+import 'package:tdlook_flutter_app/data/enums/invite_type.dart';
 import 'package:tdlook_flutter_app/data/models/errors/fields_errors.dart';
 
 part 'end_wearer_state.freezed.dart';

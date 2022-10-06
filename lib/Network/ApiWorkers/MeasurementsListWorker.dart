@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
@@ -21,7 +20,7 @@ class MeasurementsListWorker {
     final response = await _provider.get(
         'measurements/?event=$eventId&page_size=$size$pageParam&ordering=end_wearer__name$searchParam',
         useAuth: true);
-    logger.d('Response: $response');
+    //logger.d('Response: $response');
     var list = MeasurementsList.fromJson(response);
     this.paging = list.paging;
     return list;

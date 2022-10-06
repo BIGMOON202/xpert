@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
-import 'package:tdlook_flutter_app/application/presentation/widgets/buttons/action_button.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/buttons/action_button.dart';
 import 'package:tdlook_flutter_app/application/themes/app_themes.dart';
 
 class BodyTextButton extends StatelessWidget {

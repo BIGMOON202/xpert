@@ -112,11 +112,11 @@ class HandsFreeAnalizer {
     _player.playSound(sound: _placeVerticallySoundName());
 
     //8 sec for track + 5 sec for pause between
-    _timerCheckGyroEvery5Sec = Timer(Duration(seconds: 5 + 8), () {
-      if (_gyroIsValid == false) {
-        isGyroStillInvalid();
-      }
-    });
+    // _timerCheckGyroEvery5Sec = Timer(Duration(seconds: 5 + 8), () {
+    //   if (_gyroIsValid == false) {
+    //     isGyroStillInvalid();
+    //   }
+    // });
   }
 
   void moveToNextFlowIfGyroIsValid() {

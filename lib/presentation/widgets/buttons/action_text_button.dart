@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
-import 'package:tdlook_flutter_app/application/presentation/widgets/buttons/action_button.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/buttons/action_button.dart';
 
 class ActionTextButton extends StatelessWidget {
   final String title;

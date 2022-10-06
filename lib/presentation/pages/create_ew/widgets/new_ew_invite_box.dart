@@ -1,7 +1,5 @@
 part of '../new_ew_page.dart';
 
-enum InviteType { sms, email }
-
 class InviteBox extends StatelessWidget {
   final Function(List<InviteType>) onSelectedTypes;
   final InviteType? selectedType;
@@ -72,11 +70,9 @@ class InviteBox extends StatelessWidget {
   void _selectItemType(InviteType type) {
     var current = List.of(selectedTypes);
     if (current.contains(type)) {
-      current.remove(type);
-      onSelectedTypes(current);
+      onSelectedTypes([]);
       return;
     }
-    current.add(type);
-    onSelectedTypes(current);
+    onSelectedTypes([type]);
   }
 }

@@ -18,6 +18,8 @@
     "text_ew_name": "End-wearer name",
     "text_ew_invite_sent_desc": "End-wearer has been added successfully",
     "text_ew_send_invite_via": "Send invite via",
+    "text_ew_invite_sent_via_sms_desc": "An invitation with credentials was sent to the user via provided SMS",
+    "text_ew_invite_sent_via_email_desc": "An invitation with credentials was sent to the user via provided email",
     "button_back_to_event_detail": "Back to event details",
     "error_smt_wrong": "Something went wrong"
 }

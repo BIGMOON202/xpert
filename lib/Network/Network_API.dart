@@ -286,18 +286,18 @@ class NetworkAPI {
 
   Future<ParserResponse<dynamic>> _response(http.Response response,
       {bool tryToRefreshAuth = true, required bool isJsonBody}) async {
-    logger.d(
-        '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
+    // logger.d(
+    //     '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
     switch (response.statusCode) {
       case 200:
       case 201:
         if (isJsonBody) {
-          logger.d('RESPONSE_200_201_J: ${response.body}');
+          //logger.d('RESPONSE_200_201: ${response.body}');
           return ParserResponse.completed(response.body);
         }
         var responseJson = json.decode(utf8.decode(response.bodyBytes));
-        logger.i(responseJson);
-        logger.d('RESPONSE_200_201: $responseJson');
+        //logger.i(responseJson);
+        //logger.d('RESPONSE_200_201: $responseJson');
         return ParserResponse.completed(responseJson);
       case 400:
         logger.d('RESPONSE_403: ${response.body}');

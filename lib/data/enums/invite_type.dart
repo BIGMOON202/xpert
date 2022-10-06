@@ -1,0 +1,1 @@
+enum InviteType { sms, email }
