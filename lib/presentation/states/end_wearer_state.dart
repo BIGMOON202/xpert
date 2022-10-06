@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 import 'package:tdlook_flutter_app/data/enums/invite_type.dart';
 import 'package:tdlook_flutter_app/data/models/errors/fields_errors.dart';
 
@@ -32,17 +31,17 @@ extension EWStateExt on EWState {
 
 extension EWAddToEventStateExt on EWAddToEventState {
   bool get isValidData {
-    bool isEmailPassed = true;
-    if (email?.trim().isNotEmpty == true) {
-      isEmailPassed = email?.isValidEmail() == true;
-    }
-    bool isPhonePasse = true;
-    if (phone?.trim().isNotEmpty == true) {
-      isPhonePasse = phone?.isNotEmpty == true;
-    }
+    // bool isEmailPassed = true;
+    // if (email?.trim().isNotEmpty == true) {
+    //   isEmailPassed = email?.isNotEmpty == true; // .isValidEmail() == true;
+    // }
+    // bool isPhonePassed = true;
+    // if (phone?.trim().isNotEmpty == true) {
+    //   isPhonePassed = phone?.isNotEmpty == true;
+    // }
+    /* FIX EF-2350 */
     bool isNamePassed = name?.trim().isNotEmpty == true;
-
-    return isNamePassed && isEmailPassed && isPhonePasse;
+    return isNamePassed;
   }
 
   String? get availableErrorMessage {
