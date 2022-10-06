@@ -1,16 +1,14 @@
 part of '../new_ew_page.dart';
 
 class InviteBox extends StatelessWidget {
-  final Function(List<InviteType>) onSelectedTypes;
+  final Function(InviteType?) onSelectedType;
   final InviteType? selectedType;
   final List<InviteType> enabledTypes;
-  final List<InviteType> selectedTypes;
   const InviteBox({
     Key? key,
-    required this.onSelectedTypes,
-    this.selectedType,
+    required this.onSelectedType,
     this.enabledTypes: const [InviteType.sms, InviteType.email],
-    this.selectedTypes: const [],
+    this.selectedType,
   }) : super(key: key);
 
   @override
@@ -32,7 +30,7 @@ class InviteBox extends StatelessWidget {
               child: BodyTextButton(
                 title: S.current.common_sms,
                 isEnabled: enabledTypes.contains(InviteType.sms),
-                isSelected: selectedTypes.contains(InviteType.sms),
+                isSelected: selectedType == InviteType.sms,
                 isBordered: true,
                 onPressed: () => _selectItemType(InviteType.sms),
               ),
@@ -42,39 +40,22 @@ class InviteBox extends StatelessWidget {
               child: BodyTextButton(
                 title: S.current.common_email,
                 isEnabled: enabledTypes.contains(InviteType.email),
-                isSelected: selectedTypes.contains(InviteType.email),
+                isSelected: selectedType == InviteType.email,
                 isBordered: true,
                 onPressed: () => _selectItemType(InviteType.email),
               ),
             ),
           ],
         )
-        // Row(
-        //   //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   //mainAxisSize: MainAxisSize.min,
-        //   children: [
-        // ActionTextButton(
-        //   title: S.current.common_sms,
-        //   isSelected: selectedType == InviteType.sms,
-        //   onPressed: () => _selectItemType(InviteType.sms),
-        // ),
-        //     ActionTextButton(
-        //       title: S.current.common_email,
-        //       isSelected: selectedType == InviteType.email,
-        //       onPressed: () => _selectItemType(InviteType.email),
-        //     ),
-        //   ],
-        // ),
       ],
     );
   }
 
   void _selectItemType(InviteType type) {
-    var current = List.of(selectedTypes);
-    if (current.contains(type)) {
-      onSelectedTypes([]);
+    if (selectedType == type) {
+      onSelectedType(null);
       return;
     }
-    onSelectedTypes([type]);
+    onSelectedType(type);
   }
 }

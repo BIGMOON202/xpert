@@ -49,11 +49,11 @@ class EWCubit extends Cubit<EWState> {
     ));
   }
 
-  Future<void> setInviteTypes(List<InviteType>? types) async {
+  Future<void> setInviteType(InviteType? type) async {
     emit(state.copyWith(
       addToEventState: state.addToEventState.copyWith(
         errors: null,
-        inviteTypes: types ?? [],
+        inviteType: type,
       ),
     ));
   }
@@ -69,9 +69,11 @@ class EWCubit extends Cubit<EWState> {
         isLoading: true,
         errors: null,
         errorMessage: null,
+        sentInviteType: null,
       ),
     ));
     try {
+      InviteType? _sentInviteType;
       final response = await repository.addToEvent(
         id,
         name: name,
@@ -83,13 +85,15 @@ class EWCubit extends Cubit<EWState> {
 
       if (state.addToEventState.canSendSmsInvite && ewId != null) {
         await repository.invite(InviteType.sms, ewId: ewId, eventId: id);
+        _sentInviteType = InviteType.sms;
       }
 
       if (state.addToEventState.canSendEmailInvite && ewId != null) {
         await repository.invite(InviteType.email, ewId: ewId, eventId: id);
+        _sentInviteType = InviteType.email;
       }
 
-      logger.d('SUCCESS: $response');
+      logger.d('SUCCESS: $response, with type: $_sentInviteType)');
 
       emit(state.copyWith(
         addToEventState: state.addToEventState.copyWith(
@@ -97,6 +101,7 @@ class EWCubit extends Cubit<EWState> {
           isSuccess: ewId != null,
           errorMessage: ewId != null ? null : S.current.error_smt_wrong,
           errors: null,
+          sentInviteType: _sentInviteType,
         ),
       ));
     } on BadRequestException catch (e) {
@@ -108,6 +113,7 @@ class EWCubit extends Cubit<EWState> {
           isSuccess: false,
           errorMessage: null,
           errors: errors,
+          sentInviteType: null,
         ),
       ));
     } catch (e) {
@@ -118,6 +124,7 @@ class EWCubit extends Cubit<EWState> {
           isSuccess: false,
           errorMessage: e.toString(),
           errors: null,
+          sentInviteType: null,
         ),
       ));
     }

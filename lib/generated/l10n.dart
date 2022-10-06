@@ -246,20 +246,20 @@ class S {
     );
   }
 
-  /// `An invitation with credentials was sent to the user via provided SMS`
+  /// `The SMS invitation with credentials was sent to the user via the provided phone number`
   String get text_ew_invite_sent_via_sms_desc {
     return Intl.message(
-      'An invitation with credentials was sent to the user via provided SMS',
+      'The SMS invitation with credentials was sent to the user via the provided phone number',
       name: 'text_ew_invite_sent_via_sms_desc',
       desc: '',
       args: [],
     );
   }
 
-  /// `An invitation with credentials was sent to the user via provided email`
+  /// `The email invitation with credentials was sent to the user via the provided email address`
   String get text_ew_invite_sent_via_email_desc {
     return Intl.message(
-      'An invitation with credentials was sent to the user via provided email',
+      'The email invitation with credentials was sent to the user via the provided email address',
       name: 'text_ew_invite_sent_via_email_desc',
       desc: '',
       args: [],

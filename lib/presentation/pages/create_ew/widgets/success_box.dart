@@ -50,7 +50,8 @@ class _SuccessBox extends StatelessWidget {
               title: S.current.button_back_to_event_detail,
               onPressed: onFinishPressed,
             ),
-          )
+          ),
+          SizedBox(height: 12),
         ],
       ),
     );

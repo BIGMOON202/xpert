@@ -188,10 +188,10 @@ class _NewEWPageState extends State<NewEWPage> {
                 const SizedBox(height: 20),
                 InviteBox(
                   enabledTypes: state.addToEventState.enabledInviteTypes,
-                  onSelectedTypes: (types) {
-                    _cubit.setInviteTypes(types);
+                  onSelectedType: (type) {
+                    _cubit.setInviteType(type);
                   },
-                  selectedTypes: state.addToEventState.inviteTypes,
+                  selectedType: state.addToEventState.inviteType,
                 ),
                 if (hasError)
                   Container(
@@ -211,9 +211,8 @@ class _NewEWPageState extends State<NewEWPage> {
   Widget _buildSuccessContent(EWState state) {
     FocusScope.of(context).unfocus();
     return _SuccessBox(
-      inviteType: state.addToEventState.inviteTypes.isEmpty
-          ? null
-          : state.addToEventState.inviteTypes.first,
+      //state.addToEventState.enabledInviteTypes
+      inviteType: state.addToEventState.sentInviteType,
       onFinishPressed: () {
         if (state.addToEventState.isSuccess) {
           widget.onUpdate();

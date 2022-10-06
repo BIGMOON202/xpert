@@ -146,7 +146,8 @@ mixin _$EWAddToEventState {
   String? get phone => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   FieldsErrors? get errors => throw _privateConstructorUsedError;
-  List<InviteType> get inviteTypes => throw _privateConstructorUsedError;
+  InviteType? get inviteType => throw _privateConstructorUsedError;
+  InviteType? get sentInviteType => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $EWAddToEventStateCopyWith<EWAddToEventState> get copyWith =>
@@ -166,7 +167,8 @@ abstract class $EWAddToEventStateCopyWith<$Res> {
       String? phone,
       String? errorMessage,
       FieldsErrors? errors,
-      List<InviteType> inviteTypes});
+      InviteType? inviteType,
+      InviteType? sentInviteType});
 
   $FieldsErrorsCopyWith<$Res>? get errors;
 }
@@ -189,7 +191,8 @@ class _$EWAddToEventStateCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? errorMessage = freezed,
     Object? errors = freezed,
-    Object? inviteTypes = freezed,
+    Object? inviteType = freezed,
+    Object? sentInviteType = freezed,
   }) {
     return _then(_value.copyWith(
       isLoading: isLoading == freezed
@@ -220,10 +223,14 @@ class _$EWAddToEventStateCopyWithImpl<$Res>
           ? _value.errors
           : errors // ignore: cast_nullable_to_non_nullable
               as FieldsErrors?,
-      inviteTypes: inviteTypes == freezed
-          ? _value.inviteTypes
-          : inviteTypes // ignore: cast_nullable_to_non_nullable
-              as List<InviteType>,
+      inviteType: inviteType == freezed
+          ? _value.inviteType
+          : inviteType // ignore: cast_nullable_to_non_nullable
+              as InviteType?,
+      sentInviteType: sentInviteType == freezed
+          ? _value.sentInviteType
+          : sentInviteType // ignore: cast_nullable_to_non_nullable
+              as InviteType?,
     ));
   }
 
@@ -254,7 +261,8 @@ abstract class _$$_EWAddToEventStateCopyWith<$Res>
       String? phone,
       String? errorMessage,
       FieldsErrors? errors,
-      List<InviteType> inviteTypes});
+      InviteType? inviteType,
+      InviteType? sentInviteType});
 
   @override
   $FieldsErrorsCopyWith<$Res>? get errors;
@@ -280,7 +288,8 @@ class __$$_EWAddToEventStateCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? errorMessage = freezed,
     Object? errors = freezed,
-    Object? inviteTypes = freezed,
+    Object? inviteType = freezed,
+    Object? sentInviteType = freezed,
   }) {
     return _then(_$_EWAddToEventState(
       isLoading: isLoading == freezed
@@ -311,10 +320,14 @@ class __$$_EWAddToEventStateCopyWithImpl<$Res>
           ? _value.errors
           : errors // ignore: cast_nullable_to_non_nullable
               as FieldsErrors?,
-      inviteTypes: inviteTypes == freezed
-          ? _value._inviteTypes
-          : inviteTypes // ignore: cast_nullable_to_non_nullable
-              as List<InviteType>,
+      inviteType: inviteType == freezed
+          ? _value.inviteType
+          : inviteType // ignore: cast_nullable_to_non_nullable
+              as InviteType?,
+      sentInviteType: sentInviteType == freezed
+          ? _value.sentInviteType
+          : sentInviteType // ignore: cast_nullable_to_non_nullable
+              as InviteType?,
     ));
   }
 }
@@ -330,8 +343,8 @@ class _$_EWAddToEventState implements _EWAddToEventState {
       this.phone,
       this.errorMessage,
       this.errors,
-      final List<InviteType> inviteTypes = const []})
-      : _inviteTypes = inviteTypes;
+      this.inviteType,
+      this.sentInviteType});
 
   @override
   @JsonKey()
@@ -349,17 +362,14 @@ class _$_EWAddToEventState implements _EWAddToEventState {
   final String? errorMessage;
   @override
   final FieldsErrors? errors;
-  final List<InviteType> _inviteTypes;
   @override
-  @JsonKey()
-  List<InviteType> get inviteTypes {
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_inviteTypes);
-  }
+  final InviteType? inviteType;
+  @override
+  final InviteType? sentInviteType;
 
   @override
   String toString() {
-    return 'EWAddToEventState(isLoading: $isLoading, isSuccess: $isSuccess, name: $name, email: $email, phone: $phone, errorMessage: $errorMessage, errors: $errors, inviteTypes: $inviteTypes)';
+    return 'EWAddToEventState(isLoading: $isLoading, isSuccess: $isSuccess, name: $name, email: $email, phone: $phone, errorMessage: $errorMessage, errors: $errors, inviteType: $inviteType, sentInviteType: $sentInviteType)';
   }
 
   @override
@@ -376,7 +386,9 @@ class _$_EWAddToEventState implements _EWAddToEventState {
                 .equals(other.errorMessage, errorMessage) &&
             const DeepCollectionEquality().equals(other.errors, errors) &&
             const DeepCollectionEquality()
-                .equals(other._inviteTypes, _inviteTypes));
+                .equals(other.inviteType, inviteType) &&
+            const DeepCollectionEquality()
+                .equals(other.sentInviteType, sentInviteType));
   }
 
   @override
@@ -389,7 +401,8 @@ class _$_EWAddToEventState implements _EWAddToEventState {
       const DeepCollectionEquality().hash(phone),
       const DeepCollectionEquality().hash(errorMessage),
       const DeepCollectionEquality().hash(errors),
-      const DeepCollectionEquality().hash(_inviteTypes));
+      const DeepCollectionEquality().hash(inviteType),
+      const DeepCollectionEquality().hash(sentInviteType));
 
   @JsonKey(ignore: true)
   @override
@@ -407,7 +420,8 @@ abstract class _EWAddToEventState implements EWAddToEventState {
       final String? phone,
       final String? errorMessage,
       final FieldsErrors? errors,
-      final List<InviteType> inviteTypes}) = _$_EWAddToEventState;
+      final InviteType? inviteType,
+      final InviteType? sentInviteType}) = _$_EWAddToEventState;
 
   @override
   bool get isLoading => throw _privateConstructorUsedError;
@@ -424,7 +438,9 @@ abstract class _EWAddToEventState implements EWAddToEventState {
   @override
   FieldsErrors? get errors => throw _privateConstructorUsedError;
   @override
-  List<InviteType> get inviteTypes => throw _privateConstructorUsedError;
+  InviteType? get inviteType => throw _privateConstructorUsedError;
+  @override
+  InviteType? get sentInviteType => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$$_EWAddToEventStateCopyWith<_$_EWAddToEventState> get copyWith =>

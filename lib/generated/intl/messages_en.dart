@@ -64,9 +64,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_ew_invite_sent_desc": MessageLookupByLibrary.simpleMessage(
             "End-wearer has been added successfully"),
         "text_ew_invite_sent_via_email_desc": MessageLookupByLibrary.simpleMessage(
-            "An invitation with credentials was sent to the user via provided email"),
+            "The email invitation with credentials was sent to the user via the provided email address"),
         "text_ew_invite_sent_via_sms_desc": MessageLookupByLibrary.simpleMessage(
-            "An invitation with credentials was sent to the user via provided SMS"),
+            "The SMS invitation with credentials was sent to the user via the provided phone number"),
         "text_ew_name": MessageLookupByLibrary.simpleMessage("End-wearer name"),
         "text_ew_send_invite_via":
             MessageLookupByLibrary.simpleMessage("Send invite via"),

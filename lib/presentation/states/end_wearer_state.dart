@@ -21,7 +21,8 @@ class EWAddToEventState with _$EWAddToEventState {
     String? phone,
     String? errorMessage,
     FieldsErrors? errors,
-    @Default([]) List<InviteType> inviteTypes,
+    InviteType? inviteType,
+    InviteType? sentInviteType,
   }) = _EWAddToEventState;
 }
 
@@ -49,11 +50,11 @@ extension EWAddToEventStateExt on EWAddToEventState {
   }
 
   bool get canSendSmsInvite {
-    return inviteTypes.contains(InviteType.sms) && phone?.isNotEmpty == true;
+    return (inviteType == InviteType.sms) && phone?.isNotEmpty == true;
   }
 
   bool get canSendEmailInvite {
-    return inviteTypes.contains(InviteType.email) && email?.isNotEmpty == true;
+    return (inviteType == InviteType.email) && email?.isNotEmpty == true;
   }
 
   List<InviteType> get enabledInviteTypes {
