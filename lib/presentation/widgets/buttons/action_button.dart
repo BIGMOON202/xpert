@@ -15,7 +15,7 @@ class ActionButton extends StatelessWidget {
     required this.onPressed,
     this.isEnabled: true,
     this.isSelected: true,
-    this.isBordered: true,
+    this.isBordered: false,
     this.height: 50,
   }) : super(key: key);
 

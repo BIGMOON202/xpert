@@ -27,6 +27,7 @@ class ActionTextButton extends StatelessWidget {
       ),
       isEnabled: isEnabled,
       isSelected: isSelected,
+      isBordered: isBordered,
       onPressed: onPressed,
     );
   }

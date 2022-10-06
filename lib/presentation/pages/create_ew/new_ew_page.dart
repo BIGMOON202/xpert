@@ -110,6 +110,7 @@ class _NewEWPageState extends State<NewEWPage> {
             ActionTextButton(
               title: S.current.common_add,
               isEnabled: state.addToEventState.isValidData && !state.isLoading,
+              isBordered: true,
               onPressed: () {
                 _add();
               },

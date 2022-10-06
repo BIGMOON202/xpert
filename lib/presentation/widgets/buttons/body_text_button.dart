@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
-import 'package:tdlook_flutter_app/presentation/widgets/buttons/action_button.dart';
 import 'package:tdlook_flutter_app/application/themes/app_themes.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/buttons/action_button.dart';
 
 class BodyTextButton extends StatelessWidget {
   final String title;
   final VoidCallback onPressed;
   final bool isEnabled;
   final bool isSelected;
-  const BodyTextButton({
-    Key? key,
-    required this.title,
-    required this.onPressed,
-    this.isEnabled: true,
-    this.isSelected: true,
-  }) : super(key: key);
+  final bool isBordered;
+  const BodyTextButton(
+      {Key? key,
+      required this.title,
+      required this.onPressed,
+      this.isEnabled: true,
+      this.isSelected: true,
+      this.isBordered: false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,7 @@ class BodyTextButton extends StatelessWidget {
       ),
       isEnabled: isEnabled,
       isSelected: isSelected,
+      isBordered: isBordered,
       height: 44,
       onPressed: onPressed,
     );
