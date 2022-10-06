@@ -8,12 +8,14 @@ class ActionTextButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isEnabled;
   final bool isSelected;
+  final bool isBordered;
   const ActionTextButton({
     Key? key,
     required this.title,
     required this.onPressed,
     this.isEnabled: true,
     this.isSelected: true,
+    this.isBordered: false,
   }) : super(key: key);
 
   @override

@@ -7,6 +7,7 @@ class ActionButton extends StatelessWidget {
   final Widget child;
   final bool isEnabled;
   final bool isSelected;
+  final bool isBordered;
   final double height;
   const ActionButton({
     Key? key,
@@ -14,6 +15,7 @@ class ActionButton extends StatelessWidget {
     required this.onPressed,
     this.isEnabled: true,
     this.isSelected: true,
+    this.isBordered: true,
     this.height: 50,
   }) : super(key: key);
 
@@ -32,7 +34,14 @@ class ActionButton extends StatelessWidget {
         // padding: EdgeInsets.only(left: 12, right: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
+          side: isBordered
+              ? BorderSide(
+                  color: AppColors.background,
+                  width: 1.0,
+                )
+              : BorderSide.none,
         ),
+
         // padding: EdgeInsets.all(4),
       ),
     );
