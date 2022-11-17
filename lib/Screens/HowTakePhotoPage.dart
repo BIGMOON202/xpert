@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -309,11 +310,11 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
 
     return Scaffold(
         appBar: AppBar(
-          brightness: Brightness.dark,
           centerTitle: true,
           title: Text('How to take photos'),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         backgroundColor: SessionParameters().mainBackgroundColor,
         body: container);

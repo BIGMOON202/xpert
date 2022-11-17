@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -66,12 +67,14 @@ class _OverlapPageState extends State<OverlapPage> {
     this.widget.measurements?.overlap = selectedLevel?.apiFlag;
 
     Navigator.push(
-        context,
-        CupertinoPageRoute(
-            builder: (BuildContext context) => ArmorTypePage(
-                gender: widget.gender,
-                selectedMeasurementSystem: widget.selectedMeasurementSystem,
-                measurements: widget.measurements)));
+      context,
+      CupertinoPageRoute(
+        builder: (BuildContext context) => ArmorTypePage(
+            gender: widget.gender,
+            selectedMeasurementSystem: widget.selectedMeasurementSystem,
+            measurements: widget.measurements),
+      ),
+    );
   }
 
   @override
@@ -110,53 +113,56 @@ class _OverlapPageState extends State<OverlapPage> {
     var container = Column(
       children: [
         Expanded(
-            child: Padding(
-                padding: EdgeInsets.only(left: 12, right: 12, bottom: 30, top: 30),
-                child: Center(
-                    child: Padding(
-                        padding: EdgeInsets.only(left: 12, right: 12),
-                        child: AspectRatio(
-                            aspectRatio: 1,
-                            child: Row(
-                              children: [
-                                Expanded(child: imageOptionWidget(level: OverlapInchOption.one)),
-                                Expanded(child: imageOptionWidget(level: OverlapInchOption.two)),
-                              ],
-                            )))))),
+          child: Padding(
+            padding: EdgeInsets.only(left: 12, right: 12, bottom: 30, top: 30),
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.only(left: 12, right: 12),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Row(
+                    children: [
+                      Expanded(child: imageOptionWidget(level: OverlapInchOption.one)),
+                      Expanded(child: imageOptionWidget(level: OverlapInchOption.two)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         Padding(
-            padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
-            child: SafeArea(
-              child: Container(
-                  width: double.infinity,
-                  child: MaterialButton(
-                    disabledColor: SessionParameters().disableColor,
-                    onPressed: selectedLevel != null ? _moveToNextPage : null,
-                    child: CustomText.withColor(
-                        'NEXT',
-                        selectedLevel != null
-                            ? Colors.white
-                            : SessionParameters().disableTextColor),
-                    color: SessionParameters().selectionColor,
-                    height: 50,
-                    // padding: EdgeInsets.only(left: 12, right: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    // padding: EdgeInsets.all(4),
-                  )),
-            ))
+          padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+          child: SafeArea(
+            child: Container(
+              width: double.infinity,
+              child: MaterialButton(
+                disabledColor: SessionParameters().disableColor,
+                onPressed: selectedLevel != null ? _moveToNextPage : null,
+                child: CustomText.withColor('NEXT',
+                    selectedLevel != null ? Colors.white : SessionParameters().disableTextColor),
+                color: SessionParameters().selectionColor,
+                height: 50,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ),
+          ),
+        )
       ],
     );
 
     return Scaffold(
-        appBar: AppBar(
-          brightness: Brightness.dark,
-          centerTitle: true,
-          title: Text('Select overlap', textAlign: TextAlign.center),
-          backgroundColor: SessionParameters().mainBackgroundColor,
-          shadowColor: Colors.transparent,
-        ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Select overlap', textAlign: TextAlign.center),
         backgroundColor: SessionParameters().mainBackgroundColor,
-        body: container);
+        shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      backgroundColor: SessionParameters().mainBackgroundColor,
+      body: container,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
@@ -133,8 +134,6 @@ class _LoginPageState extends State<LoginPage> {
               _errorMessage = 'This type of user is not enable to Login in mobile application';
             });
           }
-          //logger.d('company = ${user.data.provider.apiKey()}');
-
           break;
         case Status.ERROR:
           break;
@@ -197,29 +196,30 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     var nextButton = Visibility(
-        visible: true,
-        child: Align(
-            alignment: Alignment.bottomCenter,
-            child: SafeArea(
-              child: Container(
-                  width: double.infinity,
-                  child: MaterialButton(
-                    onPressed: _continueIsEnabled() ? authCall : null,
-                    disabledColor: Colors.white.withOpacity(0.5),
-                    textColor: Colors.black,
-                    child: Text(
-                      'CONTINUE',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                    color: Colors.white,
-                    height: 50,
-                    // padding: EdgeInsets.only(left: 12, right: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    // padding: EdgeInsets.all(4),
-                  )),
-            )));
+      visible: true,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: SafeArea(
+          child: Container(
+            width: double.infinity,
+            child: MaterialButton(
+              onPressed: _continueIsEnabled() ? authCall : null,
+              disabledColor: Colors.white.withOpacity(0.5),
+              textColor: Colors.black,
+              child: Text(
+                'CONTINUE',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              color: Colors.white,
+              height: 50,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 
     final fillColor = Colors.white.withOpacity(0.1);
     final borderColor = _authRequestStatus == Status.ERROR ? Colors.red : Colors.transparent;
@@ -227,8 +227,9 @@ class _LoginPageState extends State<LoginPage> {
       if (widget.userType == UserType.salesRep) {
         Widget _subRow({CompanyType? provider}) {
           return Theme(
-              data: ThemeData.dark(), //set the dark theme or write your own theme
-              child: Row(children: [
+            data: ThemeData.dark(), //set the dark theme or write your own theme
+            child: Row(
+              children: [
                 Radio(
                     activeColor: Colors.white,
                     value: provider?.selectionIndex() ?? 0,
@@ -244,7 +245,9 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.start,
                   style: TextStyle(color: Colors.white),
                 )
-              ]));
+              ],
+            ),
+          );
         }
 
         var box = SizedBox(
@@ -488,11 +491,11 @@ class _LoginPageState extends State<LoginPage> {
 
     var scaffold = Scaffold(
         appBar: AppBar(
-          brightness: Brightness.dark,
           centerTitle: true,
           title: Text('Login as ${widget.userType?.displayName()}'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         backgroundColor: Colors.black,
         body: Stack(children: [container, loaderIndicator()]));

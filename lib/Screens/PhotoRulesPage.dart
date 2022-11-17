@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -8,7 +9,6 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/SoundCheckPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class PhotoRulesPage extends StatefulWidget {
   final XFile? frontPhoto;
@@ -36,31 +36,33 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
     if (SessionParameters().captureMode == CaptureMode.handsFree) {
       if (widget.photoType == PhotoType.front) {
         Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (BuildContext context) => PhotoRulesPage(
-                    photoType: PhotoType.side,
-                    gender: widget.gender,
-                    measurement: widget.measurement)));
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => PhotoRulesPage(
+                photoType: PhotoType.side, gender: widget.gender, measurement: widget.measurement),
+          ),
+        );
       } else {
         Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (BuildContext context) => SoundCheckPage(
-                    photoType: PhotoType.front,
-                    measurement: widget.measurement,
-                    gender: widget.gender)));
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => SoundCheckPage(
+                photoType: PhotoType.front, measurement: widget.measurement, gender: widget.gender),
+          ),
+        );
       }
     } else {
       Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (BuildContext context) => CameraCapturePage(
-                  photoType: widget.photoType,
-                  measurement: widget.measurement,
-                  frontPhoto: widget.frontPhoto,
-                  gender: widget.gender,
-                  arguments: widget.arguments)));
+        context,
+        CupertinoPageRoute(
+          builder: (BuildContext context) => CameraCapturePage(
+              photoType: widget.photoType,
+              measurement: widget.measurement,
+              frontPhoto: widget.frontPhoto,
+              gender: widget.gender,
+              arguments: widget.arguments),
+        ),
+      );
     }
   }
 
@@ -79,10 +81,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
   @override
   void initState() {
     super.initState();
-
     _runContinueButtonTimer();
-
-    logger.d('selectedGender: ${widget.gender?.apiFlag()}');
   }
 
   @override
@@ -120,8 +119,6 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                       )),
                 ))));
 
-    logger.d('selectedGender: ${widget.gender.toString()}');
-
     var container = Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -139,14 +136,15 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
     );
 
     return Scaffold(
-        appBar: AppBar(
-          brightness: Brightness.dark,
-          centerTitle: true,
-          title: Text('Take a ${widget.photoType?.name()} photo'),
-          backgroundColor: SessionParameters().mainBackgroundColor,
-          shadowColor: Colors.transparent,
-        ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Take a ${widget.photoType?.name()} photo'),
         backgroundColor: SessionParameters().mainBackgroundColor,
-        body: container);
+        shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      backgroundColor: SessionParameters().mainBackgroundColor,
+      body: container,
+    );
   }
 }

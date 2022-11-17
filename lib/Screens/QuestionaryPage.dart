@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
@@ -278,7 +279,6 @@ class _QuestionaryPageState extends State<QuestionaryPage> {
         SessionParameters().selectedUser == UserType.endWearer ? 'do you' : 'does End-wearer';
     return Scaffold(
         appBar: AppBar(
-          brightness: Brightness.dark,
           centerTitle: true,
           title: Row(
             //children align to center.
@@ -300,6 +300,7 @@ class _QuestionaryPageState extends State<QuestionaryPage> {
           ),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         backgroundColor: SessionParameters().mainBackgroundColor,
         body: container);

@@ -497,23 +497,24 @@ class EventsListWidget extends StatelessWidget {
       var measurements = resultsList?.item2;
 
       Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (BuildContext context) =>
-                  // LoginPage(userType: _selectedUserType)
-                  EventDetailPage(
-                    event: event,
-                    measurementsList: null,
-                    userType: userType,
-                    currentUserId: userId,
-                    onUpdate: () {
-                      _pullRefresh();
-                    },
-                  )));
+        context,
+        CupertinoPageRoute(
+          builder: (BuildContext context) =>
+              // LoginPage(userType: _selectedUserType)
+              EventDetailPage(
+            event: event,
+            measurementsList: null,
+            userType: userType,
+            currentUserId: userId,
+            onUpdate: () {
+              _pullRefresh();
+            },
+          ),
+        ),
+      );
     }
 
     Widget itemAt(int index, Event event) {
-      // var event = resultsList.item1.data[index];
       var eventName = event.name ?? 'Event Name';
       var companyName = event.agency?.name ?? '-';
       var companyType = event.agency?.type?.replaceAll('_', ' ').capitalizeFirst() ?? '-';
@@ -545,138 +546,136 @@ class EventsListWidget extends StatelessWidget {
       var container = Container(
         color: _backgroundColor,
         child: Padding(
-            padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)), color: Colors.black),
-                child: Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        eventName,
-                        style: TextStyle(color: Colors.white),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(
-                        height: 18,
-                      ),
-                      SizedBox(
-                          height: 80,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                  flex: 4,
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                          flex: 2,
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5)), color: Colors.black),
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    eventName,
+                    style: TextStyle(color: Colors.white),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(
+                    height: 18,
+                  ),
+                  SizedBox(
+                    height: 80,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 4,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                    flex: 2,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: 16,
+                                          width: 16,
+                                          child: ResourceImage.imageWithName('ic_event_place.png'),
+                                        ),
+                                        SizedBox(width: 8),
+                                        Flexible(
+                                            child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                                child: Text(
+                                              companyName,
+                                              style: _textStyle,
+                                              overflow: TextOverflow.ellipsis,
+                                            )),
+                                            Expanded(
+                                                child: Text(
+                                              companyType,
+                                              style: _descriptionStyle,
+                                              overflow: TextOverflow.ellipsis,
+                                            ))
+                                          ],
+                                        ))
+                                      ],
+                                    )),
+                                Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      color: Colors.transparent,
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            height: 16,
+                                            width: 16,
+                                            child: ResourceImage.imageWithName('ic_event_date.png'),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Expanded(
+                                              child: Row(
                                             children: [
-                                              SizedBox(
-                                                height: 16,
-                                                width: 16,
-                                                child: ResourceImage.imageWithName(
-                                                    'ic_event_place.png'),
-                                              ),
-                                              SizedBox(width: 8),
-                                              Flexible(
-                                                  child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Expanded(
-                                                      child: Text(
-                                                    companyName,
-                                                    style: _textStyle,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  )),
-                                                  Expanded(
-                                                      child: Text(
-                                                    companyType,
-                                                    style: _descriptionStyle,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ))
-                                                ],
-                                              ))
-                                            ],
-                                          )),
-                                      Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            color: Colors.transparent,
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  height: 16,
-                                                  width: 16,
-                                                  child: ResourceImage.imageWithName(
-                                                      'ic_event_date.png'),
-                                                ),
-                                                SizedBox(width: 8),
-                                                Expanded(
-                                                    child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                        child: Text(eventStartDate,
-                                                            style: _textStyle)),
-                                                    Expanded(
-                                                        child: Text(eventStartTime,
-                                                            style: _descriptionStyle)),
-                                                  ],
-                                                ))
-                                              ],
-                                            ),
-                                          )),
-                                      Expanded(
-                                          flex: 1,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(width: 24),
                                               Expanded(
-                                                  child: Text(eventEndDate, style: _textStyle)),
+                                                  child: Text(eventStartDate, style: _textStyle)),
                                               Expanded(
-                                                  child:
-                                                      Text(eventEndTime, style: _descriptionStyle)),
+                                                  child: Text(eventStartTime,
+                                                      style: _descriptionStyle)),
                                             ],
                                           ))
-                                    ],
-                                  )),
-                              Expanded(
-                                  flex: 2,
-                                  child: Container(
-                                    color: Colors.transparent,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                        ],
+                                      ),
+                                    )),
+                                Expanded(
+                                    flex: 1,
+                                    child: Row(
                                       children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(Radius.circular(4)),
-                                              color: eventStatusColor.withOpacity(0.1)),
-                                          child: Padding(
-                                              padding: EdgeInsets.all(5),
-                                              child: Text(
-                                                eventStatus,
-                                                style: TextStyle(
-                                                    color: eventStatusColor,
-                                                    fontWeight: FontWeight.bold),
-                                              )),
-                                        ),
-                                        SizedBox(
-                                          height: 8,
-                                        ),
-                                        Flexible(child: _configureGraphWidgetFor(event))
+                                        SizedBox(width: 24),
+                                        Expanded(child: Text(eventEndDate, style: _textStyle)),
+                                        Expanded(
+                                            child: Text(eventEndTime, style: _descriptionStyle)),
                                       ],
-                                    ),
-                                  )),
-                            ],
-                          ))
-                    ],
-                  ),
-                ))),
+                                    ))
+                              ],
+                            )),
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            color: Colors.transparent,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                                      color: eventStatusColor.withOpacity(0.1)),
+                                  child: Padding(
+                                      padding: EdgeInsets.all(5),
+                                      child: Text(
+                                        eventStatus,
+                                        style: TextStyle(
+                                            color: eventStatusColor, fontWeight: FontWeight.bold),
+                                      )),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Flexible(child: _configureGraphWidgetFor(event))
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
       );
 
       var gesture = GestureDetector(
@@ -690,78 +689,31 @@ class EventsListWidget extends StatelessWidget {
       return gesture;
     }
 
-    // Widget listView;
-    //
-    // if (resultsList.item1.data.isEmpty) {
-    //   listView = EmptyStateWidget(messageName: 'There is no events yet');
-    // } else {
-    //   listView = ListView.builder(
-    //     itemCount: resultsList.item1.data.length,
-    //     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-    //     itemBuilder: (_, index) => itemAt(index, null),
-    //   );
-    // }
-
-    Color _refreshColor = HexColor.fromHex('#898A9D');
-
     Widget paginationList;
     if (resultsList?.item1.data?.isEmpty == true) {
       paginationList = EmptyStateWidget(messageName: 'There are no events yet');
     } else {
-      paginationList = LayoutBuilder(builder: (context, constraints) {
-        var itemsCount = resultsList?.item1.data?.length ?? 0;
-        var footerHeight = constraints.maxHeight - 138 * itemsCount;
-        return PaginationView<Event>(
-            itemBuilder: (BuildContext context, Event event, int index) => itemAt(index, event),
-            pullToRefresh: true,
-            paginationViewType: PaginationViewType.listView,
-            footer:
-                SliverToBoxAdapter(child: SizedBox(height: footerHeight < 0 ? 0 : footerHeight)),
-            scrollDirection: Axis.vertical,
-            onError: (dynamic error) => Center(
-                  child: Text('Some error occured'),
-                ),
-            onEmpty: Center(
-              child: const SizedBox(),
-            ),
-            pageFetch: onFetchList!);
-      });
+      paginationList = LayoutBuilder(
+        builder: (context, constraints) {
+          var itemsCount = resultsList?.item1.data?.length ?? 0;
+          var footerHeight = constraints.maxHeight - 138 * itemsCount;
+          return PaginationView<Event>(
+              itemBuilder: (BuildContext context, Event event, int index) => itemAt(index, event),
+              pullToRefresh: true,
+              paginationViewType: PaginationViewType.listView,
+              footer:
+                  SliverToBoxAdapter(child: SizedBox(height: footerHeight < 0 ? 0 : footerHeight)),
+              scrollDirection: Axis.vertical,
+              onError: (dynamic error) => Center(
+                    child: Text('Some error occured'),
+                  ),
+              onEmpty: Center(
+                child: const SizedBox(),
+              ),
+              pageFetch: onFetchList!);
+        },
+      );
     }
-
-    // if (resultsList.item1.data) {
-    //   return SmartRefresher(
-    //       header: CustomHeader(
-    //         builder: (BuildContext context, RefreshStatus mode) {
-    //           Widget body;
-    //           if (mode == RefreshStatus.idle ||
-    //               mode == RefreshStatus.canRefresh) {
-    //             body =
-    //                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-    //                   Icon(
-    //                     Icons.arrow_downward,
-    //                     color: _refreshColor,
-    //                   ),
-    //                   SizedBox(width: 6),
-    //                   Text(
-    //                     mode.title(),
-    //                     style: TextStyle(color: _refreshColor, fontSize: 12),
-    //                   )
-    //                 ]);
-    //           } else {
-    //             body = Container();
-    //           }
-    //           return Container(
-    //             height: 55.0,
-    //             child: Center(child: body),
-    //           );
-    //         },
-    //       ),
-    //       controller: refreshController,
-    //       onLoading: _pullRefresh,
-    //       child: paginationList,
-    //       onRefresh: onRefreshList);
-    // }
-
     return paginationList;
   }
 }

@@ -13,7 +13,6 @@ import 'package:tdlook_flutter_app/Screens/OverlapPage.dart';
 import 'package:tdlook_flutter_app/Screens/QuestionaryPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class RulerPageClavicle extends StatefulWidget {
   final Gender? gender;
@@ -77,9 +76,7 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       if (rulerGap == 0) {
         rulerGap = max - min;
       }
-      //logger.d('min:$min max $max');
       _updateValuesFor(min, max);
-      // _updateValuesFor(min);
     });
     if (widget.selectedMeasurementSystem == MeasurementSystem.imperial) {
       minValue = 10;

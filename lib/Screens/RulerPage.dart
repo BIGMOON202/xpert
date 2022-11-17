@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
@@ -54,11 +55,11 @@ class _RulerPageState extends State<RulerPage> {
     final isEW = _userType == UserType.endWearer;
     return Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
         centerTitle: true,
         title: Text(S.current.page_title_choose_height_as_ew(isEW)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       backgroundColor: _backgroundColor,
       body: Column(
@@ -157,11 +158,13 @@ class _RulerPageState extends State<RulerPage> {
   void _moveToNextPage() {
     widget.measuremet?.height = _currentRawValue;
     Navigator.push(
-        context,
-        CupertinoPageRoute(
-            builder: (BuildContext context) => RulerPageWeight(
-                gender: widget.gender,
-                selectedMeasurementSystem: _controller.measurementSystem,
-                measurement: widget.measuremet)));
+      context,
+      CupertinoPageRoute(
+        builder: (BuildContext context) => RulerPageWeight(
+            gender: widget.gender,
+            selectedMeasurementSystem: _controller.measurementSystem,
+            measurement: widget.measuremet),
+      ),
+    );
   }
 }

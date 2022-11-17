@@ -372,114 +372,116 @@ class RecommendationsListWidget extends StatelessWidget {
         container = Container(
           color: _backgroundColor,
           child: Padding(
-              padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
-              child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5)), color: _highlightColor),
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(children: [
-                          Expanded(
-                            child: Text(userName, style: TextStyle(color: Colors.white)),
-                          ),
-                          Container(
-                            color: Colors.transparent,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                                        color: Colors.white),
-                                    child: Padding(
-                                      padding: EdgeInsets.all(5),
-                                      child: Row(children: [
-                                        SizedBox(
-                                          width: 12,
-                                          height: 12,
-                                          child: ResourceImage.imageWithName(eventStatusIcon),
-                                        ),
-                                        SizedBox(
-                                          width: 6,
-                                        ),
-                                        Text(
-                                          measurementStatus,
-                                          style: TextStyle(
-                                              color: eventStatusColor, fontWeight: FontWeight.bold),
-                                        )
-                                      ]),
-                                    ))
-                              ],
-                            ),
-                          )
-                        ]),
-                        SizedBox(
-                          height: 18,
+            padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(5)), color: _highlightColor),
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Expanded(
+                        child: Text(userName, style: TextStyle(color: Colors.white)),
+                      ),
+                      Container(
+                        color: Colors.transparent,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                                    color: Colors.white),
+                                child: Padding(
+                                  padding: EdgeInsets.all(5),
+                                  child: Row(children: [
+                                    SizedBox(
+                                      width: 12,
+                                      height: 12,
+                                      child: ResourceImage.imageWithName(eventStatusIcon),
+                                    ),
+                                    SizedBox(
+                                      width: 6,
+                                    ),
+                                    Text(
+                                      measurementStatus,
+                                      style: TextStyle(
+                                          color: eventStatusColor, fontWeight: FontWeight.bold),
+                                    )
+                                  ]),
+                                ))
+                          ],
                         ),
-                        SizedBox(
-                            height: 52,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Row(
+                      )
+                    ]),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    SizedBox(
+                        height: 52,
+                        child: Row(
+                          children: [
+                            Expanded(
+                                flex: 2,
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                        flex: 1,
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                                height: 16,
+                                                width: 16,
+                                                child:
+                                                    ResourceImage.imageWithName('ic_contact.png')),
+                                            SizedBox(width: 8),
+                                            Flexible(
+                                                child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                SizedBox(
-                                                    height: 16,
-                                                    width: 16,
-                                                    child: ResourceImage.imageWithName(
-                                                        'ic_contact.png')),
-                                                SizedBox(width: 8),
-                                                Flexible(
-                                                    child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Expanded(
-                                                        child: Text(
-                                                      userEmail,
-                                                      style: _textStyle,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    )),
-                                                  ],
-                                                ))
+                                                Expanded(
+                                                    child: Text(
+                                                  userEmail,
+                                                  style: _textStyle,
+                                                  overflow: TextOverflow.ellipsis,
+                                                )),
                                               ],
-                                            )),
-                                        SizedBox(
-                                          height: 12,
-                                        ),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              color: Colors.transparent,
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(
-                                                    height: 16,
-                                                    width: 16,
-                                                    child: ResourceImage.imageWithName(
-                                                        'ic_checkmark.png'),
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Text(measurementDate, style: _textStyle)
-                                                ],
+                                            ))
+                                          ],
+                                        )),
+                                    SizedBox(
+                                      height: 12,
+                                    ),
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: 16,
+                                                width: 16,
+                                                child:
+                                                    ResourceImage.imageWithName('ic_checkmark.png'),
                                               ),
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            ))
-                      ],
-                    ),
-                  ))),
+                                              SizedBox(width: 8),
+                                              Text(measurementDate, style: _textStyle)
+                                            ],
+                                          ),
+                                        )),
+                                  ],
+                                )),
+                          ],
+                        ))
+                  ],
+                ),
+              ),
+            ),
+          ),
         );
       } else {
         // return Container(color: Colors.orange);
@@ -686,7 +688,7 @@ class RecommendationsListWidget extends StatelessWidget {
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
                 content: Text(
-                    'Are you sure that you want to retake the flow?  All your progress will be lost'),
+                    'Are you sure that you want to retake the flow? All your progress will be lost'),
                 actions: <Widget>[
                   CupertinoDialogAction(
                     child: Text("Yes"),
@@ -702,67 +704,70 @@ class RecommendationsListWidget extends StatelessWidget {
       children: [
         Flexible(flex: 10, child: list),
         Visibility(
-            visible: showRestartButton ?? false,
-            child: Flexible(
-                flex: 3,
-                child: Container(
-                    child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        Flexible(
-                            child: Container(
-                                width: double.infinity,
-                                child: MaterialButton(
-                                  onPressed: () {
-                                    logger.i('next button pressed');
-                                    _moveToHomePage();
-                                  },
-                                  textColor: Colors.white,
-                                  child: Text(
-                                      'Complete${SessionParameters().selectedUser == UserType.endWearer ? ' my' : ''} Profile'
-                                          .toUpperCase(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.white)),
-                                  color: SessionParameters().selectionColor,
-                                  height: 50,
-                                  padding: EdgeInsets.only(left: 12, right: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  // padding: EdgeInsets.all(4),
-                                ))),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Flexible(
-                            child: Container(
-                                width: double.infinity,
-                                child: FlatButton(
-                                  onPressed: () {
-                                    _restartAnalize();
-                                  },
-                                  textColor: Colors.white,
-                                  child: Text('rescan'.toUpperCase(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Colors.white)),
-                                  color: Colors.white.withOpacity(0.25),
-                                  height: 50,
-                                  padding: EdgeInsets.only(left: 12, right: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  // padding: EdgeInsets.all(4),
-                                )))
-                      ],
-                    ),
+          visible: showRestartButton ?? false,
+          child: Flexible(
+            flex: 3,
+            child: Container(
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      Flexible(
+                          child: Container(
+                              width: double.infinity,
+                              child: MaterialButton(
+                                onPressed: () {
+                                  logger.i('next button pressed');
+                                  _moveToHomePage();
+                                },
+                                textColor: Colors.white,
+                                child: Text(
+                                    'Complete${SessionParameters().selectedUser == UserType.endWearer ? ' my' : ''} Profile'
+                                        .toUpperCase(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.white)),
+                                color: SessionParameters().selectionColor,
+                                height: 50,
+                                padding: EdgeInsets.only(left: 12, right: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                // padding: EdgeInsets.all(4),
+                              ))),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Flexible(
+                          child: Container(
+                              width: double.infinity,
+                              child: FlatButton(
+                                onPressed: () {
+                                  _restartAnalize();
+                                },
+                                textColor: Colors.white,
+                                child: Text('rescan'.toUpperCase(),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: Colors.white)),
+                                color: Colors.white.withOpacity(0.25),
+                                height: 50,
+                                padding: EdgeInsets.only(left: 12, right: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                // padding: EdgeInsets.all(4),
+                              )))
+                    ],
                   ),
-                ))))
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
 

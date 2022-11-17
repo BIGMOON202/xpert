@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
@@ -12,10 +13,8 @@ import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerViewController.da
 import 'package:tdlook_flutter_app/Screens/ArmorTypePage.dart';
 import 'package:tdlook_flutter_app/Screens/OverlapPage.dart';
 import 'package:tdlook_flutter_app/Screens/PrefferedFitPage.dart';
-import 'package:tdlook_flutter_app/Screens/RulerPageClavicle.dart';
 import 'package:tdlook_flutter_app/Screens/WaistLevelPage.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
 
 class RulerPageWeight extends StatefulWidget {
   final Gender? gender;
@@ -65,11 +64,11 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     final isEW = _userType == UserType.endWearer;
     return Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
         centerTitle: true,
         title: Text(S.current.page_title_choose_weight_as_ew(isEW)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       backgroundColor: _backgroundColor,
       body: Column(
@@ -113,13 +112,6 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
     );
   }
 
-  // Widget _buildSpaser() {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 40),
-  //     child: SizedBox(height: 52),
-  //   );
-  // }
-
   Widget _buildContinueButton() {
     return SafeArea(
       child: Padding(
@@ -146,28 +138,17 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
 
   void _moveToNextPage() {
     widget.measurement?.weight = _currentRawValue;
-    logger.d('company: ${SessionParameters().selectedCompany?.apiKey()}');
-    logger.d(">> height: ${widget.measurement?.height}");
-    logger.d(">> weight: ${widget.measurement?.weight}");
-    UserType? _user = SessionParameters().selectedUser;
-
-    if (SessionParameters().selectedCompany == CompanyType.armor && _user == UserType.salesRep) {
-      Navigator.push(
-          context,
-          CupertinoPageRoute(
-            builder: (BuildContext context) => RulerPageClavicle(
-              gender: widget.gender,
-              selectedMeasurementSystem: widget.selectedMeasurementSystem,
-              measurements: widget.measurement,
-            ),
-          ));
-    } else if (SessionParameters().selectedCompany == CompanyType.armor) {
+    if (SessionParameters().selectedCompany == CompanyType.armor) {
       if (widget.measurement?.askForOverlap == true) {
         Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (BuildContext context) =>
-                    OverlapPage(gender: widget.gender, measurements: widget.measurement)));
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => OverlapPage(
+              gender: widget.gender,
+              measurements: widget.measurement,
+            ),
+          ),
+        );
       } else {
         Navigator.push(
             context,

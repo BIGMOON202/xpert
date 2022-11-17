@@ -93,8 +93,6 @@ class EWCubit extends Cubit<EWState> {
         _sentInviteType = InviteType.email;
       }
 
-      logger.d('SUCCESS: $response, with type: $_sentInviteType)');
-
       emit(state.copyWith(
         addToEventState: state.addToEventState.copyWith(
           isLoading: false,
