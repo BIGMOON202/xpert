@@ -1,3 +1,17 @@
+reset:
+	fvm flutter clean &&\
+	rm -Rf ios/Pods &&\
+	rm -Rf ios/Podfile.lock &&\
+	rm -Rf ios/.symlinks &&\
+	rm -Rf ios/Flutter/Flutter.framework &&\
+	rm -Rf ios/Flutter/Flutter.podspec &&\
+	fvm flutter pub get &&\
+	fvm flutter packages pub get &&\
+	fvm flutter precache --ios &&\
+	cd ios &&\
+	arch -x86_64 pod install --repo-update &&\
+	cd ..
+
 setup:
 	fvm install --verbose
 
@@ -67,4 +81,8 @@ ipa_run:
 
 ipa_backstage:
 	fvm flutter build ipa --flavor backstage --dart-define ENV=backstage -t lib/main.dart --release && \
+	open build/ios/archive/Runner.xcarchive
+
+ipa_backstage_hoc:
+	fvm flutter build ipa --flavor backstage --dart-define ENV=backstage -t lib/main.dart --release --export-method=ad-hoc && \
 	open build/ios/archive/Runner.xcarchive

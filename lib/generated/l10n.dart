@@ -130,6 +130,26 @@ class S {
     );
   }
 
+  /// `Version: {number}`
+  String common_store_version_num(Object number) {
+    return Intl.message(
+      'Version: $number',
+      name: 'common_store_version_num',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Update now`
+  String get common_update {
+    return Intl.message(
+      'Update now',
+      name: 'common_update',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{choose, select, true {What’s your height?} other {End-Wearer’s height?}}`
   String page_title_choose_height_as_ew(Object choose) {
     return Intl.select(
@@ -261,6 +281,66 @@ class S {
     return Intl.message(
       'The email invitation with credentials was sent to the user via the provided email address',
       name: 'text_ew_invite_sent_via_email_desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New update is available`
+  String get text_available_updates {
+    return Intl.message(
+      'New update is available',
+      name: 'text_available_updates',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The current version of the `
+  String get text_update_text_span1 {
+    return Intl.message(
+      'The current version of the ',
+      name: 'text_update_text_span1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `XpertFit `
+  String get text_update_text_span2 {
+    return Intl.message(
+      'XpertFit ',
+      name: 'text_update_text_span2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `is no longer supported. Please `
+  String get text_update_text_span3 {
+    return Intl.message(
+      'is no longer supported. Please ',
+      name: 'text_update_text_span3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `update the application to the latest version `
+  String get text_update_text_span4 {
+    return Intl.message(
+      'update the application to the latest version ',
+      name: 'text_update_text_span4',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `and enjoy your experience.`
+  String get text_update_text_span5 {
+    return Intl.message(
+      'and enjoy your experience.',
+      name: 'text_update_text_span5',
       desc: '',
       args: [],
     );

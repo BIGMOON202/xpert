@@ -28,8 +28,8 @@ import 'package:tdlook_flutter_app/Screens/SettingsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/main.dart';
-import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tuple/tuple.dart';
 
 class EventsPage extends StatefulWidget {

@@ -7,7 +7,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:wakelock/wakelock.dart';
 
 class WaitingPageArguments {

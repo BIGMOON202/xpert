@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 class HandsFreePlayer {
   AudioCache player = AudioCache();

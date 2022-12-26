@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 class VerticalButton extends StatefulWidget {
   final String imageName;

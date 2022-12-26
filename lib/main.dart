@@ -1,30 +1,12 @@
 import 'dart:async';
 
-import 'package:enum_to_string/enum_to_string.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
-import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
-import 'package:tdlook_flutter_app/Screens/BadgePage.dart';
-import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
-import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
-import 'package:tdlook_flutter_app/Screens/ChooseCompanyPage.dart';
-import 'package:tdlook_flutter_app/Screens/ChooseGenderPage.dart';
-import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
-import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
-import 'package:tdlook_flutter_app/Screens/RecommendationsPage.dart';
-import 'package:tdlook_flutter_app/Screens/WaitingPage.dart';
+import 'package:tdlook_flutter_app/app.dart';
 import 'package:tdlook_flutter_app/application/config/app_env.dart';
-import 'package:tdlook_flutter_app/application/themes/app_themes.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
-
-import 'constants/language.dart';
-import 'generated/l10n.dart';
+import 'package:tdlook_flutter_app/common/utils/store_utils.dart';
 
 // Toggle this to cause an async error to be thrown during initialization
 // and to test that runZonedGuarded() catches the error
@@ -67,9 +49,9 @@ void main() async {
   // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) => {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   await AppEnv.load();
+  final store = await StoreUtils.fetchStoreApp();
 
   // Hundle Flutter errors and send to Crashlytics
   /// Handle Flutter errors and send to Crashlytics
@@ -85,149 +67,9 @@ void main() async {
     ],
   ).then((val) {
     runZonedGuarded(() {
-      runApp(
-        MaterialApp(
-          theme: AppTheme.current,
-          navigatorKey: NavigationService.instance.navigationKey,
-          debugShowCheckedModeBanner: false,
-          // home: LookApp(),
-          initialRoute: '/',
-          routes: {
-            '/': (context) => LookApp(),
-            '/events_list': (context) => EventsPage(),
-            '/choose_company': (context) => ChooseCompanyPage()
-          },
-          onGenerateRoute: (settings) {
-            logger.d('Need to find ${settings.name}');
-            if (settings.name == '/events_list') {
-              return MaterialPageRoute(settings: settings, builder: (context) => EventsPage());
-            } else if (settings.name == WaitingPage.route) {
-              if (settings.arguments is WaitingPageArguments) {
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (context) =>
-                        WaitingPage(arguments: settings.arguments as WaitingPageArguments));
-              }
-            } else if (settings.name == RecommendationsPage.route) {
-              if (settings.arguments is RecommendationsPageArguments) {
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (context) => RecommendationsPage(
-                        arguments: settings.arguments as RecommendationsPageArguments));
-              }
-            } else if (settings.name == AnalizeErrorPage.route) {
-              if (settings.arguments is AnalizeErrorPageArguments) {
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (context) => AnalizeErrorPage(
-                        arguments: settings.arguments as AnalizeErrorPageArguments));
-              }
-            } else if (settings.name == CameraCapturePage.route) {
-              if (settings.arguments is CameraCapturePageArguments) {
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (context) => CameraCapturePage(
-                        arguments: settings.arguments as CameraCapturePageArguments));
-              }
-            } else if (settings.name == ChooseGenderPage.route) {
-              if (settings.arguments is ChooseGenderPageArguments) {
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (context) => ChooseGenderPage(
-                        argument: settings.arguments as ChooseGenderPageArguments));
-              }
-            } else if (settings.name == BadgePage.route) {
-              if (settings.arguments is BadgePageArguments) {
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (context) =>
-                        BadgePage(arguments: settings.arguments as BadgePageArguments));
-              }
-            } else if (settings.name == ChooseCaptureModePage.route) {
-              if (settings.arguments is ChooseCaptureModePageArguments) {
-                return MaterialPageRoute(
-                    settings: settings,
-                    builder: (context) => ChooseCaptureModePage(
-                        argument: settings.arguments as ChooseCaptureModePageArguments));
-              }
-            }
-          },
-          onUnknownRoute: (settings) {
-            return MaterialPageRoute(settings: settings, builder: (context) => LookApp());
-          },
-          locale: const Locale(Languages.en),
-          localizationsDelegates: [
-            S.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
-          supportedLocales: S.delegate.supportedLocales,
-
-          navigatorObservers: [
-            FirebaseAnalyticsObserver(analytics: analytics),
-          ],
-        ),
-      );
+      runApp(App(store: store));
     }, (error, stackTrace) {
       FirebaseCrashlytics.instance.recordError(error, stackTrace);
     });
   });
-}
-
-class LookApp extends StatefulWidget {
-  @override
-  _LookAppState createState() => _LookAppState();
-}
-
-class _LookAppState extends State<LookApp> {
-  bool? _isAuthorized;
-  UserType? _activeUserType;
-
-  @override
-  void initState() {
-    super.initState();
-    Future<void> checkToken() async {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      var accessToken = prefs.getString('access');
-      final value = prefs.getString("userType");
-      if (value != null) {
-        _activeUserType = EnumToString.fromString(UserType.values, value);
-      }
-      logger.d('accessToken = $accessToken');
-      setState(() {
-        _isAuthorized = (accessToken != null);
-      });
-    }
-
-    logger.d('AppEnv [NAME]: ${AppEnv.name}');
-    logger.d('AppEnv [HOST]: ${AppEnv.host}');
-    logger.d('AppEnv [ICON]: ${AppEnv.icon}');
-
-    checkToken();
-  }
-
-  Widget _activeWidget() {
-    if (_isAuthorized == null) {
-      return Container();
-    }
-
-    if (_isAuthorized == false) {
-      return ChooseRolePage();
-    } else if (_activeUserType == UserType.endWearer) {
-      return ChooseCompanyPage();
-    } else {
-      return EventsPage();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    //     statusBarColor: Colors.white
-    // ));
-    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light
-    //     .copyWith(statusBarIconBrightness: Brightness.dark));
-    return _activeWidget();
-  }
 }

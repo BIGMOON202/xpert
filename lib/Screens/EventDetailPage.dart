@@ -26,8 +26,8 @@ import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/application/assets/assets.dart';
 import 'package:tdlook_flutter_app/application/themes/app_colors.dart';
 import 'package:tdlook_flutter_app/presentation/pages/create_ew/new_ew_page.dart';
-import 'package:tdlook_flutter_app/utilt/emoji_utils.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 import 'ChooseGenderPage.dart';
 

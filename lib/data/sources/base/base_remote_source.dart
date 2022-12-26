@@ -1,4 +1,4 @@
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 typedef JsonData = Map<String, dynamic>;
 typedef Id = int;

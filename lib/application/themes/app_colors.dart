@@ -6,4 +6,5 @@ abstract class AppColors {
   static const darkCaptionText = Color(0xFF898A9D);
   static const error = Colors.red;
   static const highlight = Color(0xFF0B50B8);
+  static const lightButtonText = background;
 }

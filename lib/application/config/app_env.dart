@@ -6,6 +6,8 @@ class AppEnv {
   static String get name => dotenv.env['NAME'] ?? '';
   static String get host => dotenv.env['HOST'] ?? '';
   static String get icon => dotenv.env['ICON'] ?? '';
+  static String get appleStoreLink => dotenv.env['ASTORE'] ?? '';
+  static String get googleStoreLink => dotenv.env['GSTORE'] ?? '';
 
   static load() async {
     final env = const String.fromEnvironment('ENV');

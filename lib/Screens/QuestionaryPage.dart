@@ -10,7 +10,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
 import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 enum _SizeType { top, bottom }
 

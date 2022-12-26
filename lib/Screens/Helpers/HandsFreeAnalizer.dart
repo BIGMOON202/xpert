@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreePlayer.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 class HandsFreeAnalizer {
   static final HandsFreeAnalizer _instance = HandsFreeAnalizer._internal();

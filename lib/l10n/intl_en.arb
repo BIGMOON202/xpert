@@ -8,6 +8,8 @@
     "common_success": "Success",
     "common_email": "Email",
     "common_sms": "SMS",
+    "common_store_version_num": "Version: {number}",
+    "common_update": "Update now",
     "page_title_choose_height_as_ew": "{choose, select, true {What’s your height?} other {End-Wearer’s height?}}",
     "page_title_choose_weight_as_ew": "{choose, select, true {What’s your weight?} other {End-Wearer’s weight?}}",
     "page_title_choose_clavicle_as_ew": "{choose, select, true {What’s your clavicle?} other {End-Wearer’s\nmanual clavicle?}}",
@@ -20,6 +22,12 @@
     "text_ew_send_invite_via": "Send invite via",
     "text_ew_invite_sent_via_sms_desc": "The SMS invitation with credentials was sent to the user via the provided phone number",
     "text_ew_invite_sent_via_email_desc": "The email invitation with credentials was sent to the user via the provided email address",
+    "text_available_updates": "New update is available",
+    "text_update_text_span1": "The current version of the ",
+    "text_update_text_span2": "XpertFit ",
+    "text_update_text_span3": "is no longer supported. Please ",
+    "text_update_text_span4": "update the application to the latest version ",
+    "text_update_text_span5": "and enjoy your experience.",
     "button_back_to_event_detail": "Back to event details",
     "error_smt_wrong": "Something went wrong"
 }

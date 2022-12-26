@@ -20,7 +20,7 @@ import 'package:tdlook_flutter_app/Screens/EventDetailPage.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 class RecommendationsPageArguments {
   MeasurementResults? measurement;

@@ -14,7 +14,7 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';

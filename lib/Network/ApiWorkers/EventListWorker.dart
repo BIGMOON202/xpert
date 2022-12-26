@@ -7,7 +7,7 @@ import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/MeasurementsModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/Pagination.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tuple/tuple.dart';
 
 class EventListWorker {

@@ -21,7 +21,7 @@ import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/constants/keys.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock/wakelock.dart';
 

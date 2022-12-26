@@ -14,7 +14,7 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 class LoginPage extends StatefulWidget {
   final UserType? userType;

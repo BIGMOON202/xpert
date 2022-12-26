@@ -9,7 +9,7 @@ import 'package:tdlook_flutter_app/data/models/responses/invite_ew_response.dart
 import 'package:tdlook_flutter_app/data/repositories/base/base_repository.dart';
 import 'package:tdlook_flutter_app/data/repositories/end_wearer/end_wearer_repository.dart';
 import 'package:tdlook_flutter_app/data/sources/base/base_remote_source.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 @LazySingleton(as: EWRepository)
 class EWRepositoryImpl extends BaseRepository implements EWRepository {

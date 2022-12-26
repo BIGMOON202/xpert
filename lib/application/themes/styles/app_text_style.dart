@@ -13,6 +13,10 @@ class AppTextStyle {
   final TextStyle bodyButtonTitle;
   final TextStyle textFieldText;
   final TextStyle error;
+  final TextStyle s12w500;
+  final TextStyle s12w700;
+  final TextStyle s18w700;
+  final TextStyle s30w700;
 
   const AppTextStyle({
     required this.title,
@@ -24,6 +28,10 @@ class AppTextStyle {
     required this.bodyButtonTitle,
     required this.textFieldText,
     required this.error,
+    required this.s12w500,
+    required this.s12w700,
+    required this.s18w700,
+    required this.s30w700,
   });
 
   factory AppTextStyle.of(BuildContext context) {
@@ -96,6 +104,26 @@ class AppTextStyle {
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+      ),
+      s12w500: font.copyWith(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+      ),
+      s12w700: font.copyWith(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+      ),
+      s18w700: font.copyWith(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
+      s30w700: font.copyWith(
+        color: Colors.white,
+        fontSize: 30,
+        fontWeight: FontWeight.w700,
       ),
     );
   }

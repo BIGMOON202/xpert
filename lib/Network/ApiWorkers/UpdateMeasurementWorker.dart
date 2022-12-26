@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 class UpdateMeasurementWorker {
   MeasurementResults? model;

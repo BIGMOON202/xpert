@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 enum UserRole { dealer, end_wearer, sales_rep }
 

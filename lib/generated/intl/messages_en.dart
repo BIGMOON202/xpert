@@ -20,22 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(choose) => "${Intl.select(choose, {
+  static String m0(number) => "Version: ${number}";
+
+  static String m1(choose) => "${Intl.select(choose, {
             'true': 'What’s your clavicle?',
             'other': 'End-Wearer’s\nmanual clavicle?',
           })}";
 
-  static String m1(choose) => "${Intl.select(choose, {
+  static String m2(choose) => "${Intl.select(choose, {
             'true': 'Select your gender',
             'other': 'Measure an end-wearer',
           })}";
 
-  static String m2(choose) => "${Intl.select(choose, {
+  static String m3(choose) => "${Intl.select(choose, {
             'true': 'What’s your height?',
             'other': 'End-Wearer’s height?',
           })}";
 
-  static String m3(choose) => "${Intl.select(choose, {
+  static String m4(choose) => "${Intl.select(choose, {
             'true': 'What’s your weight?',
             'other': 'End-Wearer’s weight?',
           })}";
@@ -49,16 +51,20 @@ class MessageLookup extends MessageLookupByLibrary {
         "common_no": MessageLookupByLibrary.simpleMessage("No"),
         "common_ok": MessageLookupByLibrary.simpleMessage("Ok"),
         "common_sms": MessageLookupByLibrary.simpleMessage("SMS"),
+        "common_store_version_num": m0,
         "common_success": MessageLookupByLibrary.simpleMessage("Success"),
+        "common_update": MessageLookupByLibrary.simpleMessage("Update now"),
         "common_yes": MessageLookupByLibrary.simpleMessage("Yes"),
         "error_smt_wrong":
             MessageLookupByLibrary.simpleMessage("Something went wrong"),
-        "page_title_choose_clavicle_as_ew": m0,
-        "page_title_choose_gender_as_ew": m1,
-        "page_title_choose_height_as_ew": m2,
-        "page_title_choose_weight_as_ew": m3,
+        "page_title_choose_clavicle_as_ew": m1,
+        "page_title_choose_gender_as_ew": m2,
+        "page_title_choose_height_as_ew": m3,
+        "page_title_choose_weight_as_ew": m4,
         "page_title_new_ew":
             MessageLookupByLibrary.simpleMessage("New end-wearer"),
+        "text_available_updates":
+            MessageLookupByLibrary.simpleMessage("New update is available"),
         "text_customer_email":
             MessageLookupByLibrary.simpleMessage("Customer email"),
         "text_ew_invite_sent_desc": MessageLookupByLibrary.simpleMessage(
@@ -72,6 +78,16 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Send invite via"),
         "text_phone_number":
             MessageLookupByLibrary.simpleMessage("Phone number"),
+        "text_update_text_span1":
+            MessageLookupByLibrary.simpleMessage("The current version of the "),
+        "text_update_text_span2":
+            MessageLookupByLibrary.simpleMessage("XpertFit "),
+        "text_update_text_span3": MessageLookupByLibrary.simpleMessage(
+            "is no longer supported. Please "),
+        "text_update_text_span4": MessageLookupByLibrary.simpleMessage(
+            "update the application to the latest version "),
+        "text_update_text_span5":
+            MessageLookupByLibrary.simpleMessage("and enjoy your experience."),
         "title": MessageLookupByLibrary.simpleMessage("XpertFit")
       };
 }

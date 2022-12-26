@@ -10,7 +10,7 @@ import 'package:tdlook_flutter_app/data/repositories/end_wearer/end_wearer_repos
 import 'package:tdlook_flutter_app/data/repositories/end_wearer/end_wearer_repository_impl.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
 import 'package:tdlook_flutter_app/presentation/states/end_wearer_state.dart';
-import 'package:tdlook_flutter_app/utilt/logger.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
 class EWCubit extends Cubit<EWState> {
   final EWRepository repository = EWRepositoryImpl();
