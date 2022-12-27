@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UpdateMeasurementWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
@@ -156,7 +157,10 @@ class _WaitingPageState extends State<WaitingPage>
               width: 125,
               child: Text(
                 '${_stateName.toUpperCase()}',
-                style: TextStyle(color: Theme.of(context).accentColor, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Theme.of(context).accentColor,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
                 maxLines: 3,
               ),
@@ -200,11 +204,11 @@ class _WaitingPageState extends State<WaitingPage>
 
     var scaffold = Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
         centerTitle: true,
         title: Text('XpertFit is building your perfect fit'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       backgroundColor: _backgroundColor,
       body: container,

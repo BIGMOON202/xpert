@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -13,8 +14,10 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
+import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/constants/global.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
@@ -104,18 +107,23 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         if (widget.userType == UserType.salesRep) {
           Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
         } else {
-          Navigator.pushNamedAndRemoveUntil(context, '/choose_company', (route) => false);
+          if (kCompanyTypeArmorOnly) {
+            _moveToEventsAsArmorCompany();
+          } else {
+            Navigator.pushNamedAndRemoveUntil(context, '/choose_company', (route) => false);
+          }
         }
 
         if (prefs.getBool('intro_seen') != true) {
           Navigator.push(
-              context,
-              MaterialPageRoute<Null>(
-                builder: (BuildContext context) {
-                  return TutorialPage();
-                },
-                fullscreenDialog: true,
-              ));
+            context,
+            MaterialPageRoute<Null>(
+              builder: (BuildContext context) {
+                return TutorialPage();
+              },
+              fullscreenDialog: true,
+            ),
+          );
         }
       }
 
@@ -142,7 +150,6 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
   Widget _buildScaffold(double contentHeight) {
     return Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
         centerTitle: true,
         title: Row(
           //children align to center.
@@ -170,6 +177,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         ),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       backgroundColor: Colors.black,
       body: Platform.isAndroid ? _buildAndroidContent() : _buildIOSContent(contentHeight),
@@ -332,28 +340,30 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   Widget _buildNextButton() {
     return Align(
-        alignment: Alignment.bottomCenter,
-        child: Padding(
-          padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
-          child: Container(
-              width: double.infinity,
-              child: MaterialButton(
-                onPressed: _isApplied == true ? _moveToNextPage : null,
-                disabledColor: Colors.white.withOpacity(0.5),
-                textColor: Colors.black,
-                child: Text(
-                  'CONTINUE',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                color: Colors.white,
-                height: 50,
-                // padding: EdgeInsets.only(left: 12, right: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                // padding: EdgeInsets.all(4),
-              )),
-        ));
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+        child: Container(
+          width: double.infinity,
+          child: MaterialButton(
+            onPressed: _isApplied == true ? _moveToNextPage : null,
+            disabledColor: Colors.white.withOpacity(0.5),
+            textColor: Colors.black,
+            child: Text(
+              'CONTINUE',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            color: Colors.white,
+            height: 50,
+            // padding: EdgeInsets.only(left: 12, right: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+            // padding: EdgeInsets.all(4),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildWebView() {
@@ -400,6 +410,19 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
       _scrollController.position.maxScrollExtent,
       duration: Duration(milliseconds: 500),
       curve: Curves.ease,
+    );
+  }
+
+  void _moveToEventsAsArmorCompany() {
+    SessionParameters().selectedCompany = CompanyType.armor;
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+          builder: (BuildContext context) => EventsPage(
+                provider: CompanyType.armor.apiKey(),
+              )
+          // EventsPage()
+          ),
     );
   }
 }

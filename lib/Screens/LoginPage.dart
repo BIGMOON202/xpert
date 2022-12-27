@@ -11,10 +11,12 @@ import 'package:tdlook_flutter_app/Network/ApiWorkers/AuthWorker.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/UserInfoWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/AuthCredentials.dart';
+import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/constants/global.dart';
 
 class LoginPage extends StatefulWidget {
   final UserType? userType;
@@ -66,6 +68,9 @@ class _LoginPageState extends State<LoginPage> {
         _password = '847259';
       }
     }
+    if (kCompanyTypeArmorOnly) {
+      _provider = CompanyType.armor;
+    }
     initPreferences();
   }
 
@@ -93,7 +98,11 @@ class _LoginPageState extends State<LoginPage> {
         if (widget.userType == UserType.salesRep) {
           Navigator.pushNamedAndRemoveUntil(context, '/events_list', (route) => false);
         } else {
-          Navigator.pushNamedAndRemoveUntil(context, '/choose_company', (route) => false);
+          if (kCompanyTypeArmorOnly) {
+            _moveToEventsAsArmorCompany();
+          } else {
+            Navigator.pushNamedAndRemoveUntil(context, '/choose_company', (route) => false);
+          }
         }
 
         if (prefs?.getBool('intro_seen') != true) {
@@ -452,7 +461,7 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(height: 8),
                         _passwordFieldForUser(),
                         SizedBox(height: 20),
-                        _providerField(),
+                        if (!kCompanyTypeArmorOnly) _providerField(),
                         Visibility(
                             visible: _authRequestStatus == Status.ERROR,
                             child: Container(
@@ -501,6 +510,19 @@ class _LoginPageState extends State<LoginPage> {
         body: Stack(children: [container, loaderIndicator()]));
 
     return scaffold;
+  }
+
+  void _moveToEventsAsArmorCompany() {
+    SessionParameters().selectedCompany = CompanyType.armor;
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+          builder: (BuildContext context) => EventsPage(
+                provider: CompanyType.armor.apiKey(),
+              )
+          // EventsPage()
+          ),
+    );
   }
 }
 

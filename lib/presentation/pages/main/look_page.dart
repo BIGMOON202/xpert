@@ -1,11 +1,13 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseCompanyPage.dart';
 import 'package:tdlook_flutter_app/Screens/ChooseRolePage.dart';
 import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/constants/global.dart';
 import 'package:tdlook_flutter_app/presentation/widgets/loader/loader_box.dart';
 
 class LookApp extends StatefulWidget {
@@ -38,7 +40,7 @@ class _LookAppState extends State<LookApp> {
     if (_isAuthorized == false) {
       return ChooseRolePage();
     } else if (_activeUserType == UserType.endWearer) {
-      return ChooseCompanyPage();
+      return kCompanyTypeArmorOnly ? _eventsForArmorCompany() : ChooseCompanyPage();
     } else {
       return EventsPage();
     }
@@ -55,5 +57,10 @@ class _LookAppState extends State<LookApp> {
     setState(() {
       _isAuthorized = (accessToken != null);
     });
+  }
+
+  Widget _eventsForArmorCompany() {
+    SessionParameters().selectedCompany = CompanyType.armor;
+    return EventsPage();
   }
 }

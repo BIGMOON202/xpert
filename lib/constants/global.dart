@@ -10,3 +10,5 @@ RegExp kEmailValidatorRegExp = RegExp(
 
 const kBackstage = 'backstage';
 const kRelease = 'release';
+
+const kCompanyTypeArmorOnly = true;
