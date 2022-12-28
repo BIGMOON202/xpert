@@ -25,7 +25,7 @@ extension _TutorialStepExtension on _TutorialStep {
       case _TutorialStep.twoPhotos:
         return 'Take only';
       case _TutorialStep.avatar:
-        return 'Generate an';
+        return 'Generate a';
       case _TutorialStep.recommendations:
         return 'Get your';
     }
