@@ -66,6 +66,9 @@ class _LoginPageState extends State<LoginPage> {
 
         _email = 'qw@qw.qw';
         _password = '847259';
+
+        _email = 'artem.oliynyk+ew1@3dlook.me';
+        _password = '515954';
       }
     }
     if (kCompanyTypeArmorOnly) {
