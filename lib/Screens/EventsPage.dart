@@ -2,6 +2,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pagination_view/pagination_view.dart';
@@ -27,9 +28,10 @@ import 'package:tdlook_flutter_app/Screens/PrivacyPolicyPage.dart';
 import 'package:tdlook_flutter_app/Screens/SettingsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/main.dart';
-import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
+import 'package:tdlook_flutter_app/constants/global.dart';
+import 'package:tdlook_flutter_app/main.dart';
 import 'package:tuple/tuple.dart';
 
 class EventsPage extends StatefulWidget {
@@ -49,6 +51,7 @@ class _EventsPageState extends State<EventsPage> {
   String _appVersion = '';
   EventsListWidget? listWidget;
   SharedPreferences? prefs;
+  String? _provider;
 
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
@@ -144,7 +147,8 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
     super.initState();
-    _bloc = EventListWorkerBloc(widget.provider);
+    _provider = kCompanyTypeArmorOnly ? CompanyType.armor.apiKey() : widget.provider;
+    _bloc = EventListWorkerBloc(_provider);
     _userInfoBloc = UserInfoBloc();
     logger.d('get userInfo $_userInfoBloc');
     logger.d('list selectedCompany:${SessionParameters().selectedCompany}');
@@ -165,9 +169,9 @@ class _EventsPageState extends State<EventsPage> {
             break;
           case Status.COMPLETED:
             if (_userType == UserType.salesRep) {
-              SessionParameters().selectedCompany = user.data?.provider;
+              SessionParameters().selectedCompany =
+                  kCompanyTypeArmorOnly ? CompanyType.armor : user.data?.provider;
             }
-            logger.d('company = ${user.data?.provider?.apiKey()}');
             setState(() {
               _userInfo = user.data;
             });
@@ -373,17 +377,23 @@ class _EventsPageState extends State<EventsPage> {
 
     var scaffold = Scaffold(
         appBar: AppBar(
-          brightness: Brightness.dark,
           leading: IconButton(icon: const Icon(Icons.menu), onPressed: _toggle),
           automaticallyImplyLeading: false,
           centerTitle: true,
           title: Text('My Events'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         backgroundColor: _backgroundColor,
         body: Column(
-          children: [searchBar(), list()],
+          children: [
+            Visibility(
+              child: searchBar(),
+              visible: (filteredevents?.item2.data?.length ?? 0) > 1,
+            ),
+            list(),
+          ],
         ));
 
     Widget settingsWidget() {
