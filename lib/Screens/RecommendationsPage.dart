@@ -21,6 +21,7 @@ import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/constants/global.dart';
 
 class RecommendationsPageArguments {
   MeasurementResults? measurement;
@@ -257,7 +258,15 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         ),
         backgroundColor: _backgroundColor,
         body: Column(
-          children: [topText, searchBar(), Flexible(child: listBody())],
+          children: [
+            topText,
+            Visibility(
+              child: searchBar(),
+              visible: (recommendations?.length ?? 0) > 1,
+            ),
+            //searchBar(),
+            Flexible(child: listBody()),
+          ],
         ));
 
     return scaffold;
@@ -353,9 +362,9 @@ class RecommendationsListWidget extends StatelessWidget {
         var measurementDate;
         if (completeTimeSplit != null) {
           final completedTime = completeTimeSplit.toLocal();
-          var completeDate = DateFormat('d MMM yyyy').format(completedTime);
-          var completeTime = DateFormat('K:mm a').format(completedTime);
-          measurementDate = '$completeDate,$completeTime';
+          var completeDate = DateFormat(kDefaultDateFormat).format(completedTime);
+          var completeTime = DateFormat(kDefaultHoursFormat).format(completedTime);
+          measurementDate = '$completeDate, $completeTime';
         } else {
           measurementDate = '-';
         }

@@ -51,7 +51,9 @@ class _LoginPageState extends State<LoginPage> {
       _email = 'animaltut+7@gmail.com';
       _password = '1qa2ws#ED7';
 
-      _email = 'andrew+fhsr2@3dlook.me';
+      // _email = 'andrew+fhsr2@3dlook.me';
+      // _password = 'Qa123456789Qa.';
+      _email = 'andrewsl@3dlook.me';
       _password = 'Qa123456789Qa.';
 
       if (widget.userType == UserType.endWearer) {
@@ -64,11 +66,13 @@ class _LoginPageState extends State<LoginPage> {
         _email = 'qaz@a.aa';
         _password = '778507';
 
-        _email = 'qw@qw.qw';
-        _password = '847259';
+        // _email = 'qw@qw.qw';
+        // _password = '847259';
 
-        _email = 'artem.oliynyk+ew1@3dlook.me';
-        _password = '515954';
+        // _email = 'artem.oliynyk+ew1@3dlook.me';
+        // _password = '515954';
+        _email = 'qa@qa.qa';
+        _password = '853564';
       }
     }
     if (kCompanyTypeArmorOnly) {

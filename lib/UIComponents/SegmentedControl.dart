@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
+import 'package:tdlook_flutter_app/application/themes/app_themes.dart';
 
 class SegmentedControl extends StatefulWidget {
   SegmentedControl({this.onChanged});
@@ -17,41 +18,64 @@ class _SegmentedControlState extends State<SegmentedControl> {
   static Color _unselectedTextColor = Colors.white;
   static Color _optionalTextColor = HexColor.fromHex('#858585');
 
-  static Widget imperialTab({int? selected}) {
+  //late AppTextStyle? _textStyle;
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   //_textStyle = Theme.of(context).appTheme.textStyle;
+  //   //_textStyle.s10w700
+  // }
+
+  Widget _imperialTab({int? selected}) {
+    final textStyle = Theme.of(context).appTheme.textStyle;
     return Padding(
         padding: EdgeInsets.all(8),
         child: Column(
           children: <Widget>[
             Text(
               'Imperial system'.toUpperCase(),
-              style: TextStyle(
-                  color: selected == 0 ? _selectedTextColor : _unselectedTextColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold),
+              style: textStyle?.s10w700.copyWith(
+                color: selected == 0 ? _selectedTextColor : _unselectedTextColor,
+              ),
+
+              // TextStyle(
+              //     color: selected == 0 ? _selectedTextColor : _unselectedTextColor,
+              //     fontSize: 10,
+              //     fontWeight: FontWeight.bold),
             ),
             Text(
               'IN / LB',
-              style: TextStyle(color: _optionalTextColor, fontSize: 10),
+              style: textStyle?.s10w400.copyWith(
+                color: _optionalTextColor,
+              ),
+              // TextStyle(color: _optionalTextColor, fontSize: 10),
             ),
           ],
         ));
   }
 
-  static Widget metricTab({int? selected}) {
+  Widget _metricTab({int? selected}) {
+    final textStyle = Theme.of(context).appTheme.textStyle;
     return Padding(
       padding: EdgeInsets.all(8),
       child: Column(
         children: <Widget>[
           Text(
             'Metric system'.toUpperCase(),
-            style: TextStyle(
-                color: selected == 1 ? _selectedTextColor : _unselectedTextColor,
-                fontSize: 10,
-                fontWeight: FontWeight.bold),
+            style: textStyle?.s10w700.copyWith(
+              color: selected == 1 ? _selectedTextColor : _unselectedTextColor,
+            ),
+            // style: TextStyle(
+            //     color: selected == 1 ? _selectedTextColor : _unselectedTextColor,
+            //     fontSize: 10,
+            //     fontWeight: FontWeight.bold),
           ),
           Text(
             'CM / KG',
-            style: TextStyle(color: _optionalTextColor, fontSize: 10),
+            style: textStyle?.s10w400.copyWith(
+              color: _optionalTextColor,
+            ),
+            // style: TextStyle(color: _optionalTextColor, fontSize: 10),
           ),
         ],
       ),
@@ -60,8 +84,8 @@ class _SegmentedControlState extends State<SegmentedControl> {
 
   Map<int, Widget> getElements({int? selected}) {
     Map<int, Widget> elements = new Map<int, Widget>();
-    elements[0] = imperialTab(selected: this.segmentedControlValue);
-    elements[1] = metricTab(selected: this.segmentedControlValue);
+    elements[0] = _imperialTab(selected: this.segmentedControlValue);
+    elements[1] = _metricTab(selected: this.segmentedControlValue);
     return elements;
   }
 

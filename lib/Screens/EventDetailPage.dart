@@ -25,9 +25,10 @@ import 'package:tdlook_flutter_app/UIComponents/Loading.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/application/assets/assets.dart';
 import 'package:tdlook_flutter_app/application/themes/app_colors.dart';
-import 'package:tdlook_flutter_app/presentation/pages/create_ew/new_ew_page.dart';
-import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
+import 'package:tdlook_flutter_app/constants/global.dart';
+import 'package:tdlook_flutter_app/presentation/pages/create_ew/new_ew_page.dart';
 
 import 'ChooseGenderPage.dart';
 
@@ -162,12 +163,12 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     var companyType = widget.event?.agency?.type?.replaceAll('_', ' ').capitalizeFirst() ?? '-';
 
     final startTime = widget.event?.startDateTime?.toLocal();
-    var eventStartDate = startTime != null ? DateFormat('d MMM yyyy').format(startTime) : '';
-    var eventStartTime = startTime != null ? DateFormat('K:mm a').format(startTime) : '';
+    var eventStartDate = startTime != null ? DateFormat(kDefaultDateFormat).format(startTime) : '';
+    var eventStartTime = startTime != null ? DateFormat(kDefaultHoursFormat).format(startTime) : '';
 
     final endTime = widget.event?.endDateTime?.toLocal();
-    var eventEndDate = endTime != null ? DateFormat('d MMM yyyy').format(endTime) : '';
-    var eventEndTime = endTime != null ? DateFormat('K:mm a').format(endTime) : '';
+    var eventEndDate = endTime != null ? DateFormat(kDefaultDateFormat).format(endTime) : '';
+    var eventEndTime = endTime != null ? DateFormat(kDefaultHoursFormat).format(endTime) : '';
 
     var eventStatus = widget.event?.status?.displayName() ?? "In progress";
     var eventStatusColor = Colors.white;
@@ -695,8 +696,8 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
 
       var measurementDate;
       if (completeMeasureTime != null) {
-        var completeDate = DateFormat('d MMM yyyy').format(completeMeasureTime);
-        var completeTime = DateFormat('h:mm a').format(completeMeasureTime);
+        var completeDate = DateFormat(kDefaultDateFormat).format(completeMeasureTime);
+        var completeTime = DateFormat(kDefaultHoursFormat).format(completeMeasureTime);
 
         measurementDate = '$completeDate, $completeTime';
       } else {
@@ -789,121 +790,133 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       container = Container(
         color: _backgroundColor,
         child: Padding(
-            padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
-            child: Container(
-                color: Colors.black,
-                // decoration: BoxDecoration(
-                //     borderRadius: BorderRadius.all(Radius.circular(5)),
-                //     color: Colors.black
-                // ),
-                child: Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          // crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Text(userName, style: TextStyle(color: Colors.white)),
-                            ),
-                            isMyMeasure
-                                ? Flexible(
-                                    flex: 2,
-                                    child: Container(
-                                        child: Container(
-                                            decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(Radius.circular(4)),
-                                                color: Colors.white.withOpacity(0.1)),
-                                            child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: 3, bottom: 3, left: 5, right: 5),
-                                                child: Text('You',
-                                                    style: TextStyle(color: Colors.white))))))
-                                : Container(),
-                            Spacer(),
-                            Container(
-                              color: Colors.transparent,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                                          color: eventStatusColor.withOpacity(0.1)),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(5),
-                                        child: Row(children: [
-                                          SizedBox(
-                                            width: 12,
-                                            height: 12,
-                                            child: ResourceImage.imageWithName(eventStatusIcon),
-                                          ),
-                                          SizedBox(
-                                            width: 6,
-                                          ),
-                                          Text(
-                                            measurementStatus,
-                                            style: TextStyle(color: eventStatusColor),
-                                          )
-                                        ]),
-                                      ))
-                                ],
+          padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+          child: Container(
+            color: Colors.black,
+            // decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.all(Radius.circular(5)),
+            //     color: Colors.black
+            // ),
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Text(userName, style: TextStyle(color: Colors.white)),
+                        ),
+                        isMyMeasure
+                            ? Flexible(
+                                flex: 2,
+                                child: Container(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                                        color: Colors.white.withOpacity(0.1)),
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 3, bottom: 3, left: 5, right: 5),
+                                      child: Text(
+                                        'You',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                        Spacer(),
+                        Container(
+                          color: Colors.transparent,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                                    color: eventStatusColor.withOpacity(0.1)),
+                                child: Padding(
+                                  padding: EdgeInsets.all(5),
+                                  child: Row(children: [
+                                    SizedBox(
+                                      width: 12,
+                                      height: 12,
+                                      child: ResourceImage.imageWithName(eventStatusIcon),
+                                    ),
+                                    SizedBox(
+                                      width: 6,
+                                    ),
+                                    Text(
+                                      measurementStatus,
+                                      style: TextStyle(color: eventStatusColor),
+                                    ),
+                                  ]),
+                                ),
                               ),
-                            )
-                          ]),
-                      SizedBox(
-                        height: 18,
-                      ),
-                      SizedBox(
-                          height: showDate
-                              ? 52
-                              : canAddMeasurement
-                                  ? 90
-                                  : 170,
-                          child: Row(
+                            ],
+                          ),
+                        )
+                      ]),
+                  SizedBox(
+                    height: 18,
+                  ),
+                  SizedBox(
+                    height: showDate
+                        ? 52
+                        : canAddMeasurement
+                            ? 90
+                            : 170,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
                             children: [
                               Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                          flex: 1,
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                  height: 16,
-                                                  width: 16,
-                                                  child: ResourceImage.imageWithName(
-                                                      'ic_contact.png')),
-                                              SizedBox(width: 8),
-                                              Flexible(
-                                                  child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Expanded(
-                                                      child: Text(
-                                                    userEmail,
-                                                    style: _textStyle,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  )),
-                                                ],
-                                              ))
-                                            ],
+                                flex: 1,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: ResourceImage.imageWithName('ic_contact.png')),
+                                    SizedBox(width: 8),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              child: Text(
+                                            userEmail,
+                                            style: _textStyle,
+                                            overflow: TextOverflow.ellipsis,
                                           )),
-                                      SizedBox(
-                                        height: 12,
+                                        ],
                                       ),
-                                      dateLineWidget(),
-                                    ],
-                                  )),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 12,
+                              ),
+                              dateLineWidget(),
                             ],
-                          ))
-                    ],
-                  ),
-                ))),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
       );
 
       var gesture = GestureDetector(

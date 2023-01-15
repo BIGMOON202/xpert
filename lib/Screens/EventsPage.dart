@@ -530,12 +530,12 @@ class EventsListWidget extends StatelessWidget {
       var companyType = event.agency?.type?.replaceAll('_', ' ').capitalizeFirst() ?? '-';
 
       final startTime = event.startDateTime?.toLocal();
-      var eventStartDate = startTime != null ? DateFormat('d MMM yyyy').format(startTime) : '';
-      var eventStartTime = startTime != null ? DateFormat('h:mm a').format(startTime) : '';
+      var eventStartDate = startTime != null ? DateFormat(kDefaultDateFormat).format(startTime) : '';
+      var eventStartTime = startTime != null ? DateFormat(kDefaultHoursFormat).format(startTime) : '';
 
       final endTime = event.endDateTime?.toLocal();
-      var eventEndDate = endTime != null ? DateFormat('d MMM yyyy').format(endTime) : '';
-      var eventEndTime = endTime != null ? DateFormat('h:mm a').format(endTime) : '';
+      var eventEndDate = endTime != null ? DateFormat(kDefaultDateFormat).format(endTime) : '';
+      var eventEndTime = endTime != null ? DateFormat(kDefaultHoursFormat).format(endTime) : '';
 
       var eventStatus = event.status?.displayName() ?? "In progress";
       var eventStatusColor = event.status?.displayColor() ?? Colors.white;

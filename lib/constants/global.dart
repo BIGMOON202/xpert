@@ -12,3 +12,5 @@ const kBackstage = 'backstage';
 const kRelease = 'release';
 
 const kCompanyTypeArmorOnly = true;
+const kDefaultHoursFormat = 'h:mm a';
+const kDefaultDateFormat = 'd MMM yyyy';

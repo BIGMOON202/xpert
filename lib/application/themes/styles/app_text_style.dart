@@ -13,6 +13,8 @@ class AppTextStyle {
   final TextStyle bodyButtonTitle;
   final TextStyle textFieldText;
   final TextStyle error;
+  final TextStyle s10w400;
+  final TextStyle s10w700;
   final TextStyle s12w500;
   final TextStyle s12w700;
   final TextStyle s18w700;
@@ -28,6 +30,8 @@ class AppTextStyle {
     required this.bodyButtonTitle,
     required this.textFieldText,
     required this.error,
+    required this.s10w400,
+    required this.s10w700,
     required this.s12w500,
     required this.s12w700,
     required this.s18w700,
@@ -104,6 +108,16 @@ class AppTextStyle {
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+      ),
+      s10w400: font.copyWith(
+        color: Colors.white,
+        fontSize: 10,
+        fontWeight: FontWeight.w400,
+      ),
+      s10w700: font.copyWith(
+        color: Colors.white,
+        fontSize: 10,
+        fontWeight: FontWeight.w700,
       ),
       s12w500: font.copyWith(
         color: Colors.white,

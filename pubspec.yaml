@@ -1,7 +1,7 @@
 name: tdlook_flutter_app
 description: XpertFit
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.4.3+113
+version: 1.4.3+115
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
