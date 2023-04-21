@@ -57,6 +57,8 @@ class _BadgePageState extends State<BadgePage> {
                   child: Container(
                       width: double.infinity,
                       child: MaterialButton(
+                        splashColor: Colors.transparent,
+                        elevation: 0,
                         onPressed: _continueIsEnabled() ? _moveToNextScreen : null,
                         disabledColor: SessionParameters().disableColor,
                         child: CustomText.withColor(

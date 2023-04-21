@@ -64,6 +64,7 @@ apk_hotfix:
 apk_backstage:
 	fvm flutter build apk --flavor backstage --dart-define ENV=backstage -t lib/main.dart --release && \
 	open build/app/outputs/flutter-apk/
+# open build/app/outputs/bundle/devRelease/
 
 # -d 04BE249E-F963-454F-BF93-7ACB0DA0F51B
 apk_run_backstage:
@@ -86,3 +87,11 @@ ipa_backstage:
 ipa_backstage_hoc:
 	fvm flutter build ipa --flavor backstage --dart-define ENV=backstage -t lib/main.dart --release --export-method=ad-hoc && \
 	open build/ios/archive/Runner.xcarchive
+
+firebase_conf: 
+	flutterfire config \
+  		--project=xpertfit-3d149 \
+  		--out=lib/application/configs/firebase_app.dart \
+  		--ios-bundle-id=com.project.xpertfit-backstage \
+  		--macos-bundle-id=com.project.xpertfit-backstage \
+  		--android-app-id=com.tdlook_xpertfit_app_backstage

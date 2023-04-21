@@ -7,8 +7,8 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/RulerPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/generated/l10n.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
 
 class ChooseGenderPageArguments {
   MeasurementResults? measurement;
@@ -72,55 +72,62 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
           // mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-                child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
-                    child: FlatButton(
-                      onPressed: () {
-                        _selectGender(0);
-                      },
-                      color: _selectedGender == 0 ? _selectedColor : _backgroundColor,
-                      highlightColor: Colors.grey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          SizedBox(
-                              width: 45,
-                              height: 61,
-                              child: ResourceImage.imageWithName(_selectedGender == 0
-                                  ? Gender.male.selectedImageName()
-                                  : Gender.male.unselectedImageName())),
-                          SizedBox(height: 24),
-                          Text(
-                            'Male',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
+              child: Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: MaterialButton(
+                  splashColor: Colors.transparent,
+                  elevation: 0,
+                  onPressed: () {
+                    _selectGender(0);
+                  },
+                  color: _selectedGender == 0 ? _selectedColor : _backgroundColor,
+                  highlightColor: Colors.grey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                          width: 45,
+                          height: 61,
+                          child: ResourceImage.imageWithName(_selectedGender == 0
+                              ? Gender.male.selectedImageName()
+                              : Gender.male.unselectedImageName())),
+                      SizedBox(height: 24),
+                      Text(
+                        'Male',
+                        style: TextStyle(color: Colors.white),
                       ),
-                    ))),
-            Expanded(
-                child: FlatButton(
-              onPressed: () {
-                _selectGender(1);
-              },
-              color: _selectedGender == 1 ? _selectedColor : _backgroundColor,
-              highlightColor: Colors.grey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(
-                      width: 45,
-                      height: 61,
-                      child: ResourceImage.imageWithName(_selectedGender == 1
-                          ? Gender.female.selectedImageName()
-                          : Gender.female.unselectedImageName())),
-                  SizedBox(height: 24),
-                  Text(
-                    'Female',
-                    style: TextStyle(color: Colors.white),
+                    ],
                   ),
-                ],
+                ),
               ),
-            )),
+            ),
+            Expanded(
+              child: MaterialButton(
+                splashColor: Colors.transparent,
+                elevation: 0,
+                onPressed: () {
+                  _selectGender(1);
+                },
+                color: _selectedGender == 1 ? _selectedColor : _backgroundColor,
+                highlightColor: Colors.grey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                        width: 45,
+                        height: 61,
+                        child: ResourceImage.imageWithName(_selectedGender == 1
+                            ? Gender.female.selectedImageName()
+                            : Gender.female.unselectedImageName())),
+                    SizedBox(height: 24),
+                    Text(
+                      'Female',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -136,6 +143,8 @@ class _ChooseGenderPageState extends State<ChooseGenderPage> {
               child: Container(
                   width: double.infinity,
                   child: MaterialButton(
+                    splashColor: Colors.transparent,
+                    elevation: 0,
                     onPressed: () {
                       _moveToNextPage();
                       logger.i('next button pressed');

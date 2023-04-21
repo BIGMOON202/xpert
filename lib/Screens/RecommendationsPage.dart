@@ -2,6 +2,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -189,8 +190,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     if (prefs != null && value != null) {
       UserType type = EnumToString.fromString(UserType.values, value)!;
       topTextValue = type == UserType.endWearer
-          ? "Your photos have been destroyed"
-          : "Photos have been destroyed";
+          ? "Your scans have been destroyed"
+          : "Scans have been destroyed";
     }
 
     Widget searchBar() {
@@ -249,12 +250,13 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     var scaffold = Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          brightness: Brightness.dark,
           centerTitle: true,
-          title:
-              Text(widget.arguments?.showRestartButton == true ? 'Thank you' : 'Profile details'),
+          title: Text(
+            widget.arguments?.showRestartButton == true ? 'Thank you' : 'Profile details',
+          ),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         backgroundColor: _backgroundColor,
         body: Column(
@@ -313,42 +315,55 @@ class RecommendationsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget _recommendationRow({String? title, String? size}) {
-      var _textSize = size ?? 'Size is outside of size range';
-      Color _textColor = size != null ? _highlightColor : Colors.red;
-      Widget _icon;
-      if (size != null) {
-        _icon = Container();
-      } else {
-        _icon = Padding(
-            padding: EdgeInsets.only(
-              right: 6,
-            ),
-            child: SizedBox(
-              width: 12,
-              height: 12,
-              child: ResourceImage.imageWithName('warning_ic.png'),
-            ));
-      }
+    Widget _recommendationRow({
+      String? title,
+      String? size,
+      String? secondSize,
+    }) {
+      final _textSize = size ?? 'Size is outside of size range';
+      final _secondSizeText = secondSize ?? 'Null';
+      // Color _textColor = size != null ? _highlightColor : Colors.red;
+      // Widget _icon;
+      // if (size != null) {
+      //   _icon = Container();
+      // } else {
+      //   _icon = Padding(
+      //       padding: EdgeInsets.only(
+      //         right: 6,
+      //       ),
+      //       child: SizedBox(
+      //         width: 12,
+      //         height: 12,
+      //         child: ResourceImage.imageWithName('warning_ic.png'),
+      //       ));
+      // }
 
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title ?? '',
-            style: TextStyle(color: _optionColor, fontSize: 12, fontWeight: FontWeight.w400)),
-        SizedBox(height: 6),
-        Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-                color: Colors.white.withAlpha(10)),
-            child: Padding(
-                padding: EdgeInsets.all(5),
-                child: Row(
-                  children: [
-                    _icon,
-                    Text(_textSize,
-                        style: TextStyle(color: _textColor, fontWeight: FontWeight.bold))
-                  ],
-                )))
-      ]);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title ?? '',
+              style: TextStyle(
+                color: _optionColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              )),
+          // SizedBox(height: 6),
+          // Container(
+          //     decoration: BoxDecoration(
+          //         borderRadius: BorderRadius.all(Radius.circular(4)),
+          //         color: Colors.white.withAlpha(10)),
+          //     child: Padding(
+          //         padding: EdgeInsets.all(5),
+          //         child: Row(
+          //           children: [
+          //             _icon,
+          //             Text(_textSize,
+          //                 style: TextStyle(color: _textColor, fontWeight: FontWeight.bold))
+          //           ],
+          //         ))),
+          _WarningSizeWidget(text: _textSize, isWarning: size == null),
+        ],
+      );
     }
 
     Widget itemAt(int index) {
@@ -429,63 +444,64 @@ class RecommendationsListWidget extends StatelessWidget {
                       height: 18,
                     ),
                     SizedBox(
-                        height: 52,
-                        child: Row(
-                          children: [
-                            Expanded(
-                                flex: 2,
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                        flex: 1,
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                                height: 16,
-                                                width: 16,
-                                                child:
-                                                    ResourceImage.imageWithName('ic_contact.png')),
-                                            SizedBox(width: 8),
-                                            Flexible(
-                                                child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Expanded(
-                                                    child: Text(
-                                                  userEmail,
-                                                  style: _textStyle,
-                                                  overflow: TextOverflow.ellipsis,
-                                                )),
-                                              ],
-                                            ))
-                                          ],
-                                        )),
-                                    SizedBox(
-                                      height: 12,
+                      height: 52,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: ResourceImage.imageWithName('ic_contact.png'),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Flexible(
+                                          child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              child: Text(
+                                            userEmail,
+                                            style: _textStyle,
+                                            overflow: TextOverflow.ellipsis,
+                                          )),
+                                        ],
+                                      ))
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: 16,
+                                          width: 16,
+                                          child: ResourceImage.imageWithName('ic_checkmark.png'),
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(measurementDate, style: _textStyle)
+                                      ],
                                     ),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Container(
-                                          color: Colors.transparent,
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                height: 16,
-                                                width: 16,
-                                                child:
-                                                    ResourceImage.imageWithName('ic_checkmark.png'),
-                                              ),
-                                              SizedBox(width: 8),
-                                              Text(measurementDate, style: _textStyle)
-                                            ],
-                                          ),
-                                        )),
-                                  ],
-                                )),
-                          ],
-                        ))
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -500,6 +516,7 @@ class RecommendationsListWidget extends StatelessWidget {
         var title = recomendation.product?.name;
         var code = recomendation.product?.style.toString();
         var size = recomendation.size;
+        final secondSize = recomendation.sizeSecond;
         var _textStyle = TextStyle(color: Colors.white);
 
         var inseamValue = measurement?.person?.frontParams?.inseam?.inImperial.toStringAsFixed(0);
@@ -510,23 +527,35 @@ class RecommendationsListWidget extends StatelessWidget {
         List<Widget> _sizeWidgets(RecommendationModel recommendation) {
           var widgets = <Widget>[];
 
-          var column = _recommendationRow(title: 'Size', size: size);
-
           if (SessionParameters().selectedCompany == CompanyType.uniforms &&
               measurement?.person != null &&
               measurement?.person?.frontParams != null) {
-            logger.d('config for ${recommendation.product} - ${measurement?.gender}');
+            logger.d('config for: ${recommendation.product} - ${measurement?.gender}');
             if (recommendation.product?.sizechartType == 'pants' &&
                 recommendation.product?.gender == 'male') {
-              widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
+              widgets.add(
+                _recommendationRow(
+                  title: 'Waist',
+                  size: recommendation.size,
+                ),
+              );
               if (recommendation.sizeSecond != null) {
-                widgets.add(Padding(
+                widgets.add(
+                  Padding(
                     padding: EdgeInsets.only(left: 12),
-                    child: _recommendationRow(title: 'Rise', size: recommendation.sizeSecond)));
+                    child: _recommendationRow(
+                      title: 'Rise',
+                      size: recommendation.sizeSecond,
+                    ),
+                  ),
+                );
               }
-              widgets.add(Padding(
+              widgets.add(
+                Padding(
                   padding: EdgeInsets.only(left: 12),
-                  child: _recommendationRow(title: 'Inseam', size: inseamValue)));
+                  child: _recommendationRow(title: 'Inseam', size: inseamValue),
+                ),
+              );
             } else if (recommendation.product?.sizechartType == 'pants' &&
                 recommendation.product?.gender == 'female') {
               widgets.add(_recommendationRow(title: 'Waist', size: recommendation.size));
@@ -536,9 +565,12 @@ class RecommendationsListWidget extends StatelessWidget {
             } else if (recommendation.product?.sizechartType == 'long_sleeve_shirt') {
               widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
               if (recommendation.sizeSecond != null) {
-                widgets.add(Padding(
+                widgets.add(
+                  Padding(
                     padding: EdgeInsets.only(left: 12),
-                    child: _recommendationRow(title: 'Sleeve', size: recommendation.sizeSecond)));
+                    child: _recommendationRow(title: 'Sleeve', size: recommendation.sizeSecond),
+                  ),
+                );
               }
             } else if (recommendation.product?.sizechartType == 'short_sleeve_shirt') {
               widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
@@ -556,7 +588,11 @@ class RecommendationsListWidget extends StatelessWidget {
 
             return widgets;
           } else {
-            widgets.add(_recommendationRow(title: 'Recommended Size', size: recommendation.size));
+            widgets.add(_recommendationRow(
+              title: 'Recommended Size',
+              size: recommendation.size,
+              secondSize: recommendation.sizeSecond,
+            ));
           }
           return widgets;
         }
@@ -564,44 +600,60 @@ class RecommendationsListWidget extends StatelessWidget {
         container = Container(
           color: _backgroundColor,
           child: Padding(
-              padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
-              child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5)), color: Colors.black),
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Flexible(
-                              child: Text(title ?? '',
-                                  style: TextStyle(color: Colors.white), maxLines: 5)),
-                          Text(
-                            code ?? '',
-                            style: TextStyle(color: _optionColor),
-                          )
-                        ]),
-                        SizedBox(
-                          height: 18,
+            padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(5)), color: Colors.black),
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Expanded(
+                        child: Text(
+                          title ?? '',
+                          style: TextStyle(color: Colors.white),
+                          maxLines: 5,
                         ),
-                        // ListView(
-                        //   // shrinkWrap: true,
-                        //   physics: NeverScrollableScrollPhysics(),
-                        //   scrollDirection: Axis.horizontal,
-                        //   children: _sizeWidgets(recomendation),
-                        // ),
-                        SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(children: _sizeWidgets(recomendation))),
-                        // SingleChilqdScrollView(
-                        //   scrollDirection: Axis.horizontal,
-                        //     child: Flexible(child: Row(
-                        //   children: _sizeWidgets(recomendation),
-                        // )))
-                      ],
+                      ),
+                      Spacer(),
+                      Text(
+                        code ?? '',
+                        style: TextStyle(color: _optionColor),
+                      ),
+                    ]),
+                    SizedBox(
+                      height: 18,
                     ),
-                  ))),
+                    // ListView(
+                    //   // shrinkWrap: true,
+                    //   physics: NeverScrollableScrollPhysics(),
+                    //   scrollDirection: Axis.horizontal,
+                    //   children: _sizeWidgets(recomendation),
+                    // ),
+                    SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(children: _sizeWidgets(recomendation))),
+                    // SingleChilqdScrollView(
+                    //   scrollDirection: Axis.horizontal,
+                    //     child: Flexible(child: Row(
+                    //   children: _sizeWidgets(recomendation),
+                    // )))
+                    if (secondSize != null)
+                      Row(
+                        children: [
+                          _WarningSizeWidget(
+                            text: secondSize,
+                            isWarning: true,
+                          )
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         );
       }
 
@@ -726,6 +778,8 @@ class RecommendationsListWidget extends StatelessWidget {
                           child: Container(
                               width: double.infinity,
                               child: MaterialButton(
+                                splashColor: Colors.transparent,
+                                elevation: 0,
                                 onPressed: () {
                                   logger.i('next button pressed');
                                   _moveToHomePage();
@@ -750,26 +804,30 @@ class RecommendationsListWidget extends StatelessWidget {
                         height: 8,
                       ),
                       Flexible(
-                          child: Container(
-                              width: double.infinity,
-                              child: FlatButton(
-                                onPressed: () {
-                                  _restartAnalize();
-                                },
-                                textColor: Colors.white,
-                                child: Text('rescan'.toUpperCase(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.white)),
-                                color: Colors.white.withOpacity(0.25),
-                                height: 50,
-                                padding: EdgeInsets.only(left: 12, right: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                // padding: EdgeInsets.all(4),
-                              )))
+                        child: Container(
+                          width: double.infinity,
+                          child: MaterialButton(
+                            splashColor: Colors.transparent,
+                            elevation: 0,
+                            onPressed: () {
+                              _restartAnalize();
+                            },
+                            textColor: Colors.white,
+                            child: Text('rescan'.toUpperCase(),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Colors.white)),
+                            color: Colors.white.withOpacity(0.25),
+                            height: 50,
+                            padding: EdgeInsets.only(left: 12, right: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            // padding: EdgeInsets.all(4),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -781,5 +839,52 @@ class RecommendationsListWidget extends StatelessWidget {
     );
 
     return container;
+  }
+}
+
+class _WarningSizeWidget extends StatelessWidget {
+  final String text;
+  final bool isWarning;
+  const _WarningSizeWidget({
+    required this.text,
+    required this.isWarning,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+          color: Colors.white.withAlpha(10),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: Row(
+            children: [
+              isWarning
+                  ? Padding(
+                      padding: EdgeInsets.only(
+                        right: 6,
+                      ),
+                      child: SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: ResourceImage.imageWithName('warning_ic.png'),
+                      ))
+                  : SizedBox.shrink(),
+              Text(
+                text,
+                style: TextStyle(
+                  color: isWarning ? Colors.red : HexColor.fromHex('1E7AE4'),
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -150,6 +150,26 @@ class S {
     );
   }
 
+  /// `And`
+  String get common_and {
+    return Intl.message(
+      'And',
+      name: 'common_and',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continue`
+  String get common_continue {
+    return Intl.message(
+      'Continue',
+      name: 'common_continue',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{choose, select, true {What’s your height?} other {End-Wearer’s height?}}`
   String page_title_choose_height_as_ew(Object choose) {
     return Intl.select(
@@ -211,6 +231,16 @@ class S {
     return Intl.message(
       'New end-wearer',
       name: 'page_title_new_ew',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Terms of Use and Privacy Notice`
+  String get page_title_terms_and_privacy {
+    return Intl.message(
+      'Terms of Use and Privacy Notice',
+      name: 'page_title_terms_and_privacy',
       desc: '',
       args: [],
     );
@@ -341,6 +371,66 @@ class S {
     return Intl.message(
       'and enjoy your experience.',
       name: 'text_update_text_span5',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I accept Privacy Policy and Terms of Use`
+  String get text_accept_privacy_notice {
+    return Intl.message(
+      'I accept Privacy Policy and Terms of Use',
+      name: 'text_accept_privacy_notice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `To provide you with a touchless and automated method of capturing your body measurements and assist you in choosing the appropriate size for your body armor, we'd need to collect and process certain information about you. In particular, we collect and process information about your body parameters (which we obtain as a result of processing the photos you provide via XpertFit), your height, weight, and gender.`
+  String get text_privacy_notice_span1 {
+    return Intl.message(
+      'To provide you with a touchless and automated method of capturing your body measurements and assist you in choosing the appropriate size for your body armor, we\'d need to collect and process certain information about you. In particular, we collect and process information about your body parameters (which we obtain as a result of processing the photos you provide via XpertFit), your height, weight, and gender.',
+      name: 'text_privacy_notice_span1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We do not store the images you upload to the XpertFit app. Your photos are deleted immediately after processing, during which we receive information about your parameters. When you download and/or use the XpertFit app, you agree to comply with the XpertFit Terms of Use and Privacy Policy.`
+  String get text_privacy_notice_span2 {
+    return Intl.message(
+      'We do not store the images you upload to the XpertFit app. Your photos are deleted immediately after processing, during which we receive information about your parameters. When you download and/or use the XpertFit app, you agree to comply with the XpertFit Terms of Use and Privacy Policy.',
+      name: 'text_privacy_notice_span2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This notice provides you with a short overview only and should be read in conjunction with the complete XpertFit `
+  String get text_privacy_notice_span3 {
+    return Intl.message(
+      'This notice provides you with a short overview only and should be read in conjunction with the complete XpertFit ',
+      name: 'text_privacy_notice_span3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Privacy Policy`
+  String get privacy_policy {
+    return Intl.message(
+      'Privacy Policy',
+      name: 'privacy_policy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Terms of Use`
+  String get terms_of_use {
+    return Intl.message(
+      'Terms of Use',
+      name: 'terms_of_use',
       desc: '',
       args: [],
     );

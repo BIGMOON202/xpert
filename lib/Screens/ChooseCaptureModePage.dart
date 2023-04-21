@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
@@ -36,9 +37,7 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
     _passedGender = widget.argument?.gender;
   }
 
@@ -79,6 +78,8 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
                 child: Container(
                   width: double.infinity,
                   child: MaterialButton(
+                    splashColor: Colors.transparent,
+                    elevation: 0,
                     onPressed: () {
                       _moveToNextPage();
                       logger.i('next button pressed');
@@ -98,10 +99,19 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
             )));
 
     var titleText = Padding(
-      padding: EdgeInsets.only(top: 40, left: 40, right: 40, bottom: 0),
+      padding: EdgeInsets.only(
+        top: 40,
+        left: 40,
+        right: 40,
+        bottom: 0,
+      ),
       child: Text(
         'How should we proceed?',
-        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontSize: 16,
+        ),
         textAlign: TextAlign.center,
       ),
     );
@@ -113,57 +123,62 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
         // mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-              child: Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
-                  child: FlatButton(
-                    onPressed: () {
-                      _selectMode(CaptureMode.withFriend);
-                    },
-                    color:
-                        _selectedMode == CaptureMode.withFriend ? _selectedColor : _backgroundColor,
-                    highlightColor: Colors.grey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(
-                            width: 95,
-                            height: 61,
-                            child: ResourceImage.imageWithName(
-                                _selectedMode == CaptureMode.withFriend
-                                    ? CaptureMode.withFriend.selectedImageName()
-                                    : CaptureMode.withFriend.unselectedImageName())),
-                        SizedBox(height: 24),
-                        Text(
-                          'With a friend',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
+            child: Container(
+              decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
+              child: MaterialButton(
+                splashColor: Colors.transparent,
+                elevation: 0,
+                onPressed: () {
+                  _selectMode(CaptureMode.withFriend);
+                },
+                color: _selectedMode == CaptureMode.withFriend ? _selectedColor : _backgroundColor,
+                highlightColor: Colors.grey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                        width: 95,
+                        height: 61,
+                        child: ResourceImage.imageWithName(_selectedMode == CaptureMode.withFriend
+                            ? CaptureMode.withFriend.selectedImageName()
+                            : CaptureMode.withFriend.unselectedImageName())),
+                    SizedBox(height: 24),
+                    Text(
+                      'With a friend',
+                      style: TextStyle(color: Colors.white),
                     ),
-                  ))),
-          Expanded(
-              child: FlatButton(
-            onPressed: () {
-              _selectMode(CaptureMode.handsFree);
-            },
-            color: _selectedMode == CaptureMode.handsFree ? _selectedColor : _backgroundColor,
-            highlightColor: Colors.grey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                    width: 45,
-                    height: 61,
-                    child: ResourceImage.imageWithName(_selectedMode == CaptureMode.handsFree
-                        ? _passedGender?.selectedImageName()
-                        : _passedGender?.unselectedImageName())),
-                SizedBox(height: 24),
-                Text(
-                  'Hands-free',
-                  style: TextStyle(color: Colors.white),
+                  ],
                 ),
-              ],
+              ),
             ),
-          )),
+          ),
+          Expanded(
+            child: MaterialButton(
+              splashColor: Colors.transparent,
+              elevation: 0,
+              onPressed: () {
+                _selectMode(CaptureMode.handsFree);
+              },
+              color: _selectedMode == CaptureMode.handsFree ? _selectedColor : _backgroundColor,
+              highlightColor: Colors.grey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                      width: 45,
+                      height: 61,
+                      child: ResourceImage.imageWithName(_selectedMode == CaptureMode.handsFree
+                          ? _passedGender?.selectedImageName()
+                          : _passedGender?.unselectedImageName())),
+                  SizedBox(height: 24),
+                  Text(
+                    'Hands-free',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -171,61 +186,70 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
     var container = Column(
       children: [
         Flexible(
-            flex: 1,
-            child: Container(
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                        color: Colors.white.withAlpha(10)),
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 8),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 30,
-                            height: 50,
-                            child: ResourceImage.imageWithName('ic_security-on.png'),
+          flex: 1,
+          child: Container(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                      color: Colors.white.withAlpha(10)),
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 8),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 30,
+                          height: 50,
+                          child: ResourceImage.imageWithName('ic_security-on.png'),
+                        ),
+                        SizedBox(
+                          width: 16,
+                        ),
+                        Flexible(
+                          child: Text(
+                            'We take your privacy very seriously and delete your scans after we process your measurements',
+                            maxLines: 4,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.normal,
+                              fontSize: 12,
+                            ),
                           ),
-                          SizedBox(
-                            width: 16,
-                          ),
-                          Flexible(
-                              child: Text(
-                                  'We take your privacy very seriously and delete your photos after we process your measurements',
-                                  maxLines: 4,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 12)))
-                        ],
-                      ),
+                        )
+                      ],
                     ),
                   ),
                 ),
               ),
-            )),
+            ),
+          ),
+        ),
         Flexible(
-            flex: 1,
-            child: Container(
-              child: Center(
-                  child: Padding(
+          flex: 1,
+          child: Container(
+            child: Center(
+              child: Padding(
                 padding: EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 8),
                 child: Text(
-                    'You can either ask someone to help you or take photos with the guidance of our Hands-free mode.',
-                    maxLines: 4,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: HexColor.fromHex('898A9D'),
-                        fontWeight: FontWeight.normal,
-                        fontSize: 14)),
-              )),
-            )),
+                  'You can either ask someone to help you or take scans with the guidance of our Hands-free mode.',
+                  maxLines: 4,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: HexColor.fromHex('898A9D'),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         Flexible(
-            flex: 4,
-            child: Stack(children: [
+          flex: 4,
+          child: Stack(
+            children: [
               Container(
                 child: Column(
                   children: [
@@ -235,17 +259,19 @@ class _ChooseCaptureModePageState extends State<ChooseCaptureModePage> {
                 ),
               ),
               nextButton
-            ]))
+            ],
+          ),
+        ),
       ],
     );
 
     var scaffold = Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
         centerTitle: true,
-        title: Text('Let\'s take two photos'),
+        title: Text('Let\'s take two scans'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       backgroundColor: SessionParameters().mainBackgroundColor,
       body: container,

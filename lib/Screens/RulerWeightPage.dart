@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
@@ -119,6 +118,8 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
         child: SizedBox(
           width: double.infinity,
           child: MaterialButton(
+            splashColor: Colors.transparent,
+            elevation: 0,
             onPressed: () {
               _moveToNextPage();
             },

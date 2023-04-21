@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
@@ -20,8 +21,8 @@ import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeAnalizer.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
-import 'package:tdlook_flutter_app/constants/keys.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/constants/keys.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -93,6 +94,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   int minAngle = 80;
   int maxAngle = 105;
   var lastGyroData = DateTime.now().millisecondsSinceEpoch;
+  PhotoError? get _previousPhotosError => widget.arguments?.previousPhotosError;
+  String _displayedFileName = '';
 
   _moveTodebugSession() async {
     var isSimulator = await Application.isSimulator();
@@ -107,7 +110,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       var sideBytes = await rootBundle.load(_mockSideImage);
       _sidePhoto = await sideBytes.convertToXFile();
 
-      _moveToNextPage();
+      await _moveToNextPage();
     }
   }
 
@@ -237,13 +240,22 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
       // _handsFreeWorker.reset();
       _handsFreeWorker?.onCaptureBlock = () {
-        logger.i('Should take photo');
+        logger.i('Should take scan');
         _handleTap();
       };
       _handsFreeWorker?.onTimerUpdateBlock = (String val) {
         logger.d('timer text: $val');
         setState(() {
           _timerText = val;
+        });
+      };
+      _handsFreeWorker?.onFileNameChangedBlock = (String val) {
+        setState(() {
+          if (_displayedFileName.isEmpty) {
+            _displayedFileName = val;
+          } else {
+            _displayedFileName += ' - $val';
+          }
         });
       };
       // _handsFreeWorker.start(andReset: true);
@@ -254,9 +266,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
 
   void _setupHandsFreeInitialStepIfNeeded() {
     TFStep? initialStep;
-    PhotoError? previousError = widget.arguments?.previousPhotosError;
-    logger.d('previousError $previousError');
-    switch (previousError) {
+    logger.d('previousError $_previousPhotosError');
+    switch (_previousPhotosError) {
       case PhotoError.both:
         if (_photoType == PhotoType.front) {
           initialStep = _gyroIsValid ? TFStep.retakeFrontIntro : TFStep.retakeFrontGreat;
@@ -282,7 +293,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         }
     }
 
-    logger.d('previousError $initialStep');
+    logger.d('[01] initialStep: $initialStep');
     _handsFreeWorker?.firstStepInFlow = initialStep;
     _handsFreeWorker?.moveToNextFlowIfGyroIsValid();
   }
@@ -348,9 +359,13 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       file = XFile.fromData(rotatedImage.readAsBytesSync());
     }
 
+    //await Future.delayed(const Duration(milliseconds: 230), () {});
+
     setState(() {
       _isTakingPicture = false;
     });
+
+    await Future.delayed(const Duration(milliseconds: 230), () {});
 
     if (activePhotoType() == PhotoType.front) {
       _frontPhoto = file;
@@ -358,18 +373,21 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       _sidePhoto = file;
     }
     if (SessionParameters().captureMode == CaptureMode.handsFree) {
-      if (activePhotoType() == PhotoType.front &&
-          widget.arguments?.previousPhotosError != PhotoError.front) {
+      if (activePhotoType() == PhotoType.front && _previousPhotosError != PhotoError.front) {
         greatSoundPlayedAfterFront = false;
         _photoType = PhotoType.side;
         _setupHandsFreeInitialStepIfNeeded();
         // _handsFreeWorker.increaseStep();
       } else {
-        _moveToNextPage();
+        await _moveToNextPage();
       }
     } else {
-      _moveToNextPage();
+      await _moveToNextPage();
     }
+  }
+
+  void _delayedPush(VoidCallback callback) {
+    Future.delayed(Duration(milliseconds: 330), callback);
   }
 
   void _showPicker() {
@@ -388,7 +406,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
           style: TextStyle(color: Colors.grey),
         ),
         onCancel: () {
-          Scaffold.of(context).showSnackBar(SnackBar(content: Text('AlertDialogPicker.cancel')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('AlertDialogPicker.cancel')));
         },
         confirm: Text(
           'confirm',
@@ -400,8 +419,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
           maxAngle = controller.selectedRowAt(section: 1) ?? 0;
           // selectedItems.add(controller.selectedRowAt(section: 0));
           // selectedItems.add(controller.selectedRowAt(section: 1));
-
-          Scaffold.of(context).showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('MIN angle is:$minAngle, MAX angle is: $maxAngle')));
         },
         builder: (context, popup) {
@@ -422,11 +440,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         });
   }
 
-  void _moveToNextPage() {
+  Future<void> _moveToNextPage() async {
     Wakelock.disable();
-
-    // _handsFreeWorker?.pause();
-    // _handsFreeWorker = null;
     if (_captureMode == CaptureMode.handsFree) {
       isMovingToResultAfterHF = true;
     }
@@ -439,14 +454,15 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       if (_photoType == PhotoType.front) {
         if (Application.isProMode == false) {
           Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (BuildContext context) => PhotoRulesPage(
-                    photoType: PhotoType.side,
-                    measurement: widget.measurement,
-                    frontPhoto: _frontPhoto,
-                    gender: widget.gender),
-              ));
+            context,
+            CupertinoPageRoute(
+              builder: (BuildContext context) => PhotoRulesPage(
+                  photoType: PhotoType.side,
+                  measurement: widget.measurement,
+                  frontPhoto: _frontPhoto,
+                  gender: widget.gender),
+            ),
+          );
         } else {
           Navigator.pushNamed(context, CameraCapturePage.route,
               arguments: CameraCapturePageArguments(
@@ -455,12 +471,19 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
                   sidePhoto: widget.arguments?.sidePhoto));
         }
       } else {
-        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+        _delayedPush(
+          () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            WaitingPage.route,
+            (route) => false,
             arguments: WaitingPageArguments(
-                measurement: widget.measurement,
-                frontPhoto: _frontPhoto,
-                sidePhoto: _sidePhoto,
-                shouldUploadMeasurements: true));
+              measurement: widget.measurement,
+              frontPhoto: _frontPhoto,
+              sidePhoto: _sidePhoto,
+              shouldUploadMeasurements: true,
+            ),
+          ),
+        );
       }
     } else {
       if (_captureMode == CaptureMode.withFriend) {
@@ -475,21 +498,23 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
                     sidePhoto: widget.arguments?.sidePhoto));
           } else {
             //make calculations
-            Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+            _delayedPush(() => Navigator.pushNamedAndRemoveUntil(
+                context, WaitingPage.route, (route) => false,
                 arguments: WaitingPageArguments(
                     measurement: widget.arguments?.measurement,
                     frontPhoto: _frontPhoto,
                     sidePhoto: widget.arguments?.sidePhoto,
-                    shouldUploadMeasurements: false));
+                    shouldUploadMeasurements: false)));
           }
         } else {
           //make calculations
-          Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+          _delayedPush(() => Navigator.pushNamedAndRemoveUntil(
+              context, WaitingPage.route, (route) => false,
               arguments: WaitingPageArguments(
                   measurement: widget.arguments?.measurement,
                   frontPhoto: widget.arguments?.frontPhoto,
                   sidePhoto: _sidePhoto,
-                  shouldUploadMeasurements: true));
+                  shouldUploadMeasurements: true)));
         }
       } else {
         XFile? _frontToUpload = _frontPhoto;
@@ -502,12 +527,19 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
           _sideToUpload = widget.arguments?.sidePhoto;
         }
 
-        Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
+        _delayedPush(
+          () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            WaitingPage.route,
+            (route) => false,
             arguments: WaitingPageArguments(
-                measurement: widget.arguments?.measurement,
-                frontPhoto: _frontToUpload,
-                sidePhoto: _sideToUpload,
-                shouldUploadMeasurements: false));
+              measurement: widget.arguments?.measurement,
+              frontPhoto: _frontToUpload,
+              sidePhoto: _sideToUpload,
+              shouldUploadMeasurements: false,
+            ),
+          ),
+        );
       }
     }
   }
@@ -527,7 +559,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         return SafeArea(
             child: Center(
           child: Padding(
-            padding: EdgeInsets.only(top: 8, left: 40, right: 40, bottom: 34),
+            padding: EdgeInsets.only(
+              top: 8,
+              left: 40,
+              right: 40,
+              bottom: 34,
+            ),
             child: FittedBox(
               child:
                   ResourceImage.imageWithName(_gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
@@ -539,43 +576,59 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
         Widget subWidget() {
           if (_gyroIsValid == false) {
             return Container(
-                decoration: BoxDecoration(
-                    color: _gyroIsValid ? Colors.transparent : Colors.black.withAlpha(100),
-                    borderRadius: BorderRadius.all(Radius.circular(30))),
-                child: Stack(children: [
+              decoration: BoxDecoration(
+                color: _gyroIsValid ? Colors.transparent : Colors.black.withAlpha(100),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(30),
+                ),
+              ),
+              child: Stack(
+                children: [
                   Center(
-                      child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                          // crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      // crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
                         Padding(
-                            padding: EdgeInsets.only(left: 35),
-                            child: SizedBox(
-                                width: 96,
-                                height: 360,
-                                child: GyroWidget(
-                                  angle: _zAngle,
-                                  captureMode: _captureMode,
-                                ))),
+                          padding: EdgeInsets.only(left: 35),
+                          child: SizedBox(
+                            width: 96,
+                            height: 360,
+                            child: GyroWidget(
+                              angle: _zAngle,
+                              captureMode: _captureMode,
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 39),
                         Text(
-                            'Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white, fontSize: 16))
-                      ]))
-                ]));
+                          'Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
           } else {
             return Container();
           }
         }
 
         return Container(
-            decoration: BoxDecoration(
-                border: Border.all(
-                  width: 10,
-                  color: _gyroIsValid ? Colors.green : Colors.red,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(40))),
-            child: subWidget());
+          decoration: BoxDecoration(
+              border: Border.all(
+                width: 10,
+                color: _gyroIsValid ? Colors.green : Colors.red,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(40))),
+          child: subWidget(),
+        );
       }
     }
 
@@ -600,25 +653,35 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     Widget captureButton() {
       if (_captureMode == CaptureMode.withFriend) {
         return Align(
-            alignment: Alignment.bottomCenter,
-            child: SafeArea(
-              child: Container(
-                  width: 100,
-                  height: 200,
-                  child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    Opacity(
-                        opacity: _gyroIsValid ? 1.0 : 0.7,
-                        child: MaterialButton(
-                          onPressed: _gyroIsValid ? _handleTap : null,
-                          // textColor: Colors.white,
-                          child: Stack(alignment: Alignment.center, children: [
-                            ResourceImage.imageWithName('ic_capture.png'),
-                            Visibility(
-                                visible: _isTakingPicture, child: CircularProgressIndicator())
-                          ]),
-                        ))
-                  ])),
-            ));
+          alignment: Alignment.bottomCenter,
+          child: SafeArea(
+            child: Container(
+              width: 100,
+              height: 200,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Opacity(
+                    opacity: _gyroIsValid ? 1.0 : 0.7,
+                    child: MaterialButton(
+                      splashColor: Colors.transparent,
+                      elevation: 0,
+                      onPressed: _gyroIsValid ? _handleTap : null,
+                      // textColor: Colors.white,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          ResourceImage.imageWithName('ic_capture.png'),
+                          Visibility(visible: _isTakingPicture, child: CircularProgressIndicator())
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
       } else {
         return Container();
       }
@@ -646,7 +709,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: activePhotoType() == PhotoType.front ? Text('Front photo') : Text('Side photo'),
+          title: activePhotoType() == PhotoType.front ? Text('Front scan') : Text('Side scan'),
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
@@ -676,10 +739,40 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
             captureButton(),
             rulerContainer(),
             Visibility(
-                visible: _timerText != '',
-                child: Center(
-                    child: Text(_timerText, style: TextStyle(fontSize: 270, color: Colors.green)))),
-            Visibility(visible: _isTakingPicture, child: Container(color: Colors.white))
+              visible: _timerText != '',
+              child: Center(
+                child: Text(
+                  _timerText,
+                  style: TextStyle(fontSize: 270, color: Colors.green),
+                ),
+              ),
+            ),
+            Visibility(
+              visible: _isTakingPicture,
+              child: Container(color: Colors.white),
+            ),
+            if (kDebugMode)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20, left: 20),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      border: Border.all(color: Colors.green),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    child: Text(
+                      _displayedFileName,
+                      style: Theme.of(context).textTheme.caption?.copyWith(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 18,
+                          ),
+                    ),
+                  ),
+                ),
+              )
           ],
         ),
       ),
@@ -703,8 +796,6 @@ class _GyroWidgetState extends State<GyroWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-
     double arrowTopOffset() {
       var arrowOffset = _arrowHeight * 0.5;
       var angle = widget.angle ?? 0; //._roundToPrecision(0);

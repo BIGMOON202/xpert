@@ -25,9 +25,12 @@ class HandsFreeAnalizer {
 
   VoidCallback? get onCaptureBlock => _player.onCaptureBlock!;
   set onCaptureBlock(VoidCallback? value) => {_player.onCaptureBlock = value};
-  ValueChanged<String>? get onTimerUpdateBlock => _player.onTimerUpdateBlock!;
-
+  ValueChanged<String>? get onTimerUpdateBlock => _player.onTimerUpdateBlock;
   set onTimerUpdateBlock(ValueChanged<String>? value) => {_player.onTimerUpdateBlock = value};
+
+  ValueChanged<String>? get onFileNameChangedBlock => _player.onFileNameChangedBlock;
+  set onFileNameChangedBlock(ValueChanged<String>? value) =>
+      {_player.onFileNameChangedBlock = value};
 
   set gyroIsValid(bool value) => {
         if (_gyroIsValid != value) {handle(isValidGyroChange: value)},

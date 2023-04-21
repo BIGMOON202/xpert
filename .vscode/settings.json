@@ -11,7 +11,7 @@
     "dart.flutterSdkPaths": [
         "~/fvm/versions"
     ],
-    "dart.flutterSdkPath": "~/fvm/versions/3.0.5",
+    "dart.flutterSdkPath": ".fvm/flutter_sdk",
     "dart.debugSdkLibraries": true,
     "dart.lineLength": 100,
     "[dart]": {
@@ -19,7 +19,7 @@
         "editor.formatOnType": true,
         "editor.rulers": [
             100
-        ],
+        ]
     },
     // Remove .fvm files from search
     "search.exclude": {
@@ -36,6 +36,6 @@
         "**/CVS": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
-        "**/*.g.dart": true,
+        "**/*.g.dart": true
     }
 }

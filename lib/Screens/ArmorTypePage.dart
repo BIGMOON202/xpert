@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
@@ -207,6 +206,8 @@ class _ArmorTypePageState extends State<ArmorTypePage> {
               child: Container(
                   width: double.infinity,
                   child: MaterialButton(
+                    splashColor: Colors.transparent,
+                    elevation: 0,
                     disabledColor: SessionParameters().disableColor,
                     onPressed: selectedType != null ? _moveToNextPage : null,
                     child: CustomText.withColor('NEXT',

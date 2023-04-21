@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
@@ -349,6 +348,8 @@ class _RulerPageStateClavicle extends State<RulerPageClavicle> {
       child: SizedBox(
           width: double.infinity,
           child: MaterialButton(
+            splashColor: Colors.transparent,
+            elevation: 0,
             onPressed: () => _moveToNextPage(),
             textColor: Colors.white,
             child: CustomText('NEXT'),

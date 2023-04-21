@@ -611,7 +611,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
                 content: new Text(
-                    'Oops! Widget requires access to the camera to allow you to make photos that are required to calculate your body measurements. Please reopen widget and try again.'),
+                    'Oops! Widget requires access to the camera to allow you to make scans that are required to calculate your body measurements. Please reopen widget and try again.'),
                 actions: <Widget>[
                   CupertinoDialogAction(
                     child: Text("Open Settings"),
@@ -753,6 +753,8 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
           Widget content;
           if (canAddMeasurement) {
             content = MaterialButton(
+              splashColor: Colors.transparent,
+              elevation: 0,
               onPressed: (() {
                 checkPermissionsAndMoveTo(measurement: measurement);
               }),
@@ -802,7 +804,8 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       // crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(

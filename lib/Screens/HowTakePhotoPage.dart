@@ -135,9 +135,9 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
     if (SessionParameters().captureMode == CaptureMode.withFriend) {
       _steps = [
         TutorialStep(
-            'Ask someone to help take 2 photos of you. Keep the device at 90° angle at the waistline.',
+            'Ask someone to help take 2 scans of you. Keep the device at 90° angle at the waistline.',
             0),
-        TutorialStep('For the side photo turn to your left.', 6)
+        TutorialStep('For the side scan turn to your left.', 6)
       ];
 
       var videoName = widget.gender?.friendsModeVideoName;
@@ -248,7 +248,9 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
                         width: 120,
                         child: Visibility(
                           visible: !_isPlaying,
-                          child: FlatButton(
+                          child: MaterialButton(
+                            splashColor: Colors.transparent,
+                            elevation: 0,
                             child: Row(
                               children: [
                                 Icon(
@@ -287,6 +289,8 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
                   child: Container(
                       width: double.infinity,
                       child: MaterialButton(
+                        splashColor: Colors.transparent,
+                        elevation: 0,
                         disabledColor: SessionParameters().disableColor,
                         onPressed: _continueButtonEnable ? _moveToNextPage : null,
                         child: CustomText.withColor(
@@ -311,7 +315,7 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('How to take photos'),
+          title: Text('How to take scans'),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
           systemOverlayStyle: SystemUiOverlayStyle.light,

@@ -1,15 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -18,9 +14,8 @@ import 'package:tdlook_flutter_app/Screens/EventsPage.dart';
 import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tdlook_flutter_app/constants/global.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import 'package:visibility_detector/visibility_detector.dart';
-import 'package:webview_flutter_plus/webview_flutter_plus.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PrivacyPolicyPage extends StatefulWidget {
   final UserType? userType;
@@ -39,56 +34,22 @@ class PrivacyPolicyPage extends StatefulWidget {
 }
 
 class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
-  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
-  //final Completer<WebViewController> _controller = Completer<WebViewController>();
-
-  //WebView? webView;
-  WebViewPlusController? _controller;
-  //double contentHeight = 0;
-
   String get colorStr {
     var color = Colors.black;
     return '#${color.red.toRadixString(16).padLeft(2, '0')}${color.green.toRadixString(16).padLeft(2, '0')}${color.blue.toRadixString(16).padLeft(2, '0')}';
   }
 
-  bool _isLoading = true;
-
   bool _isApplied = false;
-  late ScrollController _scrollController;
   String? privacyURL;
-  bool _scrollButtonIsHidden = false;
-  //double _contentHeight = 0;
-  late Completer<double> _completer;
-
-  _loadHtmlFromAssets() async {
-    var fileText = await rootBundle.loadString('assets/PRIVACY.html');
-
-    privacyURL =
-        Uri.dataFromString(fileText, mimeType: 'text/html', encoding: Encoding.getByName('utf-8'))
-            .toString();
-    _controller?.loadUrl(privacyURL!).then((value) => {
-          setState(() {
-            _isLoading = false;
-            logger.i('loaded file');
-          })
-        });
-  }
 
   Future<void> _launchInBrowser(String url) async {
-    if (await canLaunchUrlString(url)) {
-      await launchUrlString(url);
-    } else {
+    try {
+      final uri = Uri.parse(url);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
       logger.e('Could not launch $url');
+      logger.e(e);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (Platform.isAndroid) WebViewPlus.platform = AndroidWebView();
-    _isLoading = true;
-    _completer = Completer<double>();
-    _scrollController = ScrollController();
   }
 
   void _moveToNextPage() {
@@ -133,21 +94,12 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
 
   @override
   Widget build(BuildContext context) {
-    _completer = Completer<double>();
-    return FutureBuilder(
-      future: _completer.future,
-      builder: ((context, snapshot) {
-        final data = snapshot.data;
-        double contentHeight = 0;
-        if (data is double) {
-          contentHeight = data;
-        }
-        return _buildScaffold(contentHeight);
-      }),
+    final theme = Theme.of(context);
+    final bodyTextStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: HexColor.fromHex('898A9D'),
     );
-  }
-
-  Widget _buildScaffold(double contentHeight) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -160,8 +112,13 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
                 padding: EdgeInsets.only(right: 56),
                 child: Container(
                   child: Text(
-                    'Privacy Policy and Terms of Use',
+                    S.current.page_title_terms_and_privacy,
                     textAlign: TextAlign.center,
+                    style: theme.textTheme.displayMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 3,
                   ),
                 ),
@@ -170,7 +127,7 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
           ],
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -180,236 +137,155 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       backgroundColor: Colors.black,
-      body: Platform.isAndroid ? _buildAndroidContent() : _buildIOSContent(contentHeight),
-    );
-  }
-
-  Widget _buildIOSContent(double contentHeight) {
-    final optimalHeight = max(MediaQuery.of(context).size.height, contentHeight);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Container(
-            color: Colors.black,
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  physics: ClampingScrollPhysics(),
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      Container(
-                        height: optimalHeight,
-                        child: _buildWebView(),
-                      ),
-                      _buildBottomPart(widget.showApply == true),
-                    ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 12,
+                    right: 12,
+                    top: 24,
+                    bottom: 12,
+                  ),
+                  child: Text.rich(
+                    TextSpan(
+                      style: bodyTextStyle,
+                      children: <InlineSpan>[
+                        WidgetSpan(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 0),
+                            child: Text(
+                              S.current.text_privacy_notice_span1,
+                              style: bodyTextStyle,
+                            ),
+                          ),
+                        ),
+                        WidgetSpan(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: Text(
+                              S.current.text_privacy_notice_span2,
+                              style: bodyTextStyle,
+                            ),
+                          ),
+                        ),
+                        WidgetSpan(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: Text.rich(
+                              TextSpan(
+                                text: S.current.text_privacy_notice_span3,
+                                style: bodyTextStyle,
+                                children: [
+                                  TextSpan(
+                                    text: S.current.privacy_policy,
+                                    style: bodyTextStyle.copyWith(
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.white,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => _launchInBrowser(kPrivacyPolicyLink),
+                                  ),
+                                  TextSpan(
+                                    text: ' ${S.current.common_and.toLowerCase()} ',
+                                    style: bodyTextStyle,
+                                  ),
+                                  TextSpan(
+                                    text: S.current.terms_of_use + '.',
+                                    style: bodyTextStyle.copyWith(
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.white,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => _launchInBrowser(kTermsOfUseLink),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                Visibility(
-                  visible: _isLoading,
-                  child: Container(
-                    color: _backgroundColor,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-        Visibility(
-          visible: !_scrollButtonIsHidden,
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 16, top: 16),
-                child: _buildScrollToBottomButton(),
               ),
             ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildAndroidContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Stack(
-            children: [
-              _buildWebView(),
-              Visibility(
-                visible: _isLoading,
-                child: Container(
-                  color: _backgroundColor,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _buildBottomPart(widget.showApply == true),
-      ],
-    );
-  }
-
-  Widget _buildScrollToBottomButton() {
-    return FlatButton(
-        child: Container(
-          child: SizedBox(
-            width: 96,
-            height: 34,
-            child: Icon(MdiIcons.chevronDown, color: Colors.white),
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(17)),
-            border: Border.all(
-              color: Colors.white,
-              width: 1.0,
-            ),
-          ),
-        ),
-        onPressed: _scrollToBottom);
-  }
-
-  Widget _buildBottomPart(bool visible) {
-    if (visible) {
-      return VisibilityDetector(
-        key: Key('ApplyPrivacy'),
-        onVisibilityChanged: (visibilityInfo) {
-          var visiblePercentage = visibilityInfo.visibleFraction;
-          logger.d('onVisibilityChanged $visiblePercentage');
-          if (mounted) {
-            setState(() {
-              _scrollButtonIsHidden = visiblePercentage > 0;
-              logger.d('_scrollButtonIsHidden: $_scrollButtonIsHidden');
-            });
-          }
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(15.0),
-              topRight: Radius.circular(15.0),
-            ),
-            color: _backgroundColor,
-          ),
-          child: SafeArea(
-            child: Container(
-              child: Column(children: [
-                Container(
-                  child: Row(
+            if (widget.showApply == true)
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Theme(
-                          data: ThemeData(unselectedWidgetColor: Colors.white),
-                          child: Checkbox(
-                            onChanged: (newValue) {
-                              setState(() {
-                                _isApplied = newValue ?? false;
-                              });
-                            },
-                            activeColor: HexColor.fromHex('1E7AE4'),
-                            checkColor: Colors.white,
-                            hoverColor: Colors.orange,
-                            value: _isApplied,
-                          )),
+                        data: ThemeData(unselectedWidgetColor: Colors.white),
+                        child: Checkbox(
+                          onChanged: (newValue) {
+                            setState(() {
+                              _isApplied = newValue ?? false;
+                            });
+                          },
+                          activeColor: HexColor.fromHex('1E7AE4'),
+                          checkColor: Colors.white,
+                          hoverColor: Colors.orange,
+                          value: _isApplied,
+                        ),
+                      ),
                       Flexible(
                         child: Text(
-                          'I accept Privacy Policy and Terms of Use',
-                          style: TextStyle(color: Colors.white),
-                          maxLines: 3,
+                          S.current.text_accept_privacy_notice,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
                         ),
                       )
                     ],
                   ),
-                ),
-                _buildNextButton()
-              ]),
-            ),
-          ),
+                  _buildNextButton()
+                ],
+              ),
+          ],
         ),
-      );
-    } else {
-      return SizedBox();
-    }
+      ),
+    );
   }
 
   Widget _buildNextButton() {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+        padding: EdgeInsets.only(
+          left: 12,
+          right: 12,
+          bottom: 12,
+        ),
         child: Container(
           width: double.infinity,
           child: MaterialButton(
+            splashColor: Colors.transparent,
+            elevation: 0,
             onPressed: _isApplied == true ? _moveToNextPage : null,
             disabledColor: Colors.white.withOpacity(0.5),
             textColor: Colors.black,
             child: Text(
-              'CONTINUE',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              S.current.common_continue.toUpperCase(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
             color: Colors.white,
             height: 50,
-            // padding: EdgeInsets.only(left: 12, right: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
             ),
-            // padding: EdgeInsets.all(4),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildWebView() {
-    final initialUrl = Uri.dataFromString(
-            '<html><body style="background-color: $colorStr"></body></html>',
-            mimeType: 'text/html',
-            encoding: Encoding.getByName('utf-8'))
-        .toString();
-
-    return WebViewPlus(
-      initialUrl: initialUrl,
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (WebViewPlusController webViewController) async {
-        _controller = webViewController;
-        _loadHtmlFromAssets();
-      },
-      onPageFinished: (some) async {
-        final result = await _controller?.getHeight();
-        if (!_completer.isCompleted) _completer.complete(result ?? 0);
-        setState(() {
-          _isLoading = false;
-        });
-      },
-      navigationDelegate: (NavigationRequest request) {
-        if (request.url == privacyURL) {
-          return NavigationDecision.navigate;
-        }
-        if (Application.shouldOpenLinks) {
-          _launchInBrowser(request.url);
-        }
-        return NavigationDecision.prevent;
-      },
-    );
-  }
-
-  void _scrollToBottom() async {
-    setState(() {
-      _scrollButtonIsHidden = true;
-    });
-    final result = await _controller?.getHeight();
-    final height = (result ?? 0).toInt();
-    _controller?.webViewController.scrollTo(0, height);
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 500),
-      curve: Curves.ease,
     );
   }
 
@@ -418,11 +294,10 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage> {
     Navigator.push(
       context,
       CupertinoPageRoute(
-          builder: (BuildContext context) => EventsPage(
-                provider: CompanyType.armor.apiKey(),
-              )
-          // EventsPage()
-          ),
+        builder: (BuildContext context) => EventsPage(
+          provider: CompanyType.armor.apiKey(),
+        ),
+      ),
     );
   }
 }

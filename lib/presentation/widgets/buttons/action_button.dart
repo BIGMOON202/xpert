@@ -25,6 +25,8 @@ class ActionButton extends StatelessWidget {
       width: double.infinity,
       height: height,
       child: MaterialButton(
+        splashColor: Colors.transparent,
+        elevation: 0,
         onPressed: isEnabled ? onPressed : null,
         textColor: Colors.white,
         child: child,
@@ -71,6 +73,8 @@ class LightActionButton extends StatelessWidget {
       width: double.infinity,
       height: height,
       child: MaterialButton(
+        splashColor: Colors.transparent,
+        elevation: 0,
         onPressed: isEnabled ? onPressed : null,
         textColor: AppColors.lightButtonText,
         child: child,

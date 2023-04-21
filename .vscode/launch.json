@@ -78,5 +78,21 @@
                 "backstage"
             ],
         },
+        {
+            "name": "Backstage_R",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            //"flutterMode": "profile"
+            "flutterMode": "release",
+            "toolArgs": [
+                "--dart-define",
+                "ENV=backstage"
+            ],
+            "args": [
+                "--flavor",
+                "backstage"
+            ],
+        },
     ]
 }

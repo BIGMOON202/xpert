@@ -252,6 +252,8 @@ class _QuestionaryPageState extends State<QuestionaryPage> {
                 child: Container(
                   width: double.infinity,
                   child: MaterialButton(
+                    splashColor: Colors.transparent,
+                    elevation: 0,
                     disabledColor: SessionParameters().disableColor,
                     onPressed: (selectedSizes != null && selectedSizes.length > 1)
                         ? _moveToNextPage

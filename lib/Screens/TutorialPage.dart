@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
@@ -34,7 +34,7 @@ extension _TutorialStepExtension on _TutorialStep {
   String get highlitedTitle {
     switch (this) {
       case _TutorialStep.twoPhotos:
-        return 'two photos';
+        return 'two scans';
       case _TutorialStep.avatar:
         return '3D avatar';
       case _TutorialStep.recommendations:
@@ -44,14 +44,6 @@ extension _TutorialStepExtension on _TutorialStep {
 
   String get subtitle {
     return '';
-    switch (this) {
-      case _TutorialStep.twoPhotos:
-        return 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.';
-      case _TutorialStep.avatar:
-        return 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.';
-      case _TutorialStep.recommendations:
-        return 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.';
-    }
   }
 
   // int get indexTitle {
@@ -242,6 +234,8 @@ class _TutorialPageState extends State<TutorialPage> {
                 child: Container(
                     width: double.infinity,
                     child: MaterialButton(
+                      splashColor: Colors.transparent,
+                      elevation: 0,
                       disabledColor: SessionParameters().disableColor,
                       onPressed: _moveToNextPage,
                       textColor: Colors.white,
@@ -259,21 +253,23 @@ class _TutorialPageState extends State<TutorialPage> {
         ])
       ],
     );
-    // TODO: implement build
+
     return Scaffold(
         appBar: AppBar(
           leading: Container(),
           actions: [
-            FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
-                child: Text('SKIP'),
-                textColor: SessionParameters().mainFontColor,
-                onPressed: _skipPages,
-                color: SessionParameters().mainBackgroundColor)
+            MaterialButton(
+              splashColor: Colors.transparent,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(2.0),
+              ),
+              child: Text('SKIP'),
+              textColor: SessionParameters().mainFontColor,
+              onPressed: _skipPages,
+              color: SessionParameters().mainBackgroundColor,
+            )
           ],
-          brightness: Brightness.dark,
           centerTitle: true,
           title: Text(
             'How it works',
@@ -282,6 +278,7 @@ class _TutorialPageState extends State<TutorialPage> {
           ),
           backgroundColor: SessionParameters().mainBackgroundColor,
           shadowColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         backgroundColor: SessionParameters().mainBackgroundColor,
         body: container);

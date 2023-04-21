@@ -137,6 +137,8 @@ class _OverlapPageState extends State<OverlapPage> {
             child: Container(
               width: double.infinity,
               child: MaterialButton(
+                splashColor: Colors.transparent,
+                elevation: 0,
                 disabledColor: SessionParameters().disableColor,
                 onPressed: selectedLevel != null ? _moveToNextPage : null,
                 child: CustomText.withColor('NEXT',

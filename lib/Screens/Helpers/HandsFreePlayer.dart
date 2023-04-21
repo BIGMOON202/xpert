@@ -9,22 +9,23 @@ class HandsFreePlayer {
   AudioCache player = AudioCache();
   static String _playerID = 'handsFreePlayer';
 
-  //HandsFreePlayer()
-
   VoidCallback? onCaptureBlock;
   ValueChanged<String>? onTimerUpdateBlock;
+  ValueChanged<String>? onFileNameChangedBlock;
 
   Timer? _timerPauseBetweenSteps;
   Timer? _captureTimer;
   Timer? _timerTickingBeforePhoto;
 
   Future<void> playStep({TFStep? step}) async {
-    var audioFile = 'HandsFreeAudio\/${step?.audioTrackName() ?? ''}.mp3';
+    final name = step?.audioTrackName() ?? '';
+    var audioFile = 'HandsFreeAudio\/$name.mp3';
     player.fixedPlayer = AudioPlayer(playerId: _playerID);
     player.respectSilence = false;
-    logger.d('should play: $audioFile');
+    onFileNameChangedBlock?.call(name);
+    logger.d('[01] play file: $name');
     // _isPlaying = true;
-    player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
+    await player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
     logger.d('volumeIsOn: $volumeIsOn');
 
     await player.play(audioFile);
@@ -45,7 +46,7 @@ class HandsFreePlayer {
     player.fixedPlayer?.stop();
   }
 
-  void _handleTheEndOf({TFStep? step}) {
+  void _handleTheEndOf({TFStep? step}) async {
     // play timer if needed
     if (step != null && step.shouldShowTimer() == true) {
       var interval = step.afterDelayValue();
@@ -54,7 +55,7 @@ class HandsFreePlayer {
       const oneSec = const Duration(seconds: 1);
       _timerTickingBeforePhoto = new Timer.periodic(
         oneSec,
-        (Timer timer) {
+        (Timer timer) async {
           if (interval == 0) {
             // fire complete
             timer.cancel();
@@ -62,10 +63,12 @@ class HandsFreePlayer {
           } else {
             interval--;
             if (interval > 0) {
-              playSound(sound: TFOptionalSound.tick);
+              await playSound(sound: TFOptionalSound.tick);
             }
             logger.d("timer interval $interval");
-            onTimerUpdateBlock?.call(interval > 0 ? '${interval.toStringAsFixed(0)}' : '');
+            onTimerUpdateBlock?.call(
+              interval > 0 ? '${interval.toStringAsFixed(0)}' : '',
+            );
           }
         },
       );
@@ -73,54 +76,54 @@ class HandsFreePlayer {
 
     // handle the pause after step
     final seconds = step?.afterDelayValue().toInt() ?? 0;
-    var duration = Duration(seconds: seconds);
+    final duration = Duration(seconds: seconds);
     logger.d('duration $duration');
-    var durationToCapture = Duration(seconds: seconds);
+    final durationToCapture = Duration(seconds: seconds);
+    logger.d('[0] duration: $duration');
+    logger.d('[0] durationToCapture: $durationToCapture');
     if (step?.shouldCaptureAfter() == true) {
-      _captureTimer = Timer(durationToCapture, () {
+      _captureTimer = Timer(durationToCapture, () async {
         if (step?.shouldCaptureAfter() == true) {
-          playSound(sound: TFOptionalSound.capture);
+          await playSound(sound: TFOptionalSound.capture);
         }
       });
     }
-    _timerPauseBetweenSteps = Timer(duration, () {
-      logger.d('timer fired after ${duration}');
+    _timerPauseBetweenSteps = Timer(duration, () async {
+      logger.d('timer fired after $duration');
 
       if (step?.shouldCaptureAfter() == true) {
-        Timer(Duration(milliseconds: 400), onCaptureBlock!);
+        Timer(Duration(milliseconds: 300), onCaptureBlock!);
       } else {
-        _moveToNext(step: step);
+        await _moveToNext(step: step);
       }
     });
   }
 
-  void playSound({required TFOptionalSound sound}) {
-    var audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
+  Future<void> playSound({required TFOptionalSound sound}) async {
+    final audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
     player.fixedPlayer = AudioPlayer(playerId: _playerID);
-    player.respectSilence = sound.respectsSilentMode;
-    player.fixedPlayer?.setReleaseMode(ReleaseMode.STOP);
-    logger.d('should play sound: $audioFile');
 
-    player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
-    logger.d('volumeIsOn: $volumeIsOn');
-    player.play(audioFile);
+    player.respectSilence = sound.respectsSilentMode;
+    await player.fixedPlayer?.setReleaseMode(ReleaseMode.STOP);
+    await player.fixedPlayer?.setVolume(volumeIsOn ? 1 : 0);
+    await player.play(audioFile);
   }
 
-  void _moveToNext({TFStep? step}) {
+  Future<void> _moveToNext({TFStep? step}) async {
     logger.i('increaseStep');
 
     var newStepIndex = (step?.index ?? 0) + 1;
     logger.d('newStepIndex: $newStepIndex');
 
     if (TFStep.values.length > newStepIndex) {
-      playStep(step: TFStep.values[newStepIndex]);
+      await playStep(step: TFStep.values[newStepIndex]);
     }
   }
 
   bool volumeIsOn = true;
 
-  void setSound({required bool on}) {
+  Future<void> setSound({required bool on}) async {
     volumeIsOn = on;
-    player.fixedPlayer?.setVolume(on ? 1 : 0);
+    await player.fixedPlayer?.setVolume(on ? 1 : 0);
   }
 }

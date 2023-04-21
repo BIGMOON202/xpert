@@ -1,49 +1,94 @@
 {
   "project_info": {
-    "project_number": "768234624213",
-    "project_id": "dlook-xpertfit",
-    "storage_bucket": "dlook-xpertfit.appspot.com"
+    "project_number": "780247890893",
+    "project_id": "xpertfit-3d149",
+    "storage_bucket": "xpertfit-3d149.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:768234624213:android:979506445095c368467e5c",
+        "mobilesdk_app_id": "1:780247890893:android:cba569b0c7edeb3e53a284",
         "android_client_info": {
           "package_name": "com.tdlook_xpertfit_app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "768234624213-58rfa1clcd67u60iita6cq2ri4fn21k6.apps.googleusercontent.com",
+          "client_id": "780247890893-n7rk40fk4aj5n7bmcupnbk8lutfg6sop.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.tdlook_xpertfit_app",
-            "certificate_hash": "50100a27100b34caf3d4e42efc1c3f17132f8c9e"
+            "certificate_hash": "ba2bd8098233190a60ca0fe86d5084481e18d718"
           }
         },
         {
-          "client_id": "768234624213-qtt9dfl4frcvjhcf6ma3tsrrunmvujgv.apps.googleusercontent.com",
+          "client_id": "780247890893-rg05uktdbmt3jso07blmt6c9dbfts9vh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAWWL4eo5J3Sx0D2L0nf5YbFT-7nGkdQbc"
+          "current_key": "AIzaSyB6QvijrhSDS5g-RBsxHFHTwb_mEIh0nW8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "768234624213-qtt9dfl4frcvjhcf6ma3tsrrunmvujgv.apps.googleusercontent.com",
+              "client_id": "780247890893-rg05uktdbmt3jso07blmt6c9dbfts9vh.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "768234624213-24t8fmo30sufnjqblqcl70sgii2jr8ml.apps.googleusercontent.com",
+              "client_id": "780247890893-jchljcc3nqi8vr8u41s2tdgu7ec6q7tt.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.project.xpertfit",
-                "app_store_id": "1552876564"
+                "bundle_id": "com.project.xpertfit-backstage",
+                "app_store_id": "1591637448"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780247890893:android:3d9fd6e289b6ce0153a284",
+        "android_client_info": {
+          "package_name": "com.tdlook_xpertfit_app_backstage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "780247890893-6109j86l9mkibgubnhtpt7q6qjdqivbj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tdlook_xpertfit_app_backstage",
+            "certificate_hash": "ba2bd8098233190a60ca0fe86d5084481e18d718"
+          }
+        },
+        {
+          "client_id": "780247890893-rg05uktdbmt3jso07blmt6c9dbfts9vh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6QvijrhSDS5g-RBsxHFHTwb_mEIh0nW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "780247890893-rg05uktdbmt3jso07blmt6c9dbfts9vh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "780247890893-jchljcc3nqi8vr8u41s2tdgu7ec6q7tt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.project.xpertfit-backstage",
+                "app_store_id": "1591637448"
               }
             }
           ]

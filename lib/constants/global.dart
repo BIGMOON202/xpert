@@ -14,3 +14,6 @@ const kRelease = 'release';
 const kCompanyTypeArmorOnly = true;
 const kDefaultHoursFormat = 'h:mm a';
 const kDefaultDateFormat = 'd MMM yyyy';
+
+const kPrivacyPolicyLink = 'https://xpertfit-adm.3dlook.me/privacy-policy';
+const kTermsOfUseLink = 'https://xpertfit-adm.3dlook.me/terms-of-use';

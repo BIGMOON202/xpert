@@ -96,6 +96,8 @@ class _SoundCheckPageState extends State<SoundCheckPage> {
                   child: Container(
                       width: double.infinity,
                       child: MaterialButton(
+                        splashColor: Colors.transparent,
+                        elevation: 0,
                         disabledColor: SessionParameters().disableColor,
                         onPressed: _continueButtonEnable ? _moveToNextPage : null,
                         child: CustomText.withColor(

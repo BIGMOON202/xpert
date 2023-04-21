@@ -9,6 +9,12 @@ extension StringExtensions on String {
   }
 
   String get onlyDigits => replaceAll(kDigitsOnlyRegExp, '');
+
+  // Fix: EF-2420
+  String get fixAllPhotoTexts => replaceAll('Photos', 'Scans')
+      .replaceAll('photos', 'scans')
+      .replaceAll('Photo', 'Scan')
+      .replaceAll('photo', 'scan');
 }
 
 extension EmailValidator on String {

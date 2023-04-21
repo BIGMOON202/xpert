@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
 
@@ -11,8 +10,10 @@ class RecommendationsListWorker {
   NetworkAPI _provider = NetworkAPI();
 
   Future<List<RecommendationModel>> fetchData() async {
-    final response =
-        await _provider.get('measurements/${measurementId}/get_recommendations/', useAuth: true);
+    final response = await _provider.get(
+      'measurements/$measurementId/get_recommendations/',
+      useAuth: true,
+    );
 
     var results = <RecommendationModel>[];
     results = (response as List).map((item) => RecommendationModel.fromJson(item)).toList();
@@ -77,13 +78,13 @@ class RecommendationModel {
     size = json['size'];
     sizeSecond = json['size_second'];
     rawResponseData = json['raw_response_data'] != null
-        ? new RawResponseData.fromJson(json['raw_response_data'])
+        ? RawResponseData.fromJson(json['raw_response_data'])
         : null;
-    product = json['product'] != null ? new Product.fromJson(json['product']) : null;
+    product = json['product'] != null ? Product.fromJson(json['product']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['measurement'] = this.measurement;
     data['size'] = this.size;
     data['size_second'] = this.sizeSecond;
@@ -104,11 +105,11 @@ class RawResponseData {
 
   RawResponseData.fromJson(Map<String, dynamic> json) {
     errors = json['errors'];
-    normal = json['normal'] != null ? new RecommendationNormal.fromJson(json['normal']) : null;
+    normal = json['normal'] != null ? RecommendationNormal.fromJson(json['normal']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['errors'] = this.errors;
     return data;
   }
@@ -162,7 +163,7 @@ class Product {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = this.id;
     data['name'] = this.name;
     data['brand'] = this.brand;

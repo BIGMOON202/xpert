@@ -47,6 +47,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "button_back_to_event_detail":
             MessageLookupByLibrary.simpleMessage("Back to event details"),
         "common_add": MessageLookupByLibrary.simpleMessage("Add"),
+        "common_and": MessageLookupByLibrary.simpleMessage("And"),
+        "common_continue": MessageLookupByLibrary.simpleMessage("Continue"),
         "common_email": MessageLookupByLibrary.simpleMessage("Email"),
         "common_no": MessageLookupByLibrary.simpleMessage("No"),
         "common_ok": MessageLookupByLibrary.simpleMessage("Ok"),
@@ -63,6 +65,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "page_title_choose_weight_as_ew": m4,
         "page_title_new_ew":
             MessageLookupByLibrary.simpleMessage("New end-wearer"),
+        "page_title_terms_and_privacy": MessageLookupByLibrary.simpleMessage(
+            "Terms of Use and Privacy Notice"),
+        "privacy_policy":
+            MessageLookupByLibrary.simpleMessage("Privacy Policy"),
+        "terms_of_use": MessageLookupByLibrary.simpleMessage("Terms of Use"),
+        "text_accept_privacy_notice": MessageLookupByLibrary.simpleMessage(
+            "I accept Privacy Policy and Terms of Use"),
         "text_available_updates":
             MessageLookupByLibrary.simpleMessage("New update is available"),
         "text_customer_email":
@@ -78,6 +87,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Send invite via"),
         "text_phone_number":
             MessageLookupByLibrary.simpleMessage("Phone number"),
+        "text_privacy_notice_span1": MessageLookupByLibrary.simpleMessage(
+            "To provide you with a touchless and automated method of capturing your body measurements and assist you in choosing the appropriate size for your body armor, we\'d need to collect and process certain information about you. In particular, we collect and process information about your body parameters (which we obtain as a result of processing the photos you provide via XpertFit), your height, weight, and gender."),
+        "text_privacy_notice_span2": MessageLookupByLibrary.simpleMessage(
+            "We do not store the images you upload to the XpertFit app. Your photos are deleted immediately after processing, during which we receive information about your parameters. When you download and/or use the XpertFit app, you agree to comply with the XpertFit Terms of Use and Privacy Policy."),
+        "text_privacy_notice_span3": MessageLookupByLibrary.simpleMessage(
+            "This notice provides you with a short overview only and should be read in conjunction with the complete XpertFit "),
         "text_update_text_span1":
             MessageLookupByLibrary.simpleMessage("The current version of the "),
         "text_update_text_span2":

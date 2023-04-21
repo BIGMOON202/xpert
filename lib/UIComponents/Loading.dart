@@ -50,7 +50,9 @@ class Error extends StatelessWidget {
     Widget _retryWidget() {
       if (this.showRetry == true) {
         return Flexible(
-          child: RaisedButton(
+          child: MaterialButton(
+            splashColor: Colors.transparent,
+            elevation: 0,
             color: Colors.white,
             child: Text('Retry', style: TextStyle(color: Colors.black)),
             onPressed: () => onRetryPressed?.call(),

@@ -47,64 +47,71 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
               Row(
                 children: [
                   Expanded(
-                      child: Container(
-                          decoration:
-                              BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
-                          child: FlatButton(
-                            onPressed: () {
-                              _selectUserType(0);
-                            },
-                            color: _selectedCompanyType == CompanyType.uniforms
-                                ? _selectedColor
-                                : _backgroundColor,
-                            highlightColor: Colors.grey,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                AspectRatio(aspectRatio: 10),
-                                AspectRatio(
-                                    aspectRatio: 2.5,
-                                    child: ResourceImage.imageWithName(
-                                        _selectedCompanyType == CompanyType.uniforms
-                                            ? CompanyType.uniforms.selectedImageName()
-                                            : CompanyType.uniforms.unselectedImageName())),
-                                AspectRatio(aspectRatio: 10),
-                                Text(
-                                  'Uniforms',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                AspectRatio(aspectRatio: 10),
-                              ],
+                    child: Container(
+                      decoration:
+                          BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(20))),
+                      child: MaterialButton(
+                        splashColor: Colors.transparent,
+                        elevation: 0,
+                        onPressed: () {
+                          _selectUserType(0);
+                        },
+                        color: _selectedCompanyType == CompanyType.uniforms
+                            ? _selectedColor
+                            : _backgroundColor,
+                        highlightColor: Colors.grey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            AspectRatio(aspectRatio: 10),
+                            AspectRatio(
+                                aspectRatio: 2.5,
+                                child: ResourceImage.imageWithName(
+                                    _selectedCompanyType == CompanyType.uniforms
+                                        ? CompanyType.uniforms.selectedImageName()
+                                        : CompanyType.uniforms.unselectedImageName())),
+                            AspectRatio(aspectRatio: 10),
+                            Text(
+                              'Uniforms',
+                              style: TextStyle(color: Colors.white),
                             ),
-                          ))),
-                  Expanded(
-                      child: FlatButton(
-                    onPressed: () {
-                      _selectUserType(1);
-                    },
-                    color: _selectedCompanyType == CompanyType.armor
-                        ? _selectedColor
-                        : _backgroundColor,
-                    highlightColor: Colors.grey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        AspectRatio(aspectRatio: 10),
-                        AspectRatio(
-                            aspectRatio: 2.5,
-                            child: ResourceImage.imageWithName(
-                                _selectedCompanyType == CompanyType.armor
-                                    ? CompanyType.armor.selectedImageName()
-                                    : CompanyType.armor.unselectedImageName())),
-                        AspectRatio(aspectRatio: 10),
-                        Text(
-                          'Armor',
-                          style: TextStyle(color: Colors.white),
+                            AspectRatio(aspectRatio: 10),
+                          ],
                         ),
-                        AspectRatio(aspectRatio: 10),
-                      ],
+                      ),
                     ),
-                  )),
+                  ),
+                  Expanded(
+                    child: MaterialButton(
+                      splashColor: Colors.transparent,
+                      elevation: 0,
+                      onPressed: () {
+                        _selectUserType(1);
+                      },
+                      color: _selectedCompanyType == CompanyType.armor
+                          ? _selectedColor
+                          : _backgroundColor,
+                      highlightColor: Colors.grey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          AspectRatio(aspectRatio: 10),
+                          AspectRatio(
+                              aspectRatio: 2.5,
+                              child: ResourceImage.imageWithName(
+                                  _selectedCompanyType == CompanyType.armor
+                                      ? CompanyType.armor.selectedImageName()
+                                      : CompanyType.armor.unselectedImageName())),
+                          AspectRatio(aspectRatio: 10),
+                          Text(
+                            'Armor',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          AspectRatio(aspectRatio: 10),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
               AspectRatio(aspectRatio: 30),
@@ -148,6 +155,8 @@ class _ChooseCompanyPageState extends State<ChooseCompanyPage> {
                   child: Container(
                       width: double.infinity,
                       child: MaterialButton(
+                        splashColor: Colors.transparent,
+                        elevation: 0,
                         textTheme: ButtonTextTheme.accent,
                         onPressed: _selectedCompanyType != null
                             ? () {

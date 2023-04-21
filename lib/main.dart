@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/app.dart';
 import 'package:tdlook_flutter_app/application/config/app_env.dart';
+import 'package:tdlook_flutter_app/application/configs/firebase_app.dart';
+import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tdlook_flutter_app/common/utils/store_utils.dart';
 
 // Toggle this to cause an async error to be thrown during initialization
@@ -48,7 +51,9 @@ class NavigationService {
 void main() async {
   // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) => {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   await AppEnv.load();
   final store = await StoreUtils.fetchStoreApp();
@@ -56,7 +61,11 @@ void main() async {
   // Hundle Flutter errors and send to Crashlytics
   /// Handle Flutter errors and send to Crashlytics
   FlutterError.onError = (FlutterErrorDetails details) {
-    FirebaseCrashlytics.instance.recordFlutterError(details);
+    if (kDebugMode) {
+      logger.e(details.exceptionAsString());
+    } else {
+      FirebaseCrashlytics.instance.recordFlutterError(details);
+    }
   };
 
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
@@ -69,7 +78,11 @@ void main() async {
     runZonedGuarded(() {
       runApp(App(store: store));
     }, (error, stackTrace) {
-      FirebaseCrashlytics.instance.recordError(error, stackTrace);
+      if (kDebugMode) {
+        logger.wtf(error.toString(), error, stackTrace);
+      } else {
+        FirebaseCrashlytics.instance.recordError(error, stackTrace);
+      }
     });
   });
 }

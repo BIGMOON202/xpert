@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/MeasurementsWorker.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
@@ -360,12 +361,12 @@ class UpdateMeasurementBloc {
   }
 
   uploadPhotos() async {
-    setLoading(name: 'Uploading photos', delay: 2);
+    setLoading(name: 'Uploading scans', delay: 2);
     try {
       PhotoUploaderModel? info = await _uploadPhotosWorker?.uploadData();
       if (info?.detail == 'OK') {
         isUploadingSuccess = true;
-        chuckListSink?.add(Response.loading('Photo Upload Completed!'));
+        chuckListSink?.add(Response.loading('Scans Upload Completed!'));
         _enableContinueTimer(delay: checkFrequency).then((value) {
           observeResults_v2();
         });
@@ -488,19 +489,21 @@ extension ErrorProcessingTypeExtension on ErrorProcessingType {
 
 extension DetailExtension on Detail {
   String uiDescription() {
-    switch (this.message?.toLowerCase()) {
-      case 'side photo in the front':
-        return 'It looks like you took the side photo\ninstead of the front one';
-      case 'front photo in the side':
-        return 'It looks like you took the front photo\ninstead of the side one';
+    var msg = this.message?.toLowerCase() ?? '';
+    msg = msg.fixAllPhotoTexts;
+    switch (msg) {
+      case 'side scan in the front':
+        return 'It looks like you took the side scan\ninstead of the front one';
+      case 'front scan in the side':
+        return 'It looks like you took the front scan\ninstead of the side one';
       case 'can\'t detect the human body':
         return 'We don\'t seem to be able to detect your body!';
       case 'the body is not full':
         return 'Sorry! We need to be able to detect your entire body!';
       default:
-        var str = 'the pose is wrong, сheck your ';
-        if (this.message?.toLowerCase().contains(str) == true) {
-          var bodyPart = this.message?.toLowerCase().replaceAll(str, '') ?? '';
+        const str = 'the pose is wrong, сheck your ';
+        if (msg.contains(str) == true) {
+          final bodyPart = msg.replaceAll(str, '');
           return 'Oh no! We were not able to detect your $bodyPart';
         }
         return '';
@@ -508,20 +511,22 @@ extension DetailExtension on Detail {
   }
 
   String? uiTitle() {
-    switch (this.message?.toLowerCase() ?? '') {
-      case 'side photo in the front':
-        return 'Please retake the front photo';
-      case 'front photo in the side':
-        return 'Please retake the side photo';
+    var msg = this.message?.toLowerCase() ?? '';
+    msg = msg.fixAllPhotoTexts;
+    switch (msg) {
+      case 'side scan in the front':
+        return 'Please retake the front scan';
+      case 'front scan in the side':
+        return 'Please retake the side scan';
       case 'can\'t detect the human body':
-        return 'Please retake the ${this.type?.name()} photo and ensure your whole body can be seen in the photo!';
+        return 'Please retake the ${this.type?.name()} scan and ensure your whole body can be seen in the scan!';
       case 'the body is not full':
-        return 'Please retake the ${this.type?.name()} photo and ensure your entire body can be seen in the photo, and follow the pose!';
+        return 'Please retake the ${this.type?.name()} scan and ensure your entire body can be seen in the scan, and follow the pose!';
       default:
-        var str = 'the pose is wrong, сheck your ';
-        if (this.message?.toLowerCase().contains(str) == true) {
-          var bodyPart = this.message?.toLowerCase().replaceAll(str, '') ?? '';
-          return 'Remember, your $bodyPart must be seen in the photo!';
+        const str = 'the pose is wrong, сheck your ';
+        if (msg.contains(str) == true) {
+          final bodyPart = msg.replaceAll(str, '');
+          return 'Remember, your $bodyPart must be seen in the scan!';
         }
         return this.message;
     }

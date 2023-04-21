@@ -56,14 +56,16 @@ class HandsFreeWorker {
       };
 
   AudioCache? _tickPlayer;
+
   void _playSound(TFOptionalSound sound) {
     if (_tickPlayer == null) {
       _tickPlayer = AudioCache();
     }
-    var audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
+    final audioFile = 'HandsFreeAudio\/${sound.fileName}.mp3';
     _tickPlayer?.respectSilence = sound.respectsSilentMode;
     _tickPlayer?.fixedPlayer?.setReleaseMode(ReleaseMode.STOP);
-    logger.d('should play tick: $audioFile');
+    logger.d('[1]should play filename: ${sound.fileName}');
+    logger.d('[1]should play tick: $audioFile');
     _tickPlayer?.play(audioFile);
   }
 
@@ -330,7 +332,7 @@ class HandsFreeWorker {
     var duration = Duration(seconds: _step?.afterDelayValue().toInt() ?? 0);
     logger.i('duration');
     pauseTimer = Timer(duration, () {
-      logger.d('timer fired after ${duration}');
+      logger.d('timer fired after $duration');
 
       if (_gyroIsValid == false) {
         logger.i('_gyroIsValid == false');
@@ -338,10 +340,9 @@ class HandsFreeWorker {
       }
 
       if (_step?.shouldCaptureAfter() == true) {
-      
         _playSound(TFOptionalSound.capture);
         if (onCaptureBlock != null) {
-          Timer(Duration(milliseconds: 400), onCaptureBlock!);
+          Timer(Duration(milliseconds: 300), onCaptureBlock!);
         }
         //onCaptureBlock?.call();
       } else {

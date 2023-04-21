@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
@@ -12,8 +11,6 @@ import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerViewController.da
 import 'package:tdlook_flutter_app/Screens/RulerWeightPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/SegmentedControl.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
-
-import '../Models/MeasurementModel.dart';
 
 class RulerPage extends StatefulWidget {
   final Gender? gender;
@@ -138,6 +135,8 @@ class _RulerPageState extends State<RulerPage> {
         child: SizedBox(
           width: double.infinity,
           child: MaterialButton(
+            splashColor: Colors.transparent,
+            elevation: 0,
             onPressed: () {
               _moveToNextPage();
             },

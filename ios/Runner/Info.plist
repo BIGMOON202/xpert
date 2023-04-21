@@ -34,13 +34,13 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>We need access to your calendar to remind you about new events</string>
 	<key>NSCameraUsageDescription</key>
-	<string>In order to find the recommended size, you need to take 2 photos of yourself: front and side. Please allow camera access to take photos from inside the XpertFit application</string>
+	<string>In order to find the recommended size, you need to take 2 scans of yourself: front and side. Please allow camera access to take scans from inside the XpertFit application</string>
 	<key>NSContactsUsageDescription</key>
 	<string>We need access to your contact list to give your ability to info with the Dealer</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Can I use the mic please?</string>
 	<key>NSMotionUsageDescription</key>
-	<string>We need access to your motion data for providing you with better photo capturing experience</string>
+	<string>We need access to your motion data for providing you with better scan capturing experience</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>We need access to speech recognition to help you with hands free capturing mode</string>
 	<key>UILaunchStoryboardName</key>
@@ -79,5 +79,7 @@
 		<string>tel</string>
 		<string>mailto</string>
 	</array>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>

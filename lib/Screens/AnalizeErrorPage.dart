@@ -1,6 +1,6 @@
 import 'package:camera/camera.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -77,13 +77,18 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
       logger.d('_photoError: ${_photoError?.index}');
       logger.i('push camera');
 
-      Navigator.pushNamedAndRemoveUntil(context, CameraCapturePage.route, (route) => false,
-          arguments: CameraCapturePageArguments(
-              measurement: widget.arguments?.measurement,
-              frontPhoto: _frontPhoto,
-              sidePhoto: _sidePhoto,
-              photoType: _passedPhotoType,
-              previousPhotosError: _photoError));
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        CameraCapturePage.route,
+        (route) => false,
+        arguments: CameraCapturePageArguments(
+          measurement: widget.arguments?.measurement,
+          frontPhoto: _frontPhoto,
+          sidePhoto: _sidePhoto,
+          photoType: _passedPhotoType,
+          previousPhotosError: _photoError,
+        ),
+      );
     } else {
       if (widget.arguments?.canRestartLastMeasurement == true) {
         Navigator.pushNamedAndRemoveUntil(context, WaitingPage.route, (route) => false,
@@ -114,7 +119,6 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     var title = '';
@@ -130,7 +134,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
     logger.d('number of errors: ${detail.length}');
     if (detail.isEmpty == false) {
       if (detail.length > 1) {
-        title = 'Retake both photos';
+        title = 'Retake both scans';
         _photoError = PhotoError.both;
         logger.d('photoType${_photoError?.index}');
       } else {
@@ -141,7 +145,7 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
           _photoError = PhotoError.front;
         }
         logger.d('photoType${_photoError?.index}');
-        title = 'Retake ${photoType?.name()} photo';
+        title = 'Retake ${photoType?.name()} scan';
       }
     } else {
       title = 'Try again';
@@ -153,8 +157,6 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-
     Widget _configUndefinedError() {
       return Padding(
           padding: EdgeInsets.only(left: 20, right: 20),
@@ -190,20 +192,32 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
                   )),
               SizedBox(width: 16),
               Flexible(
-                  child: Column(children: [
-                Text(
-                  _title ?? '',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: _textColor),
-                  maxLines: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _title ?? '',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: _textColor,
+                      ),
+                      textAlign: TextAlign.left,
+                      maxLines: 10,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      _description,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        color: _optionalTextColor,
+                      ),
+                      maxLines: 10,
+                    )
+                  ],
                 ),
-                SizedBox(height: 10),
-                Text(
-                  _description,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400, fontSize: 14, color: _optionalTextColor),
-                  maxLines: 10,
-                )
-              ]))
+              )
             ],
           ));
     }
@@ -256,6 +270,8 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
                 child: Container(
                     width: double.infinity,
                     child: MaterialButton(
+                      splashColor: Colors.transparent,
+                      elevation: 0,
                       onPressed: _continueAction,
                       disabledColor: _retakeButtonBackground.withOpacity(0.5),
                       textColor: Colors.white,
@@ -276,11 +292,11 @@ class _AnalizeErrorPageState extends State<AnalizeErrorPage> {
 
     var scaffold = Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
         centerTitle: true,
         title: Text('Error'),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       backgroundColor: _backgroundColor,
       body: container,

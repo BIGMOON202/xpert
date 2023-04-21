@@ -17,6 +17,7 @@ import 'package:tdlook_flutter_app/Screens/TutorialPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tdlook_flutter_app/constants/global.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
 
 class LoginPage extends StatefulWidget {
   final UserType? userType;
@@ -44,6 +45,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    //FirebaseCrashlytics.instance.crash();
     if (Application.isInDebugMode) {
       _email = 'andrew+dublesr@3dlook.me';
       _password = '!Qa123456789Qa';
@@ -91,12 +93,14 @@ class _LoginPageState extends State<LoginPage> {
       var isUserTypeForcedToShow = widget.userType == UserType.endWearer;
       if (agreementSigned == false || isUserTypeForcedToShow == true) {
         Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (BuildContext context) => PrivacyPolicyPage(
-                      credentials: _credentials,
-                      userType: widget.userType,
-                    )));
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => PrivacyPolicyPage(
+              credentials: _credentials,
+              userType: widget.userType,
+            ),
+          ),
+        );
       } else {
         prefs?.setString('refresh', _credentials?.refresh ?? ''); // for string value
         prefs?.setString('access', _credentials?.access ?? ''); // for string value
@@ -114,13 +118,14 @@ class _LoginPageState extends State<LoginPage> {
 
         if (prefs?.getBool('intro_seen') != true) {
           Navigator.push(
-              context,
-              MaterialPageRoute<Null>(
-                builder: (BuildContext context) {
-                  return TutorialPage();
-                },
-                fullscreenDialog: true,
-              ));
+            context,
+            MaterialPageRoute<Null>(
+              builder: (BuildContext context) {
+                return TutorialPage();
+              },
+              fullscreenDialog: true,
+            ),
+          );
         }
       }
     }
@@ -219,11 +224,13 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
             width: double.infinity,
             child: MaterialButton(
+              splashColor: Colors.transparent,
+              elevation: 0,
               onPressed: _continueIsEnabled() ? authCall : null,
               disabledColor: Colors.white.withOpacity(0.5),
               textColor: Colors.black,
               child: Text(
-                'CONTINUE',
+                S.current.common_continue.toUpperCase(),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               color: Colors.white,

@@ -431,17 +431,17 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     SizedBox(height: 18),
                     _createDrawerItem(
-                        image: ResourceImage.imageWithName('privacy_icon.png'),
-                        text: 'Privacy Policy and \nTerms of Use',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (BuildContext context) =>
-                                  PrivacyPolicyPage(showApply: false),
-                            ),
-                          );
-                        }),
+                      image: ResourceImage.imageWithName('privacy_icon.png'),
+                      text: 'Privacy Policy and \nTerms of Use',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (BuildContext context) => PrivacyPolicyPage(showApply: false),
+                          ),
+                        );
+                      },
+                    ),
                     SizedBox(height: 18),
                     settingsWidget()
                   ],
@@ -530,8 +530,10 @@ class EventsListWidget extends StatelessWidget {
       var companyType = event.agency?.type?.replaceAll('_', ' ').capitalizeFirst() ?? '-';
 
       final startTime = event.startDateTime?.toLocal();
-      var eventStartDate = startTime != null ? DateFormat(kDefaultDateFormat).format(startTime) : '';
-      var eventStartTime = startTime != null ? DateFormat(kDefaultHoursFormat).format(startTime) : '';
+      var eventStartDate =
+          startTime != null ? DateFormat(kDefaultDateFormat).format(startTime) : '';
+      var eventStartTime =
+          startTime != null ? DateFormat(kDefaultHoursFormat).format(startTime) : '';
 
       final endTime = event.endDateTime?.toLocal();
       var eventEndDate = endTime != null ? DateFormat(kDefaultDateFormat).format(endTime) : '';

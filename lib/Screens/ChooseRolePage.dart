@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
@@ -65,77 +64,89 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                     child: Row(
                       children: [
                         Expanded(
-                            child: Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                                child: FlatButton(
-                                  onPressed: () {
-                                    _selectUserType(0);
-                                  },
-                                  color: _selectedUserType == UserType.endWearer
-                                      ? _selectedColor
-                                      : _backgroundColor,
-                                  highlightColor: Colors.grey,
-                                  child: Center(
-                                      child: Column(
-                                    // crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      SizedBox(height: 4),
-                                      AspectRatio(
-                                          aspectRatio: 2.2,
-                                          // width: 45,
-                                          // height: 61,
-                                          child: ResourceImage.imageWithName(
-                                              _selectedUserType == UserType.endWearer
-                                                  ? UserType.endWearer.selectedImageName()
-                                                  : UserType.endWearer.unselectedImageName())),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        'I\'m the end-wearer',
-                                        style: TextStyle(color: Colors.white),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text('Measure yourself',
-                                          style: TextStyle(
-                                              color: HexColor.fromHex('898A9D'), fontSize: 12),
-                                          textAlign: TextAlign.center),
-                                    ],
-                                  )),
-                                ))),
-                        Expanded(
-                            child: FlatButton(
-                          onPressed: () {
-                            _selectUserType(1);
-                          },
-                          color: _selectedUserType == UserType.salesRep
-                              ? _selectedColor
-                              : _backgroundColor,
-                          highlightColor: Colors.grey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              SizedBox(height: 4),
-                              AspectRatio(
-                                  aspectRatio: 2.2,
-                                  // width: 45,
-                                  // height:61,
-                                  child: ResourceImage.imageWithName(
-                                      _selectedUserType == UserType.salesRep
-                                          ? UserType.salesRep.selectedImageName()
-                                          : UserType.salesRep.unselectedImageName())),
-                              SizedBox(height: 10),
-                              Text('I\'m the sales rep',
-                                  style: TextStyle(color: Colors.white),
-                                  textAlign: TextAlign.center),
-                              SizedBox(height: 4),
-                              Text('Measure end-wearers',
-                                  style: TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12),
-                                  textAlign: TextAlign.center),
-                            ],
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              ),
+                            ),
+                            child: MaterialButton(
+                              splashColor: Colors.transparent,
+                              elevation: 0,
+                              onPressed: () {
+                                _selectUserType(0);
+                              },
+                              color: _selectedUserType == UserType.endWearer
+                                  ? _selectedColor
+                                  : _backgroundColor,
+                              highlightColor: Colors.grey,
+                              child: Center(
+                                child: Column(
+                                  // crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    SizedBox(height: 4),
+                                    AspectRatio(
+                                        aspectRatio: 2.2,
+                                        // width: 45,
+                                        // height: 61,
+                                        child: ResourceImage.imageWithName(
+                                            _selectedUserType == UserType.endWearer
+                                                ? UserType.endWearer.selectedImageName()
+                                                : UserType.endWearer.unselectedImageName())),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'I\'m the end-wearer',
+                                      style: TextStyle(color: Colors.white),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text('Measure yourself',
+                                        style: TextStyle(
+                                            color: HexColor.fromHex('898A9D'), fontSize: 12),
+                                        textAlign: TextAlign.center),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        )),
+                        ),
+                        Expanded(
+                          child: MaterialButton(
+                            splashColor: Colors.transparent,
+                            elevation: 0,
+                            onPressed: () {
+                              _selectUserType(1);
+                            },
+                            color: _selectedUserType == UserType.salesRep
+                                ? _selectedColor
+                                : _backgroundColor,
+                            highlightColor: Colors.grey,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                SizedBox(height: 4),
+                                AspectRatio(
+                                    aspectRatio: 2.2,
+                                    // width: 45,
+                                    // height:61,
+                                    child: ResourceImage.imageWithName(
+                                        _selectedUserType == UserType.salesRep
+                                            ? UserType.salesRep.selectedImageName()
+                                            : UserType.salesRep.unselectedImageName())),
+                                SizedBox(height: 10),
+                                Text('I\'m the sales rep',
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center),
+                                SizedBox(height: 4),
+                                Text('Measure end-wearers',
+                                    style:
+                                        TextStyle(color: HexColor.fromHex('898A9D'), fontSize: 12),
+                                    textAlign: TextAlign.center),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -174,7 +185,9 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                 decoration: InputDecoration(hintText: "Enter the host name"),
               ),
               actions: <Widget>[
-                FlatButton(
+                MaterialButton(
+                  splashColor: Colors.transparent,
+                  elevation: 0,
                   color: Colors.red,
                   textColor: Colors.white,
                   child: Text('RESET'),
@@ -185,7 +198,9 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                     });
                   },
                 ),
-                FlatButton(
+                MaterialButton(
+                  splashColor: Colors.transparent,
+                  elevation: 0,
                   color: Colors.green,
                   textColor: Colors.white,
                   child: Text('APPLY'),
@@ -222,6 +237,8 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                         appVersionWidget,
                         SizedBox(height: 16),
                         MaterialButton(
+                          splashColor: Colors.transparent,
+                          elevation: 0,
                           textTheme: ButtonTextTheme.accent,
                           onPressed: _selectedUserType != null
                               ? () {

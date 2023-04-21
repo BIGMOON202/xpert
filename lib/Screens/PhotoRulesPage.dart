@@ -102,6 +102,8 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
                   child: Container(
                       width: double.infinity,
                       child: MaterialButton(
+                        splashColor: Colors.transparent,
+                        elevation: 0,
                         disabledColor: SessionParameters().disableColor,
                         onPressed: _continueButtonEnable ? _moveToNextPage : null,
                         child: CustomText.withColor(
@@ -143,7 +145,7 @@ class _PhotoRulesPageState extends State<PhotoRulesPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Take a ${widget.photoType?.name()} photo'),
+        title: Text('Take a ${widget.photoType?.name()} scan'),
         backgroundColor: SessionParameters().mainBackgroundColor,
         shadowColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle.light,
