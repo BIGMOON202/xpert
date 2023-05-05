@@ -58,6 +58,9 @@ class _LoginPageState extends State<LoginPage> {
       _email = 'andrewsl@3dlook.me';
       _password = 'Qa123456789Qa.';
 
+      _email = 'qwqw@qw.qw';
+      _password = '1qa2ws#ED';
+
       if (widget.userType == UserType.endWearer) {
         _email = 'andrew+ew1@qa.qa';
         _password = '346795';
@@ -65,14 +68,15 @@ class _LoginPageState extends State<LoginPage> {
         _email = 'animaltut+1@gmail.com';
         _password = '300031';
 
-        _email = 'qaz@a.aa';
-        _password = '778507';
+        // _email = 'qaz@a.aa';
+        // _password = '778507';
 
         // _email = 'qw@qw.qw';
         // _password = '847259';
 
         // _email = 'artem.oliynyk+ew1@3dlook.me';
         // _password = '515954';
+
         _email = 'qa@qa.qa';
         _password = '853564';
       }

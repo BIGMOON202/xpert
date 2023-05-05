@@ -327,60 +327,65 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     var container = Container(color: _backgroundColor, child: _subchild());
 
     var searchField = Container(
-        height: 64,
-        color: SessionParameters().mainBackgroundColor,
-        child: new Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-                color: SessionParameters().mainFontColor.withOpacity(0.1),
-                child: new Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: TextFormField(
-                      onEditingComplete: () {
-                        FocusScope.of(context).unfocus();
-                        setState(() {
-                          _isKeyboardAppeare = false;
-                        });
-                      },
-                      onTap: () {
-                        setState(() {
-                          _isKeyboardAppeare = true;
-                        });
-                      },
-                      autocorrect: false,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 13),
-                      controller: _searchController,
-                      decoration: new InputDecoration(
-                          filled: true,
-                          suffixIcon: Visibility(
-                              visible: _searchController.value.text.isNotEmpty,
-                              child: IconButton(
-                                onPressed: () => _clearText(),
-                                icon: Icon(
-                                  Icons.clear,
-                                  color: SessionParameters().mainFontColor.withOpacity(0.8),
-                                ),
-                              )),
-                          icon: Icon(
-                            Icons.search,
-                            color: SessionParameters().mainFontColor.withOpacity(0.8),
-                          ),
-                          hintText: 'Search by end-wearer\'s name or email',
-                          hintStyle: TextStyle(
-                              color: SessionParameters().mainFontColor.withOpacity(0.8),
-                              fontSize: 12),
-                          border: InputBorder.none),
-                      onChanged: onSearchTextChanged,
-                    )))));
+      height: 64,
+      color: SessionParameters().mainBackgroundColor,
+      child: new Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          color: SessionParameters().mainFontColor.withOpacity(0.1),
+          child: new Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: TextFormField(
+              onEditingComplete: () {
+                FocusScope.of(context).unfocus();
+                setState(() {
+                  _isKeyboardAppeare = false;
+                });
+              },
+              onTap: () {
+                setState(() {
+                  _isKeyboardAppeare = true;
+                });
+              },
+              autocorrect: false,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 13),
+              controller: _searchController,
+              decoration: new InputDecoration(
+                  contentPadding: EdgeInsets.only(top: 8),
+                  filled: true,
+                  suffixIcon: Visibility(
+                      visible: _searchController.value.text.isNotEmpty,
+                      child: IconButton(
+                        onPressed: () => _clearText(),
+                        icon: Icon(
+                          Icons.clear,
+                          color: SessionParameters().mainFontColor.withOpacity(0.8),
+                        ),
+                      )),
+                  icon: Icon(
+                    Icons.search,
+                    color: SessionParameters().mainFontColor.withOpacity(0.8),
+                  ),
+                  hintText: 'Search by end-wearer\'s name or email',
+                  hintStyle: TextStyle(
+                      color: SessionParameters().mainFontColor.withOpacity(0.8), fontSize: 12),
+                  border: InputBorder.none),
+              onChanged: onSearchTextChanged,
+            ),
+          ),
+        ),
+      ),
+    );
 
     var column = Column(
       children: [
         AnimatedSize(
-            vsync: this,
-            curve: Curves.fastOutSlowIn,
-            duration: const Duration(milliseconds: 500),
-            child: container),
+          vsync: this,
+          curve: Curves.fastOutSlowIn,
+          duration: const Duration(milliseconds: 500),
+          child: container,
+        ),
         widget.userType != UserType.endWearer ? searchField : Container()
       ],
     );
@@ -943,6 +948,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
     }
 
     var paginationList = PaginationView<MeasurementResults>(
+        initialLoader: Loading(),
         itemBuilder: (BuildContext context, MeasurementResults measurement, int index) =>
             itemAt(index: index, measurement: measurement, showEmptyView: emptyStateViewCount == 1),
         pullToRefresh: true,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
@@ -31,25 +32,54 @@ class EventListWorker {
     if (role != null && role == 'dealer' && userId != null) {
       link = 'events/?user=$userId';
       if (eventName != null) {
-        link = link + '&search=${eventName}';
+        link = link + '&search=$eventName';
       }
       link = link + '&page_size=$size$pageParam';
     } else if (eventName != null) {
-      link = link + '?search=${eventName}&page_size=$size$pageParam';
+      link = link + '?search=$eventName&page_size=$size$pageParam';
     } else {
       link = link + '?page_size=$size$pageParam';
     }
-    link = link + '&ordering=-status,name';
-    logger.d('link: ${link}');
+    link = link + '&ordering=-created_at';
+
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString('userType');
+    final userType = EnumToString.fromString(UserType.values, value ?? '');
+    if (userType == UserType.salesRep) {
+      // Fix: EF-2478, EF-2478 - updated
+      // scheduled, in_progress, completed, draft, cancelled
+      link = link + '&status__in=scheduled,in_progress,completed,draft';
+    }
+
+    //link = link + '&status=-created_at';
+    logger.d('link: $link');
     final response = await _provider.get(link, useAuth: true);
-    logger.d('events: ${response}');
+    logger.d('events: $response');
 
     if (_provider.shouldRefreshTokenFor(json: response)) {
       return null;
     } else {
-      var eventList = EventList.fromJson(response);
+      // final prefs = await SharedPreferences.getInstance();
+      // final value = prefs.getString('userType');
+      // final userType = EnumToString.fromString(UserType.values, value ?? '');
+      // logger.d('userType: $userType');
+      final eventList = EventList.fromJson(response);
+      // if (userType == UserType.salesRep) {
+      //   // Fix: EF-2478
+      //   final filtered = eventList.data
+      //       ?.where((o) => o.status != EventStatus.draft && o.status != EventStatus.cancelled)
+      //       .toList();
+      //   eventList = EventList(data: filtered, paging: eventList.paging);
+      // }
+
       this.paging = eventList.paging;
-      return Tuple2(eventList, MeasurementsList(data: [], paging: Paging()));
+      return Tuple2(
+        eventList,
+        MeasurementsList(
+          data: [],
+          paging: Paging(),
+        ),
+      );
     }
   }
 }

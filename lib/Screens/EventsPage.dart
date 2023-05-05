@@ -56,8 +56,10 @@ class _EventsPageState extends State<EventsPage> {
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   Response<Tuple2<EventList, MeasurementsList>>? events;
-  Response<Tuple2<EventList, MeasurementsList>>? originalEvents;
-  Tuple2<EventList, MeasurementsList>? filteredevents;
+  //Response<Tuple2<EventList, MeasurementsList>>? originalEvents;
+  //Tuple2<EventList, MeasurementsList>? filteredevents;
+  EventList? originalEvents;
+  EventList? filteredEventList;
 
   final GlobalKey<InnerDrawerState> _innerDrawerKey = GlobalKey<InnerDrawerState>();
 
@@ -115,11 +117,13 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Future<void> _refreshList() async {
+    logger.d('[STEP] Refresh list');
     originalEvents = null;
     await _bloc?.call();
   }
 
   Future<List<Event>> _pageFetch(int offset) async {
+    logger.d('[STEP] Page fetch: $offset');
     Tuple2<EventList, MeasurementsList>? result;
 
     final total = _bloc?.worker.paging?.count ?? 0;
@@ -130,7 +134,7 @@ class _EventsPageState extends State<EventsPage> {
     final page = (offset / kDefaultMeasurementsPerPage).round();
 
     logger.d(">>>>>> offset: $offset, from: $total, page: $page");
-
+    logger.d('[STEP] asyncCall page: $page');
     result = await _bloc?.asyncCall(searchFilter: _searchText, page: page + 1);
 
     logger.d('measurementsList\n '
@@ -176,7 +180,11 @@ class _EventsPageState extends State<EventsPage> {
               _userInfo = user.data;
             });
 
-            _bloc?.set(_userType, user.data?.role, user.data?.id?.toString());
+            _bloc?.set(
+              _userType,
+              user.data?.role,
+              user.data?.id?.toString(),
+            );
             _bloc?.call();
 
             break;
@@ -196,14 +204,17 @@ class _EventsPageState extends State<EventsPage> {
     }
 
     _bloc?.chuckListStream.listen((event) {
+      logger.d('[STEP] chuckListStream: listen: ');
       if (event.status == null) return;
+      // EventList? updatedFilteredEventList = filteredEventList;
+      // EventList? updatedOriginalEvents = originalEvents;
       switch (event.status!) {
         case Status.LOADING:
           break;
         case Status.COMPLETED:
-          filteredevents = event.data;
+          filteredEventList = event.data?.item1;
           if (originalEvents == null) {
-            originalEvents = event;
+            originalEvents = event.data?.item1;
           }
           break;
         case Status.ERROR:
@@ -212,6 +223,8 @@ class _EventsPageState extends State<EventsPage> {
       if (mounted) {
         setState(() {
           events = event;
+          // filteredEventList = updatedFilteredEventList;
+          // originalEvents = updatedOriginalEvents;
         });
       }
     });
@@ -233,38 +246,60 @@ class _EventsPageState extends State<EventsPage> {
       if (_userInfo == null) {
         return CircularProgressIndicator();
       } else {
-        return UserInfoHeader(userInfo: _userInfo, userType: _userType);
+        return UserInfoHeader(
+          userInfo: _userInfo,
+          userType: _userType,
+        );
       }
     }
 
     _createdHeader = DrawerHeader(
-        margin: EdgeInsets.only(top: 50),
-        padding: EdgeInsets.zero,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.only(top: 70, left: 30, right: 8),
-            child: _userInfoView(),
+      margin: EdgeInsets.only(top: 50),
+      padding: EdgeInsets.zero,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: 70,
+            left: 30,
+            right: 8,
           ),
-        ));
+          child: _userInfoView(),
+        ),
+      ),
+    );
 
-    Widget _createDrawerItem({Icon? icon, Image? image, String? text, GestureTapCallback? onTap}) {
+    Widget _createDrawerItem({
+      Icon? icon,
+      Image? image,
+      String? text,
+      GestureTapCallback? onTap,
+    }) {
       return GestureDetector(
         child: Padding(
-            padding: EdgeInsets.only(left: 8.0),
-            child: Row(
-              children: <Widget>[
-                icon ?? SizedBox(width: 26, height: 26, child: image),
-                Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    text ?? '',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                    maxLines: 2,
+          padding: EdgeInsets.only(left: 8.0),
+          child: Row(
+            children: <Widget>[
+              icon ??
+                  SizedBox(
+                    width: 26,
+                    height: 26,
+                    child: image,
                   ),
-                )
-              ],
-            )),
+              Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: Text(
+                  text ?? '',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  maxLines: 2,
+                ),
+              )
+            ],
+          ),
+        ),
         onTap: onTap,
       );
     }
@@ -287,61 +322,64 @@ class _EventsPageState extends State<EventsPage> {
       }
 
       showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (BuildContext context) => CupertinoAlertDialog(
-                content: Text('Are you sure that you want to logout?'),
-                actions: <Widget>[
-                  CupertinoDialogAction(
-                    child: Text("Yes"),
-                    onPressed: () => removeToken(),
-                  ),
-                  CupertinoDialogAction(
-                      isDefaultAction: true, child: Text('No'), onPressed: () => closePopup()),
-                ],
-              ));
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+          content: Text('Are you sure that you want to logout?'),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("Yes"),
+              onPressed: () => removeToken(),
+            ),
+            CupertinoDialogAction(
+                isDefaultAction: true, child: Text('No'), onPressed: () => closePopup()),
+          ],
+        ),
+      );
     }
 
-    Widget searchBar() {
-      if (originalEvents == null || originalEvents?.data?.item1.data?.isEmpty == true) {
-        return Container();
-      } else {
-        return Container(
-          height: 64,
-          color: SessionParameters().mainBackgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              color: SessionParameters().mainFontColor.withOpacity(0.1),
-              child: TextFormField(
-                textAlign: TextAlign.center,
-                style: TextStyle(color: SessionParameters().mainFontColor, fontSize: 13),
-                controller: _searchController,
-                decoration: InputDecoration(
-                    filled: true,
-                    suffixIcon: Visibility(
-                        visible: _searchController.value.text.isNotEmpty,
-                        child: IconButton(
-                          onPressed: () => _clearText(),
-                          icon: Icon(
-                            Icons.clear,
-                            color: SessionParameters().mainFontColor.withOpacity(0.8),
-                          ),
-                        )),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: SessionParameters().mainFontColor.withOpacity(0.8),
-                    ),
-                    hintText: 'Type to search',
-                    hintStyle: TextStyle(
-                        color: SessionParameters().mainFontColor.withOpacity(0.8), fontSize: 13),
-                    border: InputBorder.none),
-                onChanged: onSearchTextChanged,
+    Widget _buildSearchBar() {
+      return Container(
+        height: 64,
+        color: SessionParameters().mainBackgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: SessionParameters().mainFontColor.withOpacity(0.1),
+            child: TextFormField(
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: SessionParameters().mainFontColor,
+                fontSize: 13,
               ),
+              controller: _searchController,
+              decoration: InputDecoration(
+                  filled: true,
+                  contentPadding: EdgeInsets.only(top: 8),
+                  suffixIcon: Visibility(
+                      visible: _searchController.value.text.isNotEmpty,
+                      child: IconButton(
+                        onPressed: () => _clearText(),
+                        icon: Icon(
+                          Icons.clear,
+                          color: SessionParameters().mainFontColor.withOpacity(0.8),
+                        ),
+                      )),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: SessionParameters().mainFontColor.withOpacity(0.8),
+                  ),
+                  hintText: 'Type to search',
+                  hintStyle: TextStyle(
+                    color: SessionParameters().mainFontColor.withOpacity(0.8),
+                    fontSize: 13,
+                  ),
+                  border: InputBorder.none),
+              onChanged: onSearchTextChanged,
             ),
           ),
-        );
-      }
+        ),
+      );
     }
 
     Widget list() {
@@ -355,12 +393,13 @@ class _EventsPageState extends State<EventsPage> {
               prefs?.setString('temp_user', userId ?? '');
 
               listWidget = EventsListWidget(
-                  resultsList: filteredevents,
-                  userType: _userType,
-                  userId: userId,
-                  onRefreshList: _refreshList,
-                  onFetchList: _pageFetch,
-                  refreshController: _refreshController);
+                eventList: filteredEventList,
+                userType: _userType,
+                userId: userId,
+                onRefreshList: _refreshList,
+                onFetchList: _pageFetch,
+                refreshController: _refreshController,
+              );
               return listWidget!;
             case Status.ERROR:
               return Error(
@@ -376,25 +415,29 @@ class _EventsPageState extends State<EventsPage> {
     }
 
     var scaffold = Scaffold(
-        appBar: AppBar(
-          leading: IconButton(icon: const Icon(Icons.menu), onPressed: _toggle),
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          title: Text('My Events'),
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          systemOverlayStyle: SystemUiOverlayStyle.light,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: _toggle,
         ),
-        backgroundColor: _backgroundColor,
-        body: Column(
-          children: [
-            Visibility(
-              child: searchBar(),
-              visible: (filteredevents?.item2.data?.length ?? 0) > 1,
-            ),
-            list(),
-          ],
-        ));
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Text('My Events (${originalEvents?.data?.length ?? 0})'),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      backgroundColor: _backgroundColor,
+      body: Column(
+        children: [
+          Visibility(
+            child: _buildSearchBar(),
+            visible: (originalEvents?.data?.length ?? 0) > 2,
+          ),
+          list(),
+        ],
+      ),
+    );
 
     Widget settingsWidget() {
       if (_userType == UserType.salesRep) {
@@ -403,7 +446,11 @@ class _EventsPageState extends State<EventsPage> {
             text: 'Settings',
             onTap: () {
               Navigator.push(
-                  context, CupertinoPageRoute(builder: (BuildContext context) => SettingsPage()));
+                context,
+                CupertinoPageRoute(
+                  builder: (BuildContext context) => SettingsPage(),
+                ),
+              );
             });
       } else {
         return Container();
@@ -469,14 +516,14 @@ class _EventsPageState extends State<EventsPage> {
 class EventsListWidget extends StatelessWidget {
   final String? userId;
   final UserType? userType;
-  final Tuple2<EventList, MeasurementsList>? resultsList;
+  final EventList? eventList;
   final AsyncCallback? onRefreshList;
   final Future<List<Event>> Function(int)? onFetchList;
   final RefreshController? refreshController;
 
   const EventsListWidget(
       {Key? key,
-      this.resultsList,
+      this.eventList,
       this.userType,
       this.userId,
       this.onRefreshList,
@@ -486,6 +533,8 @@ class EventsListWidget extends StatelessWidget {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   void _pullRefresh() async {
+    // Pull refres from Event Details page
+    logger.d('_pullRefresh');
     await onRefreshList?.call();
     refreshController?.loadComplete();
     // why use freshWords var? https://stackoverflow.com/a/52992836/2301224
@@ -503,15 +552,10 @@ class EventsListWidget extends StatelessWidget {
         // return;
       }
 
-      // var event = resultsList.item1.data[index];
-      var measurements = resultsList?.item2;
-
       Navigator.push(
         context,
         CupertinoPageRoute(
-          builder: (BuildContext context) =>
-              // LoginPage(userType: _selectedUserType)
-              EventDetailPage(
+          builder: (BuildContext context) => EventDetailPage(
             event: event,
             measurementsList: null,
             userType: userType,
@@ -558,7 +602,12 @@ class EventsListWidget extends StatelessWidget {
       var container = Container(
         color: _backgroundColor,
         child: Padding(
-          padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+          padding: EdgeInsets.only(
+            top: 8,
+            left: 12,
+            right: 12,
+            bottom: 8,
+          ),
           child: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5)), color: Colors.black),
@@ -581,78 +630,84 @@ class EventsListWidget extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                            flex: 4,
-                            child: Column(
-                              children: [
-                                Expanded(
-                                    flex: 2,
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          height: 16,
-                                          width: 16,
-                                          child: ResourceImage.imageWithName('ic_event_place.png'),
-                                        ),
-                                        SizedBox(width: 8),
-                                        Flexible(
-                                            child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                                child: Text(
-                                              companyName,
-                                              style: _textStyle,
-                                              overflow: TextOverflow.ellipsis,
-                                            )),
-                                            Expanded(
-                                                child: Text(
+                          flex: 4,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: ResourceImage.imageWithName('ic_event_place.png'),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              child: Text(
+                                            companyName,
+                                            style: _textStyle,
+                                            overflow: TextOverflow.ellipsis,
+                                          )),
+                                          Expanded(
+                                            child: Text(
                                               companyType,
                                               style: _descriptionStyle,
                                               overflow: TextOverflow.ellipsis,
-                                            ))
-                                          ],
-                                        ))
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      color: Colors.transparent,
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            height: 16,
-                                            width: 16,
-                                            child: ResourceImage.imageWithName('ic_event_date.png'),
-                                          ),
-                                          SizedBox(width: 8),
-                                          Expanded(
-                                              child: Row(
-                                            children: [
-                                              Expanded(
-                                                  child: Text(eventStartDate, style: _textStyle)),
-                                              Expanded(
-                                                  child: Text(eventStartTime,
-                                                      style: _descriptionStyle)),
-                                            ],
-                                          ))
+                                            ),
+                                          )
                                         ],
                                       ),
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 24),
-                                        Expanded(child: Text(eventEndDate, style: _textStyle)),
-                                        Expanded(
-                                            child: Text(eventEndTime, style: _descriptionStyle)),
-                                      ],
-                                    ))
-                              ],
-                            )),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  color: Colors.transparent,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: ResourceImage.imageWithName('ic_event_date.png'),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                                child: Text(eventStartDate, style: _textStyle)),
+                                            Expanded(
+                                                child:
+                                                    Text(eventStartTime, style: _descriptionStyle)),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 24),
+                                    Expanded(child: Text(eventEndDate, style: _textStyle)),
+                                    Expanded(child: Text(eventEndTime, style: _descriptionStyle)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                         Expanded(
                           flex: 2,
                           child: Container(
@@ -662,15 +717,19 @@ class EventsListWidget extends StatelessWidget {
                               children: [
                                 Container(
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                                      color: eventStatusColor.withOpacity(0.1)),
+                                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                                    color: eventStatusColor.withOpacity(0.1),
+                                  ),
                                   child: Padding(
-                                      padding: EdgeInsets.all(5),
-                                      child: Text(
-                                        eventStatus,
-                                        style: TextStyle(
-                                            color: eventStatusColor, fontWeight: FontWeight.bold),
-                                      )),
+                                    padding: EdgeInsets.all(5),
+                                    child: Text(
+                                      eventStatus,
+                                      style: TextStyle(
+                                        color: eventStatusColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                                 SizedBox(
                                   height: 8,
@@ -702,27 +761,30 @@ class EventsListWidget extends StatelessWidget {
     }
 
     Widget paginationList;
-    if (resultsList?.item1.data?.isEmpty == true) {
+    if (eventList?.data?.isEmpty == true) {
       paginationList = EmptyStateWidget(messageName: 'There are no events yet');
     } else {
       paginationList = LayoutBuilder(
         builder: (context, constraints) {
-          var itemsCount = resultsList?.item1.data?.length ?? 0;
+          var itemsCount = eventList?.data?.length ?? 0;
           var footerHeight = constraints.maxHeight - 138 * itemsCount;
           return PaginationView<Event>(
-              itemBuilder: (BuildContext context, Event event, int index) => itemAt(index, event),
-              pullToRefresh: true,
-              paginationViewType: PaginationViewType.listView,
-              footer:
-                  SliverToBoxAdapter(child: SizedBox(height: footerHeight < 0 ? 0 : footerHeight)),
-              scrollDirection: Axis.vertical,
-              onError: (dynamic error) => Center(
-                    child: Text('Some error occured'),
-                  ),
-              onEmpty: Center(
-                child: const SizedBox(),
-              ),
-              pageFetch: onFetchList!);
+            initialLoader: Loading(),
+            itemBuilder: (BuildContext context, Event event, int index) => itemAt(index, event),
+            pullToRefresh: true,
+            paginationViewType: PaginationViewType.listView,
+            footer: SliverToBoxAdapter(
+              child: SizedBox(height: footerHeight < 0 ? 0 : footerHeight),
+            ),
+            scrollDirection: Axis.vertical,
+            onError: (dynamic error) => Center(
+              child: Text('Some error occured'),
+            ),
+            onEmpty: Center(
+              child: const SizedBox.shrink(),
+            ),
+            pageFetch: onFetchList!,
+          );
         },
       );
     }
@@ -734,39 +796,55 @@ class UserInfoHeader extends StatelessWidget {
   final User? userInfo;
   final UserType? userType;
 
-  const UserInfoHeader({Key? key, this.userInfo, this.userType}) : super(key: key);
-  static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  const UserInfoHeader({
+    Key? key,
+    this.userInfo,
+    this.userType,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-      SizedBox(
-        width: 40,
-        height: 40,
-        child: ResourceImage.imageWithName(userType?.menuImageName() ?? ''),
-      ),
-      SizedBox(width: 14),
-      Expanded(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 40,
+          height: 40,
+          child: ResourceImage.imageWithName(userType?.menuImageName() ?? ''),
+        ),
+        SizedBox(width: 14),
+        Expanded(
           child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(flex: 2, child: Container()),
-          Expanded(
-              flex: 2,
-              child: Text('${userInfo?.userFullName() ?? ''}',
-                  style:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white))),
-          Expanded(
-              flex: 3,
-              child: Text(userInfo?.email ?? '',
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(flex: 2, child: Container()),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  '${userInfo?.userFullName() ?? ''}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  userInfo?.email ?? '',
                   maxLines: 3,
                   style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white.withOpacity(0.62)))),
-          Flexible(flex: 2, child: Container())
-        ],
-      ))
-    ]);
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.white.withOpacity(0.62),
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: Container(),
+              )
+            ],
+          ),
+        )
+      ],
+    );
   }
 }

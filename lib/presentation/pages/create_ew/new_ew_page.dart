@@ -164,7 +164,7 @@ class _NewEWPageState extends State<NewEWPage> {
                   errorMessage: state.addToEventState.errors?.emailErrorMessage,
                   inputFormatters: [
                     /* EF-2350 */
-                    //availableEmailCharactersFormatter,
+                    availableEmailCharactersFormatter,
                   ],
                   onChanged: (value) {
                     _cubit.setEmail(value);
