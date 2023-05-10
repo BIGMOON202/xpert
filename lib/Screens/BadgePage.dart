@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/TextStyle+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
@@ -127,19 +128,22 @@ class _BadgePageState extends State<BadgePage> {
     );
 
     var scaffold = Scaffold(
-        appBar: AppBar(
-          brightness: Brightness.dark,
-          centerTitle: true,
-          title: Text(widget.arguments?.userType == UserType.endWearer
-              ? 'Your Badge ID'
-              : 'End-wearer\'s Badge ID'),
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-        ),
-        backgroundColor: Colors.black,
-        body: Stack(children: [
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(widget.arguments?.userType == UserType.endWearer
+            ? 'Your Badge ID'
+            : 'End-wearer\'s Badge ID'),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
           container,
-        ]));
+        ],
+      ),
+    );
 
     return scaffold;
   }

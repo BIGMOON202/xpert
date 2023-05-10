@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pagination_view/pagination_view.dart';
@@ -32,6 +33,8 @@ import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
 import 'package:tdlook_flutter_app/constants/global.dart';
 import 'package:tdlook_flutter_app/main.dart';
+import 'package:tdlook_flutter_app/presentation/cubits/events_page_options_cubit.dart';
+import 'package:tdlook_flutter_app/presentation/states/events_page_options_state.dart';
 import 'package:tuple/tuple.dart';
 
 class EventsPage extends StatefulWidget {
@@ -43,6 +46,7 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
+  late EventsPageOptionsCubit _optionsCubit;
   EventListWorkerBloc? _bloc;
   UserInfoBloc? _userInfoBloc;
   UserType _userType = UserType.salesRep;
@@ -53,24 +57,22 @@ class _EventsPageState extends State<EventsPage> {
   SharedPreferences? prefs;
   String? _provider;
 
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
+  //RefreshController _refreshController = RefreshController(initialRefresh: false);
 
-  Response<Tuple2<EventList, MeasurementsList>>? events;
+  // Response<Tuple2<EventList, MeasurementsList>>? _response;
   //Response<Tuple2<EventList, MeasurementsList>>? originalEvents;
   //Tuple2<EventList, MeasurementsList>? filteredevents;
-  EventList? originalEvents;
-  EventList? filteredEventList;
+  //EventList? _originalEvents;
 
   final GlobalKey<InnerDrawerState> _innerDrawerKey = GlobalKey<InnerDrawerState>();
 
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
-  TextEditingController _searchController = TextEditingController();
 
   String? _searchText;
+
   _clearText() {
     _searchText = '';
-    _searchController.clear();
-    filter(withText: '');
+    _filter(withText: '');
   }
 
   // Map _source = {ConnectivityResult.mobile: true};
@@ -89,12 +91,16 @@ class _EventsPageState extends State<EventsPage> {
       logger.d('should search $searchText - $text');
       if (searchText == text) {
         logger.i('searching');
-        filter(withText: searchText);
+        _filter(withText: searchText);
       }
     });
   }
 
-  filter({String? withText}) async {
+  void _filter({String? withText}) async {
+    // logger.d('[STEP] filter withText: $withText');
+    // if (withText == null || withText.isEmpty) {
+    //   //_originalEvents = null;
+    // }
     // if (originalEvents == null) return;
     //
     // if (withText.isEmpty) {
@@ -105,6 +111,7 @@ class _EventsPageState extends State<EventsPage> {
     //   });
     // } else {
     _bloc?.call(eventName: withText);
+    //_searchFocusNode;
     // }
   }
 
@@ -118,8 +125,12 @@ class _EventsPageState extends State<EventsPage> {
 
   Future<void> _refreshList() async {
     logger.d('[STEP] Refresh list');
-    originalEvents = null;
-    await _bloc?.call();
+    _optionsCubit.updateSearchText(null);
+    //_filteredEvents = null;
+    //_originalEvents = null;
+    //_clearText();
+    //_bloc?.call();
+    _clearText();
   }
 
   Future<List<Event>> _pageFetch(int offset) async {
@@ -132,11 +143,16 @@ class _EventsPageState extends State<EventsPage> {
       return [];
     }
     final page = (offset / kDefaultMeasurementsPerPage).round();
-
-    logger.d(">>>>>> offset: $offset, from: $total, page: $page");
-    logger.d('[STEP] asyncCall page: $page');
-    result = await _bloc?.asyncCall(searchFilter: _searchText, page: page + 1);
-
+    result = await _bloc?.asyncCall(
+      searchFilter: _searchText,
+      page: page + 1,
+    );
+    //_optionsCubit.updateFilteredEventList(result?.item1);
+    final isEmpty = _searchText == null || _searchText?.isEmpty == true;
+    logger.d('[STEP] isEmpty: $isEmpty');
+    if (offset == 0 && isEmpty) {
+      _optionsCubit.updateOriginalEventList(result?.item1);
+    }
     logger.d('measurementsList\n '
         'count:${_bloc?.worker.paging?.count}\n'
         'pageItemLimit:${_bloc?.worker.paging?.pageItemLimit}\n'
@@ -151,12 +167,10 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
     super.initState();
+    _optionsCubit = EventsPageOptionsCubit();
     _provider = kCompanyTypeArmorOnly ? CompanyType.armor.apiKey() : widget.provider;
     _bloc = EventListWorkerBloc(_provider);
     _userInfoBloc = UserInfoBloc();
-    logger.d('get userInfo $_userInfoBloc');
-    logger.d('list selectedCompany:${SessionParameters().selectedCompany}');
-
     Future<void> fetchUserType() async {
       prefs = await SharedPreferences.getInstance();
       Application.isProMode = prefs?.getBool(SessionParameters.keyProMode) ?? false;
@@ -203,30 +217,26 @@ class _EventsPageState extends State<EventsPage> {
       // });
     }
 
-    _bloc?.chuckListStream.listen((event) {
+    _bloc?.chuckListStream.listen((response) {
       logger.d('[STEP] chuckListStream: listen: ');
-      if (event.status == null) return;
-      // EventList? updatedFilteredEventList = filteredEventList;
-      // EventList? updatedOriginalEvents = originalEvents;
-      switch (event.status!) {
-        case Status.LOADING:
-          break;
-        case Status.COMPLETED:
-          filteredEventList = event.data?.item1;
-          if (originalEvents == null) {
-            originalEvents = event.data?.item1;
-          }
-          break;
-        case Status.ERROR:
-          break;
+      if (response.status == null) return;
+      _optionsCubit.updateResponse(response);
+      //EventList? original = _originalEvents;
+      if (response.status == Status.COMPLETED) {
+        logger.d('[STEP] COMPLETED');
+        final list = response.data?.item1;
+        _optionsCubit.updateFilteredEventList(list);
+        // if (original == null) {
+        //   original = list;
+        //   //_optionsCubit.updateOriginalEventList(original);
+        // }
       }
-      if (mounted) {
-        setState(() {
-          events = event;
-          // filteredEventList = updatedFilteredEventList;
-          // originalEvents = updatedOriginalEvents;
-        });
-      }
+      // if (mounted) {
+      //   setState(() {
+      //     //_response = response;
+      //     _originalEvents = original;
+      //   });
+      // }
     });
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
@@ -332,183 +342,217 @@ class _EventsPageState extends State<EventsPage> {
               onPressed: () => removeToken(),
             ),
             CupertinoDialogAction(
-                isDefaultAction: true, child: Text('No'), onPressed: () => closePopup()),
+              isDefaultAction: true,
+              child: Text('No'),
+              onPressed: () => closePopup(),
+            ),
           ],
         ),
       );
     }
 
-    Widget _buildSearchBar() {
-      return Container(
-        height: 64,
-        color: SessionParameters().mainBackgroundColor,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            color: SessionParameters().mainFontColor.withOpacity(0.1),
-            child: TextFormField(
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: SessionParameters().mainFontColor,
-                fontSize: 13,
-              ),
-              controller: _searchController,
-              decoration: InputDecoration(
-                  filled: true,
-                  contentPadding: EdgeInsets.only(top: 8),
-                  suffixIcon: Visibility(
-                      visible: _searchController.value.text.isNotEmpty,
-                      child: IconButton(
-                        onPressed: () => _clearText(),
-                        icon: Icon(
-                          Icons.clear,
-                          color: SessionParameters().mainFontColor.withOpacity(0.8),
-                        ),
-                      )),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: SessionParameters().mainFontColor.withOpacity(0.8),
-                  ),
-                  hintText: 'Type to search',
-                  hintStyle: TextStyle(
-                    color: SessionParameters().mainFontColor.withOpacity(0.8),
-                    fontSize: 13,
-                  ),
-                  border: InputBorder.none),
-              onChanged: onSearchTextChanged,
-            ),
-          ),
-        ),
-      );
-    }
+    // Widget _buildSearchBar() {
+    //   return Container(
+    //     height: 64,
+    //     color: SessionParameters().mainBackgroundColor,
+    //     child: Padding(
+    //       padding: const EdgeInsets.all(8.0),
+    //       child: Card(
+    //         color: SessionParameters().mainFontColor.withOpacity(0.1),
+    //         child: TextFormField(
+    //           textAlign: TextAlign.center,
+    //           style: TextStyle(
+    //             color: SessionParameters().mainFontColor,
+    //             fontSize: 13,
+    //           ),
+    //           controller: _searchController,
+    //           decoration: InputDecoration(
+    //               filled: true,
+    //               contentPadding: EdgeInsets.only(top: 8),
+    //               suffixIcon: Visibility(
+    //                   visible: _searchController.value.text.isNotEmpty,
+    //                   child: IconButton(
+    //                     onPressed: () => _clearText(),
+    //                     icon: Icon(
+    //                       Icons.clear,
+    //                       color: SessionParameters().mainFontColor.withOpacity(0.8),
+    //                     ),
+    //                   )),
+    //               prefixIcon: Icon(
+    //                 Icons.search,
+    //                 color: SessionParameters().mainFontColor.withOpacity(0.8),
+    //               ),
+    //               hintText: 'Type to search',
+    //               hintStyle: TextStyle(
+    //                 color: SessionParameters().mainFontColor.withOpacity(0.8),
+    //                 fontSize: 13,
+    //               ),
+    //               border: InputBorder.none),
+    //           onChanged: onSearchTextChanged,
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    // }
 
-    Widget list() {
-      Widget _child() {
-        if (events != null) {
-          switch (events!.status!) {
-            case Status.LOADING:
-              return Loading(loadingMessage: events?.message);
-            case Status.COMPLETED:
-              var userId = _userInfo != null ? _userInfo?.id.toString() : null;
-              prefs?.setString('temp_user', userId ?? '');
-
-              listWidget = EventsListWidget(
-                eventList: filteredEventList,
-                userType: _userType,
-                userId: userId,
-                onRefreshList: _refreshList,
-                onFetchList: _pageFetch,
-                refreshController: _refreshController,
-              );
-              return listWidget!;
-            case Status.ERROR:
-              return Error(
-                errorMessage: events?.message,
-                onRetryPressed: () => _bloc?.call(),
-              );
-          }
+    Widget _buildList({
+      required Response<Tuple2<EventList, MeasurementsList>>? response,
+      required EventList? events,
+    }) {
+      if (response != null) {
+        switch (response.status!) {
+          case Status.LOADING:
+            return Loading(loadingMessage: response.message);
+          case Status.COMPLETED:
+            var userId = _userInfo != null ? _userInfo?.id.toString() : null;
+            prefs?.setString('temp_user', userId ?? '');
+            return EventsListWidget(
+              key: ObjectKey(events),
+              eventList: events,
+              userType: _userType,
+              userId: userId,
+              onRefreshList: _refreshList,
+              onFetchList: _pageFetch,
+              //refreshController: _refreshController,
+              onPressedRefresh: _refreshList,
+            );
+          case Status.ERROR:
+            return Error(
+              errorMessage: response.message,
+              onRetryPressed: () => _bloc?.call(),
+            );
         }
-        return Loading();
       }
-
-      return Flexible(child: _child());
+      return Loading();
     }
-
-    var scaffold = Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: _toggle,
-        ),
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: Text('My Events (${originalEvents?.data?.length ?? 0})'),
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-      ),
-      backgroundColor: _backgroundColor,
-      body: Column(
-        children: [
-          Visibility(
-            child: _buildSearchBar(),
-            visible: (originalEvents?.data?.length ?? 0) > 2,
-          ),
-          list(),
-        ],
-      ),
-    );
 
     Widget settingsWidget() {
       if (_userType == UserType.salesRep) {
         return _createDrawerItem(
-            image: ResourceImage.imageWithName('settings_icon.png'),
-            text: 'Settings',
-            onTap: () {
-              Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (BuildContext context) => SettingsPage(),
-                ),
-              );
-            });
+          image: ResourceImage.imageWithName('settings_icon.png'),
+          text: 'Settings',
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) => SettingsPage(),
+              ),
+            );
+          },
+        );
       } else {
         return Container();
       }
     }
 
-    return InnerDrawer(
-      key: _innerDrawerKey,
-      onTapClose: true,
-      colorTransitionScaffold: Colors.transparent,
-      backgroundDecoration: BoxDecoration(color: Colors.black),
-      leftChild: Material(
-        child: Container(
-          color: Colors.black,
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                flex: 8,
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: <Widget>[
-                    _createdHeader ?? const SizedBox(),
-                    Divider(
-                      color: Colors.white,
-                    ),
-                    SizedBox(height: 18),
-                    _createDrawerItem(
-                      image: ResourceImage.imageWithName('privacy_icon.png'),
-                      text: 'Privacy Policy and \nTerms of Use',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                            builder: (BuildContext context) => PrivacyPolicyPage(showApply: false),
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(height: 18),
-                    settingsWidget()
-                  ],
+    return Scaffold(
+      body: InnerDrawer(
+        key: _innerDrawerKey,
+        onTapClose: true,
+        colorTransitionScaffold: Colors.transparent,
+        backgroundDecoration: BoxDecoration(color: Colors.black),
+        leftChild: Material(
+          child: Container(
+            color: Colors.black,
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 8,
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      _createdHeader ?? const SizedBox(),
+                      Divider(
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: 18),
+                      _createDrawerItem(
+                        image: ResourceImage.imageWithName('privacy_icon.png'),
+                        text: 'Privacy Policy and \nTerms of Use',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (BuildContext context) =>
+                                  PrivacyPolicyPage(showApply: false),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 18),
+                      settingsWidget()
+                    ],
+                  ),
                 ),
+                Expanded(child: _createDrawerItem(text: _appVersion)),
+                Expanded(
+                  child: _createDrawerItem(
+                    image: ResourceImage.imageWithName('ic_logout.png'),
+                    text: '  Logout',
+                    onTap: () {
+                      _logoutAction();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        scaffold: BlocProvider(
+          create: (context) => _optionsCubit,
+          child: Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: _toggle,
               ),
-              Expanded(child: _createDrawerItem(text: _appVersion)),
-              Expanded(
-                child: _createDrawerItem(
-                  image: ResourceImage.imageWithName('ic_logout.png'),
-                  text: '  Logout',
-                  onTap: () {
-                    _logoutAction();
+              automaticallyImplyLeading: false,
+              centerTitle: true,
+              title: Text('My Events'),
+              // title: BlocBuilder<EventsPageOptionsCubit, EventsPageOptionsState>(
+              //   builder: (context, state) {
+              //     final count = state.originalEventsCount;
+              //     final filteredCount = state.filteredEvents?.data?.length ?? 0;
+              //     return Text('My Events ($filteredCount of $count)');
+              //   },
+              // ),
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              systemOverlayStyle: SystemUiOverlayStyle.light,
+            ),
+            backgroundColor: _backgroundColor,
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                BlocBuilder<EventsPageOptionsCubit, EventsPageOptionsState>(
+                  buildWhen: (previous, current) =>
+                      previous.originalEventsCount != current.originalEventsCount,
+                  builder: (context, state) {
+                    return Visibility(
+                      child: _SearchBar(
+                        onPressedClear: _clearText,
+                        onChanged: onSearchTextChanged,
+                      ),
+                      visible: state.isAvailableSearch,
+                    );
                   },
                 ),
-              ),
-            ],
+                Expanded(
+                  child: BlocBuilder<EventsPageOptionsCubit, EventsPageOptionsState>(
+                    builder: (context, state) {
+                      return _buildList(
+                        response: state.response,
+                        events: state.filteredEvents,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      scaffold: scaffold,
     ); //innerDrawer;
   }
 }
@@ -520,21 +564,23 @@ class EventsListWidget extends StatelessWidget {
   final AsyncCallback? onRefreshList;
   final Future<List<Event>> Function(int)? onFetchList;
   final RefreshController? refreshController;
+  final VoidCallback? onPressedRefresh;
 
-  const EventsListWidget(
-      {Key? key,
-      this.eventList,
-      this.userType,
-      this.userId,
-      this.onRefreshList,
-      this.onFetchList,
-      this.refreshController})
-      : super(key: key);
+  EventsListWidget({
+    Key? key,
+    this.eventList,
+    this.userType,
+    this.userId,
+    this.onRefreshList,
+    this.onFetchList,
+    this.refreshController,
+    this.onPressedRefresh,
+  }) : super(key: key);
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   void _pullRefresh() async {
     // Pull refres from Event Details page
-    logger.d('_pullRefresh');
+    logger.d('[STEP] _pullRefresh');
     await onRefreshList?.call();
     refreshController?.loadComplete();
     // why use freshWords var? https://stackoverflow.com/a/52992836/2301224
@@ -684,10 +730,17 @@ class EventsListWidget extends StatelessWidget {
                                         child: Row(
                                           children: [
                                             Expanded(
-                                                child: Text(eventStartDate, style: _textStyle)),
+                                              child: Text(
+                                                eventStartDate,
+                                                style: _textStyle,
+                                              ),
+                                            ),
                                             Expanded(
-                                                child:
-                                                    Text(eventStartTime, style: _descriptionStyle)),
+                                              child: Text(
+                                                eventStartTime,
+                                                style: _descriptionStyle,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       )
@@ -734,7 +787,9 @@ class EventsListWidget extends StatelessWidget {
                                 SizedBox(
                                   height: 8,
                                 ),
-                                Flexible(child: _configureGraphWidgetFor(event))
+                                Flexible(
+                                  child: _configureGraphWidgetFor(event),
+                                )
                               ],
                             ),
                           ),
@@ -751,10 +806,7 @@ class EventsListWidget extends StatelessWidget {
 
       var gesture = GestureDetector(
         child: container,
-        onTap: () {
-          logger.d('did Select at $index');
-          _moveToEventAt(index, event);
-        },
+        onTap: () => _moveToEventAt(index, event),
       );
 
       return gesture;
@@ -762,12 +814,47 @@ class EventsListWidget extends StatelessWidget {
 
     Widget paginationList;
     if (eventList?.data?.isEmpty == true) {
-      paginationList = EmptyStateWidget(messageName: 'There are no events yet');
+      paginationList = Expanded(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              EmptyStateWidget(messageName: 'There are no events yet'),
+              MaterialButton(
+                splashColor: Colors.transparent,
+                elevation: 0,
+                onPressed: onPressedRefresh,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.replay,
+                      color: SessionParameters().selectionColor,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Container(
+                      child: Text(
+                        'Refresh',
+                        style: TextStyle(color: SessionParameters().selectionColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     } else {
       paginationList = LayoutBuilder(
         builder: (context, constraints) {
-          var itemsCount = eventList?.data?.length ?? 0;
-          var footerHeight = constraints.maxHeight - 138 * itemsCount;
+          final itemsCount = eventList?.data?.length ?? 0;
+          final footerHeight = constraints.maxHeight - 138 * itemsCount;
           return PaginationView<Event>(
             initialLoader: Loading(),
             itemBuilder: (BuildContext context, Event event, int index) => itemAt(index, event),
@@ -845,6 +932,105 @@ class UserInfoHeader extends StatelessWidget {
           ),
         )
       ],
+    );
+  }
+}
+
+class _SearchBar extends StatefulWidget {
+  final Function(String)? onChanged;
+  final VoidCallback? onPressedClear;
+  const _SearchBar({
+    super.key,
+    this.onChanged,
+    this.onPressedClear,
+  });
+
+  @override
+  State<_SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<_SearchBar> {
+  late EventsPageOptionsCubit _optionsCubit;
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _optionsCubit = context.read<EventsPageOptionsCubit>();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 64,
+      color: SessionParameters().mainBackgroundColor,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          color: SessionParameters().mainFontColor.withOpacity(0.1),
+          child: BlocProvider.value(
+            value: _optionsCubit,
+            child: BlocConsumer<EventsPageOptionsCubit, EventsPageOptionsState>(
+              listenWhen: (previous, current) => previous.searchText != current.searchText,
+              listener: (context, state) {
+                if (state.searchText == null || state.searchText?.isEmpty == true) {
+                  _controller.clear();
+                }
+              },
+              buildWhen: (previous, current) => previous.searchText != current.searchText,
+              builder: (context, state) {
+                return TextFormField(
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: SessionParameters().mainFontColor,
+                    fontSize: 13,
+                  ),
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    filled: true,
+                    contentPadding: EdgeInsets.only(top: 8),
+                    suffixIcon: Visibility(
+                      visible: state.searchText?.isNotEmpty == true,
+                      child: IconButton(
+                        onPressed: () {
+                          widget.onPressedClear?.call();
+                          _controller.clear();
+                          _optionsCubit.updateSearchText(null);
+                        },
+                        icon: Icon(
+                          Icons.clear,
+                          color: SessionParameters().mainFontColor.withOpacity(0.8),
+                        ),
+                      ),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: SessionParameters().mainFontColor.withOpacity(0.8),
+                    ),
+                    hintText: 'Type to search',
+                    hintStyle: TextStyle(
+                      color: SessionParameters().mainFontColor.withOpacity(0.8),
+                      fontSize: 13,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (value) {
+                    widget.onChanged?.call(value);
+                    _optionsCubit.updateSearchText(value);
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

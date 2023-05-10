@@ -61,6 +61,9 @@ class _LoginPageState extends State<LoginPage> {
       _email = 'qwqw@qw.qw';
       _password = '1qa2ws#ED';
 
+      // _email = 'qaaa@qa.qaa';
+      // _password = '1qa2ws#ED';
+
       if (widget.userType == UserType.endWearer) {
         _email = 'andrew+ew1@qa.qa';
         _password = '346795';

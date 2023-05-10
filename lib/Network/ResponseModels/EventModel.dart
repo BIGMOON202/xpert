@@ -10,15 +10,18 @@ import 'package:tdlook_flutter_app/common/logger/logger.dart';
 class EventList implements Paginated<Event> {
   List<Event>? data;
   Paging? paging;
+  int? count;
 
   EventList({
     this.data,
     this.paging,
+    this.count,
   });
 
   factory EventList.fromRawJson(String str) => EventList.fromJson(json.decode(str));
 
   factory EventList.fromJson(Map<String, dynamic> json) => EventList(
+        count: json["count"] as int,
         data: List<Event>.from(json["results"].map((x) => Event.fromJson(x))),
         paging: Paging.fromJson(json),
       );
@@ -43,8 +46,8 @@ class AnalizeResult {
     status = json['status'];
     errorCode = json['error_code'];
     logger.d('result: $json, type: ${json.runtimeType}');
-    logger.e(
-        'errorCode: $errorCode, detail: ${json['detail']}, type: ${json['detail'].runtimeType}');
+    logger
+        .e('errorCode: $errorCode, detail: ${json['detail']}, type: ${json['detail'].runtimeType}');
     if (errorCode != null && errorCode == 'validation_error' && json['detail'] != null) {
       detail = <Detail>[];
       json['detail'].forEach((v) {

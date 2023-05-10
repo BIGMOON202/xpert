@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:tdlook_flutter_app/Network/Network_API.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
@@ -19,7 +18,7 @@ class EventInfoWorker {
     }
     logger.d('link: $link');
     final response = await _provider.get(link, useAuth: true);
-    logger.d('event: ${response.length}');
+    logger.d('[STEP] Event fetchData: $response');
     if (_provider.shouldRefreshTokenFor(json: response)) {
       return null;
     } else {

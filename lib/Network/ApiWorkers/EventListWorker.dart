@@ -54,7 +54,7 @@ class EventListWorker {
     //link = link + '&status=-created_at';
     logger.d('link: $link');
     final response = await _provider.get(link, useAuth: true);
-    logger.d('events: $response');
+    logger.d('[STEP] events: $response');
 
     if (_provider.shouldRefreshTokenFor(json: response)) {
       return null;
@@ -139,7 +139,6 @@ class EventListWorkerBloc {
   late Stream<Response<Tuple2<EventList, MeasurementsList>>> chuckListStream;
 
   EventListWorkerBloc(this.provider) {
-    logger.i('Init block AuthWorkerBloc');
     final ctrl = StreamController<Response<Tuple2<EventList, MeasurementsList>>>();
     _listController = ctrl;
 
@@ -159,7 +158,6 @@ class EventListWorkerBloc {
   call({String? eventName}) async {
     chuckListSink.add(Response.loading('Getting events list'));
     try {
-      logger.i('try block');
       Tuple2<EventList, MeasurementsList>? list =
           await _eventListWorker?.fetchData(eventName: eventName);
       logger.d('${list?.item1.data?.length}');

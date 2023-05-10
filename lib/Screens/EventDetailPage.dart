@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pagination_view/pagination_view.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -53,7 +54,7 @@ class EventDetailPage extends StatefulWidget {
 }
 
 class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProviderStateMixin {
-  Event? event;
+  Event? _event;
   EventInfoWorkerBloc? _eventInfoWorkerBloc;
   MeasurementsListWorkerBloc? _bloc;
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
@@ -66,12 +67,11 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
   @override
   void initState() {
-    event = widget.event;
-    // TODO: implement initState
-    _bloc = MeasurementsListWorkerBloc(event?.id.toString());
+    _event = widget.event;
+    _bloc = MeasurementsListWorkerBloc(_event?.id.toString());
     _bloc?.call();
 
-    _eventInfoWorkerBloc = EventInfoWorkerBloc(event?.id.toString());
+    _eventInfoWorkerBloc = EventInfoWorkerBloc(_event?.id.toString());
     _eventInfoWorkerBloc?.chuckListStream.listen((updatedEvent) {
       if (updatedEvent.status == null) return;
       switch (updatedEvent.status!) {
@@ -80,7 +80,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
         case Status.COMPLETED:
           setState(() {
-            this.event = updatedEvent.data;
+            _event = updatedEvent.data;
           });
           break;
         case Status.ERROR:
@@ -141,7 +141,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   Future<List<MeasurementResults>> _pageFetch(int offset) async {
     MeasurementsList? result;
 
-    if (event?.status == EventStatus.scheduled) {
+    if (_event?.status == EventStatus.scheduled) {
       return offset == 0 ? [MeasurementResults()] : [];
     }
 
@@ -158,21 +158,21 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   }
 
   Widget headerForList() {
-    var eventName = widget.event?.name ?? 'Event Name';
-    var companyName = widget.event?.agency?.name ?? '-';
-    var companyType = widget.event?.agency?.type?.replaceAll('_', ' ').capitalizeFirst() ?? '-';
+    var eventName = _event?.name ?? 'Event Name';
+    var companyName = _event?.agency?.name ?? '-';
+    var companyType = _event?.agency?.type?.replaceAll('_', ' ').capitalizeFirst() ?? '-';
 
-    final startTime = widget.event?.startDateTime?.toLocal();
+    final startTime = _event?.startDateTime?.toLocal();
     var eventStartDate = startTime != null ? DateFormat(kDefaultDateFormat).format(startTime) : '';
     var eventStartTime = startTime != null ? DateFormat(kDefaultHoursFormat).format(startTime) : '';
 
-    final endTime = widget.event?.endDateTime?.toLocal();
+    final endTime = _event?.endDateTime?.toLocal();
     var eventEndDate = endTime != null ? DateFormat(kDefaultDateFormat).format(endTime) : '';
     var eventEndTime = endTime != null ? DateFormat(kDefaultHoursFormat).format(endTime) : '';
 
-    var eventStatus = widget.event?.status?.displayName() ?? "In progress";
+    var eventStatus = _event?.status?.displayName() ?? "In progress";
     var eventStatusColor = Colors.white;
-    var eventStatusTextColor = widget.event?.status?.textColor() ?? Colors.black;
+    var eventStatusTextColor = _event?.status?.textColor() ?? Colors.black;
 
     var _textColor = Colors.white;
     var _descriptionColor = HexColor.fromHex('BEC1D4');
@@ -307,7 +307,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
                                                     color: eventStatusTextColor),
                                               )),
                                         ),
-                                        Flexible(child: _configureGraphWidgetFor(event))
+                                        Flexible(child: _configureGraphWidgetFor(_event))
                                       ],
                                     ),
                                   )),
@@ -397,7 +397,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     Widget listBody() {
       if (widget.measurementsList != null && widget.measurementsList?.data?.length != 0) {
         return MeasuremetsListWidget(
-            event: event,
+            event: _event,
             measurementsList: widget.measurementsList,
             userType: widget.userType,
             onRefreshList: _refreshList,
@@ -413,7 +413,7 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
                   return Center(child: Loading(loadingMessage: snapshot.data?.message));
                 case Status.COMPLETED:
                   return MeasuremetsListWidget(
-                      event: event,
+                      event: _event,
                       measurementsList: snapshot.data?.data,
                       userType: widget.userType,
                       currentUserId: widget.currentUserId,
@@ -434,44 +434,46 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     }
 
     var scaffold = Scaffold(
-        floatingActionButton: _canAddEW
-            ? Padding(
-                padding: const EdgeInsets.only(right: 0, bottom: 12),
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: RawMaterialButton(
-                    onPressed: () => _addEW(),
-                    elevation: 2.0,
-                    fillColor: AppColors.accent,
-                    child: Image.asset(
-                      Assets.images.addPerson,
-                      fit: BoxFit.none,
-                    ),
-                    shape: CircleBorder(),
+      floatingActionButton: _canAddEW
+          ? Padding(
+              padding: const EdgeInsets.only(right: 0, bottom: 12),
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: RawMaterialButton(
+                  onPressed: () => _addEW(),
+                  elevation: 2.0,
+                  fillColor: AppColors.accent,
+                  child: Image.asset(
+                    Assets.images.addPerson,
+                    fit: BoxFit.none,
                   ),
+                  shape: CircleBorder(),
                 ),
-              )
-            : const SizedBox(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-        appBar: AppBar(
-          brightness: Brightness.dark,
-          centerTitle: true,
-          title: Text('Event details'),
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-        ),
-        backgroundColor: _backgroundColor,
-        body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [headerForList(), listBody()]));
+              ),
+            )
+          : const SizedBox(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Event details'),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      backgroundColor: _backgroundColor,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [headerForList(), listBody()],
+      ),
+    );
 
     return scaffold;
   }
 
   void _addEW() {
     final userType = widget.userType;
-    final event = widget.event;
+    final event = _event;
     if (userType != null && event != null) {
       Navigator.push(
         context,
@@ -506,14 +508,14 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     Add single EW must be available only to the event, for which everyone has scanned already, 
     but the end date has not been reached yet, or that is currently in progress
     */
-    final total = widget.event?.totalMeasuremensCount ?? 0;
-    final measured = widget.event?.completeMeasuremensCount ?? 0;
-    final inProgress = widget.event?.status == EventStatus.in_progress;
-    final progress = widget.event?.progress == true;
-    // final inCompletted = widget.event?.status == EventStatus.completed;
+    final total = _event?.totalMeasuremensCount ?? 0;
+    final measured = _event?.completeMeasuremensCount ?? 0;
+    final inProgress = _event?.status == EventStatus.in_progress;
+    final progress = _event?.progress == true;
+    // final inCompletted = event?.status == EventStatus.completed;
     bool isNotExpired = false;
 
-    final endDate = widget.event?.endDateTime;
+    final endDate = _event?.endDateTime;
     if (endDate != null) {
       isNotExpired = DateTime.now().isBefore(endDate);
     }
@@ -552,6 +554,7 @@ class MeasuremetsListWidget extends StatefulWidget {
 
 class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
+  Event? get _event => widget.event;
 
   void _pullRefresh() async {
     await widget.onRefreshList?.call();
@@ -562,8 +565,8 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
   Widget build(BuildContext context) {
     void _moveToMeasurementAt(MeasurementResults? measurement) {
       // var measurement = measurementsList.data[index];
-      measurement?.askForWaistLevel = widget.event?.shouldAskForWaistLevel();
-      measurement?.askForOverlap = widget.event?.manualOverlap;
+      measurement?.askForWaistLevel = _event?.shouldAskForWaistLevel();
+      measurement?.askForOverlap = _event?.manualOverlap;
 
       if (Application.isInDebugMode) {
         if (SessionParameters().selectedCompany == CompanyType.armor) {
@@ -582,7 +585,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
         return;
       }
 
-      if (measurement?.isComplete == false && widget.event?.status == EventStatus.in_progress) {
+      if (measurement?.isComplete == false && _event?.status == EventStatus.in_progress) {
         // if sales rep - open gender
         if (SessionParameters().selectedCompany == CompanyType.armor) {
           Navigator.push(
@@ -601,7 +604,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
         Navigator.pushNamed(context, RecommendationsPage.route,
             arguments:
                 RecommendationsPageArguments(measurement: measurement, showRestartButton: false));
-      } else if (widget.event?.status != EventStatus.in_progress) {
+      } else if (_event?.status != EventStatus.in_progress) {
         // _showCupertinoDialog('Event is not in progress now');
       }
     }
@@ -643,12 +646,12 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       // var measurement = measurementsList.data[index];
 
       if (Application.isInDebugMode == false) {
-        if (measurement?.isComplete == false && widget.event?.status == EventStatus.in_progress) {
+        if (measurement?.isComplete == false && _event?.status == EventStatus.in_progress) {
           // move to camera permissions
         } else if (measurement?.isComplete == true) {
           _moveToMeasurementAt(measurement);
           return;
-        } else if (widget.event?.status != EventStatus.in_progress) {
+        } else if (_event?.status != EventStatus.in_progress) {
           return;
         }
       } else {
@@ -730,7 +733,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       }
 
       bool canAddMeasurement = true;
-      if (showDate == false && widget.event?.status == EventStatus.completed) {
+      if (showDate == false && _event?.status == EventStatus.completed) {
         canAddMeasurement = false;
       }
 
@@ -942,7 +945,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
     var eventInfoViewCount = 1;
     var measurementsCount = widget.measurementsList?.data?.length ?? 0;
     var emptyStateViewCount = 0;
-    if (widget.event?.status == EventStatus.scheduled) {
+    if (_event?.status == EventStatus.scheduled) {
       measurementsCount = 0;
       emptyStateViewCount = 1;
     }
