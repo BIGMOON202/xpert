@@ -137,25 +137,29 @@ class Event {
   int? completeMeasuremensCount;
   List<dynamic>? productTypes;
   bool? manualOverlap;
+  bool? outerCarrier;
 
-  Event(
-      {this.id,
-      this.name,
-      this.agency,
-      this.agencyId,
-      this.salesRep,
-      this.salesRepId,
-      this.startDate,
-      this.endDate,
-      this.status,
-      this.createdAt,
-      this.progress,
-      this.totalMeasuremensCount,
-      this.completeMeasuremensCount,
-      this.productTypes,
-      this.manualOverlap});
+  Event({
+    this.id,
+    this.name,
+    this.agency,
+    this.agencyId,
+    this.salesRep,
+    this.salesRepId,
+    this.startDate,
+    this.endDate,
+    this.status,
+    this.createdAt,
+    this.progress,
+    this.totalMeasuremensCount,
+    this.completeMeasuremensCount,
+    this.productTypes,
+    this.manualOverlap,
+    this.outerCarrier,
+  });
 
   Event.fromJson(Map<String, dynamic> json) {
+    logger.d('Event: $json');
     id = json['id'];
     name = json['name'];
     agency = json['agency'] != null ? new Agency.fromJson(json['agency']) : null;
@@ -178,6 +182,7 @@ class Event {
     logger.d('parsed overlap ${json['overlap']}');
     manualOverlap = ((json['overlap'] == null) ||
         (json['overlap'] == 'selected' || json['overlap'] == 'Selected'));
+    outerCarrier = json['outer_carrier'];
   }
 
   Map<String, dynamic> toJson() {
@@ -385,7 +390,6 @@ class MeasurementResults {
   String? selectedTopSize;
   String? selectedBottomSize;
   AnalizeResult? error;
-
   EndWearer? endWearer;
   Event? event;
   String? gender;
@@ -402,26 +406,29 @@ class MeasurementResults {
   String? badgeId;
   List<Messages>? messages;
 
-  MeasurementResults(
-      {this.id,
-      this.uuid,
-      this.isActive,
-      this.isComplete,
-      this.completedAt,
-      this.endWearer,
-      this.event,
-      this.gender,
-      this.height,
-      this.weight,
-      this.clavicle,
-      this.person,
-      this.createdAt,
-      this.updatedAt,
-      this.messages,
-      this.isCalculating,
-      this.error});
+  MeasurementResults({
+    this.id,
+    this.uuid,
+    this.isActive,
+    this.isComplete,
+    this.completedAt,
+    this.endWearer,
+    this.event,
+    this.gender,
+    this.height,
+    this.weight,
+    this.clavicle,
+    this.person,
+    this.createdAt,
+    this.updatedAt,
+    this.messages,
+    this.isCalculating,
+    this.error,
+    this.outerCarrier,
+  });
 
   MeasurementResults.fromJson(Map<String, dynamic> json) {
+    logger.d('MeasurementResults: $json');
     id = json['id'];
     uuid = json['uuid'];
     isActive = json['is_active'];
@@ -459,6 +466,7 @@ class MeasurementResults {
     if ((json['error'] != null) && (json['error'] is Map<String, dynamic>)) {
       error = new AnalizeResult.fromJson(json['error']);
     }
+    outerCarrier = json['outer_carrier'];
   }
 
   Map<String, dynamic> toJson() {

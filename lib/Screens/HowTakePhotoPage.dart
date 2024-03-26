@@ -9,6 +9,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/generated/l10n.dart';
 import 'package:video_player/video_player.dart';
 
 class TutorialStep {
@@ -109,18 +110,13 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
 
   void _checkVideoProgress() {
     // Implement your calls inside these conditions' bodies :
-
-    final progress =
+    final double progress =
         _controller.value.position.inMilliseconds / _controller.value.duration.inMilliseconds;
 
     setState(() {
-      _videoProgress = progress;
+      _videoProgress = progress.isNaN ? 0.0 : progress.ceilToDouble();
       _isPlaying = true;
     });
-
-    if (_controller.value.position == Duration(seconds: 0, minutes: 0, hours: 0)) {
-      //logger.i('video Started');
-    }
 
     if (_controller.value.position == _controller.value.duration) {
       setState(() {
@@ -196,14 +192,15 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
       _isPlaying = false;
 
       Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (BuildContext context) =>
-                  // RulerPageWeight(),
-                  PhotoRulesPage(
-                      photoType: PhotoType.front,
-                      gender: widget.gender,
-                      measurement: widget.measurements)));
+        context,
+        CupertinoPageRoute(
+          builder: (BuildContext context) => PhotoRulesPage(
+            photoType: PhotoType.front,
+            gender: widget.gender,
+            measurement: widget.measurements,
+          ),
+        ),
+      );
     }
 
     var videoLayer = Padding(
@@ -222,105 +219,119 @@ class _HowTakePhotoPageState extends State<HowTakePhotoPage> {
           },
         ));
 
-    var videoLayerContainer = Column(children: [
-      Container(
-        color: SessionParameters().mainBackgroundColor,
-        child: videoLayer,
-      ),
-      Padding(
+    var videoLayerContainer = Column(
+      children: [
+        Container(
+          color: SessionParameters().mainBackgroundColor,
+          child: videoLayer,
+        ),
+        Padding(
           padding: EdgeInsets.only(left: 12, right: 12),
           child: LinearProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(SessionParameters().selectionColor),
             backgroundColor: Colors.white.withOpacity(0.1),
             value: _videoProgress,
-          )),
-      Expanded(
+          ),
+        ),
+        Expanded(
           flex: 2,
           child: Container(
-              child: Align(
-                  alignment: Alignment.center,
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Padding(
-                        padding: EdgeInsets.only(left: 12, right: 12),
-                        child: Text(_currentStepName,
-                            textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),
-                    SizedBox(
-                        width: 120,
-                        child: Visibility(
-                          visible: !_isPlaying,
-                          child: MaterialButton(
-                            splashColor: Colors.transparent,
-                            elevation: 0,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.replay,
-                                  color: SessionParameters().selectionColor,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Container(
-                                    child: Text(
-                                  'Replay',
-                                  style: TextStyle(color: SessionParameters().selectionColor),
-                                ))
-                              ],
-                            ),
-                            onPressed: _replayAction,
-                          ),
-                        )),
-                  ]))
-              //   Center(child:
-              //     FlatButton(
-              //       color: Colors.orange,
-              //       child: Row(children: [Icon(Icons.replay), SizedBox(width: 10,),Text('Replay')],),
-              // ),)
-              ))
-    ]);
-
-    var nextButton = Visibility(
-        visible: true,
-        child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-                padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                child: SafeArea(
-                  child: Container(
-                      width: double.infinity,
+            child: Align(
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                      padding: EdgeInsets.only(left: 12, right: 12),
+                      child: Text(_currentStepName,
+                          textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),
+                  SizedBox(
+                    width: 120,
+                    child: Visibility(
+                      visible: !_isPlaying,
                       child: MaterialButton(
                         splashColor: Colors.transparent,
                         elevation: 0,
-                        disabledColor: SessionParameters().disableColor,
-                        onPressed: _continueButtonEnable ? _moveToNextPage : null,
-                        child: CustomText.withColor(
-                            'CONTINUE',
-                            _continueButtonEnable
-                                ? Colors.white
-                                : SessionParameters().disableTextColor),
-                        color: SessionParameters().selectionColor,
-                        height: 50,
-                        // padding: EdgeInsets.only(left: 12, right: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.replay,
+                              color: SessionParameters().selectionColor,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                              child: Text(
+                                'Replay',
+                                style: TextStyle(color: SessionParameters().selectionColor),
+                              ),
+                            ),
+                          ],
                         ),
-                        // padding: EdgeInsets.all(4),
-                      )),
-                ))));
+                        onPressed: _replayAction,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            //   Center(child:
+            //     FlatButton(
+            //       color: Colors.orange,
+            //       child: Row(children: [Icon(Icons.replay), SizedBox(width: 10,),Text('Replay')],),
+            // ),)
+          ),
+        ),
+      ],
+    );
+
+    var nextButton = Visibility(
+      visible: true,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+          child: SafeArea(
+            child: Container(
+              width: double.infinity,
+              child: MaterialButton(
+                splashColor: Colors.transparent,
+                elevation: 0,
+                disabledColor: SessionParameters().disableColor,
+                onPressed: _continueButtonEnable ? _moveToNextPage : null,
+                child: CustomText.withColor(
+                  S.current.common_continue.toUpperCase(),
+                  _continueButtonEnable ? Colors.white : SessionParameters().disableTextColor,
+                ),
+                color: SessionParameters().selectionColor,
+                height: 50,
+                // padding: EdgeInsets.only(left: 12, right: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                // padding: EdgeInsets.all(4),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 
     var container = Stack(
       children: [nextButton, videoLayerContainer],
     );
 
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text('How to take scans'),
-          backgroundColor: SessionParameters().mainBackgroundColor,
-          shadowColor: Colors.transparent,
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-        ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('How to take scans'),
         backgroundColor: SessionParameters().mainBackgroundColor,
-        body: container);
+        shadowColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      backgroundColor: SessionParameters().mainBackgroundColor,
+      body: container,
+    );
   }
 }

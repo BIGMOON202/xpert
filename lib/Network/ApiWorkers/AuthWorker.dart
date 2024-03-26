@@ -24,8 +24,11 @@ class AuthWorker {
         'provider': provider?.apiKey(),
       };
     }
-    final response =
-        await _provider.post(userType?._authEndPoint() ?? '', body: body, useAuth: false);
+    final response = await _provider.post(
+      userType?._authEndPoint() ?? '',
+      body: body,
+      useAuth: false,
+    );
     return AuthCredentials.fromJson(response);
   }
 }
@@ -103,10 +106,13 @@ class AuthWorkerBloc {
   call() async {
     chuckListSink.add(Response.loading('Getting Chuck AUTH.'));
     try {
-      AuthCredentials credentials = await _authWorker.fetchData();
-      chuckListSink.add(Response.completed(credentials));
+      final AuthCredentials credentials = await _authWorker.fetchData();
+      final Response<AuthCredentials> response = Response.completed(credentials);
+      chuckListSink.add(response);
+    } on UnauthorisedException catch (e) {
+      chuckListSink.add(Response.error(e.toString()));
     } catch (e) {
-      String returnValue = handle(error: e);
+      final String returnValue = _handle(error: e);
       chuckListSink.add(Response.error(returnValue));
     }
   }
@@ -120,18 +126,18 @@ class AuthWorkerBloc {
     }
   }
 
-  String handle({dynamic error}) {
+  String _handle({dynamic error}) {
     var returnValue = error.toString();
-
     var decodeSucceeded = false;
     try {
       var x = json.decode(error.toString()) as Map<String, dynamic>;
       decodeSucceeded = true;
     } on FormatException catch (e) {
-      logger.e(e);
+      logger.e('FormatException: $e');
     }
 
     if (decodeSucceeded == true) {
+      logger.e('error.toString(): ${error.toString()}');
       var json = jsonDecode(error.toString());
       final parsedError = LoginValidationError.fromJson(json);
       if (parsedError != null) {
@@ -157,7 +163,7 @@ class LoginValidationError {
   LoginValidationError({this.email, this.password, this.details});
 
   LoginValidationError.fromJson(Map<String, dynamic> json) {
-    // logger.d('parse JSON: ${json}');
+    logger.d('parse JSON: $json');
     details = json['details'] != null ? json['details'] : null;
     //logger.d('${details}');
 

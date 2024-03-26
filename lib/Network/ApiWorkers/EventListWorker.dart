@@ -46,6 +46,8 @@ class EventListWorker {
     final value = prefs.getString('userType');
     final userType = EnumToString.fromString(UserType.values, value ?? '');
     if (userType == UserType.salesRep) {
+      // Fix: EF-2647
+      link = link + '&is_archived=0';
       // Fix: EF-2478, EF-2478 - updated
       // scheduled, in_progress, completed, draft, cancelled
       link = link + '&status__in=scheduled,in_progress,completed,draft';
@@ -54,8 +56,6 @@ class EventListWorker {
     //link = link + '&status=-created_at';
     logger.d('link: $link');
     final response = await _provider.get(link, useAuth: true);
-    logger.d('[STEP] events: $response');
-
     if (_provider.shouldRefreshTokenFor(json: response)) {
       return null;
     } else {

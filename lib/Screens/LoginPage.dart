@@ -1,7 +1,9 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
@@ -29,6 +31,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  late final TextEditingController _emailTextController;
+  late final TextEditingController _passwordTextController;
+  late final LocalAuthentication _localAuthentication;
+  late final List<BiometricType>? _availableBiometrics;
+  late bool _isSupportedBiometricAuth;
+
   Status? _authRequestStatus;
   AuthWorkerBloc? _authBloc;
   UserInfoBloc? _userInfoBloc;
@@ -45,7 +53,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    //FirebaseCrashlytics.instance.crash();
+    _isSupportedBiometricAuth = false;
+    _localAuthentication = LocalAuthentication();
     if (Application.isInDebugMode) {
       _email = 'andrew+dublesr@3dlook.me';
       _password = '!Qa123456789Qa';
@@ -84,20 +93,86 @@ class _LoginPageState extends State<LoginPage> {
         _password = '853564';
       }
     }
+    _emailTextController = TextEditingController(text: _email);
+    _emailTextController.addListener(() {
+      setState(() {
+        _authRequestStatus = Status.COMPLETED;
+        _email = _emailTextController.text;
+      });
+    });
+    _passwordTextController = TextEditingController(text: _password);
+    _passwordTextController.addListener(() {
+      setState(() {
+        _authRequestStatus = Status.COMPLETED;
+        _password = _passwordTextController.text;
+      });
+    });
     if (kCompanyTypeArmorOnly) {
       _provider = CompanyType.armor;
     }
     initPreferences();
+    _checkToBiometricSupport();
   }
 
   void initPreferences() async {
     prefs = await SharedPreferences.getInstance();
   }
 
+  void _checkToBiometricSupport() async {
+    final bool hasCreds = await _hasUserCreds();
+    logger.d('hasCreds: $hasCreds');
+
+    if (widget.userType == UserType.salesRep && hasCreds) {
+      _localAuthentication.isDeviceSupported().then(
+            (bool isSupported) => setState(() {
+              _isSupportedBiometricAuth = isSupported;
+              if (_isSupportedBiometricAuth) {
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  _authenticateWithBiometrics();
+                });
+              }
+            }),
+          );
+    }
+  }
+
+  Future<void> _authenticateWithBiometrics() async {
+    bool authenticated = false;
+    try {
+      authenticated = await _localAuthentication.authenticate(
+        localizedReason: 'Scan your fingerprint (or face or whatever) to authenticate',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: false,
+        ),
+      );
+    } on PlatformException catch (e) {
+      logger.e(e);
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+
+    if (authenticated) {
+      await _takeUserCreds();
+      authCall();
+    }
+  }
+
+  // Future<void> _cancelAuthentication() async {
+  //   await _localAuthentication.stopAuthentication();
+  //   setState(() => _isAuthenticating = false);
+  // }
+
   void _moveToNextScreen() {
     Future<void> _moveToNext() async {
       var agreementSigned = prefs?.getBool('agreement') ?? false;
       var isUserTypeForcedToShow = widget.userType == UserType.endWearer;
+      if (widget.userType == UserType.salesRep) {
+        await _saveUserCreds();
+      }
+
       if (agreementSigned == false || isUserTypeForcedToShow == true) {
         Navigator.push(
           context,
@@ -173,11 +248,14 @@ class _LoginPageState extends State<LoginPage> {
   void authCall() {
     FocusScope.of(context).unfocus();
 
-    _authBloc = AuthWorkerBloc(AuthWorkerBlocArguments(
+    _authBloc = AuthWorkerBloc(
+      AuthWorkerBlocArguments(
         email: _email.toLowerCase(),
         password: _password,
         userType: widget.userType,
-        provider: _provider));
+        provider: _provider,
+      ),
+    );
     _authBloc?.chuckListStream.listen((event) {
       setState(() {
         _authRequestStatus = event.status;
@@ -209,18 +287,6 @@ class _LoginPageState extends State<LoginPage> {
 
     String? _validatePassword(String? value) {
       return null;
-    }
-
-    bool _continueIsEnabled() {
-      var providerSelected = true;
-      if (widget.userType == UserType.salesRep && _provider == null) {
-        providerSelected = false;
-      }
-
-      return _email.isNotEmpty &&
-          _password.isNotEmpty &&
-          _authRequestStatus != Status.LOADING &&
-          providerSelected;
     }
 
     var nextButton = Visibility(
@@ -311,18 +377,19 @@ class _LoginPageState extends State<LoginPage> {
         return SizedBox(
           height: 44,
           child: TextFormField(
-            onChanged: (String value) {
-              setState(() {
-                _authRequestStatus = Status.COMPLETED;
-                _password = value;
-              });
-            },
+            controller: _passwordTextController,
+            // onChanged: (String value) {
+            //   setState(() {
+            //     _authRequestStatus = Status.COMPLETED;
+            //     _password = value;
+            //   });
+            // },
             obscureText: true,
             keyboardType: TextInputType.visiblePassword,
             style: TextStyle(color: Colors.white),
-            validator: _validateEmail,
+            validator: _validatePassword,
             textCapitalization: TextCapitalization.none,
-            initialValue: _password,
+            //initialValue: _password,
             decoration: InputDecoration(
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(6)),
@@ -389,14 +456,15 @@ class _LoginPageState extends State<LoginPage> {
         var theme = Theme(
           data: ThemeData(
             inputDecorationTheme: InputDecorationTheme(
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
-                enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        width: 1,
-                        color:
-                            _authRequestStatus == Status.ERROR ? Colors.red : Colors.transparent),
-                    borderRadius: BorderRadius.all(Radius.circular(6)))),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.1),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                    width: 1,
+                    color: _authRequestStatus == Status.ERROR ? Colors.red : Colors.transparent),
+                borderRadius: BorderRadius.all(Radius.circular(6)),
+              ),
+            ),
           ),
           child: field,
         );
@@ -420,19 +488,20 @@ class _LoginPageState extends State<LoginPage> {
                   ))),
             )),
         Expanded(
-            flex: 5,
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15.0),
-                    topRight: Radius.circular(15.0),
-                  ),
-                  color: _backgroundColor),
-              child: Padding(
-                  padding: EdgeInsets.only(top: 30, left: 12, right: 12, bottom: 12),
-                  child: Stack(children: [
-                    SingleChildScrollView(
-                        child: Column(
+          flex: 5,
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15.0),
+                  topRight: Radius.circular(15.0),
+                ),
+                color: _backgroundColor),
+            child: Padding(
+              padding: EdgeInsets.only(top: 30, left: 12, right: 12, bottom: 12),
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -441,39 +510,42 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         SizedBox(height: 8),
                         SizedBox(
-                            height: 44,
-                            child: TextFormField(
-                              // textAlignVertical: TextAlignVertical.center,
-                              enabled: _authRequestStatus != Status.LOADING,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _authRequestStatus = Status.COMPLETED;
-                                  _email = value;
-                                });
-                              },
-                              keyboardType: TextInputType.emailAddress,
-                              style: TextStyle(color: Colors.white),
-                              validator: _validateEmail,
-                              textCapitalization: TextCapitalization.none,
-                              initialValue: _email,
-                              decoration: InputDecoration(
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(Radius.circular(6)),
-                                      borderSide: BorderSide(width: 1, color: Colors.transparent)),
-                                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.1)),
-                                  hintText: 'Your email',
-                                  enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          width: 1,
-                                          color: _authRequestStatus == Status.ERROR
-                                              ? Colors.red
-                                              : Colors.transparent),
-                                      borderRadius: BorderRadius.all(Radius.circular(6))),
-                                  filled: true,
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                                  hoverColor: Colors.brown,
-                                  fillColor: Colors.white.withOpacity(0.1)),
-                            )),
+                          height: 44,
+                          child: TextFormField(
+                            // textAlignVertical: TextAlignVertical.center,
+                            controller: _emailTextController,
+                            enabled: _authRequestStatus != Status.LOADING,
+                            // onChanged: (String value) {
+                            //   setState(() {
+                            //     _authRequestStatus = Status.COMPLETED;
+                            //     _email = value;
+                            //   });
+                            // },
+                            keyboardType: TextInputType.emailAddress,
+                            style: TextStyle(color: Colors.white),
+                            validator: _validateEmail,
+                            textCapitalization: TextCapitalization.none,
+                            //initialValue: _email,
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                                  borderSide: BorderSide(width: 1, color: Colors.transparent)),
+                              hintStyle: TextStyle(color: Colors.white.withOpacity(0.1)),
+                              hintText: 'Your email',
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 1,
+                                      color: _authRequestStatus == Status.ERROR
+                                          ? Colors.red
+                                          : Colors.transparent),
+                                  borderRadius: BorderRadius.all(Radius.circular(6))),
+                              filled: true,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                              hoverColor: Colors.brown,
+                              fillColor: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 20),
                         Text(
                           widget.userType?._passwordFieldName() ?? '',
@@ -484,30 +556,37 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(height: 20),
                         if (!kCompanyTypeArmorOnly) _providerField(),
                         Visibility(
-                            visible: _authRequestStatus == Status.ERROR,
-                            child: Container(
-                                child: Center(
-                                    child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 40,
-                                ),
-                                ResourceImage.imageWithName('ic_error.png'),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  _errorMessage,
-                                  style: TextStyle(color: Colors.red),
-                                  textAlign: TextAlign.center,
-                                )
-                              ],
-                            ))))
+                          visible: _authRequestStatus == Status.ERROR,
+                          child: Container(
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 40,
+                                  ),
+                                  ResourceImage.imageWithName('ic_error.png'),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    _errorMessage,
+                                    style: TextStyle(color: Colors.red),
+                                    textAlign: TextAlign.center,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
-                    )),
-                    nextButton
-                  ])),
-            ))
+                    ),
+                  ),
+                  nextButton
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
 
@@ -538,12 +617,45 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.push(
       context,
       CupertinoPageRoute(
-          builder: (BuildContext context) => EventsPage(
-                provider: CompanyType.armor.apiKey(),
-              )
-          // EventsPage()
-          ),
+        builder: (BuildContext context) => EventsPage(
+          provider: CompanyType.armor.apiKey(),
+        ),
+      ),
     );
+  }
+
+  Future<bool> _hasUserCreds() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String email = prefs.getString('sales_rep_email') ?? '';
+    final String password = prefs.getString('sales_rep_pwd') ?? '';
+    return email.isNotEmpty && password.isNotEmpty;
+  }
+
+  Future<void> _takeUserCreds() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _emailTextController.text = prefs.getString('sales_rep_email') ?? '';
+      _passwordTextController.text = prefs.getString('sales_rep_pwd') ?? '';
+    });
+  }
+
+  Future<void> _saveUserCreds() async {
+    if (_email.isEmpty || _password.isEmpty) return;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('sales_rep_email', _email);
+    prefs.setString('sales_rep_pwd', _password);
+  }
+
+  bool _continueIsEnabled() {
+    var providerSelected = true;
+    if (widget.userType == UserType.salesRep && _provider == null) {
+      providerSelected = false;
+    }
+
+    return _email.isNotEmpty &&
+        _password.isNotEmpty &&
+        _authRequestStatus != Status.LOADING &&
+        providerSelected;
   }
 }
 

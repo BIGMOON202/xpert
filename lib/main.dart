@@ -11,13 +11,6 @@ import 'package:tdlook_flutter_app/application/configs/firebase_app.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tdlook_flutter_app/common/utils/store_utils.dart';
 
-// Toggle this to cause an async error to be thrown during initialization
-// and to test that runZonedGuarded() catches the error
-const _kShouldTestAsyncErrorOnInit = false;
-
-// Toggle this for testing Crashlytics in your app locally.
-const _kTestingCrashlytics = true;
-
 class NavigationService {
   GlobalKey<NavigatorState>? navigationKey;
 
@@ -49,7 +42,6 @@ class NavigationService {
 }
 
 void main() async {
-  // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) => {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -58,8 +50,6 @@ void main() async {
   await AppEnv.load();
   final store = await StoreUtils.fetchStoreApp();
 
-  // Hundle Flutter errors and send to Crashlytics
-  /// Handle Flutter errors and send to Crashlytics
   FlutterError.onError = (FlutterErrorDetails details) {
     if (kDebugMode) {
       logger.e(details.exceptionAsString());

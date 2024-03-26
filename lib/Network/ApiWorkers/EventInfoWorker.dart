@@ -18,7 +18,6 @@ class EventInfoWorker {
     }
     logger.d('link: $link');
     final response = await _provider.get(link, useAuth: true);
-    logger.d('[STEP] Event fetchData: $response');
     if (_provider.shouldRefreshTokenFor(json: response)) {
       return null;
     } else {

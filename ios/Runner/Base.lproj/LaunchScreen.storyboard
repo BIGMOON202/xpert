@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -35,26 +36,16 @@
                             </stackView>
                             <view alpha="0.14999999999999999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kj-eh-2eg">
                                 <rect key="frame" x="179" y="566" width="56" height="1"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="56" id="QLJ-e5-k5z"/>
                                     <constraint firstAttribute="height" constant="1" id="xyf-Z7-H3R"/>
                                 </constraints>
                             </view>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="fc_v" translatesAutoresizingMaskIntoConstraints="NO" id="G4t-SD-j8c">
-                                <rect key="frame" x="141.5" y="597" width="131" height="30"/>
-                            </imageView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="vertx" translatesAutoresizingMaskIntoConstraints="NO" id="T7a-ET-loc">
-                                <rect key="frame" x="158.5" y="651" width="97" height="24"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="97" id="SDK-IF-eGV"/>
-                                    <constraint firstAttribute="height" constant="24" id="yh7-x4-D8l"/>
-                                </constraints>
-                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hXt-5Z-UAO">
                                 <rect key="frame" x="8" y="825" width="398" height="29"/>
                                 <string key="text">3DLOOK SIZING TECHNOLOGY COLLABORATION
-©2021 ХpertFit, ©FlyingCross, ©Vertex, ©Safariland, LLC.</string>
+©2021 ХpertFit, ©Safariland, LLC.</string>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="12"/>
                                 <color key="textColor" red="0.53725490196078429" green="0.54117647058823526" blue="0.61568627450980395" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -65,16 +56,12 @@
                             <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1a2-6s-vTC"/>
                             <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="4X2-HB-R7a"/>
                             <constraint firstAttribute="bottom" secondItem="hXt-5Z-UAO" secondAttribute="bottom" constant="42" id="Dqf-tL-LDc"/>
-                            <constraint firstItem="G4t-SD-j8c" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Ld3-AS-TmY"/>
                             <constraint firstItem="Xhp-HX-WUM" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ROa-nJ-Fdr"/>
-                            <constraint firstItem="G4t-SD-j8c" firstAttribute="top" secondItem="2kj-eh-2eg" secondAttribute="bottom" constant="30" id="RP9-UD-Zq4"/>
                             <constraint firstAttribute="trailing" secondItem="hXt-5Z-UAO" secondAttribute="trailing" constant="8" id="YIH-l3-J3v"/>
-                            <constraint firstItem="T7a-ET-loc" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="cG4-U8-GkA"/>
                             <constraint firstItem="2kj-eh-2eg" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="eG0-kj-6qU"/>
                             <constraint firstItem="hXt-5Z-UAO" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="8" id="gF5-es-ori"/>
                             <constraint firstItem="2kj-eh-2eg" firstAttribute="top" secondItem="Xhp-HX-WUM" secondAttribute="bottom" constant="30" id="h5Z-oH-17y"/>
                             <constraint firstItem="Xhp-HX-WUM" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="kWL-DH-wka"/>
-                            <constraint firstItem="T7a-ET-loc" firstAttribute="top" secondItem="G4t-SD-j8c" secondAttribute="bottom" constant="24" id="njV-M8-6FS"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -86,8 +73,9 @@
     <resources>
         <image name="LaunchImage" width="0.5" height="0.5"/>
         <image name="expert_fit_v" width="170" height="40"/>
-        <image name="fc_v" width="131" height="30"/>
         <image name="sl_v" width="194" height="22"/>
-        <image name="vertx" width="279" height="72"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -34,7 +35,7 @@ class BadRequestException extends CustomException {
 }
 
 class UnauthorisedException extends CustomException {
-  UnauthorisedException([message]) : super(message, "");
+  UnauthorisedException([message]) : super(message, '');
 }
 
 class InvalidInputException extends CustomException {
@@ -105,7 +106,7 @@ extension UserTypeNetworkExtension on UserType {
 
 class NetworkAPI {
   static int itemsPerPage = 10;
-  final Duration _timeout = Duration(seconds: 60);
+  final Duration _timeout = Duration(seconds: 180);
 
   final String _baseUrl = "https://${Application.hostName}/";
 
@@ -274,7 +275,12 @@ class NetworkAPI {
 
         // logger.d('call results: $responseJson');
       } on SocketException {
-        throw FetchDataException('No Internet connection');
+        final exception = FetchDataException('No Internet connection');
+        FirebaseCrashlytics.instance.recordError(exception, StackTrace.current);
+        throw exception;
+      } catch (e) {
+        FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
+        throw e;
       }
     }
 
@@ -286,8 +292,11 @@ class NetworkAPI {
 
   Future<ParserResponse<dynamic>> _response(http.Response response,
       {bool tryToRefreshAuth = true, required bool isJsonBody}) async {
-    // logger.d(
-    //     '----\nRESPONSE\n----\nstatus:${response.statusCode}\n header:${response.headers} body: ${json.decode(utf8.decode(response.bodyBytes))}');
+    logger.e(
+        'SRESPONSE[${response.statusCode}]: HEADER:${response.headers}, URL: ${response.request?.url}');
+
+    FirebaseCrashlytics.instance
+        .log('Response [${response.statusCode}] ${response.request?.url}, ${response.headers}');
     switch (response.statusCode) {
       case 200:
       case 201:
@@ -321,12 +330,9 @@ class NetworkAPI {
         }
 
         logger.d(responseJson);
-        var details = responseJson['detail'];
-        logger.d(details);
-        // return ParserResponse.error(responseJson);
+        final details = responseJson['detail'];
         throw UnauthorisedException(details != null ? details : response.body);
       case 500:
-
       default:
         throw FetchDataException(
             'Error occured while Communication with Server with StatusCode : ${response.statusCode}');

@@ -103,6 +103,11 @@ class MessageLookup extends MessageLookupByLibrary {
             "update the application to the latest version "),
         "text_update_text_span5":
             MessageLookupByLibrary.simpleMessage("and enjoy your experience."),
+        "text_welcome_footer": MessageLookupByLibrary.simpleMessage(
+            "To complete the self-sizing process, you should check your e-mail and/or SMS Text message for your invitation to self-size. The message will provide the sign-on ID and 6-digit security code you need to begin."),
+        "text_welcome_header": MessageLookupByLibrary.simpleMessage(
+            "We are glad you using XpertFit. You have selected to size yourself. Self-sizing is only available to persons that were invited to size themselves."),
+        "text_welcome_title": MessageLookupByLibrary.simpleMessage("Welcome!"),
         "title": MessageLookupByLibrary.simpleMessage("XpertFit")
       };
 }

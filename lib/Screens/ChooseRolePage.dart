@@ -8,6 +8,7 @@ import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Screens/LoginPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
+import 'package:tdlook_flutter_app/presentation/pages/welcome/welcome_page.dart';
 
 class ChooseRolePage extends StatefulWidget {
   @override
@@ -153,16 +154,17 @@ class _ChooseRolePageState extends State<ChooseRolePage> {
                 ))));
 
     void _moveToNextPage() {
-      // SessionParameters().captureMode = CaptureMode.handsFree;
-      // Navigator.push(context, CupertinoPageRoute(builder: (BuildContext context) =>
-      //     CameraCapturePage(photoType: PhotoType.front, measurement: null, gender: Gender.male)
-      // ));
-      //
-      // return;
       Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (BuildContext context) => LoginPage(userType: _selectedUserType)));
+        context,
+        CupertinoPageRoute(
+          builder: (BuildContext context) => _selectedUserType == UserType.salesRep
+              ? LoginPage(userType: _selectedUserType)
+              : WelcomePage(
+                  userType: UserType.endWearer,
+                  appVersion: _appVersion,
+                ),
+        ),
+      );
     }
 
     String _envEntered = '';

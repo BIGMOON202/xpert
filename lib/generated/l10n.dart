@@ -416,6 +416,36 @@ class S {
     );
   }
 
+  /// `Welcome!`
+  String get text_welcome_title {
+    return Intl.message(
+      'Welcome!',
+      name: 'text_welcome_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We are glad you using XpertFit. You have selected to size yourself. Self-sizing is only available to persons that were invited to size themselves.`
+  String get text_welcome_header {
+    return Intl.message(
+      'We are glad you using XpertFit. You have selected to size yourself. Self-sizing is only available to persons that were invited to size themselves.',
+      name: 'text_welcome_header',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `To complete the self-sizing process, you should check your e-mail and/or SMS Text message for your invitation to self-size. The message will provide the sign-on ID and 6-digit security code you need to begin.`
+  String get text_welcome_footer {
+    return Intl.message(
+      'To complete the self-sizing process, you should check your e-mail and/or SMS Text message for your invitation to self-size. The message will provide the sign-on ID and 6-digit security code you need to begin.',
+      name: 'text_welcome_footer',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Privacy Policy`
   String get privacy_policy {
     return Intl.message(

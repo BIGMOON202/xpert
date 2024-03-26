@@ -10,8 +10,12 @@ import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerView.dart';
 import 'package:tdlook_flutter_app/ScreenComponents/Ruler/RulerViewController.dart';
 import 'package:tdlook_flutter_app/Screens/ArmorTypePage.dart';
+import 'package:tdlook_flutter_app/Screens/CameraCapturePage.dart';
+import 'package:tdlook_flutter_app/Screens/ChooseCaptureModePage.dart';
+import 'package:tdlook_flutter_app/Screens/HowTakePhotoPage.dart';
 import 'package:tdlook_flutter_app/Screens/OverlapPage.dart';
 import 'package:tdlook_flutter_app/Screens/PrefferedFitPage.dart';
+import 'package:tdlook_flutter_app/Screens/QuestionaryPage.dart';
 import 'package:tdlook_flutter_app/Screens/WaistLevelPage.dart';
 import 'package:tdlook_flutter_app/generated/l10n.dart';
 
@@ -151,11 +155,12 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
           ),
         );
       } else {
-        Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (BuildContext context) =>
-                    ArmorTypePage(gender: widget.gender, measurements: widget.measurement)));
+        final bool? outerCarrier = widget.measurement?.event?.outerCarrier;
+        if (outerCarrier == null) {
+          _chooseArmor();
+        } else {
+          _skipChooseArmor();
+        }
       }
     } else {
       if (Application.shouldShowWaistLevel && widget.measurement!.askForWaistLevel!) {
@@ -180,6 +185,78 @@ class _RulerPageWeightState extends State<RulerPageWeight> {
           ),
         );
       }
+    }
+  }
+
+  void _chooseArmor() {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (BuildContext context) => ArmorTypePage(
+          gender: widget.gender,
+          measurements: widget.measurement,
+        ),
+      ),
+    );
+  }
+
+  void _skipChooseArmor() {
+    final selectedCompany = SessionParameters().selectedCompany;
+    if (selectedCompany == null) return;
+    final MeasurementResults? measurement = widget.measurement;
+    switch (selectedCompany) {
+      case CompanyType.uniforms:
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (BuildContext context) => QuestionaryPage(
+              gender: widget.gender,
+              measurement: measurement,
+              selectedMeasurementSystem: widget.selectedMeasurementSystem,
+            ),
+          ),
+        );
+        return;
+
+      case CompanyType.armor:
+        if (SessionParameters().selectedUser == UserType.endWearer) {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (BuildContext context) => ChooseCaptureModePage(
+                argument: ChooseCaptureModePageArguments(
+                  gender: widget.gender,
+                  measurement: measurement,
+                ),
+              ),
+            ),
+          );
+        } else {
+          SessionParameters().captureMode = CaptureMode.withFriend;
+
+          if (Application.isProMode) {
+            Navigator.pushNamed(
+              context,
+              CameraCapturePage.route,
+              arguments: CameraCapturePageArguments(
+                photoType: PhotoType.front,
+                measurement: measurement,
+                frontPhoto: null,
+                sidePhoto: null,
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) => HowTakePhotoPage(
+                  gender: widget.gender,
+                  measurements: measurement,
+                ),
+              ),
+            );
+          }
+        }
     }
   }
 }

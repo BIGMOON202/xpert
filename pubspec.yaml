@@ -1,7 +1,7 @@
 name: tdlook_flutter_app
 description: XpertFit
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.4.7+134
+version: 1.4.11+153
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
@@ -43,8 +43,10 @@ dependencies:
   pagination_view: 2.0.0
   pin_code_fields: 7.4.0
   scrollable_positioned_list: 0.3.2
-  visibility_detector: 0.3.3
+  visibility_detector: 0.4.0+2
+  
   webview_flutter_plus: 0.3.0+2
+#focus_detector: 2.0.1
 
   # Common
   http: 0.13.4
@@ -66,6 +68,7 @@ dependencies:
   freezed_annotation: 2.0.3
   flutter_exif_rotation: 0.5.1
   open_store: 0.4.0
+  local_auth: 2.1.6
 
 flutter_icons:
   android: true

@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:sensors/sensors.dart';
@@ -14,19 +15,18 @@ import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/XFile+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ResponseModels/EventModel.dart';
-import 'package:tdlook_flutter_app/ScreenComponents/picker_view/picker_view.dart';
-import 'package:tdlook_flutter_app/ScreenComponents/picker_view/picker_view_popup.dart';
 import 'package:tdlook_flutter_app/Screens/AnalizeErrorPage.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeAnalizer.dart';
 import 'package:tdlook_flutter_app/Screens/Helpers/HandsFreeCaptureStep.dart';
 import 'package:tdlook_flutter_app/Screens/PhotoRulesPage.dart';
 import 'package:tdlook_flutter_app/UIComponents/ResourceImage.dart';
 import 'package:tdlook_flutter_app/common/logger/logger.dart';
-import 'package:tdlook_flutter_app/constants/keys.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'WaitingPage.dart';
+
+class RestartCameraEvent {}
 
 class CameraCapturePageArguments {
   final MeasurementResults? measurement;
@@ -78,7 +78,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   PhotoType? _photoType;
 
   List<CameraDescription>? cameras;
-  CameraController? controller;
+  CameraController? _controller;
   Future<void>? _initializeCameraFuture;
 
   List<double>? _gyroscopeValues;
@@ -89,13 +89,16 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   String _timerText = '';
   double _zAngle = 0;
   bool isMovingToResultAfterHF = false;
-  bool isDisposed = false;
+  late bool _isDisposed;
 
   int minAngle = 80;
   int maxAngle = 105;
+  double _cameraRatio = 1;
   var lastGyroData = DateTime.now().millisecondsSinceEpoch;
   PhotoError? get _previousPhotosError => widget.arguments?.previousPhotosError;
   String _displayedFileName = '';
+  int _cameraInitVersion = 0;
+  late Key _visibilityDetectorWidgetKey;
 
   _moveTodebugSession() async {
     var isSimulator = await Application.isSimulator();
@@ -115,10 +118,28 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
   }
 
   @override
+  void didChangeDependencies() {
+    // _isDisposed = false;
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   _initCamera();
+    // });
+    super.didChangeDependencies();
+  }
+
+  void _onRefresh() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        logger.w('OnRefresh');
+        //_isDisposed = true;
+        //_initCamera();
+      });
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
     logger.d('passed arguments: ${widget.arguments?.frontPhoto} ${widget.arguments?.frontPhoto}');
 
     if (widget.arguments != null) {
@@ -126,6 +147,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     } else {
       _photoType = widget.photoType;
     }
+    _visibilityDetectorWidgetKey = Key('CameraCapturePageKey$_photoType');
+    //_visibilityDetectorWidgetKey = Key('CameraCapturePageKey');
 
     logger.d('selectedGender on camera: ${widget.gender?.apiFlag()}');
 
@@ -134,7 +157,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     _sidePhoto = widget.sidePhoto;
 
     _moveTodebugSession();
-    initCamera();
+    _isDisposed = false;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _initCamera();
+    });
+
+    //Future.delayed(Duration(seconds: 1)).then((value) => initCamera());
 
     // accelerometerEvents.listen((AccelerometerEvent event) {
     //   setState(() {
@@ -205,60 +233,72 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     }));
   }
 
-  double cameraRatio = 1;
-
-  Future<void> initCamera() async {
+  Future<void> _initCamera() async {
     WidgetsFlutterBinding.ensureInitialized();
-    cameras = await availableCameras();
-
-    if (cameras != null && cameras?.length != 0) {
-      var camera = _captureMode == CaptureMode.withFriend ? cameras![0] : cameras![1];
-      controller = CameraController(camera, ResolutionPreset.high, enableAudio: false);
-      _initializeCameraFuture = controller?.initialize();
-      _initializeCameraFuture?.then((_) {
-        if (!mounted) {
-          return;
-        }
-
-        cameraRatio = (controller!.value.previewSize?.height ?? 0) /
-            (controller!.value.previewSize?.width ?? 1);
-
-        // FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
-        controller?.setFlashMode(FlashMode.off);
-        controller?.lockCaptureOrientation(DeviceOrientation.portraitUp);
-        setState(() {
-          isDisposed = false;
-        });
-      });
-    }
-
-    if (_captureMode == CaptureMode.handsFree) {
-      Wakelock.enable();
-      logger.i('_handsFreeWorker init');
-      _handsFreeWorker = HandsFreeAnalizer();
-      _setupHandsFreeInitialStepIfNeeded();
-
-      // _handsFreeWorker.reset();
-      _handsFreeWorker?.onCaptureBlock = () {
-        logger.i('Should take scan');
-        _handleTap();
-      };
-      _handsFreeWorker?.onTimerUpdateBlock = (String val) {
-        logger.d('timer text: $val');
-        setState(() {
-          _timerText = val;
-        });
-      };
-      _handsFreeWorker?.onFileNameChangedBlock = (String val) {
-        setState(() {
-          if (_displayedFileName.isEmpty) {
-            _displayedFileName = val;
-          } else {
-            _displayedFileName += ' - $val';
+    try {
+      cameras = await availableCameras();
+      logger.d('STARTED... INIT CAMERA');
+      if (cameras != null && cameras?.length != 0) {
+        final camera = _captureMode == CaptureMode.withFriend ? cameras![0] : cameras![1];
+        _controller = CameraController(camera, ResolutionPreset.high, enableAudio: false);
+        _cameraInitVersion = _cameraInitVersion + 1;
+        _initializeCameraFuture = _controller?.initialize();
+        _initializeCameraFuture?.then((_) {
+          if (!mounted) {
+            return;
           }
+
+          _cameraRatio = (_controller!.value.previewSize?.height ?? 0) /
+              (_controller!.value.previewSize?.width ?? 1);
+
+          // FlashMode flashMode = _captureMode == CaptureMode.handsFree ? FlashMode.always : FlashMode.off;
+          _controller?.setFlashMode(FlashMode.off);
+          _controller?.lockCaptureOrientation(DeviceOrientation.portraitUp);
+          _controller?.resumePreview();
+          logger.d('STARTED... $_cameraInitVersion');
+
+          setState(() => _isDisposed = false);
         });
-      };
-      // _handsFreeWorker.start(andReset: true);
+
+        //await _controller?.resumePreview();
+      }
+
+      if (_captureMode == CaptureMode.handsFree) {
+        Wakelock.enable();
+        logger.i('_handsFreeWorker init');
+        _handsFreeWorker = HandsFreeAnalizer();
+        _setupHandsFreeInitialStepIfNeeded();
+
+        // _handsFreeWorker.reset();
+        _handsFreeWorker?.onCaptureBlock = () {
+          logger.i('Should take scan');
+          _handleTap();
+        };
+        _handsFreeWorker?.onTimerUpdateBlock = (String val) {
+          logger.d('timer text: $val');
+          setState(() {
+            _timerText = val;
+          });
+        };
+        _handsFreeWorker?.onFileNameChangedBlock = (String val) {
+          setState(() {
+            if (_displayedFileName.isEmpty) {
+              _displayedFileName = val;
+            } else {
+              _displayedFileName += ' - $val';
+            }
+          });
+        };
+        // _handsFreeWorker.start(andReset: true);
+      }
+    } on CameraException catch (e) {
+      logger.e('CameraException: $e');
+      _showSnakMessage('CameraException: $e');
+    } catch (e) {
+      logger.e('CameraError: $e');
+      _showSnakMessage('CameraError: $e');
+    } finally {
+      logger.e('Finally');
     }
   }
 
@@ -324,8 +364,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     logger.i('dipose camera page');
     _cancelGyroUpdates();
     _stopPage();
-    controller?.dispose();
-    // controller = null;
+    //_controller?.dispose();
     logger.i('did dipose camera page');
     super.dispose();
     logger.i('did super dipose camera page');
@@ -347,42 +386,75 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     return _photoType;
   }
 
-  void _handleTap() async {
-    setState(() {
-      _isTakingPicture = true;
-    });
-    XFile? file = await controller?.takePicture();
-    // Uint8List imageBytes = await file.readAsBytes();
-    // String va = base64Encode(imageBytes);
-    if (Platform.isAndroid && _captureMode == CaptureMode.handsFree && file != null) {
-      final File rotatedImage = await FlutterExifRotation.rotateImage(path: file.path);
-      file = XFile.fromData(rotatedImage.readAsBytesSync());
-    }
-
-    //await Future.delayed(const Duration(milliseconds: 230), () {});
-
-    setState(() {
-      _isTakingPicture = false;
-    });
-
+  Future<void> _handleTap() async {
+    final bool isInitialized = _controller?.value.isInitialized ?? false;
+    if (_isTakingPicture || !isInitialized || _isDisposed) return;
+    setState(() => _isTakingPicture = true);
     await Future.delayed(const Duration(milliseconds: 230), () {});
 
-    if (activePhotoType() == PhotoType.front) {
-      _frontPhoto = file;
-    } else {
-      _sidePhoto = file;
-    }
-    if (SessionParameters().captureMode == CaptureMode.handsFree) {
-      if (activePhotoType() == PhotoType.front && _previousPhotosError != PhotoError.front) {
-        greatSoundPlayedAfterFront = false;
-        _photoType = PhotoType.side;
-        _setupHandsFreeInitialStepIfNeeded();
-        // _handsFreeWorker.increaseStep();
+    try {
+      XFile? file = await _controller?.takePicture();
+      if (Platform.isAndroid && _captureMode == CaptureMode.handsFree && file != null) {
+        final File rotatedImage = await FlutterExifRotation.rotateImage(path: file.path);
+        file = XFile.fromData(rotatedImage.readAsBytesSync());
+      }
+      await Future.delayed(const Duration(milliseconds: 230), () {});
+      setState(() {
+        _isTakingPicture = false;
+        logger.d('ARC: _isDisposed = true');
+        _isDisposed = true;
+      });
+
+      //await Future.delayed(const Duration(milliseconds: 230), () {});
+
+      //await _controller?.dispose();
+      // _controller = null;
+      await Wakelock.disable();
+      await Future.delayed(const Duration(milliseconds: 230), () {});
+      // setState(() {
+      //   _isTakingPicture = false;
+      //   _isDisposed = true;
+      // });
+
+      //await Future.delayed(const Duration(milliseconds: 230), () {});
+
+      if (activePhotoType() == PhotoType.front) {
+        _frontPhoto = file;
+      } else {
+        _sidePhoto = file;
+      }
+      if (SessionParameters().captureMode == CaptureMode.handsFree) {
+        if (activePhotoType() == PhotoType.front && _previousPhotosError != PhotoError.front) {
+          greatSoundPlayedAfterFront = false;
+          _photoType = PhotoType.side;
+          _setupHandsFreeInitialStepIfNeeded();
+          // _handsFreeWorker.increaseStep();
+        } else {
+          await _moveToNextPage();
+        }
       } else {
         await _moveToNextPage();
       }
-    } else {
-      await _moveToNextPage();
+    } catch (e) {
+      logger.e('Tap error: $e');
+      setState(() => _isTakingPicture = false);
+      _showSnakMessage('Tap error: $e');
+    } finally {
+      setState(() => _isTakingPicture = false);
+      logger.e('Finnaly tap');
+    }
+  }
+
+  void _showSnakMessage(String message) {
+    if (kDebugMode) {
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        logger.w('timeStamp: $timeStamp');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+          ),
+        );
+      });
     }
   }
 
@@ -390,157 +462,251 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     Future.delayed(Duration(milliseconds: 330), callback);
   }
 
-  void _showPicker() {
-    PickerController pickerController =
-        PickerController(count: 2, selectedItems: [minAngle, maxAngle]);
-
-    PickerViewPopup.showMode(PickerShowMode.alertDialog, // AlertDialog or BottomSheet
-        controller: pickerController,
-        context: context,
-        title: Text(
-          'AlertDialogPicker',
-          style: TextStyle(fontSize: 14),
-        ),
-        cancel: Text(
-          'cancel',
-          style: TextStyle(color: Colors.grey),
-        ),
-        onCancel: () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('AlertDialogPicker.cancel')));
-        },
-        confirm: Text(
-          'confirm',
-          style: TextStyle(color: Colors.blue),
-        ),
-        onConfirm: (controller) {
-          // List<int> selectedItems = [];
-          minAngle = controller.selectedRowAt(section: 0) ?? 0;
-          maxAngle = controller.selectedRowAt(section: 1) ?? 0;
-          // selectedItems.add(controller.selectedRowAt(section: 0));
-          // selectedItems.add(controller.selectedRowAt(section: 1));
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('MIN angle is:$minAngle, MAX angle is: $maxAngle')));
-        },
-        builder: (context, popup) {
-          return Container(
-            height: 150,
-            child: popup,
-          );
-        },
-        itemExtent: 40,
-        numberofRowsAtSection: (section) {
-          return 180;
-        },
-        itemBuilder: (section, row) {
-          return Text(
-            '$row',
-            style: TextStyle(fontSize: 12),
-          );
-        });
-  }
-
   Future<void> _moveToNextPage() async {
-    Wakelock.disable();
-    if (_captureMode == CaptureMode.handsFree) {
-      isMovingToResultAfterHF = true;
-    }
+    // await Wakelock.disable();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (_captureMode == CaptureMode.handsFree) {
+        isMovingToResultAfterHF = true;
+      }
 
-    if (_captureMode == CaptureMode.handsFree) {
-      _stopPage();
-    }
-    logger.d('widget.arguments: ${widget.arguments}');
-    if (widget.arguments == null) {
-      if (_photoType == PhotoType.front) {
-        if (Application.isProMode == false) {
-          Navigator.push(
-            context,
-            CupertinoPageRoute(
-              builder: (BuildContext context) => PhotoRulesPage(
-                  photoType: PhotoType.side,
-                  measurement: widget.measurement,
-                  frontPhoto: _frontPhoto,
-                  gender: widget.gender),
+      if (_captureMode == CaptureMode.handsFree) {
+        _stopPage();
+      }
+      logger.d('widget.arguments: ${widget.arguments}');
+      if (widget.arguments == null) {
+        if (_photoType == PhotoType.front) {
+          if (Application.isProMode == false) {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (BuildContext context) => PhotoRulesPage(
+                    photoType: PhotoType.side,
+                    measurement: widget.measurement,
+                    frontPhoto: _frontPhoto,
+                    gender: widget.gender),
+              ),
+            );
+          } else {
+            Navigator.pushNamed(context, CameraCapturePage.route,
+                    arguments: CameraCapturePageArguments(
+                        measurement: widget.arguments?.measurement,
+                        frontPhoto: _frontPhoto,
+                        sidePhoto: widget.arguments?.sidePhoto))
+                .then((value) {
+              if (value is RestartCameraEvent) {
+                _onRefresh();
+              }
+            });
+          }
+        } else {
+          _delayedPush(
+            () => Navigator.pushNamedAndRemoveUntil(
+              context,
+              WaitingPage.route,
+              (route) => false,
+              arguments: WaitingPageArguments(
+                measurement: widget.measurement,
+                frontPhoto: _frontPhoto,
+                sidePhoto: _sidePhoto,
+                shouldUploadMeasurements: true,
+              ),
             ),
           );
-        } else {
-          Navigator.pushNamed(context, CameraCapturePage.route,
-              arguments: CameraCapturePageArguments(
-                  measurement: widget.arguments?.measurement,
-                  frontPhoto: _frontPhoto,
-                  sidePhoto: widget.arguments?.sidePhoto));
         }
       } else {
-        _delayedPush(
-          () => Navigator.pushNamedAndRemoveUntil(
-            context,
-            WaitingPage.route,
-            (route) => false,
-            arguments: WaitingPageArguments(
-              measurement: widget.measurement,
-              frontPhoto: _frontPhoto,
-              sidePhoto: _sidePhoto,
-              shouldUploadMeasurements: true,
-            ),
-          ),
-        );
-      }
-    } else {
-      if (_captureMode == CaptureMode.withFriend) {
-        if (_photoType == PhotoType.front) {
-          if (widget.arguments?.sidePhoto == null) {
-            //make side photo
+        if (_captureMode == CaptureMode.withFriend) {
+          if (_photoType == PhotoType.front) {
+            if (widget.arguments?.sidePhoto == null) {
+              //make side photo
 
-            Navigator.pushNamed(context, CameraCapturePage.route,
-                arguments: CameraCapturePageArguments(
-                    measurement: widget.arguments?.measurement,
-                    frontPhoto: _frontPhoto,
-                    sidePhoto: widget.arguments?.sidePhoto));
+              Navigator.pushNamed(context, CameraCapturePage.route,
+                      arguments: CameraCapturePageArguments(
+                          measurement: widget.arguments?.measurement,
+                          frontPhoto: _frontPhoto,
+                          sidePhoto: widget.arguments?.sidePhoto))
+                  .then((value) {
+                if (value is RestartCameraEvent) {
+                  _onRefresh();
+                }
+              });
+            } else {
+              //make calculations
+              _delayedPush(() => Navigator.pushNamedAndRemoveUntil(
+                  context, WaitingPage.route, (route) => false,
+                  arguments: WaitingPageArguments(
+                      measurement: widget.arguments?.measurement,
+                      frontPhoto: _frontPhoto,
+                      sidePhoto: widget.arguments?.sidePhoto,
+                      shouldUploadMeasurements: false)));
+            }
           } else {
             //make calculations
             _delayedPush(() => Navigator.pushNamedAndRemoveUntil(
                 context, WaitingPage.route, (route) => false,
                 arguments: WaitingPageArguments(
                     measurement: widget.arguments?.measurement,
-                    frontPhoto: _frontPhoto,
-                    sidePhoto: widget.arguments?.sidePhoto,
-                    shouldUploadMeasurements: false)));
+                    frontPhoto: widget.arguments?.frontPhoto,
+                    sidePhoto: _sidePhoto,
+                    shouldUploadMeasurements: true)));
           }
         } else {
-          //make calculations
-          _delayedPush(() => Navigator.pushNamedAndRemoveUntil(
-              context, WaitingPage.route, (route) => false,
+          XFile? _frontToUpload = _frontPhoto;
+          XFile? _sideToUpload = _sidePhoto;
+
+          if (widget.arguments?.frontPhoto != null) {
+            _frontToUpload = widget.arguments?.frontPhoto;
+          }
+          if (widget.arguments?.sidePhoto != null) {
+            _sideToUpload = widget.arguments?.sidePhoto;
+          }
+
+          _delayedPush(
+            () => Navigator.pushNamedAndRemoveUntil(
+              context,
+              WaitingPage.route,
+              (route) => false,
               arguments: WaitingPageArguments(
-                  measurement: widget.arguments?.measurement,
-                  frontPhoto: widget.arguments?.frontPhoto,
-                  sidePhoto: _sidePhoto,
-                  shouldUploadMeasurements: true)));
+                measurement: widget.arguments?.measurement,
+                frontPhoto: _frontToUpload,
+                sidePhoto: _sideToUpload,
+                shouldUploadMeasurements: false,
+              ),
+            ),
+          );
         }
-      } else {
-        XFile? _frontToUpload = _frontPhoto;
-        XFile? _sideToUpload = _sidePhoto;
+      }
+    });
+  }
 
-        if (widget.arguments?.frontPhoto != null) {
-          _frontToUpload = widget.arguments?.frontPhoto;
-        }
-        if (widget.arguments?.sidePhoto != null) {
-          _sideToUpload = widget.arguments?.sidePhoto;
-        }
-
-        _delayedPush(
-          () => Navigator.pushNamedAndRemoveUntil(
-            context,
-            WaitingPage.route,
-            (route) => false,
-            arguments: WaitingPageArguments(
-              measurement: widget.arguments?.measurement,
-              frontPhoto: _frontToUpload,
-              sidePhoto: _sideToUpload,
-              shouldUploadMeasurements: false,
+  Widget _buildCaptureButton() {
+    if (_captureMode == CaptureMode.withFriend) {
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: SafeArea(
+          child: Container(
+            width: 100,
+            height: 200,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Opacity(
+                  opacity: _gyroIsValid ? 1.0 : 0.7,
+                  child: MaterialButton(
+                    splashColor: Colors.transparent,
+                    elevation: 0,
+                    onPressed: _gyroIsValid ? _handleTap : null,
+                    // textColor: Colors.white,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ResourceImage.imageWithName('ic_capture.png'),
+                        Visibility(visible: _isTakingPicture, child: CircularProgressIndicator())
+                      ],
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
-        );
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _buildFrameWidget() {
+    if (_captureMode == CaptureMode.withFriend) {
+      return SafeArea(
+          child: Center(
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: 8,
+            left: 40,
+            right: 40,
+            bottom: 34,
+          ),
+          child: FittedBox(
+            child: ResourceImage.imageWithName(_gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
+            fit: BoxFit.fitWidth,
+          ),
+        ),
+      ));
+    } else {
+      Widget subWidget() {
+        if (_gyroIsValid == false) {
+          return Container(
+            decoration: BoxDecoration(
+              color: _gyroIsValid ? Colors.transparent : Colors.black.withAlpha(100),
+              borderRadius: BorderRadius.all(
+                Radius.circular(30),
+              ),
+            ),
+            child: Stack(
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 35),
+                        child: SizedBox(
+                          width: 96,
+                          height: 360,
+                          child: GyroWidget(
+                            angle: _zAngle,
+                            captureMode: _captureMode,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 39),
+                      Text(
+                        'Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          return Container();
+        }
       }
+
+      return Container(
+        decoration: BoxDecoration(
+            border: Border.all(
+              width: 10,
+              color: _gyroIsValid ? Colors.green : Colors.red,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(40))),
+        child: subWidget(),
+      );
+    }
+  }
+
+  Widget _buildRuller() {
+    if (_captureMode == CaptureMode.withFriend) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: SizedBox(
+          width: 48,
+          height: 360,
+          child: GyroWidget(
+            angle: _zAngle,
+            captureMode: _captureMode,
+          ),
+        ),
+      );
+    } else {
+      return Container();
     }
   }
 
@@ -549,170 +715,42 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
     double xScale() {
-      return cameraRatio / deviceRatio;
+      return _cameraRatio / deviceRatio;
     }
 
-    final yScale = 1;
-
-    Widget frameWidget() {
-      if (_captureMode == CaptureMode.withFriend) {
-        return SafeArea(
-            child: Center(
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 8,
-              left: 40,
-              right: 40,
-              bottom: 34,
-            ),
-            child: FittedBox(
-              child:
-                  ResourceImage.imageWithName(_gyroIsValid ? 'frame_green.png' : 'frame_red.png'),
-              fit: BoxFit.fitWidth,
-            ),
-          ),
-        ));
-      } else {
-        Widget subWidget() {
-          if (_gyroIsValid == false) {
-            return Container(
-              decoration: BoxDecoration(
-                color: _gyroIsValid ? Colors.transparent : Colors.black.withAlpha(100),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(30),
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 35),
-                          child: SizedBox(
-                            width: 96,
-                            height: 360,
-                            child: GyroWidget(
-                              angle: _zAngle,
-                              captureMode: _captureMode,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 39),
-                        Text(
-                          'Place your phone vertically on a table.\n\nAngle the phone so that the arrow\nline up on the green.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return Container();
-          }
-        }
-
-        return Container(
-          decoration: BoxDecoration(
-              border: Border.all(
-                width: 10,
-                color: _gyroIsValid ? Colors.green : Colors.red,
-              ),
-              borderRadius: BorderRadius.all(Radius.circular(40))),
-          child: subWidget(),
-        );
-      }
-    }
-
-    Widget rulerContainer() {
-      if (_captureMode == CaptureMode.withFriend) {
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: SizedBox(
-            width: 48,
-            height: 360,
-            child: GyroWidget(
-              angle: _zAngle,
-              captureMode: _captureMode,
-            ),
-          ),
-        );
-      } else {
-        return Container();
-      }
-    }
-
-    Widget captureButton() {
-      if (_captureMode == CaptureMode.withFriend) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: SafeArea(
-            child: Container(
-              width: 100,
-              height: 200,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Opacity(
-                    opacity: _gyroIsValid ? 1.0 : 0.7,
-                    child: MaterialButton(
-                      splashColor: Colors.transparent,
-                      elevation: 0,
-                      onPressed: _gyroIsValid ? _handleTap : null,
-                      // textColor: Colors.white,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          ResourceImage.imageWithName('ic_capture.png'),
-                          Visibility(visible: _isTakingPicture, child: CircularProgressIndicator())
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        );
-      } else {
-        return Container();
-      }
-    }
-
-    if ((controller == null) || (!controller!.value.isInitialized)) {
-      return Container();
-    }
     return VisibilityDetector(
-      key: Keys.cameraCapturePageKey,
+      key: _visibilityDetectorWidgetKey,
       onVisibilityChanged: (visibilityInfo) {
-        var visiblePercentage = visibilityInfo.visibleFraction * 100;
+        final visiblePercentage = visibilityInfo.visibleFraction * 100;
+        logger
+            .d('STARTED... visiblePercentage: $visiblePercentage ($_visibilityDetectorWidgetKey)');
         if (visiblePercentage == 100) {
-          if (isDisposed) {
-            initCamera();
+          if (_isDisposed) {
+            _initCamera();
           }
+        } else if (visiblePercentage == 0) {
+          //_controller?.dispose();
         } else {
-          controller?.dispose().whenComplete(() {
-            setState(() {
-              isDisposed = true;
-            });
-          });
+          // if (_isPictureTaked) {
+          //   _controller?.dispose().whenComplete(() {
+          //     _isDisposed = true;
+          //   });
+          // }
+          // _controller?.dispose().whenComplete(() {
+          //   setState(() {
+          //     _isDisposed = true;
+          //   });
+          // });
+
+          // _controller?.dispose().whenComplete(() {
+          //   setState(() {
+          //     _isDisposed = true;
+          //   });
+          // });
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: activePhotoType() == PhotoType.front ? Text('Front scan') : Text('Side scan'),
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-        ),
+        appBar: _buildAppBar(),
         extendBodyBehindAppBar: true,
         backgroundColor: SessionParameters().mainBackgroundColor,
         body: Stack(
@@ -720,24 +758,29 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
             Container(
               color: Colors.black,
               child: FutureBuilder(
-                  future: _initializeCameraFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done && !isDisposed) {
-                      return AspectRatio(
-                          aspectRatio: deviceRatio,
-                          child: Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.diagonal3Values(xScale(), 1, 1),
-                            child: CameraPreview(controller!),
-                          ));
-                    } else {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                  }),
+                future: _initializeCameraFuture,
+                builder: (context, snapshot) {
+                  final bool isInitialized = _controller?.value.isInitialized ?? false;
+                  if (snapshot.connectionState == ConnectionState.done &&
+                      isInitialized &&
+                      !_isDisposed) {
+                    return AspectRatio(
+                      aspectRatio: deviceRatio,
+                      child: Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.diagonal3Values(xScale(), 1, 1),
+                        child: _controller!.buildPreview(), // CameraPreview(_controller!),
+                      ),
+                    );
+                  } else {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
             ),
-            frameWidget(),
-            captureButton(),
-            rulerContainer(),
+            _buildFrameWidget(),
+            _buildCaptureButton(),
+            _buildRuller(),
             Visibility(
               visible: _timerText != '',
               child: Center(
@@ -749,33 +792,20 @@ class _CameraCapturePageState extends State<CameraCapturePage> with WidgetsBindi
             ),
             Visibility(
               visible: _isTakingPicture,
-              child: Container(color: Colors.white),
+              child: Container(color: Colors.white70),
             ),
-            if (kDebugMode)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20, left: 20),
-                child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(color: Colors.green),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    child: Text(
-                      _displayedFileName,
-                      style: Theme.of(context).textTheme.caption?.copyWith(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 18,
-                          ),
-                    ),
-                  ),
-                ),
-              )
           ],
         ),
       ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      centerTitle: true,
+      title: activePhotoType() == PhotoType.front ? Text('Front scan') : Text('Side scan'),
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
     );
   }
 }
