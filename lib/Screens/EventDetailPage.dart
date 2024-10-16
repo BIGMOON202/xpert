@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +10,6 @@ import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Future+Extension.dart';
-import 'package:tdlook_flutter_app/Extensions/RefreshStatus+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
 import 'package:tdlook_flutter_app/Models/MeasurementModel.dart';
 import 'package:tdlook_flutter_app/Network/ApiWorkers/EventInfoWorker.dart';
@@ -30,6 +28,7 @@ import 'package:tdlook_flutter_app/common/logger/logger.dart';
 import 'package:tdlook_flutter_app/common/utils/emoji_utils.dart';
 import 'package:tdlook_flutter_app/constants/global.dart';
 import 'package:tdlook_flutter_app/presentation/pages/create_ew/new_ew_page.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/common/empty_widget.dart';
 
 import 'ChooseGenderPage.dart';
 
@@ -67,23 +66,23 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
 
   @override
   void initState() {
+    super.initState();
     _event = widget.event;
     _bloc = MeasurementsListWorkerBloc(_event?.id.toString());
     _bloc?.call();
 
     _eventInfoWorkerBloc = EventInfoWorkerBloc(_event?.id.toString());
     _eventInfoWorkerBloc?.chuckListStream.listen((updatedEvent) {
+      logger.e('STEP Status ${updatedEvent.status}');
       if (updatedEvent.status == null) return;
       switch (updatedEvent.status!) {
-        case Status.LOADING:
-          break;
-
         case Status.COMPLETED:
           setState(() {
             _event = updatedEvent.data;
+            logger.e('STEP Status.COMPLETED');
           });
           break;
-        case Status.ERROR:
+        default:
           break;
       }
     });
@@ -94,11 +93,6 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     if (widget.measurementsList != null && (widget.measurementsList?.data?.length ?? 0) > 0) {
       // widget.measurementsList.data =  widget.measurementsList.data.where((i) => i.endWearer.id == widget.currentUserId).toList();
     }
-  }
-
-  void _fetchData() {
-    _bloc?.call();
-    _eventInfoWorkerBloc?.call();
   }
 
   void filter({String? withText}) async {
@@ -134,11 +128,20 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
   }
 
   Future<void> _refreshList() async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isKeyboardAppeare = false;
+    });
     await _eventInfoWorkerBloc?.call();
     await _bloc?.call(name: _searchText);
   }
 
   Future<List<MeasurementResults>> _pageFetch(int offset) async {
+    if (offset == 0) {
+      // Fix: EF-2649
+      await _eventInfoWorkerBloc?.call();
+    }
+
     MeasurementsList? result;
 
     if (_event?.status == EventStatus.scheduled) {
@@ -190,132 +193,130 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     Widget _subchild() {
       if (_isKeyboardAppeare == false) {
         return Padding(
-            padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    color: HexColor.fromHex('1E7AE4')),
-                child: Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        eventName,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(
-                        height: 18,
-                      ),
-                      SizedBox(
-                          height: 80,
-                          child: Row(
+          padding: EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 8),
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                color: HexColor.fromHex('1E7AE4')),
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    eventName,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(height: 18),
+                  SizedBox(
+                    height: 80,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: Column(
                             children: [
                               Expanded(
-                                  flex: 4,
-                                  child: Column(
+                                  flex: 2,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                          flex: 2,
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                  height: 16,
-                                                  width: 16,
-                                                  child: ResourceImage.imageWithName(
-                                                      'ic_event_place.png')),
-                                              SizedBox(width: 8),
-                                              Flexible(
-                                                  child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Expanded(
-                                                      child: Text(
-                                                    companyName,
-                                                    style: _textStyle,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  )),
-                                                  Expanded(
-                                                      child: Text(
-                                                    companyType,
-                                                    style: _descriptionStyle,
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ))
-                                                ],
-                                              ))
-                                            ],
+                                      SizedBox(
+                                          height: 16,
+                                          width: 16,
+                                          child: ResourceImage.imageWithName('ic_event_place.png')),
+                                      SizedBox(width: 8),
+                                      Flexible(
+                                          child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              child: Text(
+                                            companyName,
+                                            style: _textStyle,
+                                            overflow: TextOverflow.ellipsis,
                                           )),
-                                      Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            color: Colors.transparent,
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  height: 16,
-                                                  width: 16,
-                                                  child: ResourceImage.imageWithName(
-                                                      'ic_event_date.png'),
-                                                ),
-                                                SizedBox(width: 8),
-                                                Expanded(
-                                                    child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                        child: Text(eventStartDate,
-                                                            style: _textStyle)),
-                                                    Expanded(
-                                                        child: Text(eventStartTime,
-                                                            style: _descriptionStyle)),
-                                                  ],
-                                                ))
-                                              ],
-                                            ),
-                                          )),
-                                      Expanded(
-                                          flex: 1,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(width: 24),
-                                              Expanded(
-                                                  child: Text(eventEndDate, style: _textStyle)),
-                                              Expanded(
-                                                  child:
-                                                      Text(eventEndTime, style: _descriptionStyle)),
-                                            ],
+                                          Expanded(
+                                              child: Text(
+                                            companyType,
+                                            style: _descriptionStyle,
+                                            overflow: TextOverflow.ellipsis,
                                           ))
+                                        ],
+                                      ))
                                     ],
                                   )),
                               Expanded(
-                                  flex: 2,
+                                  flex: 1,
                                   child: Container(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                    color: Colors.transparent,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(Radius.circular(4)),
-                                              color: eventStatusColor),
-                                          child: Padding(
-                                              padding: EdgeInsets.all(5),
-                                              child: Text(
-                                                eventStatus,
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: eventStatusTextColor),
-                                              )),
+                                        SizedBox(
+                                          height: 16,
+                                          width: 16,
+                                          child: ResourceImage.imageWithName('ic_event_date.png'),
                                         ),
-                                        Flexible(child: _configureGraphWidgetFor(_event))
+                                        SizedBox(width: 8),
+                                        Expanded(
+                                            child: Row(
+                                          children: [
+                                            Expanded(
+                                                child: Text(eventStartDate, style: _textStyle)),
+                                            Expanded(
+                                                child:
+                                                    Text(eventStartTime, style: _descriptionStyle)),
+                                          ],
+                                        ))
                                       ],
                                     ),
                                   )),
+                              Expanded(
+                                flex: 1,
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 24),
+                                    Expanded(child: Text(eventEndDate, style: _textStyle)),
+                                    Expanded(child: Text(eventEndTime, style: _descriptionStyle)),
+                                  ],
+                                ),
+                              )
                             ],
-                          ))
-                    ],
-                  ),
-                )));
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                                      color: eventStatusColor),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(5),
+                                    child: Text(
+                                      eventStatus,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold, color: eventStatusTextColor),
+                                    ),
+                                  ),
+                                ),
+                                Flexible(child: _configureGraphWidgetFor(_event))
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
       } else {
         return Container(
             decoration: BoxDecoration(
@@ -355,14 +356,15 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
                   contentPadding: EdgeInsets.only(top: 8),
                   filled: true,
                   suffixIcon: Visibility(
-                      visible: _searchController.value.text.isNotEmpty,
-                      child: IconButton(
-                        onPressed: () => _clearText(),
-                        icon: Icon(
-                          Icons.clear,
-                          color: SessionParameters().mainFontColor.withOpacity(0.8),
-                        ),
-                      )),
+                    visible: _searchController.value.text.isNotEmpty,
+                    child: IconButton(
+                      onPressed: () => _clearText(),
+                      icon: Icon(
+                        Icons.clear,
+                        color: SessionParameters().mainFontColor.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
                   icon: Icon(
                     Icons.search,
                     color: SessionParameters().mainFontColor.withOpacity(0.8),
@@ -397,11 +399,14 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     Widget listBody() {
       if (widget.measurementsList != null && widget.measurementsList?.data?.length != 0) {
         return MeasuremetsListWidget(
-            event: _event,
-            measurementsList: widget.measurementsList,
-            userType: widget.userType,
-            onRefreshList: _refreshList,
-            refreshController: _refreshController);
+          event: _event,
+          measurementsList: widget.measurementsList,
+          userType: widget.userType,
+          refreshController: _refreshController,
+          onFetchList: _pageFetch,
+          onRefresh: _refreshList,
+          eventInfoWorkerBloc: _eventInfoWorkerBloc,
+        );
       } else {
         return StreamBuilder<Response<MeasurementsList>>(
           stream: _bloc?.chuckListStream,
@@ -413,13 +418,15 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
                   return Center(child: Loading(loadingMessage: snapshot.data?.message));
                 case Status.COMPLETED:
                   return MeasuremetsListWidget(
-                      event: _event,
-                      measurementsList: snapshot.data?.data,
-                      userType: widget.userType,
-                      currentUserId: widget.currentUserId,
-                      onRefreshList: _refreshList,
-                      onFetchList: _pageFetch,
-                      refreshController: _refreshController);
+                    event: _event,
+                    measurementsList: snapshot.data?.data,
+                    userType: widget.userType,
+                    currentUserId: widget.currentUserId,
+                    onFetchList: _pageFetch,
+                    refreshController: _refreshController,
+                    onRefresh: _refreshList,
+                    eventInfoWorkerBloc: _eventInfoWorkerBloc,
+                  );
                 case Status.ERROR:
                   return Error(
                     errorMessage: snapshot.data?.message,
@@ -464,7 +471,10 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
       backgroundColor: _backgroundColor,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [headerForList(), listBody()],
+        children: [
+          headerForList(),
+          listBody(),
+        ],
       ),
     );
 
@@ -511,7 +521,6 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     final total = _event?.totalMeasuremensCount ?? 0;
     final measured = _event?.completeMeasuremensCount ?? 0;
     final inProgress = _event?.status == EventStatus.in_progress;
-    final progress = _event?.progress == true;
     // final inCompletted = event?.status == EventStatus.completed;
     bool isNotExpired = false;
 
@@ -521,9 +530,6 @@ class _EventDetailPageState extends State<EventDetailPage> with SingleTickerProv
     }
 
     final isCan = inProgress || (total == measured && isNotExpired);
-    logger.d(
-        'total: $total\nmeasured: $measured\ninProgress: $inProgress\nisNotExpired: $isNotExpired\nprogress: $progress\nisCan: $isCan');
-
     return isCan;
   }
 }
@@ -534,19 +540,21 @@ class MeasuremetsListWidget extends StatefulWidget {
   final MeasurementsList? measurementsList;
   final UserType? userType;
   final RefreshController? refreshController;
-  final AsyncCallback? onRefreshList;
-  final Future<List<MeasurementResults>> Function(int)? onFetchList;
+  final Future<List<MeasurementResults>> Function(int) onFetchList;
+  final VoidCallback onRefresh;
+  final EventInfoWorkerBloc? eventInfoWorkerBloc;
 
-  const MeasuremetsListWidget(
-      {Key? key,
-      this.event,
-      this.measurementsList,
-      this.userType,
-      this.currentUserId,
-      this.onRefreshList,
-      this.onFetchList,
-      this.refreshController})
-      : super(key: key);
+  const MeasuremetsListWidget({
+    Key? key,
+    this.event,
+    this.measurementsList,
+    this.userType,
+    this.currentUserId,
+    required this.onFetchList,
+    required this.onRefresh,
+    this.refreshController,
+    this.eventInfoWorkerBloc,
+  }) : super(key: key);
 
   @override
   _MeasuremetsListWidgetState createState() => _MeasuremetsListWidgetState();
@@ -556,15 +564,9 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
   Event? get _event => widget.event;
 
-  void _pullRefresh() async {
-    await widget.onRefreshList?.call();
-    widget.refreshController?.loadComplete();
-  }
-
   @override
   Widget build(BuildContext context) {
     void _moveToMeasurementAt(MeasurementResults? measurement) {
-      // var measurement = measurementsList.data[index];
       measurement?.askForWaistLevel = _event?.shouldAskForWaistLevel();
       measurement?.askForOverlap = _event?.manualOverlap;
 
@@ -615,20 +617,21 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
 
     Future<void> openSetting() async {
       showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (BuildContext context) => CupertinoAlertDialog(
-                content: new Text(
-                    'Oops! Widget requires access to the camera to allow you to make scans that are required to calculate your body measurements. Please reopen widget and try again.'),
-                actions: <Widget>[
-                  CupertinoDialogAction(
-                    child: Text("Open Settings"),
-                    onPressed: () => {openAppSettings(), closePopup()},
-                  ),
-                  CupertinoDialogAction(
-                      isDefaultAction: true, child: Text('Discard'), onPressed: () => closePopup()),
-                ],
-              ));
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+          content: new Text(
+              'Oops! Widget requires access to the camera to allow you to make scans that are required to calculate your body measurements. Please reopen widget and try again.'),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("Open Settings"),
+              onPressed: () => {openAppSettings(), closePopup()},
+            ),
+            CupertinoDialogAction(
+                isDefaultAction: true, child: Text('Discard'), onPressed: () => closePopup()),
+          ],
+        ),
+      );
     }
 
     Future<void> askForPermissionsAndMove(MeasurementResults? _measurement) async {
@@ -694,9 +697,6 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
                     'The event has not been started yet. \nPlease wait until the start date'));
       }
 
-      var ind = (index ?? 0) - 1;
-      // var measurement = measurementsList.data[ind];
-
       var userName = measurement?.endWearer?.name ?? '-';
       var userEmail = measurement?.endWearer?.email ?? '-';
 
@@ -717,9 +717,7 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
       var eventStatusIcon = measurement?.statusIconName() ?? '-';
 
       var _textColor = Colors.white;
-      var _descriptionColor = HexColor.fromHex('BEC1D4');
       var _textStyle = TextStyle(color: _textColor);
-      var _descriptionStyle = TextStyle(color: _descriptionColor);
 
       bool isMyMeasure = false;
       if (widget.userType == UserType.endWearer &&
@@ -902,11 +900,12 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
-                                              child: Text(
-                                            userEmail,
-                                            style: _textStyle,
-                                            overflow: TextOverflow.ellipsis,
-                                          )),
+                                            child: Text(
+                                              userEmail,
+                                              style: _textStyle,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -935,22 +934,19 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
         onTap: () {
           logger.d('did Select at $index');
           checkPermissionsAndMoveTo(measurement: measurement);
-          // _moveToMeasurementAt(index-1);
         },
       );
 
       return gesture;
     }
 
-    var eventInfoViewCount = 1;
-    var measurementsCount = widget.measurementsList?.data?.length ?? 0;
     var emptyStateViewCount = 0;
     if (_event?.status == EventStatus.scheduled) {
-      measurementsCount = 0;
       emptyStateViewCount = 1;
     }
 
-    var paginationList = PaginationView<MeasurementResults>(
+    return Expanded(
+      child: PaginationView<MeasurementResults>(
         initialLoader: Loading(),
         itemBuilder: (BuildContext context, MeasurementResults measurement, int index) =>
             itemAt(index: index, measurement: measurement, showEmptyView: emptyStateViewCount == 1),
@@ -959,51 +955,31 @@ class _MeasuremetsListWidgetState extends State<MeasuremetsListWidget> {
         footer: SliverToBoxAdapter(child: SizedBox(height: 24)),
         scrollDirection: Axis.vertical,
         onError: (dynamic error) => Center(
-              child: Text('Some error occured'),
-            ),
-        onEmpty: Center(
-          child: const SizedBox(),
+          child: Text('Some error occured'),
         ),
-        pageFetch: widget.onFetchList!);
-
-    Color _refreshColor = HexColor.fromHex('#898A9D');
-    var list = SmartRefresher(
-        header: CustomHeader(
-          builder: (context, mode) {
-            Widget body;
-            if (mode == RefreshStatus.idle || mode == RefreshStatus.canRefresh) {
-              body = Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(
-                  Icons.arrow_downward,
-                  color: _refreshColor,
-                ),
-                SizedBox(width: 6),
-                Text(
-                  mode?.title() ?? '',
-                  style: TextStyle(color: _refreshColor, fontSize: 12),
-                )
-              ]);
-            } else {
-              body = Container();
+        onEmpty: StreamBuilder<Response<Event>>(
+          stream: widget.eventInfoWorkerBloc?.chuckListStream,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data?.status == null) return const SizedBox();
+              switch (snapshot.data!.status!) {
+                case Status.LOADING:
+                  return Center(child: Loading());
+                default:
+                  return SizedBox.shrink();
+              }
             }
-            return Container(
-              height: 55.0,
-              child: Center(child: body),
+            return Center(
+              child: EmptyWidget(
+                title: 'There are no measurements yet',
+                onRefresh: widget.onRefresh,
+              ),
             );
           },
         ),
-        controller: widget.refreshController!,
-        onLoading: _pullRefresh,
-        child: paginationList,
-        onRefresh: widget.onRefreshList);
-
-    return Expanded(child: paginationList);
-
-    // return RefreshView(
-    //   controller: widget.refreshController,
-    //   child: listView,
-    //   onRefresh: widget.onRefreshList,
-    //   onLoading: _pullRefresh,
-    // );
+        pageFetch: widget.onFetchList,
+        physics: AlwaysScrollableScrollPhysics(),
+      ),
+    );
   }
 }

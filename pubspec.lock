@@ -1141,6 +1141,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
+  refresh_pagination_list:
+    dependency: "direct main"
+    description:
+      name: refresh_pagination_list
+      sha256: "30e40812d99a915651d157146dfdf7be67d608916b1e2bbbe730bfa36d8312d6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   scrollable_positioned_list:
     dependency: "direct main"
     description:

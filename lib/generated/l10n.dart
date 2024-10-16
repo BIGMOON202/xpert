@@ -170,6 +170,16 @@ class S {
     );
   }
 
+  /// `Refresh`
+  String get common_refresh {
+    return Intl.message(
+      'Refresh',
+      name: 'common_refresh',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{choose, select, true {What’s your height?} other {End-Wearer’s height?}}`
   String page_title_choose_height_as_ew(Object choose) {
     return Intl.select(

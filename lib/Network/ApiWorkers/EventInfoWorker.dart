@@ -41,7 +41,7 @@ class EventInfoWorkerBloc {
     _controller = ctrl;
 
     chuckListSink = ctrl.sink;
-    chuckListStream = ctrl.stream;
+    chuckListStream = ctrl.stream.asBroadcastStream();
 
     _eventInfoWorker = EventInfoWorker(eventId: eventId);
   }

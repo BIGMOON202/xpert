@@ -52,6 +52,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "common_email": MessageLookupByLibrary.simpleMessage("Email"),
         "common_no": MessageLookupByLibrary.simpleMessage("No"),
         "common_ok": MessageLookupByLibrary.simpleMessage("Ok"),
+        "common_refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
         "common_sms": MessageLookupByLibrary.simpleMessage("SMS"),
         "common_store_version_num": m0,
         "common_success": MessageLookupByLibrary.simpleMessage("Success"),

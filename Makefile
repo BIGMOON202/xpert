@@ -86,7 +86,7 @@ ipa_backstage:
 
 ipa_backstage_hoc:
 	fvm flutter build ipa --flavor backstage --dart-define ENV=backstage -t lib/main.dart --release --export-method=ad-hoc && \
-	open build/ios/archive/Runner.xcarchive
+	open build/ios/ipa/
 
 firebase_conf: 
 	flutterfire config \

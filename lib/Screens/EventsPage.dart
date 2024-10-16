@@ -11,7 +11,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tdlook_flutter_app/Extensions/Application.dart';
 import 'package:tdlook_flutter_app/Extensions/Colors+Extension.dart';
-import 'package:tdlook_flutter_app/Extensions/Container+Additions.dart';
 import 'package:tdlook_flutter_app/Extensions/Customization.dart';
 import 'package:tdlook_flutter_app/Extensions/Future+Extension.dart';
 import 'package:tdlook_flutter_app/Extensions/String+Extension.dart';
@@ -35,6 +34,7 @@ import 'package:tdlook_flutter_app/constants/global.dart';
 import 'package:tdlook_flutter_app/main.dart';
 import 'package:tdlook_flutter_app/presentation/cubits/events_page_options_cubit.dart';
 import 'package:tdlook_flutter_app/presentation/states/events_page_options_state.dart';
+import 'package:tdlook_flutter_app/presentation/widgets/common/empty_widget.dart';
 import 'package:tuple/tuple.dart';
 
 class EventsPage extends StatefulWidget {
@@ -576,28 +576,17 @@ class EventsListWidget extends StatelessWidget {
     this.refreshController,
     this.onPressedRefresh,
   }) : super(key: key);
+
   static Color _backgroundColor = SessionParameters().mainBackgroundColor;
 
   void _pullRefresh() async {
-    // Pull refres from Event Details page
-    logger.d('[STEP] _pullRefresh');
     await onRefreshList?.call();
     refreshController?.loadComplete();
-    // why use freshWords var? https://stackoverflow.com/a/52992836/2301224
   }
 
   @override
   Widget build(BuildContext context) {
-    // if (resultsList.item1.data.isEmpty) {
-    //   return EmptyStateWidget(messageName: 'There is no events yet');
-    // }
-
     void _moveToEventAt(int index, Event event) {
-      if (userId == null) {
-        logger.i('did not receive user profile info on main page');
-        // return;
-      }
-
       Navigator.push(
         context,
         CupertinoPageRoute(
@@ -816,37 +805,9 @@ class EventsListWidget extends StatelessWidget {
     if (eventList?.data?.isEmpty == true) {
       paginationList = Expanded(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              EmptyStateWidget(messageName: 'There are no events yet'),
-              MaterialButton(
-                splashColor: Colors.transparent,
-                elevation: 0,
-                onPressed: onPressedRefresh,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.replay,
-                      color: SessionParameters().selectionColor,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                      child: Text(
-                        'Refresh',
-                        style: TextStyle(color: SessionParameters().selectionColor),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          child: EmptyWidget(
+            title: 'There are no events yet',
+            onRefresh: onPressedRefresh,
           ),
         ),
       );
@@ -871,6 +832,7 @@ class EventsListWidget extends StatelessWidget {
               child: const SizedBox.shrink(),
             ),
             pageFetch: onFetchList!,
+            physics: AlwaysScrollableScrollPhysics(),
           );
         },
       );

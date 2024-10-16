@@ -12,6 +12,7 @@
     "common_update": "Update now",
     "common_and": "And",
     "common_continue": "Continue",
+    "common_refresh": "Refresh",
     "page_title_choose_height_as_ew": "{choose, select, true {What’s your height?} other {End-Wearer’s height?}}",
     "page_title_choose_weight_as_ew": "{choose, select, true {What’s your weight?} other {End-Wearer’s weight?}}",
     "page_title_choose_clavicle_as_ew": "{choose, select, true {What’s your clavicle?} other {End-Wearer’s\nmanual clavicle?}}",
