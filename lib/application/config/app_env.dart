@@ -15,6 +15,6 @@ class AppEnv {
     if (filename.isEmpty) {
       throw 'Invironment not installed. Please set ENV param';
     }
-    await dotenv.load(fileName: '.env/$filename');
+    await dotenv.load(fileName: '.env/release.env');
   }
 }
